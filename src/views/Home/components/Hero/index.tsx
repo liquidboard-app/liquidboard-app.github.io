@@ -33,9 +33,11 @@ const Hero: React.FC = () => {
   const handleScrollDown = () => {
     if (heroRef.current) {
       const rect = heroRef.current.getBoundingClientRect();
-      // Subtract 90px (approximate header height + gap) to avoid overshooting the pin
-      // and prevent scrolling into the next section prematurely.
-      const targetY = window.scrollY + rect.bottom - window.innerHeight - 90;
+      let targetY = window.scrollY + rect.bottom - window.innerHeight;
+      
+      if (window.innerWidth > 860) {
+        targetY -= 90; // Desktop offset to avoid overshooting
+      }
       
       gsap.to(window, {
         duration: 1.5, // Slow down the scroll (1.5 seconds)
@@ -77,34 +79,43 @@ const Hero: React.FC = () => {
       ? (Array.from(brandPanelEl.querySelectorAll('span'))
           .find(el => (el.textContent?.trim().length ?? 0) > 0) as HTMLElement | null)
       : null;
-    if (brandPanelEl) {
+    let initX = 0, initY = 0, initScale = 1;
+
+    const computeLogoMetrics = () => {
+      if (!brandPanelEl) return;
+      // Clear transform to get true natural rect during refresh
+      gsap.set(brandPanelEl, { clearProps: 'transform' });
+      
       const logoEl = brandPanelEl.querySelector('.brand__logo') as HTMLElement | null;
       const bp = brandPanelEl.getBoundingClientRect();
       const logoRect = logoEl?.getBoundingClientRect();
 
-      // Logo center in viewport (natural, before any GSAP transforms)
       const logoNatCX = logoRect ? logoRect.left + logoRect.width / 2 : bp.left + bp.width / 2;
       const logoNatCY = logoRect ? logoRect.top + logoRect.height / 2 : bp.top + bp.height / 2;
 
-      // Transform origin set to logo center (relative to panel top-left)
-      // → scale expands around logo, keeping it at the right visual position
       const origX = logoNatCX - bp.left;
       const origY = logoNatCY - bp.top;
 
-      // Hero: logo center at viewport center, 120px above vertical mid
-      const heroCX = window.innerWidth / 2;
-      const heroCY = window.innerHeight / 2 - 120;
-      // Scale: make the logo ~80px tall (natural logo is ~34px)
-      const logoScale = 80 / (logoRect?.width || 34);
+      const isMobile = window.innerWidth <= 860;
 
-      gsap.set(brandPanelEl, {
-        transformOrigin: `${origX}px ${origY}px`,
-        x: heroCX - logoNatCX,
-        y: heroCY - logoNatCY,
-        scale: logoScale,
-        autoAlpha: 1,
-      });
-      if (brandTextEl) gsap.set(brandTextEl, { autoAlpha: 0 });
+      const heroCX = window.innerWidth / 2;
+      const heroCY = window.innerHeight / 2 - (isMobile ? 80 : 120);
+      
+      const targetLogoWidth = isMobile ? 60 : 80;
+      initScale = targetLogoWidth / (logoRect?.width || 34);
+      initX = heroCX - logoNatCX;
+      initY = heroCY - logoNatCY;
+
+      gsap.set(brandPanelEl, { transformOrigin: `${origX}px ${origY}px` });
+    };
+
+    if (brandPanelEl) {
+      computeLogoMetrics();
+      ScrollTrigger.addEventListener('refreshInit', computeLogoMetrics);
+      
+      if (brandTextEl) {
+        gsap.set(brandTextEl, { autoAlpha: 0 });
+      }
     }
 
     // Phase 1: Blur and move line1 up and fade out
@@ -118,11 +129,20 @@ const Hero: React.FC = () => {
 
     // Phase 1: Brand-panel animates from hero → natural header position
     if (brandPanelEl) {
-      tl.to(brandPanelEl, {
-        x: 0, y: 0, scale: 1,
-        ease: 'power3.inOut',
-        duration: 0.85,
-      }, 0);
+      tl.fromTo(brandPanelEl, 
+        {
+          x: () => initX,
+          y: () => initY,
+          scale: () => initScale,
+          autoAlpha: 1,
+        },
+        {
+          x: 0, y: 0, scale: 1,
+          ease: 'power3.inOut',
+          duration: 0.85,
+        }, 
+        0
+      );
       // Text slides in as logo arrives
       if (brandTextEl) {
         tl.to(brandTextEl, { autoAlpha: 1, duration: 0.2 }, 0.8);
@@ -204,6 +224,12 @@ const Hero: React.FC = () => {
     // Phase 3: Pause at the end
     // Adds a dummy tween so the user has to scroll a bit more before the section unpins
     tl.to({}, { duration: 0.8 });
+
+    return () => {
+      ScrollTrigger.removeEventListener('refreshInit', computeLogoMetrics);
+      if (brandPanelEl) gsap.set(brandPanelEl, { clearProps: 'all' });
+      if (brandTextEl) gsap.set(brandTextEl, { clearProps: 'all' });
+    };
 
   }, { scope: heroRef });
 

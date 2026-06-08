@@ -90,6 +90,10 @@ export const HeroSection = styled.section`
   height: 206dvh;
   position: relative;
   background: transparent;
+
+  @media (max-width: 860px) {
+    height: 110dvh;
+  }
 `;
 
 export const StickyContainer = styled.div`

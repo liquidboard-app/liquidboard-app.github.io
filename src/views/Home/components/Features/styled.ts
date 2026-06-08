@@ -23,7 +23,7 @@ export const FeaturesPin = styled.div`
   overflow: hidden;
 
   @media (max-width: 900px) {
-    padding: 24px 0;
+    padding: 0;
   }
 `;
 
@@ -39,9 +39,9 @@ export const FeaturesInner = styled.div`
   align-items: stretch;
 
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    align-content: center;
+    display: block;
+    position: relative;
+    padding: 0 24px;
   }
 `;
 
@@ -51,6 +51,14 @@ export const CopyColumn = styled.div`
   align-items: center;
   height: 100%;
   padding-right: clamp(18px, 3vw, 56px);
+
+  @media (max-width: 900px) {
+    position: absolute;
+    inset: 0;
+    align-items: flex-start;
+    padding: 50px 20px 0 20px;
+    z-index: 1;
+  }
 `;
 
 export const CopyLines = styled.div`
@@ -87,6 +95,8 @@ export const FeatureLineInner = styled.div`
     font-size: clamp(18px, 4.5vw, 28px);
     line-height: 1.3;
     gap: 10px;
+    align-items: center;
+    text-align: center;
   }
 `;
 
@@ -102,34 +112,17 @@ export const FeatureBadge = styled.div`
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  text-transform: capitalize;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 `;
 
 export const FeatureChar = styled.span`
   --char-progress: 0;
-  position: relative;
   display: inline;
-`;
-
-export const FeatureCharBase = styled.span`
-  display: inline;
-  color: rgba(243, 243, 245, 0.2);
+  color: color-mix(in srgb, var(--text) calc(var(--char-progress) * 100%), rgba(243, 243, 245, 0.2));
   white-space: pre-wrap;
   line-height: inherit;
-`;
-
-export const FeatureCharFill = styled.span`
-  position: absolute;
-  inset: 0;
-  display: inline;
-  color: var(--text);
-  white-space: pre-wrap;
-  pointer-events: none;
-  opacity: var(--char-progress);
-  will-change: opacity;
-  line-height: inherit;
+  will-change: color;
 `;
 
 export const VisualColumn = styled.div`
@@ -139,6 +132,13 @@ export const VisualColumn = styled.div`
   justify-content: center;
   height: 100%;
   align-self: stretch;
+
+  @media (max-width: 900px) {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
 `;
 
 export const VisualFrame = styled.div`
@@ -152,8 +152,9 @@ export const VisualFrame = styled.div`
   justify-content: center;
 
   @media (max-width: 900px) {
-    height: min(${mobilePanelHeight}, 62vh);
-    width: min(100%, 340px);
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
   }
 `;
 
@@ -169,10 +170,8 @@ export const VisualLayer = styled.div`
   pointer-events: none;
 
   img {
-    width: auto;
-    height: auto;
-    max-height: 100%;
-    max-width: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     display: block;
     backface-visibility: hidden;
