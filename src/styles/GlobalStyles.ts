@@ -3,11 +3,11 @@ import { createGlobalStyle } from 'styled-components';
 const GlobalStyles = createGlobalStyle`
 /* ============================================================
    LiquidBoard — styles
-   Theming via CSS custom properties (light/dark)
+   Dark mode only
    ============================================================ */
 
-/* dark mode only */
 :root {
+  color-scheme: dark;
   --bg: #0b0b0d;
   --bg-2: #0f0f12;
   --surface: #161619;
@@ -43,6 +43,10 @@ body {
   text-rendering: optimizeLegibility;
   transition: background-color 0.5s ease, color 0.5s ease;
   overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 /* Lenis recommended styles */

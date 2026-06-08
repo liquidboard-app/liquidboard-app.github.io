@@ -7,58 +7,41 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Showcase from './components/Showcase';
-import Footer from './components/Footer';
 import { About, Pricing, Updates, Help } from './pages/Pages';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Home: React.FC = () => {
-  return (
-    <>
-      <Hero />
-      <Showcase />
-    </>
-  );
-};
+const Home: React.FC = () => (
+  <>
+    <Hero />
+    {/* <Showcase /> Tạm ẩn theo yêu cầu */}
+  </>
+);
 
 const App: React.FC = () => {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    // Initialize Lenis
+    // Initialize normal smooth scrolling
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       wheelMultiplier: 1,
-      touchMultiplier: 2,
+      touchMultiplier: 1,
       infinite: false,
     });
     lenisRef.current = lenis;
+    (window as any).__lbLenis = lenis;
 
-    const resetScroll = () => {
-      window.scrollTo(0, 0);
-      lenis.scrollTo(0, { immediate: true });
-      ScrollTrigger.refresh();
-    };
-
-    // Connect Lenis to GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
-
-    const tick = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-
+    const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
-
     gsap.ticker.lagSmoothing(0);
-    resetScroll();
-    requestAnimationFrame(resetScroll);
-    window.addEventListener('pageshow', resetScroll);
 
     return () => {
-      window.removeEventListener('pageshow', resetScroll);
+      delete (window as any).__lbLenis;
       gsap.ticker.remove(tick);
       lenis.destroy();
     };
@@ -74,7 +57,6 @@ const App: React.FC = () => {
         <Route path="/updates" element={<Updates />} />
         <Route path="/help" element={<Help />} />
       </Routes>
-      <Footer />
     </BrowserRouter>
   );
 };
