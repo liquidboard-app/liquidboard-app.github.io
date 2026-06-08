@@ -17,7 +17,7 @@ import {
   ScrollIndicatorWrapper,
   Chevron,
   ChevronLineLeft,
-  ChevronLineRight
+  ChevronLineRight,
 } from './styled';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
@@ -66,10 +66,46 @@ const Hero: React.FC = () => {
     });
 
     // Set initial split gap using GSAP so it handles xPercent/yPercent cleanly
-    // This entirely avoids CSS margin and transform conflicts!
     gsap.set(line1Ref.current, { xPercent: -50, yPercent: -50, y: "-0.6em" });
     gsap.set(line2ContainerRef.current, { xPercent: -50, yPercent: -50, y: "0.6em" });
-    // We don't need yPercent: -50 on split-left/right anymore because they are in a flex container!
+
+    // ─── Animate REAL brand-panel from hero position → header position ───
+    // Only ONE logo element — the actual header brand, repositioned via GSAP.
+    const brandPanelEl = document.querySelector('.brand-panel') as HTMLElement | null;
+    // Logo is styled.span (no text) — find text span by non-empty textContent
+    const brandTextEl = brandPanelEl
+      ? (Array.from(brandPanelEl.querySelectorAll('span'))
+          .find(el => (el.textContent?.trim().length ?? 0) > 0) as HTMLElement | null)
+      : null;
+    if (brandPanelEl) {
+      const logoEl = brandPanelEl.querySelector('.brand__logo') as HTMLElement | null;
+      const bp = brandPanelEl.getBoundingClientRect();
+      const logoRect = logoEl?.getBoundingClientRect();
+
+      // Logo center in viewport (natural, before any GSAP transforms)
+      const logoNatCX = logoRect ? logoRect.left + logoRect.width / 2 : bp.left + bp.width / 2;
+      const logoNatCY = logoRect ? logoRect.top + logoRect.height / 2 : bp.top + bp.height / 2;
+
+      // Transform origin set to logo center (relative to panel top-left)
+      // → scale expands around logo, keeping it at the right visual position
+      const origX = logoNatCX - bp.left;
+      const origY = logoNatCY - bp.top;
+
+      // Hero: logo center at viewport center, 120px above vertical mid
+      const heroCX = window.innerWidth / 2;
+      const heroCY = window.innerHeight / 2 - 120;
+      // Scale: make the logo ~80px tall (natural logo is ~34px)
+      const logoScale = 80 / (logoRect?.width || 34);
+
+      gsap.set(brandPanelEl, {
+        transformOrigin: `${origX}px ${origY}px`,
+        x: heroCX - logoNatCX,
+        y: heroCY - logoNatCY,
+        scale: logoScale,
+        autoAlpha: 1,
+      });
+      if (brandTextEl) gsap.set(brandTextEl, { autoAlpha: 0 });
+    }
 
     // Phase 1: Blur and move line1 up and fade out
     tl.to(line1Ref.current, {
@@ -79,6 +115,19 @@ const Hero: React.FC = () => {
       ease: "power2.inOut",
       duration: 1
     }, 0);
+
+    // Phase 1: Brand-panel animates from hero → natural header position
+    if (brandPanelEl) {
+      tl.to(brandPanelEl, {
+        x: 0, y: 0, scale: 1,
+        ease: 'power3.inOut',
+        duration: 0.85,
+      }, 0);
+      // Text slides in as logo arrives
+      if (brandTextEl) {
+        tl.to(brandTextEl, { autoAlpha: 1, duration: 0.2 }, 0.8);
+      }
+    }
 
     // Phase 1: Fade out scroll indicator and move it down
     tl.to(scrollIndicatorRef.current, {
@@ -154,7 +203,7 @@ const Hero: React.FC = () => {
 
     // Phase 3: Pause at the end
     // Adds a dummy tween so the user has to scroll a bit more before the section unpins
-    tl.to({}, { duration: 1.5 });
+    tl.to({}, { duration: 0.8 });
 
   }, { scope: heroRef });
 

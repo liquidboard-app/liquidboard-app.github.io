@@ -22,6 +22,7 @@ const translations: AllTranslations = {
     "hero.line2.right": "Keyboard",
     "hero.lead": "Save, copy and paste anything in one tap — fast, private and always in sync across your devices.",
     "cta.download": "Download LiquidBoard",
+    "header.download": "Download iOS",
     "show.title": "Everything you copy, beautifully organized.",
     "show.lead": "Keep snippets, price lists and notes one tap away. Sync across devices, paste anywhere — fast and safe.",
     "footer.tag": "Mini tool copy & paste for iOS"
@@ -38,6 +39,7 @@ const translations: AllTranslations = {
     "hero.line2.right": "Bàn phím",
     "hero.lead": "Lưu, sao chép và dán mọi thứ chỉ với một chạm — nhanh chóng, riêng tư và luôn đồng bộ.",
     "cta.download": "Tải LiquidBoard",
+    "header.download": "Tải iOS",
     "show.title": "Mọi dữ liệu bạn copy, luôn ngăn nắp.",
     "show.lead": "Ghi chú, báo giá, tin nhắn mẫu luôn sẵn sàng. Đồng bộ mọi thiết bị, dán bất kì đâu.",
     "footer.tag": "Công cụ copy & paste nhỏ gọn cho iOS"

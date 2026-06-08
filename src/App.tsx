@@ -5,18 +5,13 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import Header from './components/Header';
-import Hero from './components/Hero';
-import Showcase from './components/Showcase';
-import { About, Pricing, Updates, Help } from './pages/Pages';
+import Home from '@/views/Home';
+import About from '@/views/About';
+import Pricing from '@/views/Pricing';
+import Updates from '@/views/Updates';
+import Help from '@/views/Help';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const Home: React.FC = () => (
-  <>
-    <Hero />
-    {/* <Showcase /> Tạm ẩn theo yêu cầu */}
-  </>
-);
 
 const App: React.FC = () => {
   const lenisRef = useRef<Lenis | null>(null);

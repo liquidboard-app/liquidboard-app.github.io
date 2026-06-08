@@ -1,3 +1,4 @@
+// Hero styled components
 import styled, { keyframes } from 'styled-components';
 
 const moveDown = keyframes`
@@ -86,7 +87,7 @@ export const ChevronLineRight = styled.div`
 `;
 
 export const HeroSection = styled.section`
-  height: 300dvh;
+  height: 206dvh;
   position: relative;
   background: transparent;
 `;
@@ -101,17 +102,18 @@ export const StickyContainer = styled.div`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding-bottom: 96px; /* Offset to center content above the Header */
+  /* 70px = 46px panel + 24px gap — same top and bottom so content truly centers */
+  padding: 70px 0;
   box-sizing: border-box;
 
   @media (max-width: 860px) {
-    padding-bottom: 76px;
+    padding: 60px 0;
   }
 `;
 
 export const ContentContainer = styled.div`
   width: 100%;
-  max-width: 1440px;
+  max-width: 980px;
   height: 100%;
   position: relative;
   container-type: inline-size;
@@ -181,4 +183,38 @@ export const ImageContainer = styled.div`
     object-fit: contain;
     display: block;
   }
+`;
+
+/* ─── Hero Brand (animates to header position on scroll) ─── */
+export const HeroBrand = styled.div`
+  position: absolute;
+  /* CSS anchor point — GSAP takes over transform from here */
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  will-change: transform, opacity;
+  z-index: 10;
+  pointer-events: none;
+  white-space: nowrap;
+`;
+
+export const HeroBrandLogo = styled.span`
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: block;
+  flex-shrink: 0;
+  background-image: var(--logo);
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow-card);
+`;
+
+export const HeroBrandText = styled.span`
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--text);
 `;

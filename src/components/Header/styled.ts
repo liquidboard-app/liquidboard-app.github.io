@@ -3,76 +3,82 @@ import { Link, NavLink } from 'react-router-dom';
 
 export const HeaderWrapper = styled.header`
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  inset: 0;
   z-index: 100;
-  width: calc(100% - 48px);
-  max-width: 980px;
   pointer-events: none;
 
   > * {
     pointer-events: auto;
   }
 
-  .main-header-glass,
-  .main-header-glass .glass,
-  .main-header-glass .glass > div {
+  .header-panel {
+    position: fixed;
+  }
+
+  .brand-panel {
+    top: 24px;
+    left: 24px;
+  }
+
+  .action-panel {
+    top: 24px;
+    right: 24px;
+  }
+
+  .menu-panel {
+    left: 24px;
+    bottom: 24px;
+  }
+
+  .lang-panel {
+    bottom: 24px;
+    right: 24px;
+  }
+
+  .floating-glass .glass,
+  .floating-glass .glass > div {
     width: 100% !important;
   }
 
-  .main-header-glass .glass {
+  .floating-glass .glass {
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    background: rgba(10, 10, 10, 0.35) !important; /* Tint đen để làm dịu các nền sáng chói ở dưới */
-    border-radius: 100px !important;
+    background: rgba(10, 10, 10, 0.35) !important;
+    border-radius: 999px !important;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2) !important;
   }
 
-  /* To make the contents align with the main container while the glass stretches */
-  .header-content {
+  .main-menu {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    width: 100%;
-    max-width: 1440px;
-    margin: 0 auto;
-  }
-
-  .header-left {
-    flex: 1;
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .header-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-
-    .main-menu {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
+    gap: 4px;
   }
 
   .header-right {
-    flex: 1;
     display: flex;
     justify-content: flex-end;
-    position: relative; /* Anchor for popovers */
+    position: relative;
   }
 
   @media (max-width: 860px) {
-    width: calc(100% - 20px);
-    bottom: 16px;
-    
-    .main-header-glass .glass {
-      padding: 10px 14px !important;
+    .brand-panel {
+      top: 16px;
+      left: 10px;
     }
 
-    .header-center {
-      display: none; /* Hide menu on mobile for now */
+    .action-panel {
+      top: 16px;
+      right: 10px;
+    }
+
+    .menu-panel {
+      bottom: 16px;
+      left: 10px;
+      display: none;
+    }
+
+    .lang-panel {
+      bottom: 16px;
+      right: 10px;
     }
   }
 `;
@@ -97,7 +103,7 @@ export const Brand = styled(Link)`
 export const Logo = styled.span`
   width: 34px;
   height: 34px;
-  border-radius: 7px;
+  border-radius: 8px;
   display: block;
   background-image: var(--logo);
   background-size: cover;
@@ -105,8 +111,8 @@ export const Logo = styled.span`
   box-shadow: var(--shadow-card);
 
   @media (max-width: 860px) {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 6px;
   }
 `;
@@ -119,7 +125,10 @@ export const ExpandedMenu = styled.div`
 `;
 
 export const ExpandedMenuItem = styled(NavLink)`
-  padding: 8px 16px;
+  height: 34px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
   border-radius: 20px;
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
@@ -214,11 +223,11 @@ export const PillActionButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
   width: auto;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 16px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 14px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -230,9 +239,9 @@ export const PillActionButton = styled.button`
   position: relative;
   overflow: hidden;
 
-  /* Force exact 40x40 circle for language button */
+  /* Force exact 34x34 circle for language button */
   &.lang-toggle-btn {
-    width: 40px;
+    width: 34px;
     padding: 0;
   }
 
@@ -248,21 +257,21 @@ export const PillActionButton = styled.button`
   }
 
   @media (max-width: 860px) {
-    height: 32px;
-    padding: 0 12px;
+    height: 28px;
+    padding: 0 10px;
     font-size: 12px;
-    gap: 6px;
-    
+    gap: 5px;
+
     &.lang-toggle-btn {
-      width: 32px;
-      min-width: 32px;
+      width: 28px;
+      min-width: 28px;
     }
-    
+
     svg {
-      width: 14px !important;
-      height: 14px !important;
+      width: 13px !important;
+      height: 13px !important;
     }
-    
+
     span {
       font-size: 12px !important;
     }
@@ -304,6 +313,55 @@ export const PillActionButton = styled.button`
   svg {
     width: 20px;
     height: 20px;
+  }
+`;
+
+export const LangButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 20px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  position: relative;
+
+  &:hover {
+    color: #fff;
+  }
+
+  .lang-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+  }
+
+  .lang-text.hidden {
+    opacity: 0;
+    filter: blur(4px);
+    transform: scale(0.85);
+    pointer-events: none;
+  }
+
+  .lang-text.active {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+
+  @media (max-width: 860px) {
+    width: 28px;
+    height: 28px;
   }
 `;
 
