@@ -1,18 +1,18 @@
 import styled from 'styled-components';
 
-export const FeaturesSection = styled.section`
+export const ActionSection = styled.section`
   position: relative;
-  margin-top: -452px;
+  margin-top: 0;
   padding: 0 0 28px;
   background: transparent;
-  z-index: 2;
+  z-index: 1;
 
   @media (max-width: 900px) {
-    margin-top: -350px;
+    padding-bottom: 12px;
   }
 `;
 
-export const FeaturesPin = styled.div`
+export const ActionPin = styled.div`
   height: 100dvh;
   padding: 30px 0;
   box-sizing: border-box;
@@ -26,7 +26,7 @@ export const FeaturesPin = styled.div`
   }
 `;
 
-export const FeaturesInner = styled.div`
+export const ActionInner = styled.div`
   width: 100%;
   max-width: 1100px !important;
   margin: 0 auto;
@@ -55,7 +55,7 @@ export const CopyColumn = styled.div`
     position: absolute;
     inset: 0;
     align-items: flex-start;
-    padding: 80px 20px 0 20px; 
+    padding: 80px 20px 0 20px;
     z-index: 1;
   }
 `;
@@ -67,20 +67,20 @@ export const CopyLines = styled.div`
   overflow: hidden;
 `;
 
-export const FeatureLine = styled.div`
+export const ActionLine = styled.div`
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center; 
+  align-items: center;
   overflow: hidden;
   will-change: opacity, filter, transform;
 
   @media (max-width: 900px) {
-    align-items: flex-start; 
+    align-items: flex-start;
   }
 `;
 
-export const FeatureLineInner = styled.div`
+export const ActionLineInner = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -103,7 +103,7 @@ export const FeatureLineInner = styled.div`
   }
 `;
 
-export const FeatureBadge = styled.div`
+export const ActionBadge = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -119,7 +119,7 @@ export const FeatureBadge = styled.div`
   -webkit-backdrop-filter: blur(12px);
 `;
 
-export const FeatureChar = styled.span`
+export const ActionChar = styled.span`
   --char-progress: 0;
   display: inline;
   color: color-mix(in srgb, var(--text) calc(var(--char-progress) * 100%), rgba(243, 243, 245, 0.2));

@@ -4,15 +4,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import {
-  FeaturesSection,
-  FeaturesPin,
-  FeaturesInner,
+  ActionSection,
+  ActionPin,
+  ActionInner,
   CopyColumn,
   CopyLines,
-  FeatureLine,
-  FeatureLineInner,
-  FeatureBadge,
-  FeatureChar,
+  ActionLine,
+  ActionLineInner,
+  ActionBadge,
+  ActionChar,
   VisualColumn,
   VisualFrame,
   VisualLayer,
@@ -24,38 +24,42 @@ const HEADER_OFFSET = 132;
 const ENTRY_PROGRESS_SHARE = 0.14;
 const fillEase = gsap.parseEase('sine.inOut');
 
-const featureContent = {
+const actionContent = {
   en: {
-    titles: ['LiquidBoard for Text', 'LiquidBoard for Images', 'LiquidBoard for Stickers'],
+    titles: ['Create Group', 'Pin', 'Copy & Duplicate', 'Import & Export Files'],
     paragraphs: [
-      'Create and compose multiple text documents, introductory information and content tailored to your writing needs. Set up pre-built response templates for immediate use. Input and quickly share contact information. Store website links, code snippets, AI prompt structures for efficient reference and reuse.',
-      'Rapidly share payment QR codes and bank transfer QR codes. Access a diverse collection of product sample prototypes, design mockups, infographics, and instructional screenshots. Organize and retrieve visual assets seamlessly for professional communication.',
-      'Create and instantly share stickers, favorite memes, congratulatory messages, and emotional expressions to connect with loved ones and customers. Personalize your communication with visual elements that convey sentiment and enhance engagement.',
+      'Create additional groups and categorize texts, images, and stickers based on your needs. Switch smoothly between groups and pin essential groups to the top first.',
+      'Pin important texts, images, and stickers that you use frequently to the top so you can send them faster.',
+      'Copy and duplicate texts, images, and stickers easily and quickly.',
+      'Export and import text data as JSON and CSV directly through the Files app.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
     ],
   },
   vi: {
-    titles: ['LiquidBoard cho Văn bản', 'LiquidBoard cho Hình ảnh', 'LiquidBoard cho Nhãn dán'],
+    titles: ['Tạo Nhóm', 'Ghim', 'Sao Chép & Nhân Bản', 'Xuất & Nhập File'],
     paragraphs: [
-      'Soạn thảo nhiều tài liệu văn bản, thông tin giới thiệu và nội dung phù hợp với nhu cầu viết của bạn. Thiết lập sẵn các mẫu phản hồi để dùng ngay. Nhập và chia sẻ nhanh thông tin liên hệ. Lưu website, đoạn mã, cấu trúc prompt AI để tra cứu và tái sử dụng hiệu quả.',
-      'Chia sẻ nhanh mã QR thanh toán và mã QR chuyển khoản ngân hàng. Truy cập bộ sưu tập đa dạng gồm prototype sản phẩm, mockup thiết kế, infographic, và ảnh hướng dẫn. Sắp xếp và truy xuất tài nguyên hình ảnh mượt mà cho giao tiếp chuyên nghiệp.',
-      'Tạo và chia sẻ ngay sticker, meme yêu thích, lời chúc, và những biểu cảm cảm xúc để kết nối với người thân và khách hàng. Cá nhân hóa giao tiếp bằng các yếu tố hình ảnh truyền tải cảm xúc và tăng sự gắn kết.',
+      'Tạo thêm nhóm và phân loại các văn bản, ảnh, nhãn dán theo nhu cầu. Chuyển đổi mượt mà giữa các nhóm và ghim những nhóm cần thiết lên đầu tiên.',
+      'Ghim những văn bản, ảnh, nhãn dán quan trọng và sử dụng nhiều lên đầu tiên để gửi nhanh hơn.',
+      'Sao chép, nhân bản văn bản, ảnh, nhãn dán dễ dàng và nhanh chóng.',
+      'Xuất và nhập văn bản ra JSON, CSV đến ứng dụng Files.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard doan van ban' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard bang anh' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard ban phim' },
+      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard nhom noi dung' },
+      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard ghim noi dung' },
+      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard sao chep va nhan ban' },
+      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard xuat va nhap file' },
     ],
   },
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-const Features: React.FC = () => {
+const Action: React.FC = () => {
   const { lang } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
@@ -65,7 +69,7 @@ const Features: React.FC = () => {
   const activeImageRef = useRef(0);
 
   const content = useMemo(
-    () => (lang === 'vi' ? featureContent.vi : featureContent.en),
+    () => (lang === 'vi' ? actionContent.vi : actionContent.en),
     [lang]
   );
 
@@ -81,16 +85,16 @@ const Features: React.FC = () => {
         return;
       }
 
-      let mm = gsap.matchMedia(section);
+      const mm = gsap.matchMedia(section);
 
-      mm.add("(min-width: 901px)", () => {
+      mm.add('(min-width: 901px)', () => {
         const segmentCount = content.paragraphs.length;
         const segmentSpan = 1 / segmentCount;
         const entryStartViewport = Math.round(window.innerHeight * 0.5 + HEADER_OFFSET);
 
         const resetLines = () => {
           lineEls.forEach((line) => {
-            const charEls = Array.from(line.querySelectorAll<HTMLElement>('[data-feature-char]'));
+            const charEls = Array.from(line.querySelectorAll<HTMLElement>('[data-action-char]'));
             charEls.forEach((charEl) => charEl.style.setProperty('--char-progress', '0'));
             gsap.set(line, {
               autoAlpha: 0,
@@ -98,7 +102,7 @@ const Features: React.FC = () => {
               y: 18,
             });
           });
-          
+
           gsap.set(visualColumn, {
             autoAlpha: 0,
             filter: 'blur(18px)',
@@ -116,7 +120,7 @@ const Features: React.FC = () => {
             const blur = 18 * (1 - enter) + 18 * exit;
             const y = (1 - enter) * 18 - exit * 16;
             const paragraphEl = lineEls[index];
-            const charEls = Array.from(paragraphEl?.querySelectorAll<HTMLElement>('[data-feature-char]') ?? []);
+            const charEls = Array.from(paragraphEl?.querySelectorAll<HTMLElement>('[data-action-char]') ?? []);
             const revealChars = fill * charEls.length;
 
             charEls.forEach((charEl, charIndex) => {
@@ -134,15 +138,13 @@ const Features: React.FC = () => {
           const firstEnter = clamp(progress / 0.08, 0, 1);
           gsap.set(visualColumn, {
             autoAlpha: firstEnter <= 0.015 ? 0 : firstEnter,
-            filter: firstEnter === 1 ? 'none' : `blur(${18 * (1 - firstEnter)}px)`
+            filter: firstEnter === 1 ? 'none' : `blur(${18 * (1 - firstEnter)}px)`,
           });
         };
 
         const setImageIndex = (nextIndex: number, immediate = false) => {
           const currentIndex = activeImageRef.current;
-          if (nextIndex === currentIndex && !immediate) {
-            return;
-          }
+          if (nextIndex === currentIndex && !immediate) return;
 
           const currentImage = imageEls[currentIndex];
           const nextImage = imageEls[nextIndex];
@@ -170,7 +172,8 @@ const Features: React.FC = () => {
               duration: 0.32,
               ease: 'power2.out',
             }, 0)
-            .fromTo(nextImage,
+            .fromTo(
+              nextImage,
               { autoAlpha: 0, filter: 'blur(18px)', scale: 1.02 },
               { autoAlpha: 1, filter: 'blur(0px)', scale: 1, duration: 0.48, ease: 'power3.out' },
               0.06
@@ -179,7 +182,8 @@ const Features: React.FC = () => {
           activeImageRef.current = nextIndex;
         };
 
-        const getImageIndex = (progress: number) => clamp(Math.floor(progress / segmentSpan), 0, imageEls.length - 1);
+        const getImageIndex = (progress: number) =>
+          clamp(Math.floor(progress / segmentSpan), 0, imageEls.length - 1);
 
         const applyState = (progress: number, immediateImage = false) => {
           updateLines(progress);
@@ -231,11 +235,11 @@ const Features: React.FC = () => {
         });
       });
 
-      mm.add("(max-width: 900px)", () => {
+      mm.add('(max-width: 900px)', () => {
         gsap.set(visualColumn, { autoAlpha: 1, filter: 'none' });
-        
+
         lineEls.forEach((line) => {
-          const charEls = Array.from(line.querySelectorAll<HTMLElement>('[data-feature-char]'));
+          const charEls = Array.from(line.querySelectorAll<HTMLElement>('[data-action-char]'));
           charEls.forEach((charEl) => charEl.style.setProperty('--char-progress', '0'));
           gsap.set(line, { autoAlpha: 0, y: 20 });
         });
@@ -243,77 +247,77 @@ const Features: React.FC = () => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: "top top",
-            end: () => `+=${window.innerHeight * 6.5}`,
-            pin: pin,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * 8.2}`,
+            pin,
             scrub: 1,
-            anticipatePin: 1
-          }
+            anticipatePin: 1,
+          },
         });
 
         imageEls.forEach((img) => {
-          gsap.set(img, { 
-            opacity: 1, 
+          gsap.set(img, {
+            opacity: 1,
             visibility: 'visible',
-            y: "120vh",
-            scale: 0.95, 
-            filter: 'blur(20px)' 
+            y: '120vh',
+            scale: 0.95,
+            filter: 'blur(20px)',
           });
         });
 
         content.paragraphs.forEach((_, index) => {
           const line = lineEls[index];
           if (!line) return;
-          const chars = Array.from(line.querySelectorAll<HTMLElement>('[data-feature-char]'));
+          const chars = Array.from(line.querySelectorAll<HTMLElement>('[data-action-char]'));
           const img = imageEls[index];
-          const offset = index > 0 ? "-=2.0" : "+=0";
+          const offset = index > 0 ? '-=2.0' : '+=0';
 
           tl.to(img, {
-            y: "50vh",
+            y: '50vh',
             filter: 'blur(0px)',
             duration: 4.0,
-            ease: "power2.out"
+            ease: 'power2.out',
           }, offset);
 
-          tl.to(line, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, offset);
+          tl.to(line, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, offset);
 
           tl.to(chars, {
             '--char-progress': 1,
             duration: 2.5,
             stagger: 0.1,
-            ease: "none"
-          }, "<0.5");
+            ease: 'none',
+          }, '<0.5');
 
           tl.to({}, { duration: 0.5 });
 
-          tl.to(img, { 
-            y: 0, 
+          tl.to(img, {
+            y: 0,
             scale: 1,
-            duration: 8.0, 
-            ease: "none"
+            duration: 8.0,
+            ease: 'none',
           });
 
           tl.to(line, {
             autoAlpha: 0,
             filter: 'blur(10px)',
             y: -20,
-            duration: 4.0, 
-            ease: "power2.inOut"
-          }, "<4.0");
+            duration: 4.0,
+            ease: 'power2.inOut',
+          }, '<4.0');
 
           if (index < content.paragraphs.length - 1) {
-            tl.to(img, { 
-              y: "-120vh", 
-              duration: 8.0, 
-              ease: "none"
+            tl.to(img, {
+              y: '-120vh',
+              duration: 8.0,
+              ease: 'none',
             });
 
             tl.to(img, {
               opacity: 0,
               filter: 'blur(20px)',
               duration: 4.0,
-              ease: "power2.out"
-            }, "<2.0");
+              ease: 'power2.out',
+            }, '<2.0');
           }
         });
       });
@@ -324,33 +328,29 @@ const Features: React.FC = () => {
   );
 
   return (
-    <FeaturesSection id="features" className="showcase" ref={sectionRef}>
-      <FeaturesPin ref={pinRef}>
-        <FeaturesInner className="container">
+    <ActionSection id="action" ref={sectionRef}>
+      <ActionPin ref={pinRef}>
+        <ActionInner className="container">
           <CopyColumn>
             <CopyLines>
               {content.paragraphs.map((paragraph, index) => (
-                <FeatureLine
-                  key={paragraph}
+                <ActionLine
+                  key={`${content.titles[index]}-${paragraph}`}
                   ref={(element) => {
                     lineRefs.current[index] = element;
                   }}
                 >
-                  <FeatureLineInner>
-                    <FeatureBadge>{content.titles[index]}</FeatureBadge>
+                  <ActionLineInner>
+                    <ActionBadge>{content.titles[index]}</ActionBadge>
                     <div>
-                      {Array.from(paragraph).map((char, charIndex) => {
-                        const glyph = char;
-
-                        return (
-                          <FeatureChar key={`${index}-${charIndex}`} data-feature-char>
-                            {glyph}
-                          </FeatureChar>
-                        );
-                      })}
+                      {Array.from(paragraph).map((char, charIndex) => (
+                        <ActionChar key={`${index}-${charIndex}`} data-action-char>
+                          {char}
+                        </ActionChar>
+                      ))}
                     </div>
-                  </FeatureLineInner>
-                </FeatureLine>
+                  </ActionLineInner>
+                </ActionLine>
               ))}
             </CopyLines>
           </CopyColumn>
@@ -359,7 +359,7 @@ const Features: React.FC = () => {
             <VisualFrame>
               {content.images.map((image, index) => (
                 <VisualLayer
-                  key={image.src}
+                  key={`${image.src}-${index}`}
                   ref={(element) => {
                     imageRefs.current[index] = element;
                   }}
@@ -369,10 +369,10 @@ const Features: React.FC = () => {
               ))}
             </VisualFrame>
           </VisualColumn>
-        </FeaturesInner>
-      </FeaturesPin>
-    </FeaturesSection>
+        </ActionInner>
+      </ActionPin>
+    </ActionSection>
   );
 };
 
-export default Features;
+export default Action;

@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useGSAP } from '@gsap/react';
+import { useLocation } from 'react-router-dom';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 import { useTranslation } from '@/contexts/LanguageContext';
 import {
   HeaderWrapper,
@@ -7,8 +11,8 @@ import {
   Logo,
   ExpandedMenuItem,
   PillActionButton,
-  ActionGroup,
   LangButton,
+  MobileMenuOverlay,
 } from './styled';
 import LiquidGlass from '@/components/LiquidGlass';
 
@@ -21,7 +25,6 @@ const AnimatedText = ({ text }: { text: string }) => {
       const newId = Date.now();
       setDisplayTexts(prev => [...prev, { id: newId, text }]);
       
-      // Cleanup old texts after animation
       setTimeout(() => {
         setDisplayTexts(prev => prev.filter(t => t.id === newId));
       }, 400);
@@ -50,23 +53,92 @@ const AnimatedText = ({ text }: { text: string }) => {
 
 const Header: React.FC = () => {
   const { lang, changeLang, t } = useTranslation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isHome = location.pathname === '/';
 
   const handleLangToggle = () => {
     changeLang(lang === 'en' ? 'vi' : 'en');
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(prev => {
+      const newState = !prev;
+      const lenis = (window as any).__lbLenis;
+      if (newState) {
+        document.body.style.overflow = 'hidden';
+        if (lenis) lenis.stop();
+      } else {
+        document.body.style.overflow = '';
+        if (lenis) lenis.start();
+      }
+      return newState;
+    });
+  };
+
   const containerRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
 
-  useGSAP(() => {
+  useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
     }
-  }, { scope: containerRef, dependencies: [] });
+
+    const actionPanel = containerRef.current?.querySelector('.action-panel') as HTMLElement;
+    if (!actionPanel) return;
+
+    let st: ScrollTrigger | null = null;
+
+    if (isHome) {
+      st = ScrollTrigger.create({
+        trigger: document.body,
+        start: 'top top',
+        end: '150px top',
+        scrub: true,
+        invalidateOnRefresh: true,
+        animation: gsap.fromTo(actionPanel,
+          {
+            x: () => {
+              gsap.set(actionPanel, { clearProps: 'transform' });
+              const rect = actionPanel.getBoundingClientRect();
+              const viewportCenter = window.innerWidth / 2;
+              const elementCenter = rect.left + rect.width / 2;
+              return viewportCenter - elementCenter;
+            }
+          },
+          {
+            x: 0,
+            ease: 'power2.inOut',
+          }
+        )
+      });
+    } else {
+      gsap.to(actionPanel, {
+        x: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+      });
+    }
+
+    return () => {
+      if (st) {
+        st.kill();
+      }
+    };
+  }, [lang, isHome]);
 
   return (
     <HeaderWrapper ref={containerRef}>
-      {/* Brand — no glass */}
+      <MobileMenuOverlay className={isMobileMenuOpen ? 'open' : ''}>
+        <div className="mobile-menu-links">
+          <ExpandedMenuItem to="/" onClick={toggleMobileMenu}><AnimatedText text={t('nav.home')} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/about" onClick={toggleMobileMenu}><AnimatedText text={t('nav.about')} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/pricing" onClick={toggleMobileMenu}><AnimatedText text={t('nav.pricing')} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/policy" onClick={toggleMobileMenu}><AnimatedText text={t('nav.policy')} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/help" onClick={toggleMobileMenu}><AnimatedText text={t('nav.help')} /></ExpandedMenuItem>
+        </div>
+      </MobileMenuOverlay>
+
       <div className="header-panel brand-panel">
         <Brand to="/" aria-label="LiquidBoard home">
           <Logo className="brand__logo" />
@@ -74,17 +146,15 @@ const Header: React.FC = () => {
         </Brand>
       </div>
 
-      {/* Download — no glass */}
       <div className="header-panel action-panel">
         <PillActionButton as="a" href="https://apps.apple.com" target="_blank" rel="noopener noreferrer" aria-label="Download iOS App" className="download-btn">
           <svg viewBox="0 0 384 512" fill="currentColor" style={{ width: '15px', height: '15px', marginBottom: '1px' }}>
             <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
           </svg>
-          <span style={{ fontSize: '13px', fontWeight: 650, textTransform: 'capitalize' }}>{t('header.download')}</span>
+          <span style={{ fontSize: '13px', fontWeight: 650 }}>{t('header.download')}</span>
         </PillActionButton>
       </div>
 
-      {/* Lang toggle — glass pill */}
       <div className="header-panel lang-panel">
         <LiquidGlass className="floating-glass lang-glass" padding="6px">
           <LangButton onClick={handleLangToggle} aria-label="Toggle Language">
@@ -96,15 +166,19 @@ const Header: React.FC = () => {
         </LiquidGlass>
       </div>
 
-      {/* Menu — glass, bottom-left */}
-      <div className="header-panel menu-panel">
+      <div className={`header-panel menu-panel ${isMobileMenuOpen ? 'menu-open' : ''}`}>
         <LiquidGlass className="floating-glass menu-glass" padding="6px 10px">
           <div className="main-menu">
+            <ExpandedMenuItem to="/"><AnimatedText text={t('nav.home')} /></ExpandedMenuItem>
             <ExpandedMenuItem to="/about"><AnimatedText text={t('nav.about')} /></ExpandedMenuItem>
             <ExpandedMenuItem to="/pricing"><AnimatedText text={t('nav.pricing')} /></ExpandedMenuItem>
             <ExpandedMenuItem to="/policy"><AnimatedText text={t('nav.policy')} /></ExpandedMenuItem>
             <ExpandedMenuItem to="/help"><AnimatedText text={t('nav.help')} /></ExpandedMenuItem>
           </div>
+          <button className={`hamburger-btn ${isMobileMenuOpen ? 'open' : ''}`} onClick={toggleMobileMenu} aria-label="Toggle Menu">
+            <div className="hamburger-line"></div>
+            <div className="hamburger-line"></div>
+          </button>
         </LiquidGlass>
       </div>
     </HeaderWrapper>

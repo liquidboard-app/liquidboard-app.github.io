@@ -36,18 +36,17 @@ const Hero: React.FC = () => {
       let targetY = window.scrollY + rect.bottom - window.innerHeight;
       
       if (window.innerWidth > 860) {
-        targetY -= 90; // Desktop offset to avoid overshooting
+        targetY -= 90;
       }
       
       gsap.to(window, {
-        duration: 1.5, // Slow down the scroll (1.5 seconds)
+        duration: 1.5,
         scrollTo: targetY,
         ease: "power2.inOut"
       });
     }
   };
 
-  // Force ScrollTrigger to refresh and re-calculate DOM metrics when language changes
   useEffect(() => {
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
@@ -61,20 +60,16 @@ const Hero: React.FC = () => {
         trigger: heroRef.current,
         start: "top top",
         end: "bottom bottom",
-        scrub: 1, // Smooth scrub
-        pin: true, // Pin the entire Hero section while scrubbing
-        invalidateOnRefresh: true, // Re-evaluate function-based tweens on resize
+        scrub: 1,
+        pin: true,
+        invalidateOnRefresh: true,
       }
     });
 
-    // Set initial split gap using GSAP so it handles xPercent/yPercent cleanly
     gsap.set(line1Ref.current, { xPercent: -50, yPercent: -50, y: "-0.6em" });
     gsap.set(line2ContainerRef.current, { xPercent: -50, yPercent: -50, y: "0.6em" });
 
-    // ─── Animate REAL brand-panel from hero position → header position ───
-    // Only ONE logo element — the actual header brand, repositioned via GSAP.
     const brandPanelEl = document.querySelector('.brand-panel') as HTMLElement | null;
-    // Logo is styled.span (no text) — find text span by non-empty textContent
     const brandTextEl = brandPanelEl
       ? (Array.from(brandPanelEl.querySelectorAll('span'))
           .find(el => (el.textContent?.trim().length ?? 0) > 0) as HTMLElement | null)
@@ -83,7 +78,6 @@ const Hero: React.FC = () => {
 
     const computeLogoMetrics = () => {
       if (!brandPanelEl) return;
-      // Clear transform to get true natural rect during refresh
       gsap.set(brandPanelEl, { clearProps: 'transform' });
       
       const logoEl = brandPanelEl.querySelector('.brand__logo') as HTMLElement | null;
@@ -118,7 +112,6 @@ const Hero: React.FC = () => {
       }
     }
 
-    // Phase 1: Blur and move line1 up and fade out
     tl.to(line1Ref.current, {
       y: "-2.6em",
       opacity: 0,
@@ -127,7 +120,6 @@ const Hero: React.FC = () => {
       duration: 1
     }, 0);
 
-    // Phase 1: Brand-panel animates from hero → natural header position
     if (brandPanelEl) {
       tl.fromTo(brandPanelEl, 
         {
@@ -143,13 +135,11 @@ const Hero: React.FC = () => {
         }, 
         0
       );
-      // Text slides in as logo arrives
       if (brandTextEl) {
         tl.to(brandTextEl, { autoAlpha: 1, duration: 0.2 }, 0.8);
       }
     }
 
-    // Phase 1: Fade out scroll indicator and move it down
     tl.to(scrollIndicatorRef.current, {
       y: "40px",
       opacity: 0,
@@ -157,30 +147,23 @@ const Hero: React.FC = () => {
       duration: 0.8
     }, 0);
 
-    // Phase 1: Move line2 up to center
     tl.to(line2ContainerRef.current, {
       y: "0em",
       ease: "power2.inOut",
       duration: 1
     }, 0);
 
-    // Phase 2: Expand image
-    // Expand to height: 100dvh - 130px, width will automatically adjust to keep image aspect ratio
-    // This perfectly accounts for the header at the bottom so it never overlaps
     tl.to(imageContainerRef.current, {
       height: "calc(100dvh - 130px)",
       ease: "power2.inOut",
       duration: 2
     }, 1);
 
-    // Phase 2: Fade out the space character
     tl.to('.split-space', {
       opacity: 0,
       duration: 0.5
     }, 1);
 
-    // Phase 2: Push texts left and right, enough to hug the image edges while accounting for bounding box shift
-    // We calculate the exact pixel push needed to center the GAP around the image.
     tl.to('.split-left', {
       x: () => {
         const container = document.querySelector('.split-left')?.parentElement as HTMLElement;
@@ -190,7 +173,6 @@ const Hero: React.FC = () => {
         const C = container.offsetWidth / 2;
         const E_left = leftEl.offsetLeft + leftEl.offsetWidth - C;
         
-        // Increase gap on mobile screens
         const isMobile = window.innerWidth <= 860;
         const pushRatio = isMobile ? 32 : 26;
         const pushAmount = pushRatio * window.innerHeight / 100;
@@ -210,7 +192,6 @@ const Hero: React.FC = () => {
         const C = container.offsetWidth / 2;
         const E_right = rightEl.offsetLeft - C;
 
-        // Increase gap on mobile screens
         const isMobile = window.innerWidth <= 860;
         const pushRatio = isMobile ? 32 : 26;
         const pushAmount = pushRatio * window.innerHeight / 100;
@@ -221,9 +202,21 @@ const Hero: React.FC = () => {
       duration: 2
     }, 1);
 
-    // Phase 3: Pause at the end
-    // Adds a dummy tween so the user has to scroll a bit more before the section unpins
     tl.to({}, { duration: 0.8 });
+
+    const heroImg = imageContainerRef.current?.querySelector('img');
+    if (heroImg) {
+      gsap.to(heroImg, {
+        opacity: 0,
+        filter: 'blur(20px)',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "bottom 75%",
+          end: "bottom 15%",
+          scrub: 1,
+        }
+      });
+    }
 
     return () => {
       ScrollTrigger.removeEventListener('refreshInit', computeLogoMetrics);

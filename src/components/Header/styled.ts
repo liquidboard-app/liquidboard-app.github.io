@@ -3,7 +3,12 @@ import { Link, NavLink } from 'react-router-dom';
 
 export const HeaderWrapper = styled.header`
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100dvh;
+  max-width: 1440px;
+  margin: 0 auto;
   z-index: 100;
   pointer-events: none;
 
@@ -12,27 +17,28 @@ export const HeaderWrapper = styled.header`
   }
 
   .header-panel {
-    position: fixed;
+    position: absolute;
   }
 
   .brand-panel {
-    top: 24px;
-    left: 24px;
+    top: 20px;
+    left: 20px;
   }
 
   .action-panel {
-    top: 24px;
-    right: 24px;
+    top: 20px;
+    right: 20px;
   }
 
   .menu-panel {
-    left: 24px;
-    bottom: 24px;
+    left: 20px;
+    bottom: 20px;
   }
 
   .lang-panel {
-    bottom: 24px;
-    right: 24px;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
   }
 
   .floating-glass .glass,
@@ -59,6 +65,56 @@ export const HeaderWrapper = styled.header`
     position: relative;
   }
 
+  .hamburger-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 28px; 
+    height: 28px;
+    position: relative;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hamburger-line {
+    position: absolute;
+    width: 20px;
+    height: 1.5px;
+    background: #fff;
+    left: 4px; 
+    
+    transition: top 0.3s ease 0.3s, transform 0.3s ease 0s;
+  }
+
+  .hamburger-line:first-child {
+    top: 10px;
+  }
+
+  .hamburger-line:last-child {
+    top: 16px;
+  }
+  
+  .hamburger-btn.open .hamburger-line {
+    
+    transition: top 0.3s ease 0s, transform 0.3s ease 0.3s;
+  }
+
+  .hamburger-btn.open .hamburger-line:first-child {
+    top: 13px;
+    transform: rotate(45deg);
+  }
+
+  .hamburger-btn.open .hamburger-line:last-child {
+    top: 13px;
+    transform: rotate(-45deg);
+  }
+
+  .menu-panel {
+    z-index: 100; 
+  }
+
   @media (max-width: 860px) {
     .brand-panel {
       top: 16px;
@@ -72,13 +128,26 @@ export const HeaderWrapper = styled.header`
 
     .menu-panel {
       bottom: 16px;
-      left: 10px;
+      right: 10px;
+      left: auto;
+    }
+
+    .menu-glass > div {
+      padding: 6px !important; 
+    }
+
+    .main-menu {
       display: none;
+    }
+
+    .hamburger-btn {
+      display: flex;
     }
 
     .lang-panel {
       bottom: 16px;
-      right: 10px;
+      left: 10px;
+      right: auto;
     }
   }
 `;
@@ -93,6 +162,7 @@ export const Brand = styled(Link)`
   font-size: 18px;
   text-decoration: none;
   color: var(--text);
+  outline: none;
 
   @media (max-width: 860px) {
     gap: 8px;
@@ -108,7 +178,7 @@ export const Logo = styled.span`
   background-image: var(--logo);
   background-size: cover;
   background-position: center;
-  box-shadow: var(--shadow-card);
+  outline: none;
 
   @media (max-width: 860px) {
     width: 28px;
@@ -239,7 +309,7 @@ export const PillActionButton = styled.button`
   position: relative;
   overflow: hidden;
 
-  /* Force exact 34x34 circle for language button */
+  
   &.lang-toggle-btn {
     width: 34px;
     padding: 0;
@@ -340,7 +410,7 @@ export const LangButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 650;
     letter-spacing: 0.04em;
     transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
@@ -394,7 +464,7 @@ export const DownloadButton = styled.a`
 
 export const MenuPanelWrapper = styled.div`
   position: absolute;
-  top: 8px; /* Drop down slightly below the header */
+  top: 8px; 
   right: 24px;
   display: flex;
   justify-content: flex-end;
@@ -421,5 +491,55 @@ export const MenuPanelWrapper = styled.div`
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     box-shadow: none !important;
     gap: 0 !important;
+  }
+`;
+
+export const MobileMenuOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    transform: translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &.open .mobile-menu-links {
+    transform: translateY(0);
+  }
+
+  ${ExpandedMenuItem} {
+    font-size: 22px;
+    padding: 8px 24px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover, &.active {
+      background: rgba(255, 255, 255, 0.15);
+    }
   }
 `;

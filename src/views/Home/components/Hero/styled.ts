@@ -1,4 +1,3 @@
-// Hero styled components
 import styled, { keyframes } from 'styled-components';
 
 const moveDown = keyframes`
@@ -92,7 +91,7 @@ export const HeroSection = styled.section`
   background: transparent;
 
   @media (max-width: 860px) {
-    height: 110dvh;
+    height: 160dvh;
   }
 `;
 
@@ -106,7 +105,7 @@ export const StickyContainer = styled.div`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  /* 70px = 46px panel + 24px gap — same top and bottom so content truly centers */
+  
   padding: 70px 0;
   box-sizing: border-box;
 
@@ -189,10 +188,10 @@ export const ImageContainer = styled.div`
   }
 `;
 
-/* ─── Hero Brand (animates to header position on scroll) ─── */
+
 export const HeroBrand = styled.div`
   position: absolute;
-  /* CSS anchor point — GSAP takes over transform from here */
+  
   top: 50%;
   left: 50%;
   display: flex;
