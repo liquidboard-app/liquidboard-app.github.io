@@ -26,7 +26,7 @@ const fillEase = gsap.parseEase('sine.inOut');
 
 const featureContent = {
   en: {
-    titles: ['LiquidBoard for Text', 'LiquidBoard for Images', 'LiquidBoard for Stickers'],
+    titles: ['Text', 'Images', 'Stickers'],
     paragraphs: [
       'Create and compose multiple text documents, introductory information and content tailored to your writing needs. Set up pre-built response templates for immediate use. Input and quickly share contact information. Store website links, code snippets, AI prompt structures for efficient reference and reuse.',
       'Rapidly share payment QR codes and bank transfer QR codes. Access a diverse collection of product sample prototypes, design mockups, infographics, and instructional screenshots. Organize and retrieve visual assets seamlessly for professional communication.',
@@ -39,7 +39,7 @@ const featureContent = {
     ],
   },
   vi: {
-    titles: ['LiquidBoard cho Văn bản', 'LiquidBoard cho Hình ảnh', 'LiquidBoard cho Nhãn dán'],
+    titles: ['Văn bản', 'Hình ảnh', 'Nhãn dán'],
     paragraphs: [
       'Soạn thảo nhiều tài liệu văn bản, thông tin giới thiệu và nội dung phù hợp với nhu cầu viết của bạn. Thiết lập sẵn các mẫu phản hồi để dùng ngay. Nhập và chia sẻ nhanh thông tin liên hệ. Lưu website, đoạn mã, cấu trúc prompt AI để tra cứu và tái sử dụng hiệu quả.',
       'Chia sẻ nhanh mã QR thanh toán và mã QR chuyển khoản ngân hàng. Truy cập bộ sưu tập đa dạng gồm prototype sản phẩm, mockup thiết kế, infographic, và ảnh hướng dẫn. Sắp xếp và truy xuất tài nguyên hình ảnh mượt mà cho giao tiếp chuyên nghiệp.',
@@ -212,7 +212,7 @@ const Features: React.FC = () => {
 
         ScrollTrigger.create({
           trigger: section,
-          start: 'top top',
+          start: 'top 56px',
           end: () => `+=${window.innerHeight * 3.9}`,
           pin,
           pinSpacing: true,
@@ -243,7 +243,7 @@ const Features: React.FC = () => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: "top top",
+            start: "top 56px",
             end: () => `+=${window.innerHeight * 6.5}`,
             pin: pin,
             scrub: 1,

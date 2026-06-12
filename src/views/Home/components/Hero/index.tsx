@@ -93,7 +93,7 @@ const Hero: React.FC = () => {
       const isMobile = window.innerWidth <= 860;
 
       const heroCX = window.innerWidth / 2;
-      const heroCY = window.innerHeight / 2 - (isMobile ? 80 : 120);
+      const heroCY = window.innerHeight / 2 - (isMobile ? 120 : 160);
       
       const targetLogoWidth = isMobile ? 60 : 80;
       initScale = targetLogoWidth / (logoRect?.width || 34);

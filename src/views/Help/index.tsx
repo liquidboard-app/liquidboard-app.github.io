@@ -8,6 +8,11 @@ const TabContainer = styled.div`
   display: flex;
   gap: 12px;
   margin-bottom: 32px;
+
+  @media (max-width: 860px) {
+    gap: 10px;
+    margin-bottom: 24px;
+  }
 `;
 
 const TabLink = styled(NavLink)`
@@ -31,12 +36,21 @@ const TabLink = styled(NavLink)`
     background: white;
     border-color: white;
   }
+
+  @media (max-width: 860px) {
+    font-size: 14px;
+    padding: 7px 16px;
+  }
 `;
 
 const DocsPlaceholder = styled.div`
   padding: 40px 0;
   color: rgba(255, 255, 255, 0.6);
   font-size: 16px;
+
+  @media (max-width: 860px) {
+    font-size: 14px;
+  }
 `;
 
 const FaqContainer = styled.div`
@@ -44,23 +58,27 @@ const FaqContainer = styled.div`
   flex-direction: column;
   gap: 16px;
   margin-top: 32px;
+
+  @media (max-width: 860px) {
+    gap: 12px;
+    margin-top: 20px;
+  }
 `;
 
 const FaqCard = styled.div`
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.09);
   overflow: hidden;
   transition: all 0.3s ease;
 `;
 
-const FaqHeader = styled.button`
+const FaqHeader = styled.button<{ $isOpen: boolean }>`
   width: 100%;
   padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: transparent;
+  background: ${({ $isOpen }) => ($isOpen ? 'rgba(255, 255, 255, 0.02)' : 'transparent')};
   border: none;
   color: white;
   font-size: 17px;
@@ -70,6 +88,11 @@ const FaqHeader = styled.button`
   
   &:hover {
     background: rgba(255, 255, 255, 0.02);
+  }
+
+  @media (max-width: 860px) {
+    padding: 16px 18px;
+    font-size: 15px;
   }
 `;
 
@@ -91,6 +114,10 @@ const FaqGrid = styled.div<{ $isOpen: boolean }>`
               padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   padding: ${({ $isOpen }) => ($isOpen ? '12px 24px 24px' : '0 24px')};
+
+  @media (max-width: 860px) {
+    padding: ${({ $isOpen }) => ($isOpen ? '8px 18px 18px' : '0 18px')};
+  }
 `;
 
 const FaqContentInner = styled.div`
@@ -101,6 +128,11 @@ const FaqContentInner = styled.div`
     font-size: 15px;
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.7);
+
+    @media (max-width: 860px) {
+      font-size: 14px;
+      line-height: 1.55;
+    }
   }
 `;
 
@@ -114,7 +146,7 @@ const FaqItem: React.FC<FaqItemProps> = ({ question, answer }) => {
 
   return (
     <FaqCard>
-      <FaqHeader onClick={() => setIsOpen(!isOpen)}>
+      <FaqHeader $isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
         {question}
         <IconWrapper $isOpen={isOpen}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -211,7 +243,7 @@ const Help: React.FC = () => {
 
   return (
     <PageWrapper>
-      <h1>{t('nav.help')}</h1>
+
       
       <TabContainer>
         <TabLink to="/help/faq">FAQ</TabLink>

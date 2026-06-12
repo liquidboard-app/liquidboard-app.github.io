@@ -97,8 +97,8 @@ export const HeroSection = styled.section`
 
 export const StickyContainer = styled.div`
   position: sticky;
-  top: 0;
-  height: 100dvh;
+  top: 56px;
+  height: calc(100dvh - 56px);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -116,7 +116,7 @@ export const StickyContainer = styled.div`
 
 export const ContentContainer = styled.div`
   width: 100%;
-  max-width: 980px;
+  max-width: 920px;
   height: 100%;
   position: relative;
   container-type: inline-size;

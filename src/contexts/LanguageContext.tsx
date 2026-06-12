@@ -19,18 +19,22 @@ const translations: AllTranslations = {
     "hero.line1": "Bring a real Clipboard",
     "hero.line2.left": "in your",
     "hero.line2.right": "Keyboard",
-    "header.download": "Download for iPhone",
+    "header.download.prefix": "Download\u00A0",
+    "header.download.brand": "LiquidBoard\u00A0",
+    "header.download.suffix": "for iPhone",
   },
   vi: {
     "nav.home": "Trang chủ",
     "nav.about": "Giới Thiệu",
-    "nav.pricing": "Bảng Giá",
+    "nav.pricing": "Giá",
     "nav.policy": "Chính sách",
     "nav.help": "Trợ Giúp",
     "hero.line1": "Mang một Clipboard thực sự",
     "hero.line2.left": "vào trong",
     "hero.line2.right": "Bàn phím",
-    "header.download": "Tải xuống cho iPhone",
+    "header.download.prefix": "Tải xuống\u00A0",
+    "header.download.brand": "LiquidBoard\u00A0",
+    "header.download.suffix": "cho iPhone",
   }
 };
 

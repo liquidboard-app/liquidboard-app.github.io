@@ -29,7 +29,7 @@ const About: React.FC = () => {
 
   return (
     <PageWrapper>
-      <h1>{t('nav.about')}</h1>
+
       <AboutContent>
         <p>
           {lang === 'vi'

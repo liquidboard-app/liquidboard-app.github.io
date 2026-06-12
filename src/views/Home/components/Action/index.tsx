@@ -216,7 +216,7 @@ const Action: React.FC = () => {
 
         ScrollTrigger.create({
           trigger: section,
-          start: 'top top',
+          start: 'top 56px',
           end: () => `+=${window.innerHeight * 3.9}`,
           pin,
           pinSpacing: true,
@@ -247,7 +247,7 @@ const Action: React.FC = () => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top top',
+            start: 'top 56px',
             end: () => `+=${window.innerHeight * 8.2}`,
             pin,
             scrub: 1,
