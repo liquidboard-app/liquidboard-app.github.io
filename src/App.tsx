@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -13,17 +13,30 @@ import Help from '@/views/Help';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if ((window as any).__lbLenis) {
+      (window as any).__lbLenis.scrollTo(0, { immediate: true });
+    }
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 const App: React.FC = () => {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 0.8,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
-      wheelMultiplier: 1,
-      touchMultiplier: 1,
+      wheelMultiplier: 1.1,
+      touchMultiplier: 1.1,
       infinite: false,
     });
     lenisRef.current = lenis;
@@ -43,13 +56,14 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/updates" element={<Updates />} />
-        <Route path="/help" element={<Help />} />
+        <Route path="/help/*" element={<Help />} />
       </Routes>
     </BrowserRouter>
   );

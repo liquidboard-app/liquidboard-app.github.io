@@ -23,10 +23,10 @@ const translations: AllTranslations = {
   },
   vi: {
     "nav.home": "Trang chủ",
-    "nav.about": "Giới thiệu",
-    "nav.pricing": "Bảng giá",
+    "nav.about": "Giới Thiệu",
+    "nav.pricing": "Bảng Giá",
     "nav.policy": "Chính sách",
-    "nav.help": "Trợ giúp",
+    "nav.help": "Trợ Giúp",
     "hero.line1": "Mang một Clipboard thực sự",
     "hero.line2.left": "vào trong",
     "hero.line2.right": "Bàn phím",
