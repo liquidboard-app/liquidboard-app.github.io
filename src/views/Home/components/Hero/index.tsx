@@ -74,42 +74,50 @@ const Hero: React.FC = () => {
       ? (Array.from(brandPanelEl.querySelectorAll('span'))
           .find(el => (el.textContent?.trim().length ?? 0) > 0) as HTMLElement | null)
       : null;
-    let initX = 0, initY = 0, initScale = 1;
+    const heroBrandEl = document.querySelector('.hero-brand') as HTMLElement | null;
+    const headerLogoEl = brandPanelEl?.querySelector('.brand__logo') as HTMLElement | null;
+    let targetX = 0, targetY = 0, targetScale = 1, initX = 0, initY = 0;
 
     const computeLogoMetrics = () => {
-      if (!brandPanelEl) return;
-      gsap.set(brandPanelEl, { clearProps: 'transform' });
-      
-      const logoEl = brandPanelEl.querySelector('.brand__logo') as HTMLElement | null;
-      const bp = brandPanelEl.getBoundingClientRect();
-      const logoRect = logoEl?.getBoundingClientRect();
-
-      const logoNatCX = logoRect ? logoRect.left + logoRect.width / 2 : bp.left + bp.width / 2;
-      const logoNatCY = logoRect ? logoRect.top + logoRect.height / 2 : bp.top + bp.height / 2;
-
-      const origX = logoNatCX - bp.left;
-      const origY = logoNatCY - bp.top;
+      if (!brandPanelEl || !heroBrandEl || !headerLogoEl) return;
+      gsap.set(brandPanelEl, { clearProps: 'all' });
+      gsap.set(headerLogoEl, { clearProps: 'all' });
+      if (brandTextEl) gsap.set(brandTextEl, { clearProps: 'all' });
+      gsap.set(heroBrandEl, { clearProps: 'all' });
 
       const isMobile = window.innerWidth <= 860;
-
-      const heroCX = window.innerWidth / 2;
-      const heroCY = window.innerHeight / 2 - (isMobile ? 120 : 160);
       
-      const targetLogoWidth = isMobile ? 60 : 80;
-      initScale = targetLogoWidth / (logoRect?.width || 34);
-      initX = heroCX - logoNatCX;
-      initY = heroCY - logoNatCY;
+      gsap.set(heroBrandEl, { left: 0, top: 0, x: 0, y: 0, xPercent: 0, yPercent: 0 });
 
-      gsap.set(brandPanelEl, { transformOrigin: `${origX}px ${origY}px` });
+      const heroCX = document.documentElement.clientWidth / 2;
+      const heroCY = window.innerHeight / 2 - (isMobile ? 120 : 160);
+
+      const heroLogoEl = heroBrandEl.querySelector('.hero-brand__logo') as HTMLElement | null;
+      const heroLogoRect = heroLogoEl?.getBoundingClientRect() || heroBrandEl.getBoundingClientRect();
+
+      const currentCX = heroLogoRect.left + heroLogoRect.width / 2;
+      const currentCY = heroLogoRect.top + heroLogoRect.height / 2;
+
+      initX = heroCX - currentCX;
+      initY = heroCY - currentCY;
+
+      const headerLogoRect = headerLogoEl.getBoundingClientRect();
+      const targetLogoWidth = headerLogoRect.width || (isMobile ? 28 : 30);
+      targetScale = targetLogoWidth / heroLogoRect.width;
+
+      const headerCX = headerLogoRect.left + headerLogoRect.width / 2;
+      const headerCY = headerLogoRect.top + headerLogoRect.height / 2;
+
+      targetX = headerCX - currentCX;
+      targetY = headerCY - currentCY;
+
+      gsap.set(headerLogoEl, { autoAlpha: 0 });
+      if (brandTextEl) gsap.set(brandTextEl, { autoAlpha: 0 });
     };
 
-    if (brandPanelEl) {
+    if (brandPanelEl && heroBrandEl) {
       computeLogoMetrics();
       ScrollTrigger.addEventListener('refreshInit', computeLogoMetrics);
-      
-      if (brandTextEl) {
-        gsap.set(brandTextEl, { autoAlpha: 0 });
-      }
     }
 
     tl.to(line1Ref.current, {
@@ -120,23 +128,31 @@ const Hero: React.FC = () => {
       duration: 1
     }, 0);
 
-    if (brandPanelEl) {
-      tl.fromTo(brandPanelEl, 
+    if (brandPanelEl && heroBrandEl) {
+      tl.fromTo(heroBrandEl, 
         {
           x: () => initX,
           y: () => initY,
-          scale: () => initScale,
+          scale: 1,
           autoAlpha: 1,
         },
         {
-          x: 0, y: 0, scale: 1,
+          x: () => targetX,
+          y: () => targetY,
+          scale: () => targetScale,
           ease: 'power3.inOut',
           duration: 0.85,
         }, 
         0
       );
+      
       if (brandTextEl) {
         tl.to(brandTextEl, { autoAlpha: 1, duration: 0.2 }, 0.8);
+      }
+      
+      tl.set(heroBrandEl, { autoAlpha: 0 }, 0.85);
+      if (headerLogoEl) {
+        tl.set(headerLogoEl, { autoAlpha: 1 }, 0.85);
       }
     }
 

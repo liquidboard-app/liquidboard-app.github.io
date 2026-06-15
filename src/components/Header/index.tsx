@@ -16,6 +16,8 @@ import {
   LanguageDivider,
   MobileMenuOverlay,
   MobileGradientBlur,
+  HeroBrand,
+  HeroBrandLogo,
 } from './styled';
 import LiquidGlass from '@/components/LiquidGlass';
 
@@ -203,9 +205,15 @@ const Header: React.FC = () => {
         {renderLanguageToggle('mobile-language-toggle')}
       </MobileMenuOverlay>
 
+      {isHome && (
+        <HeroBrand className="hero-brand">
+          <HeroBrandLogo className="hero-brand__logo" src="/assets/logo-app-light.jpg" alt="Hero Logo" />
+        </HeroBrand>
+      )}
+
       <div className="header-panel brand-panel">
         <Brand to="/" aria-label="LiquidBoard home">
-          <Logo className="brand__logo" />
+          <Logo className="brand__logo" src="/assets/logo-app-light.jpg" alt="LiquidBoard Logo" />
           <span>LiquidBoard</span>
         </Brand>
       </div>

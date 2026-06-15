@@ -23,6 +23,7 @@ export const HeaderWrapper = styled.header`
   .brand-panel {
     top: 17px;
     left: 20px;
+    will-change: transform;
   }
 
   .action-panel {
@@ -172,15 +173,18 @@ export const Brand = styled(Link)`
   }
 `;
 
-export const Logo = styled.span`
+export const Logo = styled.img`
   width: 30px;
   height: 30px;
   border-radius: 8px;
   display: block;
-  background-image: var(--logo);
-  background-size: cover;
-  background-position: center;
+  object-fit: cover;
   outline: none;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  image-rendering: -webkit-optimize-contrast;
 
   @media (max-width: 860px) {
     width: 28px;
@@ -696,5 +700,33 @@ export const MobileMenuOverlay = styled.div`
     bottom: 16px;
     height: 32px;
     padding: 0;
+  }
+`;
+
+export const HeroBrand = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  will-change: transform, opacity;
+  z-index: 105;
+  pointer-events: none;
+`;
+
+export const HeroBrandLogo = styled.img`
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  display: block;
+  flex-shrink: 0;
+  object-fit: cover;
+  box-shadow: var(--shadow-card);
+  image-rendering: -webkit-optimize-contrast;
+
+  @media (max-width: 860px) {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
   }
 `;
