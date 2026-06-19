@@ -1,0 +1,101 @@
+import { LocaleDict } from './types';
+
+const id: LocaleDict = {
+  nav: {
+    home: "Beranda",
+    about: "Tentang",
+    pricing: "Harga",
+    policy: "Kebijakan",
+    help: "Bantuan",
+  },
+  hero: {
+    line1: "Bawa papan klip nyata",
+    line2: { left: "ke dalam", right: "Keyboard-mu" },
+  },
+  header: {
+    download: { prefix: "Unduh\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
+  },
+  action: {
+    download: "Unduh LiquidBoard",
+    titles: ['Buat Grup', 'Sematkan', 'Salin & Gandakan', 'Impor & Ekspor File'],
+    paragraphs: [
+      'Buat grup tambahan dan kategorikan teks, gambar, dan stiker berdasarkan kebutuhan Anda. Beralih dengan mulus antar grup dan sematkan grup penting ke atas terlebih dahulu.',
+      'Sematkan teks, gambar, dan stiker penting yang sering Anda gunakan ke atas sehingga Anda dapat mengirimkannya lebih cepat.',
+      'Salin dan gandakan teks, gambar, dan stiker dengan mudah dan cepat.',
+      'Ekspor dan impor data teks sebagai JSON dan CSV langsung melalui aplikasi File.',
+    ],
+    images: [
+      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+    ],
+  },
+  pricing: {
+    intro: { 
+      line1: "Pilih paket yang tepat untuk cara Anda menyimpan, mengatur, dan berbagi konten setiap hari.", 
+      line2: "Setiap paket adalah pembelian satu kali untuk akses seumur hidup." 
+    },
+    plans: [
+      {
+        name: 'Free',
+        tone: 'white',
+        lifetime: 'Akses Seumur Hidup',
+        price: 'Rp0',
+        description: 'Untuk pengguna percobaan',
+        features: ['25 Teks', '25 Gambar', '25 Stiker', '2 Grup Per Jenis', '2 Sematan Per Grup'],
+      },
+      {
+        name: 'Plus',
+        tone: 'green',
+        lifetime: 'Akses Seumur Hidup',
+        price: 'Rp49.000',
+        description: 'Untuk pengguna biasa',
+        features: ['100 Teks', '100 Gambar', '100 Stiker', '5 Grup Per Jenis', '5 Sematan Per Grup'],
+      },
+      {
+        name: 'Pro',
+        tone: 'blue',
+        lifetime: 'Akses Seumur Hidup',
+        price: 'Rp99.000',
+        description: 'Untuk pengguna multitasking',
+        features: ['250 Teks', '250 Gambar', '250 Stiker', '15 Grup Per Jenis', '15 Sematan Per Grup'],
+      },
+      {
+        name: 'Max',
+        tone: 'red',
+        lifetime: 'Akses Seumur Hidup',
+        price: 'Rp179.000',
+        description: 'Untuk pengguna profesional',
+        features: ['500 Teks', '500 Gambar', '500 Stiker', '40 Grup Per Jenis', '40 Sematan Per Grup'],
+      },
+    ],
+  },
+  features: {
+    titles: ['Teks', 'Gambar', 'Stiker'],
+    paragraphs: [
+      'Buat dan tulis beberapa dokumen teks, informasi pengantar, dan konten yang disesuaikan dengan kebutuhan penulisan Anda. Siapkan templat respons bawaan untuk penggunaan langsung. Masukkan dan bagikan informasi kontak dengan cepat. Simpan tautan situs web, cuplikan kode, struktur prompt AI untuk referensi dan penggunaan kembali yang efisien.',
+      'Bagikan kode QR pembayaran dan kode QR transfer bank dengan cepat. Akses beragam koleksi prototipe sampel produk, maket desain, infografis, dan tangkapan layar instruksional. Atur dan ambil aset visual dengan mulus untuk komunikasi profesional.',
+      'Buat dan bagikan stiker, meme favorit, pesan ucapan selamat, dan ekspresi emosional secara instan untuk terhubung dengan orang terkasih dan pelanggan. Personalisasikan komunikasi Anda dengan elemen visual yang menyampaikan perasaan dan meningkatkan keterlibatan.',
+    ],
+    images: [
+      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+    ],
+  }
+,
+  policy: {
+    dataSecurity: "Keamanan Data",
+    privacy: "Privasi",
+    terms: "Syarat Penggunaan",
+    payment: "Pembayaran & Pengembalian",
+  },
+  help: {
+    faqTab: 'Tanya Jawab',
+    docsTab: 'Dokumen',
+    docsPlaceholder: "Dokumentasi sedang diperbarui...",
+  }
+};
+
+export default id;

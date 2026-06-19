@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -24,39 +24,10 @@ const HEADER_OFFSET = 132;
 const ENTRY_PROGRESS_SHARE = 0.14;
 const fillEase = gsap.parseEase('sine.inOut');
 
-const featureContent = {
-  en: {
-    titles: ['Text', 'Images', 'Stickers'],
-    paragraphs: [
-      'Create and compose multiple text documents, introductory information and content tailored to your writing needs. Set up pre-built response templates for immediate use. Input and quickly share contact information. Store website links, code snippets, AI prompt structures for efficient reference and reuse.',
-      'Rapidly share payment QR codes and bank transfer QR codes. Access a diverse collection of product sample prototypes, design mockups, infographics, and instructional screenshots. Organize and retrieve visual assets seamlessly for professional communication.',
-      'Create and instantly share stickers, favorite memes, congratulatory messages, and emotional expressions to connect with loved ones and customers. Personalize your communication with visual elements that convey sentiment and enhance engagement.',
-    ],
-    images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
-    ],
-  },
-  vi: {
-    titles: ['Văn bản', 'Hình ảnh', 'Nhãn dán'],
-    paragraphs: [
-      'Soạn thảo nhiều tài liệu văn bản, thông tin giới thiệu và nội dung phù hợp với nhu cầu viết của bạn. Thiết lập sẵn các mẫu phản hồi để dùng ngay. Nhập và chia sẻ nhanh thông tin liên hệ. Lưu website, đoạn mã, cấu trúc prompt AI để tra cứu và tái sử dụng hiệu quả.',
-      'Chia sẻ nhanh mã QR thanh toán và mã QR chuyển khoản ngân hàng. Truy cập bộ sưu tập đa dạng gồm prototype sản phẩm, mockup thiết kế, infographic, và ảnh hướng dẫn. Sắp xếp và truy xuất tài nguyên hình ảnh mượt mà cho giao tiếp chuyên nghiệp.',
-      'Tạo và chia sẻ ngay sticker, meme yêu thích, lời chúc, và những biểu cảm cảm xúc để kết nối với người thân và khách hàng. Cá nhân hóa giao tiếp bằng các yếu tố hình ảnh truyền tải cảm xúc và tăng sự gắn kết.',
-    ],
-    images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard doan van ban' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard bang anh' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard ban phim' },
-    ],
-  },
-};
-
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 const Features: React.FC = () => {
-  const { lang } = useTranslation();
+  const { dict, lang } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -64,10 +35,7 @@ const Features: React.FC = () => {
   const visualColumnRef = useRef<HTMLDivElement>(null);
   const activeImageRef = useRef(0);
 
-  const content = useMemo(
-    () => (lang === 'vi' ? featureContent.vi : featureContent.en),
-    [lang]
-  );
+  const content = dict.features;
 
   useGSAP(
     () => {
@@ -213,7 +181,7 @@ const Features: React.FC = () => {
         ScrollTrigger.create({
           trigger: section,
           start: 'top 56px',
-          end: () => `+=${window.innerHeight * 3.9}`,
+          end: () => `+=${window.innerHeight * 5.5}`,
           pin,
           pinSpacing: true,
           scrub: 1.55,
@@ -339,15 +307,15 @@ const Features: React.FC = () => {
                   <FeatureLineInner>
                     <FeatureBadge>{content.titles[index]}</FeatureBadge>
                     <div>
-                      {Array.from(paragraph).map((char, charIndex) => {
-                        const glyph = char;
-
-                        return (
+                      {(() => {
+                        const segmenter = new (Intl as any).Segmenter(lang, { granularity: 'grapheme' });
+                        const graphemes = Array.from(segmenter.segment(paragraph)).map((s: any) => s.segment);
+                        return graphemes.map((char, charIndex) => (
                           <FeatureChar key={`${index}-${charIndex}`} data-feature-char>
-                            {glyph}
+                            {char}
                           </FeatureChar>
-                        );
-                      })}
+                        ));
+                      })()}
                     </div>
                   </FeatureLineInner>
                 </FeatureLine>

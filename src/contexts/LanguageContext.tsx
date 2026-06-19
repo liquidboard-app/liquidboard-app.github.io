@@ -1,74 +1,42 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-type Translations = {
-  [key: string]: string;
-};
-
-type AllTranslations = {
-  en: Translations;
-  vi: Translations;
-};
-
-const translations: AllTranslations = {
-  en: {
-    "nav.home": "Home",
-    "nav.about": "About",
-    "nav.pricing": "Pricing",
-    "nav.policy": "Policy",
-    "nav.help": "Help",
-    "hero.line1": "Bring a real Clipboard",
-    "hero.line2.left": "in your",
-    "hero.line2.right": "Keyboard",
-    "header.download.prefix": "Download\u00A0",
-    "header.download.brand": "LiquidBoard\u00A0",
-    "header.download.suffix": "for iPhone",
-  },
-  vi: {
-    "nav.home": "Trang chủ",
-    "nav.about": "Giới Thiệu",
-    "nav.pricing": "Giá",
-    "nav.policy": "Chính sách",
-    "nav.help": "Trợ Giúp",
-    "hero.line1": "Mang một Clipboard thực sự",
-    "hero.line2.left": "vào trong",
-    "hero.line2.right": "Bàn phím",
-    "header.download.prefix": "Tải xuống\u00A0",
-    "header.download.brand": "LiquidBoard\u00A0",
-    "header.download.suffix": "cho iPhone",
-  }
-};
+import { LocaleDict } from '../locales/types';
+import { getDict } from '../locales';
+import en from '../locales/en';
 
 type LanguageContextType = {
   lang: string;
   changeLang: (newLang: string) => void;
-  t: (key: string) => string;
+  dict: LocaleDict;
 };
 
 const LanguageContext = createContext<LanguageContextType>({
   lang: 'en',
   changeLang: () => {},
-  t: (key: string) => key,
+  dict: en,
 });
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [lang, setLang] = useState<string>('en');
+  const [dict, setDict] = useState<LocaleDict>(en);
 
   useEffect(() => {
     const saved = localStorage.getItem('lb_lang');
-    if (saved === 'vi' || saved === 'en') {
+    if (saved) {
       setLang(saved);
     }
   }, []);
+
+  useEffect(() => {
+    getDict(lang).then(d => setDict(d));
+  }, [lang]);
 
   const changeLang = (newLang: string) => {
     setLang(newLang);
     localStorage.setItem('lb_lang', newLang);
   };
 
-  const t = (key: string) => translations[lang as keyof AllTranslations][key] || key;
-
   return (
-    <LanguageContext.Provider value={{ lang, changeLang, t }}>
+    <LanguageContext.Provider value={{ lang, changeLang, dict }}>
       {children}
     </LanguageContext.Provider>
   );

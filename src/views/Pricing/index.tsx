@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { PageWrapper } from '../styled';
@@ -19,8 +19,9 @@ const PricingShell = styled(PageWrapper)`
 
 const Intro = styled.p`
   max-width: 1100px;
-  margin: 0 0 40px;
+  margin: 0 auto 40px;
   color: var(--muted);
+  text-align: center;
 
   @media (max-width: 860px) {
     margin-bottom: 28px;
@@ -166,112 +167,19 @@ const CheckIcon = styled.span`
   }
 `;
 
-type Plan = {
-  name: string;
-  tone: 'white' | 'green' | 'blue' | 'red';
-  lifetime: string;
-  price?: string;
-  description?: string;
-  features: string[];
-};
+
 
 const Pricing: React.FC = () => {
-  const { lang, t } = useTranslation();
+  const { lang, dict } = useTranslation();
 
-  const plans = useMemo<Record<'en' | 'vi', Plan[]>>(
-    () => ({
-      en: [
-        {
-          name: 'Free',
-          tone: 'white',
-          lifetime: 'Lifetime',
-          price: '$0',
-          description: 'For trial users',
-          features: ['25 Texts', '25 Images', '25 Stickers', '2 Groups Per Type', '2 Pins Per Group'],
-        },
-        {
-          name: 'Plus',
-          tone: 'green',
-          lifetime: 'Lifetime',
-          price: '$2.99',
-          description: 'For casual users',
-          features: ['100 Texts', '100 Images', '100 Stickers', '5 Groups Per Type', '5 Pins Per Group'],
-        },
-        {
-          name: 'Pro',
-          tone: 'blue',
-          lifetime: 'Lifetime',
-          price: '$5.99',
-          description: 'For multitasking users',
-          features: ['250 Texts', '250 Images', '250 Stickers', '15 Groups Per Type', '15 Pins Per Group'],
-        },
-        {
-          name: 'Max',
-          tone: 'red',
-          lifetime: 'Lifetime',
-          price: '$10.99',
-          description: 'For professional users',
-          features: ['500 Texts', '500 Images', '500 Stickers', '40 Groups Per Type', '40 Pins Per Group'],
-        },
-      ],
-      vi: [
-        {
-          name: 'Free',
-          tone: 'white',
-          lifetime: 'Truy Cập Trọn Đời',
-          price: '₫0',
-          description: 'Cho người dùng Trải Nghiệm',
-          features: ['25 Văn Bản', '25 Ảnh', '25 Nhãn Dán', '2 Nhóm Mỗi Loại', '2 Ghim Mỗi Nhóm'],
-        },
-        {
-          name: 'Plus',
-          tone: 'green',
-          lifetime: 'Truy Cập Trọn Đời',
-          price: '₫79.000',
-          description: 'Cho người dùng Cơ Bản',
-          features: ['100 Văn Bản', '100 Ảnh', '100 Nhãn Dán', '5 Nhóm Mỗi Loại', '5 Ghim Mỗi Nhóm'],
-        },
-        {
-          name: 'Pro',
-          tone: 'blue',
-          lifetime: 'Truy Cập Trọn Đời',
-          price: '₫159.000',
-          description: 'Cho người dùng Đa Tác Vụ',
-          features: ['250 Văn Bản', '250 Ảnh', '250 Nhãn Dán', '15 Nhóm Mỗi Loại', '15 Ghim Mỗi Nhóm'],
-        },
-        {
-          name: 'Max',
-          tone: 'red',
-          lifetime: 'Truy Cập Trọn Đời',
-          price: '₫289.000',
-          description: 'Cho người dùng Chuyên Nghiệp',
-          features: ['500 Văn Bản', '500 Ảnh', '500 Nhãn Dán', '40 Nhóm Mỗi Loại', '40 Ghim Mỗi Nhóm'],
-        },
-      ],
-    }),
-    []
-  );
-
-  const currentPlans = lang === 'vi' ? plans.vi : plans.en;
+  const currentPlans = dict.pricing.plans;
 
   return (
     <PricingShell>
       <Intro>
-        {lang === 'vi'
-          ? (
-            <>
-              Các gói được phân phối cho mỗi nhu cầu và công việc khác nhau và có hiệu lực trọn đời.
-              <br />
-              Khi bạn nâng cấp từ một gói thấp hơn lên gói cao hơn, chi phí sẽ không thay đổi.
-            </>
-          )
-          : (
-            <>
-              Choose the right plan for how you save, organize, and share content every day.
-              <br />
-              Every plan is a one-time purchase for lifetime access.
-            </>
-          )}
+        {dict.pricing.intro.line1}
+        <br />
+        {dict.pricing.intro.line2}
       </Intro>
 
       <PricingGrid>

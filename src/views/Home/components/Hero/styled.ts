@@ -26,8 +26,9 @@ const rotateRight = keyframes`
 
 export const ScrollIndicatorWrapper = styled.div`
   position: absolute;
-  top: 50%;
-  margin-top: clamp(60px, 10vw, 130px);
+  top: auto;
+  bottom: 40px;
+  margin-top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 52px;
@@ -122,15 +123,27 @@ export const ContentContainer = styled.div`
   container-type: inline-size;
 `;
 
-export const Line1 = styled.h1`
-  font-size: clamp(20px, 5.55cqw, 80px);
-  line-height: 1.04;
-  letter-spacing: 0.01em;
-  font-weight: 700;
-  margin: 0;
+export const TitlesWrapper = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
+  transform: translate(-50%, -1.1em);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0px;
+  z-index: 5;
+  font-size: clamp(20px, 5.55cqw, 80px);
+`;
+
+export const Line1 = styled.h1`
+  font-size: clamp(20px, 5.55cqw, 80px);
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+  margin: 0;
   width: 100%;
   text-align: center;
   will-change: transform, opacity, filter;
@@ -139,19 +152,16 @@ export const Line1 = styled.h1`
 
 export const Line2Container = styled.div`
   font-size: clamp(20px, 5.55cqw, 80px);
-  position: absolute;
-  top: 50%;
-  left: 50%;
   width: max-content;
   display: flex;
   align-items: center;
   justify-content: center;
-  will-change: top, transform;
+  will-change: transform;
 `;
 
 export const Line2Text = styled.span`
   font-size: clamp(20px, 5.55cqw, 80px);
-  line-height: 1.04;
+  line-height: 1.2;
   letter-spacing: 0.01em;
   font-weight: 700;
   white-space: pre;

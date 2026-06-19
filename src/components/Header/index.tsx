@@ -11,15 +11,15 @@ import {
   Logo,
   ExpandedMenuItem,
   PillActionButton,
-  LanguageSwitch,
-  LanguageToggleButton,
-  LanguageDivider,
+  LangDropdownContainer,
+  LangDropdownButton,
+  LangDropdownMenu,
+  LangDropdownItem,
   MobileMenuOverlay,
-  MobileGradientBlur,
+  ProgressiveBlur,
   HeroBrand,
   HeroBrandLogo,
 } from './styled';
-import LiquidGlass from '@/components/LiquidGlass';
 
 const AnimatedText = ({ text }: { text: string }) => {
   const [displayTexts, setDisplayTexts] = useState([{ id: Date.now(), text }]);
@@ -56,42 +56,111 @@ const AnimatedText = ({ text }: { text: string }) => {
   );
 };
 
+const GlobeIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="2" y1="12" x2="22" y2="12"></line>
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg className="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+
+const LANGUAGES = [
+  { code: 'en', title: 'English', native: 'English' },
+  { code: 'vi', title: 'Vietnamese', native: 'Tiếng Việt' },
+  { code: 'ja', title: 'Japanese', native: '日本語' },
+  { code: 'es', title: 'Spanish', native: 'Español' },
+  { code: 'zh-TW', title: 'Chinese (Traditional)', native: '繁體中文' },
+  { code: 'pt-BR', title: 'Portuguese (Brazil)', native: 'Português' },
+  { code: 'fr', title: 'French', native: 'Français' },
+  { code: 'de', title: 'German', native: 'Deutsch' },
+  { code: 'ru', title: 'Russian', native: 'Русский' },
+  { code: 'ko', title: 'Korean', native: '한국어' },
+  { code: 'hi', title: 'Hindi', native: 'हिन्दी' },
+  { code: 'bn', title: 'Bengali', native: 'বাংলা' },
+  { code: 'id', title: 'Indonesian', native: 'Bahasa Indonesia' },
+  { code: 'it', title: 'Italian', native: 'Italiano' },
+  { code: 'th', title: 'Thai', native: 'ไทย' },
+  { code: 'tl', title: 'Filipino', native: 'Filipino' },
+  { code: 'pl', title: 'Polish', native: 'Polski' },
+];
+
+const LanguageDropdown = ({ className }: { className?: string }) => {
+  const { lang, changeLang } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const currentLang = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
+
+  return (
+    <LangDropdownContainer className={className} ref={menuRef}>
+      <LangDropdownButton onClick={() => setIsOpen(!isOpen)}>
+        <GlobeIcon />
+        <span>{currentLang.code.toUpperCase()}</span>
+        <ChevronDownIcon />
+      </LangDropdownButton>
+      <LangDropdownMenu $isOpen={isOpen} data-lenis-prevent>
+        {LANGUAGES.map((l) => (
+          <LangDropdownItem 
+            key={l.code}
+            $active={lang === l.code} 
+            onClick={() => {
+              changeLang(l.code);
+              setIsOpen(false);
+            }}
+          >
+            <span className="lang-title">{l.title}</span>
+            <span className="lang-native">{l.native}</span>
+          </LangDropdownItem>
+        ))}
+      </LangDropdownMenu>
+    </LangDropdownContainer>
+  );
+};
+
 const Header: React.FC = () => {
-  const { lang, changeLang, t } = useTranslation();
+  const { lang, dict } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
 
-  const renderLanguageToggle = (className?: string) => (
-    <LanguageSwitch className={className} aria-hidden="true">
-      <LanguageToggleButton
-        type="button"
-        className={lang === 'vi' ? 'is-vi' : 'is-en'}
-        onClick={() => changeLang(lang === 'en' ? 'vi' : 'en')}
-        aria-label={`Switch language to ${lang === 'en' ? 'Vietnamese' : 'English'}`}
-        aria-pressed={lang === 'vi'}
-      >
-        <span className="lang-option lang-option-en" aria-hidden="true">EN</span>
-        <span className="lang-option lang-option-vi" aria-hidden="true">VI</span>
-        <span className="lang-thumb" aria-hidden="true" />
-      </LanguageToggleButton>
-    </LanguageSwitch>
-  );
+
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(prev => {
-      const newState = !prev;
-      const lenis = (window as any).__lbLenis;
-      if (newState) {
-        document.body.style.overflow = 'hidden';
-        if (lenis) lenis.stop();
-      } else {
-        document.body.style.overflow = '';
-        if (lenis) lenis.start();
-      }
-      return newState;
-    });
+    setIsMobileMenuOpen(prev => !prev);
   };
+
+  useEffect(() => {
+    const lenis = (window as any).__lbLenis;
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      if (lenis) lenis.stop();
+    } else {
+      document.body.style.overflow = '';
+      if (lenis) lenis.start();
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+      if (lenis) lenis.start();
+    };
+  }, [isMobileMenuOpen]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
@@ -184,7 +253,7 @@ const Header: React.FC = () => {
 
   return (
     <HeaderWrapper ref={containerRef}>
-      <MobileGradientBlur>
+      <ProgressiveBlur>
         <div />
         <div />
         <div />
@@ -193,17 +262,28 @@ const Header: React.FC = () => {
         <div />
         <div />
         <div />
-      </MobileGradientBlur>
+      </ProgressiveBlur>
       <MobileMenuOverlay className={isMobileMenuOpen ? 'open' : ''}>
         <div className="mobile-menu-links">
-          <ExpandedMenuItem to="/" onClick={toggleMobileMenu}><AnimatedText text={t('nav.home')} /></ExpandedMenuItem>
-          <ExpandedMenuItem to="/about" onClick={toggleMobileMenu}><AnimatedText text={t('nav.about')} /></ExpandedMenuItem>
-          <ExpandedMenuItem to="/pricing" onClick={toggleMobileMenu}><AnimatedText text={t('nav.pricing')} /></ExpandedMenuItem>
-          <ExpandedMenuItem to="/policy" onClick={toggleMobileMenu}><AnimatedText text={t('nav.policy')} /></ExpandedMenuItem>
-          <ExpandedMenuItem to="/help" onClick={toggleMobileMenu}><AnimatedText text={t('nav.help')} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/" onClick={() => setIsMobileMenuOpen(false)}>
+            <AnimatedText text={dict.nav.home} />
+          </ExpandedMenuItem>
+          <ExpandedMenuItem to="/about" onClick={() => setIsMobileMenuOpen(false)}>
+            <AnimatedText text={dict.nav.about} />
+          </ExpandedMenuItem>
+          <ExpandedMenuItem to="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
+            <AnimatedText text={dict.nav.pricing} />
+          </ExpandedMenuItem>
+          <ExpandedMenuItem to="/policy" onClick={() => setIsMobileMenuOpen(false)}>
+            <AnimatedText text={dict.nav.policy} />
+          </ExpandedMenuItem>
+          <ExpandedMenuItem to="/help" onClick={() => setIsMobileMenuOpen(false)}>
+            <AnimatedText text={dict.nav.help} />
+          </ExpandedMenuItem>
         </div>
-        {renderLanguageToggle('mobile-language-toggle')}
       </MobileMenuOverlay>
+
+      <LanguageDropdown className="mobile-language-toggle" />
 
       {isHome && (
         <HeroBrand className="hero-brand">
@@ -224,33 +304,30 @@ const Header: React.FC = () => {
             <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
           </svg>
           <span style={{ fontSize: '13px', fontWeight: 650, display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-            <span className="download-prefix" style={{ whiteSpace: 'pre' }}>{t('header.download.prefix')}</span>
+            <span className="download-prefix" style={{ whiteSpace: 'pre' }}>{dict.header.download.prefix}</span>
             {isHome && (
               <span className="download-brand-text" style={{ display: 'inline-block', overflow: 'hidden', whiteSpace: 'pre' }}>
-                {t('header.download.brand')}
+                {dict.header.download.brand}
               </span>
             )}
-            <span className="download-suffix" style={{ whiteSpace: 'pre' }}>{t('header.download.suffix')}</span>
+            <span className="download-suffix" style={{ whiteSpace: 'pre' }}>{dict.header.download.suffix}</span>
           </span>
         </PillActionButton>
       </div>
 
       <div className={`header-panel menu-panel ${isMobileMenuOpen ? 'menu-open' : ''}`}>
-        <LiquidGlass className="floating-glass menu-glass" padding="4px 6px">
-          <div className="main-menu">
-            <ExpandedMenuItem to="/"><AnimatedText text={t('nav.home')} /></ExpandedMenuItem>
-            <ExpandedMenuItem to="/about"><AnimatedText text={t('nav.about')} /></ExpandedMenuItem>
-            <ExpandedMenuItem to="/pricing"><AnimatedText text={t('nav.pricing')} /></ExpandedMenuItem>
-            <ExpandedMenuItem to="/policy"><AnimatedText text={t('nav.policy')} /></ExpandedMenuItem>
-            <ExpandedMenuItem to="/help"><AnimatedText text={t('nav.help')} /></ExpandedMenuItem>
-            <LanguageDivider className="menu-language-divider" aria-hidden="true">|</LanguageDivider>
-            {renderLanguageToggle('menu-language-toggle')}
-          </div>
-          <button className={`hamburger-btn ${isMobileMenuOpen ? 'open' : ''}`} onClick={toggleMobileMenu} aria-label="Toggle Menu">
-            <div className="hamburger-line"></div>
-            <div className="hamburger-line"></div>
-          </button>
-        </LiquidGlass>
+        <div className="main-menu">
+          <ExpandedMenuItem to="/"><AnimatedText text={dict.nav.home} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/about"><AnimatedText text={dict.nav.about} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/pricing"><AnimatedText text={dict.nav.pricing} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/policy"><AnimatedText text={dict.nav.policy} /></ExpandedMenuItem>
+          <ExpandedMenuItem to="/help"><AnimatedText text={dict.nav.help} /></ExpandedMenuItem>
+          <LanguageDropdown className="menu-language-toggle" />
+        </div>
+        <button className={`hamburger-btn ${isMobileMenuOpen ? 'open' : ''}`} onClick={toggleMobileMenu} aria-label="Toggle Menu">
+          <div className="hamburger-line"></div>
+          <div className="hamburger-line"></div>
+        </button>
       </div>
     </HeaderWrapper>
   );

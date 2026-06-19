@@ -90,8 +90,8 @@ export const FeatureLineInner = styled.div`
   line-height: 1.4;
   letter-spacing: 0;
   font-weight: 540;
-  word-break: normal;
-  overflow-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   white-space: normal;
 
   @media (max-width: 900px) {

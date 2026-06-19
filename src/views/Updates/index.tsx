@@ -1,9 +1,8 @@
 import React from 'react';
-import { useTranslation } from '@/contexts/LanguageContext';
+
 import { PageWrapper } from '../styled';
 
 const Updates: React.FC = () => {
-  const { t } = useTranslation();
   return (
     <PageWrapper>
 

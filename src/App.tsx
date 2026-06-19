@@ -10,8 +10,10 @@ import About from '@/views/About';
 import Pricing from '@/views/Pricing';
 import Updates from '@/views/Updates';
 import Help from '@/views/Help';
+import Policy from '@/views/Policy';
 
 gsap.registerPlugin(ScrollTrigger);
+gsap.config({ force3D: true });
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -64,6 +66,7 @@ const App: React.FC = () => {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/updates" element={<Updates />} />
         <Route path="/help/*" element={<Help />} />
+        <Route path="/policy/*" element={<Policy />} />
       </Routes>
     </BrowserRouter>
   );

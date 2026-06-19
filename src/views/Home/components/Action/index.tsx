@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -24,43 +24,10 @@ const HEADER_OFFSET = 132;
 const ENTRY_PROGRESS_SHARE = 0.14;
 const fillEase = gsap.parseEase('sine.inOut');
 
-const actionContent = {
-  en: {
-    titles: ['Create Group', 'Pin', 'Copy & Duplicate', 'Import & Export Files'],
-    paragraphs: [
-      'Create additional groups and categorize texts, images, and stickers based on your needs. Switch smoothly between groups and pin essential groups to the top first.',
-      'Pin important texts, images, and stickers that you use frequently to the top so you can send them faster.',
-      'Copy and duplicate texts, images, and stickers easily and quickly.',
-      'Export and import text data as JSON and CSV directly through the Files app.',
-    ],
-    images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
-    ],
-  },
-  vi: {
-    titles: ['Tạo Nhóm', 'Ghim', 'Sao Chép & Nhân Bản', 'Xuất & Nhập File'],
-    paragraphs: [
-      'Tạo thêm nhóm và phân loại các văn bản, ảnh, nhãn dán theo nhu cầu. Chuyển đổi mượt mà giữa các nhóm và ghim những nhóm cần thiết lên đầu tiên.',
-      'Ghim những văn bản, ảnh, nhãn dán quan trọng và sử dụng nhiều lên đầu tiên để gửi nhanh hơn.',
-      'Sao chép, nhân bản văn bản, ảnh, nhãn dán dễ dàng và nhanh chóng.',
-      'Xuất và nhập văn bản ra JSON, CSV đến ứng dụng Files.',
-    ],
-    images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard nhom noi dung' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard ghim noi dung' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard sao chep va nhan ban' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard xuat va nhap file' },
-    ],
-  },
-};
-
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 const Action: React.FC = () => {
-  const { lang } = useTranslation();
+  const { dict, lang } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -68,10 +35,7 @@ const Action: React.FC = () => {
   const visualColumnRef = useRef<HTMLDivElement>(null);
   const activeImageRef = useRef(0);
 
-  const content = useMemo(
-    () => (lang === 'vi' ? actionContent.vi : actionContent.en),
-    [lang]
-  );
+  const content = dict.action;
 
   useGSAP(
     () => {
@@ -217,7 +181,7 @@ const Action: React.FC = () => {
         ScrollTrigger.create({
           trigger: section,
           start: 'top 56px',
-          end: () => `+=${window.innerHeight * 3.9}`,
+          end: () => `+=${window.innerHeight * 5.5}`,
           pin,
           pinSpacing: true,
           scrub: 1.55,
@@ -343,11 +307,15 @@ const Action: React.FC = () => {
                   <ActionLineInner>
                     <ActionBadge>{content.titles[index]}</ActionBadge>
                     <div>
-                      {Array.from(paragraph).map((char, charIndex) => (
-                        <ActionChar key={`${index}-${charIndex}`} data-action-char>
-                          {char}
-                        </ActionChar>
-                      ))}
+                      {(() => {
+                        const segmenter = new (Intl as any).Segmenter(lang, { granularity: 'grapheme' });
+                        const graphemes = Array.from(segmenter.segment(paragraph)).map((s: any) => s.segment);
+                        return graphemes.map((char, charIndex) => (
+                          <ActionChar key={`${index}-${charIndex}`} data-action-char>
+                            {char}
+                          </ActionChar>
+                        ));
+                      })()}
                     </div>
                   </ActionLineInner>
                 </ActionLine>

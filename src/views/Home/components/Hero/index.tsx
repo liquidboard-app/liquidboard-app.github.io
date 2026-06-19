@@ -8,6 +8,7 @@ import {
   HeroSection,
   StickyContainer,
   ContentContainer,
+  TitlesWrapper,
   Line1,
   Line2Container,
   Line2Text,
@@ -23,7 +24,7 @@ import {
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
 const Hero: React.FC = () => {
-  const { t, lang } = useTranslation();
+  const { dict, lang } = useTranslation();
   const heroRef = useRef<HTMLDivElement>(null);
   const line1Ref = useRef<HTMLHeadingElement>(null);
   const line2ContainerRef = useRef<HTMLDivElement>(null);
@@ -59,15 +60,14 @@ const Hero: React.FC = () => {
       scrollTrigger: {
         trigger: heroRef.current,
         start: "top top",
-        end: "bottom bottom",
+        end: "+=160%",
         scrub: 1,
         pin: true,
         invalidateOnRefresh: true,
       }
     });
 
-    gsap.set(line1Ref.current, { xPercent: -50, yPercent: -50, y: "-0.6em" });
-    gsap.set(line2ContainerRef.current, { xPercent: -50, yPercent: -50, y: "0.6em" });
+    // Removed JS calculations for positioning; handled gracefully by CSS Flexbox TitlesWrapper
 
     const brandPanelEl = document.querySelector('.brand-panel') as HTMLElement | null;
     const brandTextEl = brandPanelEl
@@ -121,7 +121,7 @@ const Hero: React.FC = () => {
     }
 
     tl.to(line1Ref.current, {
-      y: "-2.6em",
+      y: "-2em",
       opacity: 0,
       filter: "blur(20px)",
       ease: "power2.inOut",
@@ -164,7 +164,14 @@ const Hero: React.FC = () => {
     }, 0);
 
     tl.to(line2ContainerRef.current, {
-      y: "0em",
+      y: () => {
+        if (!line1Ref.current || !line2ContainerRef.current) return 0;
+        const h1 = line1Ref.current.offsetHeight;
+        const h2 = line2ContainerRef.current.offsetHeight;
+        const fontSize = parseFloat(window.getComputedStyle(line1Ref.current).fontSize) || 40;
+        const gap = 0;
+        return (1.1 * fontSize) - h1 - gap - (h2 / 2);
+      },
       ease: "power2.inOut",
       duration: 1
     }, 0);
@@ -218,7 +225,7 @@ const Hero: React.FC = () => {
       duration: 2
     }, 1);
 
-    tl.to({}, { duration: 0.8 });
+    tl.to({}, { duration: 3 });
 
     const heroImg = imageContainerRef.current?.querySelector('img');
     if (heroImg) {
@@ -246,17 +253,19 @@ const Hero: React.FC = () => {
     <HeroSection ref={heroRef} className="hero">
       <StickyContainer>
         <ContentContainer>
-          <Line1 ref={line1Ref}>{t('hero.line1')}</Line1>
-
           <ImageContainer ref={imageContainerRef}>
             <img src="/assets/lb-keyboard.png" alt="lb-keyboard" />
           </ImageContainer>
 
-          <Line2Container ref={line2ContainerRef}>
-            <SplitLeft className="split-left">{t('hero.line2.left')}</SplitLeft>
-            <Line2Text className="split-space"> </Line2Text>
-            <SplitRight className="split-right">{t('hero.line2.right')}</SplitRight>
-          </Line2Container>
+          <TitlesWrapper>
+            <Line1 ref={line1Ref}>{dict.hero.line1}</Line1>
+
+            <Line2Container ref={line2ContainerRef}>
+              <SplitLeft className="split-left">{dict.hero.line2.left}</SplitLeft>
+              <Line2Text className="split-space"> </Line2Text>
+              <SplitRight className="split-right">{dict.hero.line2.right}</SplitRight>
+            </Line2Container>
+          </TitlesWrapper>
 
           <ScrollIndicatorWrapper ref={scrollIndicatorRef} onClick={handleScrollDown}>
             <Chevron className="chevron-1">
