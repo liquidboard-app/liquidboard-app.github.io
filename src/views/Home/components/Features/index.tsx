@@ -181,7 +181,7 @@ const Features: React.FC = () => {
         ScrollTrigger.create({
           trigger: section,
           start: 'top 56px',
-          end: () => `+=${window.innerHeight * 5.5}`,
+          end: () => `+=${window.innerHeight * 15.0}`,
           pin,
           pinSpacing: true,
           scrub: 1.55,

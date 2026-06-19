@@ -64,7 +64,7 @@ export const CopyLines = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 `;
 
 export const FeatureLine = styled.div`
@@ -72,7 +72,7 @@ export const FeatureLine = styled.div`
   inset: 0;
   display: flex;
   align-items: center; 
-  overflow: hidden;
+  overflow: visible;
   will-change: opacity, filter, transform;
 
   @media (max-width: 900px) {
