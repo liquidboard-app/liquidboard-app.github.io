@@ -84,6 +84,12 @@ const en: LocaleDict = {
       { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
     ],
   },
+  policy: {
+    dataSecurity: "Data Security",
+    privacy: "Privacy",
+    terms: "Terms of Use",
+    payment: "Payment & Refund",
+  },
   help: {
     faqTab: 'FAQ',
     docsTab: 'Docs',

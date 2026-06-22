@@ -83,6 +83,17 @@ const vi: LocaleDict = {
       { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard bang anh' },
       { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard ban phim' },
     ],
+  },
+  policy: {
+    dataSecurity: "Bảo mật Dữ liệu",
+    privacy: "Quyền riêng tư",
+    terms: "Điều khoản Sử dụng",
+    payment: "Thanh toán và Hoàn tiền",
+  },
+  help: {
+    faqTab: 'Câu hỏi thường gặp',
+    docsTab: 'Tài liệu',
+    docsPlaceholder: 'Tài liệu đang được cập nhật...',
   }
 };
 

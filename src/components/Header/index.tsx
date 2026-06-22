@@ -188,7 +188,7 @@ const Header: React.FC = () => {
                 gsap.set('.download-brand-text', { clearProps: 'all' });
                 gsap.set(actionPanel, { clearProps: 'transform' });
                 const rect = actionPanel.getBoundingClientRect();
-                const viewportCenter = window.innerWidth / 2;
+                const viewportCenter = document.documentElement.clientWidth / 2;
                 const elementCenter = rect.left + rect.width / 2;
                 return viewportCenter - elementCenter;
               },

@@ -60,7 +60,7 @@ const Hero: React.FC = () => {
       scrollTrigger: {
         trigger: heroRef.current,
         start: "top top",
-        end: "+=160%",
+        end: "+=150%",
         scrub: 1,
         pin: true,
         invalidateOnRefresh: true,
@@ -225,7 +225,7 @@ const Hero: React.FC = () => {
       duration: 2
     }, 1);
 
-    tl.to({}, { duration: 3 });
+    tl.to({}, { duration: 2 });
 
     const heroImg = imageContainerRef.current?.querySelector('img');
     if (heroImg) {
