@@ -10,7 +10,7 @@ const ru: LocaleDict = {
   },
   hero: {
     line1: "Перенесите настоящий буфер обмена",
-    line2: { left: "в вашу", right: "Клавиатуру" },
+    line2: { left: "в вашу", right: "iOS-клавиатуру" },
   },
   header: {
     download: { prefix: "Скачать\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const ru: LocaleDict = {
       'Экспортируйте и импортируйте текстовые данные в форматах JSON и CSV прямо через приложение Файлы.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const ru: LocaleDict = {
         tone: 'white',
         lifetime: 'Пожизненный доступ',
         price: '₽0',
-        description: 'Для пробных пользователей',
+        description: 'Пробный план',
         features: ['25 Текстов', '25 Изображений', '25 Стикеров', '2 Группы каждого типа', '2 Закрепления на группу'],
       },
       {
@@ -50,7 +50,7 @@ const ru: LocaleDict = {
         tone: 'green',
         lifetime: 'Пожизненный доступ',
         price: '₽299',
-        description: 'Для обычных пользователей',
+        description: 'Базовый план',
         features: ['100 Текстов', '100 Изображений', '100 Стикеров', '5 Групп каждого типа', '5 Закреплений на группу'],
       },
       {
@@ -58,7 +58,7 @@ const ru: LocaleDict = {
         tone: 'blue',
         lifetime: 'Пожизненный доступ',
         price: '₽599',
-        description: 'Для многозадачных пользователей',
+        description: 'План для многозадачности',
         features: ['250 Текстов', '250 Изображений', '250 Стикеров', '15 Групп каждого типа', '15 Закреплений на группу'],
       },
       {
@@ -66,7 +66,7 @@ const ru: LocaleDict = {
         tone: 'red',
         lifetime: 'Пожизненный доступ',
         price: '₽1099',
-        description: 'Для профессиональных пользователей',
+        description: 'Профессиональный план',
         features: ['500 Текстов', '500 Изображений', '500 Стикеров', '40 Групп каждого типа', '40 Закреплений на группу'],
       },
     ],
@@ -79,9 +79,9 @@ const ru: LocaleDict = {
       'Создавайте и мгновенно делитесь стикерами, любимыми мемами, поздравительными сообщениями и эмоциями, чтобы общаться с близкими и клиентами. Персонализируйте свое общение с помощью визуальных элементов, которые передают чувства и повышают вовлеченность.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

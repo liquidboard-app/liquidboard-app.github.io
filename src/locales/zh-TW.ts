@@ -10,7 +10,7 @@ const zhTW: LocaleDict = {
   },
   hero: {
     line1: "把真正的剪貼板帶進",
-    line2: { left: "你的", right: "鍵盤" },
+    line2: { left: "你的", right: "iOS 鍵盤" },
   },
   header: {
     download: { prefix: "下載\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const zhTW: LocaleDict = {
       '直接透過檔案 App 將文字資料匯出和匯入為 JSON 與 CSV 格式。',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const zhTW: LocaleDict = {
         tone: 'white',
         lifetime: '終身存取',
         price: 'NT$0',
-        description: '給試用使用者',
+        description: '試用方案',
         features: ['25 則文字', '25 張圖片', '25 張貼圖', '每種型別 2 個群組', '每個群組 2 個置頂'],
       },
       {
@@ -50,7 +50,7 @@ const zhTW: LocaleDict = {
         tone: 'green',
         lifetime: '終身存取',
         price: 'NT$90',
-        description: '給休閒使用者',
+        description: '基本方案',
         features: ['100 則文字', '100 張圖片', '100 張貼圖', '每種型別 5 個群組', '每個群組 5 個置頂'],
       },
       {
@@ -58,7 +58,7 @@ const zhTW: LocaleDict = {
         tone: 'blue',
         lifetime: '終身存取',
         price: 'NT$190',
-        description: '給多工處理使用者',
+        description: '多工方案',
         features: ['250 則文字', '250 張圖片', '250 張貼圖', '每種型別 15 個群組', '每個群組 15 個置頂'],
       },
       {
@@ -66,7 +66,7 @@ const zhTW: LocaleDict = {
         tone: 'red',
         lifetime: '終身存取',
         price: 'NT$330',
-        description: '給專業使用者',
+        description: '專業方案',
         features: ['500 則文字', '500 張圖片', '500 張貼圖', '每種型別 40 個群組', '每個群組 40 個置頂'],
       },
     ],
@@ -79,9 +79,9 @@ const zhTW: LocaleDict = {
       '建立並立即分享貼圖、最愛的迷因、祝賀訊息和情感表達，以與親人或客戶建立聯絡。使用傳達情感並提高參與度的視覺元素來個人化您的溝通。',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

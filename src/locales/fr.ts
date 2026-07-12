@@ -10,7 +10,7 @@ const fr: LocaleDict = {
   },
   hero: {
     line1: "Apportez un vrai presse-papiers",
-    line2: { left: "dans votre", right: "Clavier" },
+    line2: { left: "dans votre", right: "Clavier iOS" },
   },
   header: {
     download: { prefix: "Télécharger\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const fr: LocaleDict = {
       'Exportez et importez des données textuelles au format JSON et CSV directement via l\'application Fichiers.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const fr: LocaleDict = {
         tone: 'white',
         lifetime: 'Accès à vie',
         price: '0 €',
-        description: 'Pour les utilisateurs d\'essai',
+        description: 'Formule d\'essai',
         features: ['25 Textes', '25 Images', '25 Autocollants', '2 Groupes Par Type', '2 Épingles Par Groupe'],
       },
       {
@@ -50,7 +50,7 @@ const fr: LocaleDict = {
         tone: 'green',
         lifetime: 'Accès à vie',
         price: '2,99 €',
-        description: 'Pour les utilisateurs occasionnels',
+        description: 'Formule essentielle',
         features: ['100 Textos', '100 Images', '100 Autocollants', '5 Groupes Par Type', '5 Épingles Par Groupe'],
       },
       {
@@ -58,7 +58,7 @@ const fr: LocaleDict = {
         tone: 'blue',
         lifetime: 'Accès à vie',
         price: '5,99 €',
-        description: 'Pour les utilisateurs multitâches',
+        description: 'Formule multitâche',
         features: ['250 Textes', '250 Images', '250 Autocollants', '15 Groupes Par Type', '15 Épingles Par Groupe'],
       },
       {
@@ -66,7 +66,7 @@ const fr: LocaleDict = {
         tone: 'red',
         lifetime: 'Accès à vie',
         price: '10,99 €',
-        description: 'Pour les utilisateurs professionnels',
+        description: 'Formule professionnelle',
         features: ['500 Textes', '500 Images', '500 Autocollants', '40 Groupes Par Type', '40 Épingles Par Groupe'],
       },
     ],
@@ -79,9 +79,9 @@ const fr: LocaleDict = {
       'Créez et partagez instantanément des autocollants, des mèmes favoris, des messages de félicitations et des expressions émotionnelles pour vous connecter avec vos proches et vos clients. Personnalisez votre communication avec des éléments visuels qui transmettent des sentiments et améliorent l\'engagement.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

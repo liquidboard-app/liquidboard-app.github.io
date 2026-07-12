@@ -3,25 +3,24 @@ import { createGlobalStyle } from 'styled-components';
 const GlobalStyles = createGlobalStyle`
 /* ============================================================
    LiquidBoard — styles
-   Dark mode only
+   LiquidBoard light theme
    ============================================================ */
 
 :root {
-  color-scheme: dark;
-  --bg: #0b0b0d;
-  --bg-2: #0f0f12;
-  --surface: #161619;
-  --text: #f3f3f5;
-  --muted: #9b9ba3;
+  color-scheme: light;
+  --bg: #ffefdE;
+  --bg-2: #fff3e4;
+  --surface: #f7e4cf;
+  --text: #262120;
+  --muted: #9b7566;
   --border: rgba(255, 255, 255, 0.1);
-  --header-bg: rgba(20, 20, 23, 0.5);
-  --popover-bg: rgba(28, 28, 32, 0.6);
-  --popover-border: rgba(255, 255, 255, 0.12);
+  --header-bg: rgba(255, 239, 222, 0.5);
+  --popover-bg: rgba(255, 243, 228, 0.86);
+  --popover-border: rgba(38, 33, 32, 0.12);
   --shadow-card: 0 6px 22px -8px rgba(0, 0, 0, 0.45);
-  --pill-bg: #ffffff;
-  --pill-text: #111114;
-  --ghost-bg: rgba(255, 255, 255, 0.06);
-  --logo: url("/assets/logo-app-light.jpg");
+  --pill-bg: #292422;
+  --pill-text: #fff4e6;
+  --ghost-bg: rgba(38, 33, 32, 0.06);
 }
 
 * {
@@ -47,7 +46,7 @@ body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   transition: background-color 0.5s ease, color 0.5s ease;
@@ -55,22 +54,49 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-/* Lenis recommended styles */
-html.lenis,
-html.lenis body {
-  height: auto;
+.language-page-shell {
+  min-height: 100dvh;
+  transition: filter .42s cubic-bezier(.22, 1, .36, 1), opacity .42s ease, transform .42s cubic-bezier(.22, 1, .36, 1);
 }
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+
+.language-page-shell.is-changing {
+  filter: blur(12px);
+  opacity: .72;
+  transform: scale(.996);
 }
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+
+@media (max-width: 1080px) {
+  .language-page-shell.is-changing {
+    filter: none;
+    opacity: 1;
+    transform: none;
+  }
 }
-.lenis.lenis-stopped {
-  overflow: hidden;
+
+.language-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 239, 222, .2);
+  backdrop-filter: blur(0) saturate(120%);
+  -webkit-backdrop-filter: blur(0) saturate(120%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .28s ease, visibility .28s ease, backdrop-filter .42s ease, -webkit-backdrop-filter .42s ease;
+}
+
+.language-transition.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
 }
 
 a {
@@ -87,21 +113,6 @@ button {
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-/* Base fade-in helpers (set initial hidden, JS animates) */
-.fade-up {
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
-/* preload gate */
-.preload .hero__title,
-.preload .hero__desc,
-.preload .hero__lead,
-.preload .hero__cta,
-.preload .stage {
-  opacity: 0 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

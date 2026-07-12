@@ -10,7 +10,7 @@ const ko: LocaleDict = {
   },
   hero: {
     line1: "진정한 클립보드를",
-    line2: { left: "당신의", right: "키보드에" },
+    line2: { left: "당신의", right: "iOS 키보드에" },
   },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "다운로드" },
@@ -25,10 +25,10 @@ const ko: LocaleDict = {
       '파일 앱을 통해 직접 JSON 및 CSV로 텍스트 데이터를 내보내고 가져옵니다.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const ko: LocaleDict = {
         tone: 'white',
         lifetime: '평생 액세스',
         price: '₩0',
-        description: '체험 사용자용',
+        description: '체험 플랜',
         features: ['텍스트 25개', '이미지 25개', '스티커 25개', '유형당 2개 그룹', '그룹당 2개 고정'],
       },
       {
@@ -50,7 +50,7 @@ const ko: LocaleDict = {
         tone: 'green',
         lifetime: '평생 액세스',
         price: '₩4,400',
-        description: '일반 사용자용',
+        description: '기본 플랜',
         features: ['텍스트 100개', '이미지 100개', '스티커 100개', '유형당 5개 그룹', '그룹당 5개 고정'],
       },
       {
@@ -58,7 +58,7 @@ const ko: LocaleDict = {
         tone: 'blue',
         lifetime: '평생 액세스',
         price: '₩8,800',
-        description: '멀티태스킹 사용자용',
+        description: '멀티태스킹 플랜',
         features: ['텍스트 250개', '이미지 250개', '스티커 250개', '유형당 15개 그룹', '그룹당 15개 고정'],
       },
       {
@@ -66,7 +66,7 @@ const ko: LocaleDict = {
         tone: 'red',
         lifetime: '평생 액세스',
         price: '₩15,000',
-        description: '전문가용',
+        description: '프로 플랜',
         features: ['텍스트 500개', '이미지 500개', '스티커 500개', '유형당 40개 그룹', '그룹당 40개 고정'],
       },
     ],
@@ -79,9 +79,9 @@ const ko: LocaleDict = {
       '스티커, 좋아하는 밈, 축하 메시지, 감정 표현을 즉시 만들고 공유하여 사랑하는 사람과 고객과 소통하세요. 감정을 전달하고 참여를 높이는 시각적 요소로 커뮤니케이션을 개인화합니다.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

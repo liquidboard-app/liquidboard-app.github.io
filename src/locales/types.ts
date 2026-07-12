@@ -18,6 +18,7 @@ export type LocaleDict = {
     home: string;
     about: string;
     pricing: string;
+    updates?: string;
     policy: string;
     help: string;
   };

@@ -1,75 +1,61 @@
-import React, { useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import Lenis from 'lenis';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
 import Header from './components/Header';
-import Home from '@/views/Home';
-import About from '@/views/About';
-import Pricing from '@/views/Pricing';
-import Updates from '@/views/Updates';
-import Help from '@/views/Help';
-import Policy from '@/views/Policy';
 
-gsap.registerPlugin(ScrollTrigger);
-gsap.config({ force3D: true });
+const Home = lazy(() => import('@/views/Home'));
+const Pricing = lazy(() => import('@/views/Pricing'));
+const Faq = lazy(() => import('@/views/Faq'));
+const Policy = lazy(() => import('@/views/Policy'));
+const About = lazy(() => import('@/views/About'));
+const Updates = lazy(() => import('@/views/Updates'));
+
+const RouteContent = ({ children }: { children: React.ReactNode }) => <Suspense fallback={null}>{children}</Suspense>;
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
-  useEffect(() => {
-    if ((window as any).__lbLenis) {
-      (window as any).__lbLenis.scrollTo(0, { immediate: true });
-    }
-    window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    const scrollToStart = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    scrollToStart();
+
+    if (!window.matchMedia('(min-width: 1200px)').matches) return undefined;
+
+    let followUpFrame: number | undefined;
+    const frame = window.requestAnimationFrame(() => {
+      scrollToStart();
+      followUpFrame = window.requestAnimationFrame(scrollToStart);
+    });
+    const timer = window.setTimeout(scrollToStart, 120);
+    const handlePageShow = () => {
+      scrollToStart();
+      window.setTimeout(scrollToStart, 0);
+    };
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      if (followUpFrame !== undefined) window.cancelAnimationFrame(followUpFrame);
+      window.clearTimeout(timer);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
   }, [pathname]);
 
   return null;
 };
 
-const App: React.FC = () => {
-  const lenisRef = useRef<Lenis | null>(null);
-
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 0.8,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      wheelMultiplier: 1.1,
-      touchMultiplier: 1.1,
-      infinite: false,
-    });
-    lenisRef.current = lenis;
-    (window as any).__lbLenis = lenis;
-
-    lenis.on('scroll', ScrollTrigger.update);
-    const tick = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
-
-    return () => {
-      delete (window as any).__lbLenis;
-      gsap.ticker.remove(tick);
-      lenis.destroy();
-    };
-  }, []);
-
-  return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/updates" element={<Updates />} />
-        <Route path="/help/*" element={<Help />} />
-        <Route path="/policy/*" element={<Policy />} />
-      </Routes>
-    </BrowserRouter>
-  );
-};
+const App: React.FC = () => (
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <ScrollToTop />
+    <Header />
+    <Routes>
+      <Route path="/" element={<RouteContent><Home /></RouteContent>} />
+      <Route path="/about" element={<RouteContent><About /></RouteContent>} />
+      <Route path="/pricing" element={<RouteContent><Pricing /></RouteContent>} />
+      <Route path="/updates" element={<RouteContent><Updates /></RouteContent>} />
+      <Route path="/faq" element={<RouteContent><Faq /></RouteContent>} />
+      <Route path="/policy/*" element={<RouteContent><Policy /></RouteContent>} />
+    </Routes>
+  </BrowserRouter>
+);
 
 export default App;

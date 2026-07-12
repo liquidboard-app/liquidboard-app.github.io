@@ -5,12 +5,13 @@ const en: LocaleDict = {
     home: "Home",
     about: "About",
     pricing: "Pricing",
+    updates: "Updates",
     policy: "Policy",
     help: "Help",
   },
   hero: {
     line1: "Bring a real Clipboard",
-    line2: { left: "in your", right: "Keyboard" },
+    line2: { left: "in your", right: "iOS Keyboard" },
   },
   header: {
     download: { prefix: "Download\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +26,10 @@ const en: LocaleDict = {
       'Export and import text data as JSON and CSV directly through the Files app.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +43,7 @@ const en: LocaleDict = {
         tone: 'white',
         lifetime: 'Lifetime',
         price: '$0',
-        description: 'For trial users',
+        description: 'Trial plan',
         features: ['25 Texts', '25 Images', '25 Stickers', '2 Groups Per Type', '2 Pins Per Group'],
       },
       {
@@ -50,7 +51,7 @@ const en: LocaleDict = {
         tone: 'green',
         lifetime: 'Lifetime',
         price: '$2.99',
-        description: 'For casual users',
+        description: 'Basic plan',
         features: ['100 Texts', '100 Images', '100 Stickers', '5 Groups Per Type', '5 Pins Per Group'],
       },
       {
@@ -58,7 +59,7 @@ const en: LocaleDict = {
         tone: 'blue',
         lifetime: 'Lifetime',
         price: '$5.99',
-        description: 'For multitasking users',
+        description: 'Multitasking plan',
         features: ['250 Texts', '250 Images', '250 Stickers', '15 Groups Per Type', '15 Pins Per Group'],
       },
       {
@@ -66,7 +67,7 @@ const en: LocaleDict = {
         tone: 'red',
         lifetime: 'Lifetime',
         price: '$10.99',
-        description: 'For professional users',
+        description: 'Professional plan',
         features: ['500 Texts', '500 Images', '500 Stickers', '40 Groups Per Type', '40 Pins Per Group'],
       },
     ],
@@ -79,9 +80,9 @@ const en: LocaleDict = {
       'Create and instantly share stickers, favorite memes, congratulatory messages, and emotional expressions to connect with loved ones and customers. Personalize your communication with visual elements that convey sentiment and enhance engagement.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   },
   policy: {

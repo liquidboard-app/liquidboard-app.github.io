@@ -10,7 +10,7 @@ const th: LocaleDict = {
   },
   hero: {
     line1: "นำคลิปบอร์ดจริงมาไว้",
-    line2: { left: "ใน", right: "คีย์บอร์ดของคุณ" },
+    line2: { left: "ใน", right: "คีย์บอร์ด iOS ของคุณ" },
   },
   header: {
     download: { prefix: "ดาวน์โหลด\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const th: LocaleDict = {
       'ส่งออกและนำเข้าข้อมูลข้อความเป็น JSON และ CSV ได้โดยตรงผ่านแอปไฟล์',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const th: LocaleDict = {
         tone: 'white',
         lifetime: 'การเข้าถึงตลอดชีพ',
         price: '฿0',
-        description: 'สำหรับผู้ใช้ทดลอง',
+        description: 'แผนทดลอง',
         features: ['25 ข้อความ', '25 รูปภาพ', '25 สติกเกอร์', '2 กลุ่มต่อประเภท', '2 ปักหมุดต่อกลุ่ม'],
       },
       {
@@ -50,7 +50,7 @@ const th: LocaleDict = {
         tone: 'green',
         lifetime: 'การเข้าถึงตลอดชีพ',
         price: '฿99',
-        description: 'สำหรับผู้ใช้ทั่วไป',
+        description: 'แผนพื้นฐาน',
         features: ['100 ข้อความ', '100 รูปภาพ', '100 สติกเกอร์', '5 กลุ่มต่อประเภท', '5 ปักหมุดต่อกลุ่ม'],
       },
       {
@@ -58,7 +58,7 @@ const th: LocaleDict = {
         tone: 'blue',
         lifetime: 'การเข้าถึงตลอดชีพ',
         price: '฿199',
-        description: 'สำหรับผู้ใช้มัลติทาสก์',
+        description: 'แผนมัลติทาสก์',
         features: ['250 ข้อความ', '250 รูปภาพ', '250 สติกเกอร์', '15 กลุ่มต่อประเภท', '15 ปักหมุดต่อกลุ่ม'],
       },
       {
@@ -66,7 +66,7 @@ const th: LocaleDict = {
         tone: 'red',
         lifetime: 'การเข้าถึงตลอดชีพ',
         price: '฿349',
-        description: 'สำหรับผู้ใช้มืออาชีพ',
+        description: 'แผนมืออาชีพ',
         features: ['500 ข้อความ', '500 รูปภาพ', '500 สติกเกอร์', '40 กลุ่มต่อประเภท', '40 ปักหมุดต่อกลุ่ม'],
       },
     ],
@@ -79,9 +79,9 @@ const th: LocaleDict = {
       'สร้างและแชร์สติกเกอร์ มีมสุดโปรด ข้อความแสดงความยินดี และการแสดงอารมณ์ในทันที เพื่อเชื่อมต่อกับคนที่คุณรักและลูกค้า ปรับแต่งการสื่อสารของคุณด้วยองค์ประกอบภาพที่ถ่ายทอดความรู้สึกและเพิ่มการมีส่วนร่วม',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,
@@ -98,8 +98,5 @@ const th: LocaleDict = {
     terms: "ข้อกำหนดในการใช้งาน",
     payment: "การชำระเงินและการคืนเงิน",
   },
-  help: {
-    docsPlaceholder: "กำลังอัปเดตเอกสาร...",
-  }
 };
 export default th;

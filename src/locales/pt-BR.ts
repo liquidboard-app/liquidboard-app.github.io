@@ -10,7 +10,7 @@ const ptBR: LocaleDict = {
   },
   hero: {
     line1: "Traga uma área de transferência real",
-    line2: { left: "para o seu", right: "Teclado" },
+    line2: { left: "para o seu", right: "Teclado iOS" },
   },
   header: {
     download: { prefix: "Baixar\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const ptBR: LocaleDict = {
       'Exporte e importe dados de texto como JSON e CSV diretamente pelo aplicativo Arquivos.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const ptBR: LocaleDict = {
         tone: 'white',
         lifetime: 'Acesso Vitalício',
         price: 'R$0',
-        description: 'Para usuários de teste',
+        description: 'Plano de teste',
         features: ['25 Textos', '25 Imagens', '25 Adesivos', '2 Grupos Por Tipo', '2 Fixados Por Grupo'],
       },
       {
@@ -50,7 +50,7 @@ const ptBR: LocaleDict = {
         tone: 'green',
         lifetime: 'Acesso Vitalício',
         price: 'R$16,90',
-        description: 'Para usuários casuais',
+        description: 'Plano básico',
         features: ['100 Textos', '100 Imagens', '100 Adesivos', '5 Grupos Por Tipo', '5 Fixados Por Grupo'],
       },
       {
@@ -58,7 +58,7 @@ const ptBR: LocaleDict = {
         tone: 'blue',
         lifetime: 'Acesso Vitalício',
         price: 'R$32,90',
-        description: 'Para usuários multitarefa',
+        description: 'Plano multitarefa',
         features: ['250 Textos', '250 Imagens', '250 Adesivos', '15 Grupos Por Tipo', '15 Fixados Por Grupo'],
       },
       {
@@ -66,7 +66,7 @@ const ptBR: LocaleDict = {
         tone: 'red',
         lifetime: 'Acesso Vitalício',
         price: 'R$54,90',
-        description: 'Para usuários profissionais',
+        description: 'Plano profissional',
         features: ['500 Textos', '500 Imagens', '500 Adesivos', '40 Grupos Por Tipo', '40 Fixados Por Grupo'],
       },
     ],
@@ -79,9 +79,9 @@ const ptBR: LocaleDict = {
       'Crie e compartilhe instantaneamente adesivos, memes favoritos, mensagens de felicitações e expressões emocionais para se conectar com entes queridos e clientes. Personalize sua comunicação com elementos visuais que transmitem sentimento e aumentam o engajamento.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

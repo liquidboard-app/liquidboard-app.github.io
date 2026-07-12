@@ -4,13 +4,13 @@ const vi: LocaleDict = {
   nav: {
     home: "Trang chủ",
     about: "Giới Thiệu",
-    pricing: "Giá",
+    pricing: "Bảng Giá",
     policy: "Chính sách",
     help: "Trợ Giúp",
   },
   hero: {
     line1: "Mang một Clipboard thực sự",
-    line2: { left: "vào trong", right: "Bàn phím" },
+    line2: { left: "vào trong", right: "Bàn phím iOS" },
   },
   header: {
     download: { prefix: "Tải xuống\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const vi: LocaleDict = {
       'Xuất và nhập văn bản ra JSON, CSV đến ứng dụng Files.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard nhom noi dung' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard ghim noi dung' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard sao chep va nhan ban' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard xuat va nhap file' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard nhom noi dung' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard ghim noi dung' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard sao chep va nhan ban' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard xuat va nhap file' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const vi: LocaleDict = {
         tone: 'white',
         lifetime: 'Truy Cập Trọn Đời',
         price: '₫0',
-        description: 'Cho người dùng Trải Nghiệm',
+        description: 'Gói Trải Nghiệm',
         features: ['25 Văn Bản', '25 Ảnh', '25 Nhãn Dán', '2 Nhóm Mỗi Loại', '2 Ghim Mỗi Nhóm'],
       },
       {
@@ -50,7 +50,7 @@ const vi: LocaleDict = {
         tone: 'green',
         lifetime: 'Truy Cập Trọn Đời',
         price: '₫79.000',
-        description: 'Cho người dùng Cơ Bản',
+        description: 'Gói Cơ Bản',
         features: ['100 Văn Bản', '100 Ảnh', '100 Nhãn Dán', '5 Nhóm Mỗi Loại', '5 Ghim Mỗi Nhóm'],
       },
       {
@@ -58,7 +58,7 @@ const vi: LocaleDict = {
         tone: 'blue',
         lifetime: 'Truy Cập Trọn Đời',
         price: '₫159.000',
-        description: 'Cho người dùng Đa Tác Vụ',
+        description: 'Gói Đa Tác Vụ',
         features: ['250 Văn Bản', '250 Ảnh', '250 Nhãn Dán', '15 Nhóm Mỗi Loại', '15 Ghim Mỗi Nhóm'],
       },
       {
@@ -66,7 +66,7 @@ const vi: LocaleDict = {
         tone: 'red',
         lifetime: 'Truy Cập Trọn Đời',
         price: '₫289.000',
-        description: 'Cho người dùng Chuyên Nghiệp',
+        description: 'Gói Chuyên Nghiệp',
         features: ['500 Văn Bản', '500 Ảnh', '500 Nhãn Dán', '40 Nhóm Mỗi Loại', '40 Ghim Mỗi Nhóm'],
       },
     ],
@@ -79,9 +79,9 @@ const vi: LocaleDict = {
       'Tạo và chia sẻ ngay sticker, meme yêu thích, lời chúc, và những biểu cảm cảm xúc để kết nối với người thân và khách hàng. Cá nhân hóa giao tiếp bằng các yếu tố hình ảnh truyền tải cảm xúc và tăng sự gắn kết.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard doan van ban' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard bang anh' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard ban phim' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard doan van ban' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard bang anh' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard ban phim' },
     ],
   },
   policy: {

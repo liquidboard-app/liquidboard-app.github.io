@@ -1,23 +1,29 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState, ReactNode } from 'react';
 import { LocaleDict } from '../locales/types';
-import { getDict } from '../locales';
-import en from '../locales/en';
+import { defaultDict, getDict } from '../locales';
 
 type LanguageContextType = {
   lang: string;
-  changeLang: (newLang: string) => void;
+  changeLang: (newLang: string) => Promise<void>;
   dict: LocaleDict;
+  isLanguageChanging: boolean;
 };
 
 const LanguageContext = createContext<LanguageContextType>({
   lang: 'en',
-  changeLang: () => {},
-  dict: en,
+  changeLang: async () => {},
+  dict: defaultDict,
+  isLanguageChanging: false,
+});
+
+const wait = (duration: number) => new Promise<void>((resolve) => {
+  window.setTimeout(resolve, duration);
 });
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [lang, setLang] = useState<string>('en');
-  const [dict, setDict] = useState<LocaleDict>(en);
+  const [dict, setDict] = useState<LocaleDict>(defaultDict);
+  const [isLanguageChanging, setIsLanguageChanging] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('lb_lang');
@@ -27,17 +33,41 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, []);
 
   useEffect(() => {
-    getDict(lang).then(d => setDict(d));
+    let active = true;
+    getDict(lang).then((nextDict) => {
+      if (active) setDict(nextDict);
+    });
+    document.documentElement.lang = lang;
+    return () => { active = false; };
   }, [lang]);
 
-  const changeLang = (newLang: string) => {
-    setLang(newLang);
-    localStorage.setItem('lb_lang', newLang);
-  };
+  const changeLang = useCallback(async (newLang: string) => {
+    if (newLang === lang || isLanguageChanging) return;
+
+    setIsLanguageChanging(true);
+    try {
+      await wait(240);
+      const nextDict = await getDict(newLang);
+      setDict(nextDict);
+      setLang(newLang);
+      localStorage.setItem('lb_lang', newLang);
+      document.documentElement.lang = newLang;
+      await wait(420);
+    } finally {
+      setIsLanguageChanging(false);
+    }
+  }, [isLanguageChanging, lang]);
 
   return (
-    <LanguageContext.Provider value={{ lang, changeLang, dict }}>
-      {children}
+    <LanguageContext.Provider value={{ lang, changeLang, dict, isLanguageChanging }}>
+      <div className={`language-page-shell${isLanguageChanging ? ' is-changing' : ''}`}>
+        {children}
+      </div>
+      <div
+        className={`language-transition${isLanguageChanging ? ' is-visible' : ''}`}
+        aria-hidden={!isLanguageChanging}
+        aria-live="polite"
+      />
     </LanguageContext.Provider>
   );
 };

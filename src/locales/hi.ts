@@ -10,7 +10,7 @@ const hi: LocaleDict = {
   },
   hero: {
     line1: "एक असली क्लिपबोर्ड लाएँ",
-    line2: { left: "अपने", right: "कीबोर्ड में" },
+    line2: { left: "अपने", right: "iOS कीबोर्ड में" },
   },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "डाउनलोड करें" },
@@ -25,10 +25,10 @@ const hi: LocaleDict = {
       'फ़ाइल ऐप के माध्यम से सीधे JSON और CSV के रूप में टेक्स्ट डेटा निर्यात और आयात करें।',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const hi: LocaleDict = {
         tone: 'white',
         lifetime: 'आजीवन पहुँच',
         price: '₹0',
-        description: 'परीक्षण उपयोगकर्ताओं के लिए',
+        description: 'परीक्षण प्लान',
         features: ['25 टेक्स्ट', '25 चित्र', '25 स्टिकर', 'प्रति प्रकार 2 समूह', 'प्रति समूह 2 पिन'],
       },
       {
@@ -50,7 +50,7 @@ const hi: LocaleDict = {
         tone: 'green',
         lifetime: 'आजीवन पहुँच',
         price: '₹249',
-        description: 'आकस्मिक उपयोगकर्ताओं के लिए',
+        description: 'बेसिक प्लान',
         features: ['100 टेक्स्ट', '100 चित्र', '100 स्टिकर', 'प्रति प्रकार 5 समूह', 'प्रति समूह 5 पिन'],
       },
       {
@@ -58,7 +58,7 @@ const hi: LocaleDict = {
         tone: 'blue',
         lifetime: 'आजीवन पहुँच',
         price: '₹499',
-        description: 'मल्टीटास्किंग उपयोगकर्ताओं के लिए',
+        description: 'मल्टीटास्किंग प्लान',
         features: ['250 टेक्स्ट', '250 चित्र', '250 स्टिकर', 'प्रति प्रकार 15 समूह', 'प्रति समूह 15 पिन'],
       },
       {
@@ -66,7 +66,7 @@ const hi: LocaleDict = {
         tone: 'red',
         lifetime: 'आजीवन पहुँच',
         price: '₹999',
-        description: 'पेशेवर उपयोगकर्ताओं के लिए',
+        description: 'प्रोफेशनल प्लान',
         features: ['500 टेक्स्ट', '500 चित्र', '500 स्टिकर', 'प्रति प्रकार 40 समूह', 'प्रति समूह 40 पिन'],
       },
     ],
@@ -79,9 +79,9 @@ const hi: LocaleDict = {
       'प्रियजनों और ग्राहकों से जुड़ने के लिए स्टिकर, पसंदीदा मीम्स, बधाई संदेश और भावनात्मक अभिव्यक्तियां तुरंत बनाएं और साझा करें। दृश्य तत्वों के साथ अपने संचार को वैयक्तिकृत करें जो भावना व्यक्त करते हैं और जुड़ाव बढ़ाते हैं।',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

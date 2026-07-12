@@ -10,7 +10,7 @@ const pl: LocaleDict = {
   },
   hero: {
     line1: "Prawdziwy schowek",
-    line2: { left: "w Twojej", right: "Klawiaturze" },
+    line2: { left: "w Twojej", right: "Klawiaturze iOS" },
   },
   header: {
     download: { prefix: "Pobierz\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const pl: LocaleDict = {
       'Eksportuj i importuj dane tekstowe jako JSON i CSV bezpośrednio przez aplikację Pliki.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const pl: LocaleDict = {
         tone: 'white',
         lifetime: 'Dożywotni dostęp',
         price: '0 zł',
-        description: 'Dla użytkowników testowych',
+        description: 'Plan próbny',
         features: ['25 Tekstów', '25 Obrazów', '25 Naklejek', '2 Grupy Na Typ', '2 Przypięcia Na Grupę'],
       },
       {
@@ -50,7 +50,7 @@ const pl: LocaleDict = {
         tone: 'green',
         lifetime: 'Dożywotni dostęp',
         price: '14,99 zł',
-        description: 'Dla zwykłych użytkowników',
+        description: 'Plan podstawowy',
         features: ['100 Tekstów', '100 Obrazów', '100 Naklejek', '5 Grup Na Typ', '5 Przypięć Na Grupę'],
       },
       {
@@ -58,7 +58,7 @@ const pl: LocaleDict = {
         tone: 'blue',
         lifetime: 'Dożywotni dostęp',
         price: '29,99 zł',
-        description: 'Dla użytkowników wielozadaniowych',
+        description: 'Plan wielozadaniowy',
         features: ['250 Tekstów', '250 Obrazów', '250 Naklejek', '15 Grup Na Typ', '15 Przypięć Na Grupę'],
       },
       {
@@ -66,7 +66,7 @@ const pl: LocaleDict = {
         tone: 'red',
         lifetime: 'Dożywotni dostęp',
         price: '49,99 zł',
-        description: 'Dla profesjonalnych użytkowników',
+        description: 'Plan profesjonalny',
         features: ['500 Tekstów', '500 Obrazów', '500 Naklejek', '40 Grup Na Typ', '40 Przypięć Na Grupę'],
       },
     ],
@@ -79,9 +79,9 @@ const pl: LocaleDict = {
       'Twórz i natychmiast udostępniaj naklejki, ulubione memy, wiadomości z gratulacjami i wyrażenia emocjonalne, aby łączyć się z bliskimi i klientami. Spersonalizuj swoją komunikację za pomocą elementów wizualnych, które przekazują uczucia i zwiększają zaangażowanie.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,
@@ -98,8 +98,5 @@ const pl: LocaleDict = {
     terms: "Warunki użytkowania",
     payment: "Płatność i zwrot",
   },
-  help: {
-    docsPlaceholder: "Dokumentacja jest aktualizowana...",
-  }
 };
 export default pl;

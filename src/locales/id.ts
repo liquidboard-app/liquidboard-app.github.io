@@ -10,7 +10,7 @@ const id: LocaleDict = {
   },
   hero: {
     line1: "Bawa papan klip nyata",
-    line2: { left: "ke dalam", right: "Keyboard-mu" },
+    line2: { left: "ke dalam", right: "Keyboard iOS-mu" },
   },
   header: {
     download: { prefix: "Unduh\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const id: LocaleDict = {
       'Ekspor dan impor data teks sebagai JSON dan CSV langsung melalui aplikasi File.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const id: LocaleDict = {
         tone: 'white',
         lifetime: 'Akses Seumur Hidup',
         price: 'Rp0',
-        description: 'Untuk pengguna percobaan',
+        description: 'Paket uji coba',
         features: ['25 Teks', '25 Gambar', '25 Stiker', '2 Grup Per Jenis', '2 Sematan Per Grup'],
       },
       {
@@ -50,7 +50,7 @@ const id: LocaleDict = {
         tone: 'green',
         lifetime: 'Akses Seumur Hidup',
         price: 'Rp49.000',
-        description: 'Untuk pengguna biasa',
+        description: 'Paket dasar',
         features: ['100 Teks', '100 Gambar', '100 Stiker', '5 Grup Per Jenis', '5 Sematan Per Grup'],
       },
       {
@@ -58,7 +58,7 @@ const id: LocaleDict = {
         tone: 'blue',
         lifetime: 'Akses Seumur Hidup',
         price: 'Rp99.000',
-        description: 'Untuk pengguna multitasking',
+        description: 'Paket multitasking',
         features: ['250 Teks', '250 Gambar', '250 Stiker', '15 Grup Per Jenis', '15 Sematan Per Grup'],
       },
       {
@@ -66,7 +66,7 @@ const id: LocaleDict = {
         tone: 'red',
         lifetime: 'Akses Seumur Hidup',
         price: 'Rp179.000',
-        description: 'Untuk pengguna profesional',
+        description: 'Paket profesional',
         features: ['500 Teks', '500 Gambar', '500 Stiker', '40 Grup Per Jenis', '40 Sematan Per Grup'],
       },
     ],
@@ -79,9 +79,9 @@ const id: LocaleDict = {
       'Buat dan bagikan stiker, meme favorit, pesan ucapan selamat, dan ekspresi emosional secara instan untuk terhubung dengan orang terkasih dan pelanggan. Personalisasikan komunikasi Anda dengan elemen visual yang menyampaikan perasaan dan meningkatkan keterlibatan.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

@@ -10,7 +10,7 @@ const bn: LocaleDict = {
   },
   hero: {
     line1: "একটি বাস্তব ক্লিপবোর্ড নিয়ে আসুন",
-    line2: { left: "আপনার", right: "কিবোর্ডে" },
+    line2: { left: "আপনার", right: "iOS কিবোর্ডে" },
   },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "ডাউনলোড করুন" },
@@ -25,10 +25,10 @@ const bn: LocaleDict = {
       'ফাইল অ্যাপের মাধ্যমে সরাসরি JSON এবং CSV হিসাবে টেক্সট ডেটা এক্সপোর্ট এবং ইম্পোর্ট করুন।',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const bn: LocaleDict = {
         tone: 'white',
         lifetime: 'আজীবন অ্যাক্সেস',
         price: '৳0',
-        description: 'ট্রায়াল ব্যবহারকারীদের জন্য',
+        description: 'ট্রায়াল প্ল্যান',
         features: ['২৫টি টেক্সট', '২৫টি ছবি', '২৫টি স্টিকার', 'প্রতিটি প্রকারের জন্য ২টি গ্রুপ', 'প্রতি গ্রুপের জন্য ২টি পিন'],
       },
       {
@@ -50,7 +50,7 @@ const bn: LocaleDict = {
         tone: 'green',
         lifetime: 'আজীবন অ্যাক্সেস',
         price: '৳২৯৯',
-        description: 'সাধারণ ব্যবহারকারীদের জন্য',
+        description: 'বেসিক প্ল্যান',
         features: ['১০০টি টেক্সট', '১০০টি ছবি', '১০০টি স্টিকার', 'প্রতিটি প্রকারের জন্য ৫টি গ্রুপ', 'প্রতি গ্রুপের জন্য ৫টি পিন'],
       },
       {
@@ -58,7 +58,7 @@ const bn: LocaleDict = {
         tone: 'blue',
         lifetime: 'আজীবন অ্যাক্সেস',
         price: '৳৫৯৯',
-        description: 'মাল্টিটাস্কিং ব্যবহারকারীদের জন্য',
+        description: 'মাল্টিটাস্কিং প্ল্যান',
         features: ['২৫০টি টেক্সট', '২৫০টি ছবি', '২৫০টি স্টিকার', 'প্রতিটি প্রকারের জন্য ১৫টি গ্রুপ', 'প্রতি গ্রুপের জন্য ১৫টি পিন'],
       },
       {
@@ -66,7 +66,7 @@ const bn: LocaleDict = {
         tone: 'red',
         lifetime: 'আজীবন অ্যাক্সেস',
         price: '৳১০৯৯',
-        description: 'পেশাদার ব্যবহারকারীদের জন্য',
+        description: 'প্রফেশনাল প্ল্যান',
         features: ['৫০০টি টেক্সট', '৫০০টি ছবি', '৫০০টি স্টিকার', 'প্রতিটি প্রকারের জন্য ৪০টি গ্রুপ', 'প্রতি গ্রুপের জন্য ৪০টি পিন'],
       },
     ],
@@ -79,9 +79,9 @@ const bn: LocaleDict = {
       'প্রিয়জন এবং গ্রাহকদের সাথে সংযোগ করতে স্টিকার, প্রিয় মেমস, অভিনন্দন বার্তা এবং মানসিক অভিব্যক্তি তৈরি করুন এবং তাৎক্ষণিকভাবে ভাগ করুন। আবেগ প্রকাশ করে এবং ব্যস্ততা বাড়ায় এমন ভিজ্যুয়াল উপাদানগুলির সাহায্যে আপনার যোগাযোগকে ব্যক্তিগতকৃত করুন।',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,

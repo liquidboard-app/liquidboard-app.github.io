@@ -1,34 +1,31 @@
-import { LocaleDict } from './types';
+import type { LocaleDict } from './types';
 import en from './en';
-import vi from './vi';
 
-const dictionaries: Record<string, LocaleDict> = {
-  en,
-  vi,
+type LocaleModule = { default: LocaleDict };
+type LocaleLoader = () => Promise<LocaleModule>;
+
+const loaders: Record<string, LocaleLoader> = {
+  vi: () => import('./vi'),
+  ja: () => import('./ja'),
+  es: () => import('./es'),
+  'zh-TW': () => import('./zh-TW'),
+  'pt-BR': () => import('./pt-BR'),
+  fr: () => import('./fr'),
+  de: () => import('./de'),
+  ru: () => import('./ru'),
+  ko: () => import('./ko'),
+  hi: () => import('./hi'),
+  bn: () => import('./bn'),
+  id: () => import('./id'),
+  it: () => import('./it'),
+  th: () => import('./th'),
+  tl: () => import('./tl'),
+  pl: () => import('./pl'),
 };
 
-export const getDict = async (lang: string) => {
-  switch (lang) {
-    case 'vi': return (await import('./vi')).default;
-    case 'ja': return (await import('./ja')).default;
-    case 'es': return (await import('./es')).default;
-    case 'zh-TW': return (await import('./zh-TW')).default;
-    case 'pt-BR': return (await import('./pt-BR')).default;
-    case 'fr': return (await import('./fr')).default;
-    case 'de': return (await import('./de')).default;
-    case 'ru': return (await import('./ru')).default;
-    case 'ko': return (await import('./ko')).default;
-    case 'hi': return (await import('./hi')).default;
-    case 'bn': return (await import('./bn')).default;
-    case 'id': return (await import('./id')).default;
-    case 'it': return (await import('./it')).default;
-    case 'th': return (await import('./th')).default;
-    case 'tl': return (await import('./tl')).default;
-    case 'pl': return (await import('./pl')).default;
-    case 'en':
-    default:
-      return (await import('./en')).default;
-  }
-};
+export const defaultDict = en;
 
-export default dictionaries;
+export const getDict = async (lang: string): Promise<LocaleDict> => {
+  const loader = loaders[lang];
+  return loader ? (await loader()).default : en;
+};

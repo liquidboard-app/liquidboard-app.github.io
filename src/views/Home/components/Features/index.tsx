@@ -1,345 +1,207 @@
-import React, { useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
+import { Copy, FileDown, FileText, FolderTree, ImagePlay, Pin, Sticker } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
-import {
-  FeaturesSection,
-  FeaturesPin,
-  FeaturesInner,
-  CopyColumn,
-  CopyLines,
-  FeatureLine,
-  FeatureLineInner,
-  FeatureBadge,
-  FeatureChar,
-  VisualColumn,
-  VisualFrame,
-  VisualLayer,
-} from './styled';
+import { sentenceCase } from '@/locales/casing';
+import { FeatureTail, LegacyContent, LegacyContentItem } from '../../styled';
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
-const HEADER_OFFSET = 132;
-const ENTRY_PROGRESS_SHARE = 0.14;
-const fillEase = gsap.parseEase('sine.inOut');
+const featureIcons = [FileText, ImagePlay, Sticker];
+const actionIcons = [FolderTree, Pin, Copy, FileDown];
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const renderSplitText = (text: string, startIndex = 0) => {
+  let animationIndex = startIndex;
+  return text.split(/(\s+)/).flatMap((part, partIndex) => {
+    if (/^\s+$/.test(part)) {
+      return <React.Fragment key={`space-${partIndex}`}>{part}</React.Fragment>;
+    }
+    const units = part.length > 18 ? Array.from(part) : [part];
+    return units.map((unit, unitIndex) => {
+      const splitIndex = Math.min(animationIndex, 60);
+      animationIndex += 1;
+      return (
+        <span
+          className="split-word"
+          key={`${partIndex}-${unitIndex}-${unit}`}
+          style={{ '--split-index': splitIndex } as React.CSSProperties}
+        >
+          {unit}
+        </span>
+      );
+    });
+  });
+};
 
 const Features: React.FC = () => {
   const { dict, lang } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
-  const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const visualColumnRef = useRef<HTMLDivElement>(null);
-  const activeImageRef = useRef(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const items = [
+    ...dict.features.titles.map((title, index) => ({
+      id: `feature-${index}`,
+      title,
+      paragraph: dict.features.paragraphs[index],
+      image: dict.features.images[index],
+      icon: featureIcons[index],
+      group: 'features',
+    })),
+    ...dict.action.titles.map((title, index) => ({
+      id: `action-${index}`,
+      title,
+      paragraph: dict.action.paragraphs[index],
+      image: dict.action.images[index],
+      icon: actionIcons[index],
+      group: 'actions',
+    })),
+  ];
+  const horizontalItems = items.slice(0, 4);
+  const verticalItems = items.slice(4);
 
-  const content = dict.features;
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    const pin = pinRef.current;
+    const track = trackRef.current;
+    if (!section || !pin || !track) return undefined;
 
-  useGSAP(
-    () => {
-      const section = sectionRef.current;
-      const pin = pinRef.current;
-      const visualColumn = visualColumnRef.current;
-      const lineEls = lineRefs.current.filter(Boolean) as HTMLDivElement[];
-      const imageEls = imageRefs.current.filter(Boolean) as HTMLDivElement[];
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('article'));
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let revealObserver: IntersectionObserver | undefined;
+    let revealResizeObserver: ResizeObserver | undefined;
+    let refreshTimer: number | undefined;
+    let active = true;
 
-      if (!section || !pin || !visualColumn || lineEls.length === 0 || imageEls.length === 0) {
-        return;
-      }
+    const updateRevealOffset = (card: HTMLElement) => {
+      const visual = card.querySelector<HTMLElement>('.content-visual');
+      if (!visual) return;
+      const cardRect = card.getBoundingClientRect();
+      const visualRect = visual.getBoundingClientRect();
+      const transform = getComputedStyle(visual).transform;
+      const matrix = transform === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(transform);
+      const visualCenterX = visualRect.left + visualRect.width / 2 - matrix.m41;
+      const visualCenterY = visualRect.top + visualRect.height / 2 - matrix.m42;
+      card.style.setProperty('--feature-visual-enter-x', `${cardRect.left + cardRect.width / 2 - visualCenterX}px`);
+      const enterY = cardRect.top + cardRect.height / 2 - visualCenterY;
+      card.style.setProperty('--feature-visual-enter-y', `${enterY}px`);
+      card.style.setProperty('--feature-visual-enter-y-inverse', `${-enterY}px`);
+    };
 
-      let mm = gsap.matchMedia(section);
-
-      mm.add("(min-width: 901px)", () => {
-        const segmentCount = content.paragraphs.length;
-        const segmentSpan = 1 / segmentCount;
-        const entryStartViewport = Math.round(window.innerHeight * 0.5 + HEADER_OFFSET);
-
-        const resetLines = () => {
-          lineEls.forEach((line) => {
-            const charEls = Array.from(line.querySelectorAll<HTMLElement>('[data-feature-char]'));
-            charEls.forEach((charEl) => charEl.style.setProperty('--char-progress', '0'));
-            gsap.set(line, {
-              autoAlpha: 0,
-              filter: 'blur(18px)',
-              y: 18,
-            });
-          });
-          
-          gsap.set(visualColumn, {
-            autoAlpha: 0,
-            filter: 'blur(18px)',
-          });
-        };
-
-        const updateLines = (progress: number) => {
-          content.paragraphs.forEach((_, index) => {
-            const segmentStart = index * segmentSpan;
-            const local = clamp((progress - segmentStart) / segmentSpan, 0, 1);
-            const enter = clamp(local / 0.24, 0, 1);
-            const fill = fillEase(clamp((local - 0.3) / 0.66, 0, 1));
-            const exit = clamp((local - 0.96) / 0.04, 0, 1);
-            const opacity = enter * (1 - exit);
-            const blur = 18 * (1 - enter) + 18 * exit;
-            const y = (1 - enter) * 18 - exit * 16;
-            const paragraphEl = lineEls[index];
-            const charEls = Array.from(paragraphEl?.querySelectorAll<HTMLElement>('[data-feature-char]') ?? []);
-            const revealChars = fill * charEls.length;
-
-            charEls.forEach((charEl, charIndex) => {
-              const charProgress = clamp(revealChars - charIndex, 0, 1);
-              charEl.style.setProperty('--char-progress', charProgress.toFixed(4));
-            });
-
-            gsap.set(paragraphEl, {
-              autoAlpha: opacity <= 0.015 ? 0 : opacity,
-              filter: `blur(${blur.toFixed(2)}px)`,
-              y,
-            });
-          });
-
-          const firstEnter = clamp(progress / 0.08, 0, 1);
-          gsap.set(visualColumn, {
-            autoAlpha: firstEnter <= 0.015 ? 0 : firstEnter,
-            filter: firstEnter === 1 ? 'none' : `blur(${18 * (1 - firstEnter)}px)`
-          });
-        };
-
-        const setImageIndex = (nextIndex: number, immediate = false) => {
-          const currentIndex = activeImageRef.current;
-          if (nextIndex === currentIndex && !immediate) {
-            return;
-          }
-
-          const currentImage = imageEls[currentIndex];
-          const nextImage = imageEls[nextIndex];
-          if (!nextImage) return;
-
-          gsap.killTweensOf(imageEls);
-
-          if (immediate || !currentImage) {
-            imageEls.forEach((image, index) => {
-              gsap.set(image, {
-                autoAlpha: index === nextIndex ? 1 : 0,
-                filter: index === nextIndex ? 'blur(0px)' : 'blur(18px)',
-                scale: index === nextIndex ? 1 : 1.02,
-              });
-            });
-            activeImageRef.current = nextIndex;
-            return;
-          }
-
-          gsap.timeline()
-            .to(currentImage, {
-              autoAlpha: 0,
-              filter: 'blur(18px)',
-              scale: 0.985,
-              duration: 0.32,
-              ease: 'power2.out',
-            }, 0)
-            .fromTo(nextImage,
-              { autoAlpha: 0, filter: 'blur(18px)', scale: 1.02 },
-              { autoAlpha: 1, filter: 'blur(0px)', scale: 1, duration: 0.48, ease: 'power3.out' },
-              0.06
-            );
-
-          activeImageRef.current = nextIndex;
-        };
-
-        const getImageIndex = (progress: number) => clamp(Math.floor(progress / segmentSpan), 0, imageEls.length - 1);
-
-        const applyState = (progress: number, immediateImage = false) => {
-          updateLines(progress);
-          setImageIndex(getImageIndex(progress), immediateImage);
-        };
-
-        resetLines();
-        activeImageRef.current = 0;
-        setImageIndex(0, true);
-
-        ScrollTrigger.create({
-          trigger: section,
-          start: () => `top ${entryStartViewport}px`,
-          end: 'top top',
-          scrub: 1.18,
-          invalidateOnRefresh: true,
-          onRefresh: (self) => {
-            const progress = (self.progress || 0) * ENTRY_PROGRESS_SHARE;
-            applyState(progress, true);
-          },
-          onUpdate: (self) => {
-            const progress = (self.progress || 0) * ENTRY_PROGRESS_SHARE;
-            applyState(progress);
-          },
-          onLeaveBack: () => {
-            resetLines();
-            setImageIndex(0, true);
-          },
-        });
-
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top 56px',
-          end: () => `+=${window.innerHeight * 15.0}`,
-          pin,
-          pinSpacing: true,
-          scrub: 1.55,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onRefresh: (self) => {
-            if (!self.isActive) return;
-            const progress = ENTRY_PROGRESS_SHARE + (self.progress || 0) * (1 - ENTRY_PROGRESS_SHARE);
-            applyState(progress, true);
-          },
-          onUpdate: (self) => {
-            const progress = ENTRY_PROGRESS_SHARE + (self.progress || 0) * (1 - ENTRY_PROGRESS_SHARE);
-            applyState(progress);
-          },
+    if (!reduceMotion) {
+      cards.forEach(updateRevealOffset);
+      revealResizeObserver = new ResizeObserver((entries) => {
+        entries.forEach((entry) => {
+          const target = entry.target as HTMLElement;
+          const card = target.matches('article') ? target : target.closest<HTMLElement>('article');
+          if (card) updateRevealOffset(card);
         });
       });
+      cards.forEach((card) => {
+        revealResizeObserver?.observe(card);
+        const visual = card.querySelector<HTMLElement>('.content-visual');
+        if (visual) revealResizeObserver?.observe(visual);
+      });
 
-      mm.add("(max-width: 900px)", () => {
-        gsap.set(visualColumn, { autoAlpha: 1, filter: 'none' });
-        
-        lineEls.forEach((line) => {
-          const charEls = Array.from(line.querySelectorAll<HTMLElement>('[data-feature-char]'));
-          charEls.forEach((charEl) => charEl.style.setProperty('--char-progress', '0'));
-          gsap.set(line, { autoAlpha: 0, y: 20 });
+      revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const card = entry.target as HTMLElement;
+          const isDesktop = window.matchMedia('(min-width: 1200px)').matches;
+          const revealRatio = isDesktop ? (track.contains(card) ? 0.52 : 0.18) : 0.08;
+          if (entry.isIntersecting && entry.intersectionRatio >= revealRatio) {
+            if (card.classList.contains('is-visible')) return;
+            card.classList.add('is-preparing');
+            card.classList.remove('is-visible');
+            void card.offsetWidth;
+            card.classList.remove('is-preparing');
+            card.classList.add('is-visible');
+          }
         });
+      }, { threshold: [0, 0.08, 0.18, 0.52] });
+      cards.forEach((card) => revealObserver?.observe(card));
+    }
 
-        const tl = gsap.timeline({
+    const context = gsap.context(() => {
+      const media = gsap.matchMedia();
+      media.add('(min-width: 1200px) and (prefers-reduced-motion: no-preference)', () => {
+        const distance = () => {
+          const lastItem = track.lastElementChild as HTMLElement | null;
+          if (!lastItem) return 0;
+          return Math.max(0, lastItem.offsetLeft + lastItem.offsetWidth / 2 - pin.clientWidth / 2);
+        };
+        const headerOffset = () => document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+        const viewportHeight = () => window.visualViewport?.height ?? document.documentElement.clientHeight;
+        const settleDistance = () => gsap.utils.clamp(110, 180, viewportHeight() * 0.18);
+        const timeline = gsap.timeline({
           scrollTrigger: {
-            trigger: section,
-            start: "top 56px",
-            end: () => `+=${window.innerHeight * 6.5}`,
-            pin: pin,
-            scrub: 1,
-            anticipatePin: 1
-          }
+            trigger: pin,
+            start: () => `top ${headerOffset()}px`,
+            end: () => `+=${Math.max(distance() * 1.8 + settleDistance(), 1)}`,
+            pin: true,
+            pinSpacing: true,
+            scrub: 1.1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
         });
 
-        imageEls.forEach((img) => {
-          gsap.set(img, { 
-            opacity: 1, 
-            visibility: 'visible',
-            y: "120vh",
-            scale: 0.95, 
-            filter: 'blur(20px)' 
-          });
-        });
-
-        content.paragraphs.forEach((_, index) => {
-          const line = lineEls[index];
-          if (!line) return;
-          const chars = Array.from(line.querySelectorAll<HTMLElement>('[data-feature-char]'));
-          const img = imageEls[index];
-          const offset = index > 0 ? "-=2.0" : "+=0";
-
-          tl.to(img, {
-            y: "50vh",
-            filter: 'blur(0px)',
-            duration: 4.0,
-            ease: "power2.out"
-          }, offset);
-
-          tl.to(line, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, offset);
-
-          tl.to(chars, {
-            '--char-progress': 1,
-            duration: 2.5,
-            stagger: 0.1,
-            ease: "none"
-          }, "<0.5");
-
-          tl.to({}, { duration: 0.5 });
-
-          tl.to(img, { 
-            y: 0, 
-            scale: 1,
-            duration: 8.0, 
-            ease: "none"
-          });
-
-          tl.to(line, {
-            autoAlpha: 0,
-            filter: 'blur(10px)',
-            y: -20,
-            duration: 4.0, 
-            ease: "power2.inOut"
-          }, "<4.0");
-
-          if (index < content.paragraphs.length - 1) {
-            tl.to(img, { 
-              y: "-120vh", 
-              duration: 8.0, 
-              ease: "none"
-            });
-
-            tl.to(img, {
-              opacity: 0,
-              filter: 'blur(20px)',
-              duration: 4.0,
-              ease: "power2.out"
-            }, "<2.0");
-          }
-        });
+        timeline
+          .to(track, { x: () => -distance() * 0.99, duration: 0.94, ease: 'none' })
+          .to(track, { x: () => -distance(), duration: 0.06, ease: 'power2.out' });
       });
+      return () => media.revert();
+    }, section);
 
-      return () => mm.revert();
-    },
-    { scope: sectionRef, dependencies: [content], revertOnUpdate: true }
+    const scheduleRefresh = (delay = 140) => {
+      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = undefined;
+        if (!active) return;
+        cards.forEach(updateRevealOffset);
+        ScrollTrigger.refresh();
+      }, delay);
+    };
+    const handleResize = () => scheduleRefresh(140);
+    const handleOrientationChange = () => scheduleRefresh(320);
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
+    window.visualViewport?.addEventListener('resize', handleResize, { passive: true });
+    void document.fonts.ready.then(() => { if (active) scheduleRefresh(0); });
+
+    return () => {
+      active = false;
+      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      revealObserver?.disconnect();
+      revealResizeObserver?.disconnect();
+      context.revert();
+    };
+  }, [dict, lang, horizontalItems.length]);
+
+  const renderItem = ({ icon: Icon, ...item }: (typeof items)[number], vertical = false) => (
+    <LegacyContentItem
+      key={item.id}
+      className={`feature-reveal-ready${vertical ? ' vertical-feature' : ''}${item.group === 'actions' ? ' reverse-layout' : ''}`}
+    >
+      <div className="content-visual"><img src={item.image.src} alt={item.image.alt} loading="lazy" decoding="async" /></div>
+      <div className="content-copy">
+        <div className="title-row"><Icon size={30} strokeWidth={2.25} aria-hidden="true" /><h2>{renderSplitText(sentenceCase(item.title, lang))}</h2></div>
+        <p>{renderSplitText(item.paragraph, 6)}</p>
+      </div>
+    </LegacyContentItem>
   );
 
   return (
-    <FeaturesSection id="features" className="showcase" ref={sectionRef}>
-      <FeaturesPin ref={pinRef}>
-        <FeaturesInner className="container">
-          <CopyColumn>
-            <CopyLines>
-              {content.paragraphs.map((paragraph, index) => (
-                <FeatureLine
-                  key={paragraph}
-                  ref={(element) => {
-                    lineRefs.current[index] = element;
-                  }}
-                >
-                  <FeatureLineInner>
-                    <FeatureBadge>{content.titles[index]}</FeatureBadge>
-                    <div>
-                      {(() => {
-                        const segmenter = new (Intl as any).Segmenter(lang, { granularity: 'grapheme' });
-                        const graphemes = Array.from(segmenter.segment(paragraph)).map((s: any) => s.segment);
-                        return graphemes.map((char, charIndex) => (
-                          <FeatureChar key={`${index}-${charIndex}`} data-feature-char>
-                            {char}
-                          </FeatureChar>
-                        ));
-                      })()}
-                    </div>
-                  </FeatureLineInner>
-                </FeatureLine>
-              ))}
-            </CopyLines>
-          </CopyColumn>
-
-          <VisualColumn ref={visualColumnRef}>
-            <VisualFrame>
-              {content.images.map((image, index) => (
-                <VisualLayer
-                  key={image.src}
-                  ref={(element) => {
-                    imageRefs.current[index] = element;
-                  }}
-                >
-                  <img src={image.src} alt={image.alt} />
-                </VisualLayer>
-              ))}
-            </VisualFrame>
-          </VisualColumn>
-        </FeaturesInner>
-      </FeaturesPin>
-    </FeaturesSection>
+    <LegacyContent ref={sectionRef} aria-label="LiquidBoard features">
+      <div className="feature-pin" ref={pinRef}>
+        <div className="feature-track" ref={trackRef}>
+          {horizontalItems.map((item) => renderItem(item))}
+        </div>
+      </div>
+      <FeatureTail>{verticalItems.map((item) => renderItem(item, true))}</FeatureTail>
+    </LegacyContent>
   );
 };
 

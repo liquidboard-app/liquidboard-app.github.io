@@ -10,7 +10,7 @@ const tl: LocaleDict = {
   },
   hero: {
     line1: "Magdala ng totoong clipboard",
-    line2: { left: "sa iyong", right: "Keyboard" },
+    line2: { left: "sa iyong", right: "iOS Keyboard" },
   },
   header: {
     download: { prefix: "I-download ang\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
@@ -25,10 +25,10 @@ const tl: LocaleDict = {
       'Mag-export at mag-import ng data ng teksto bilang JSON at CSV nang direkta sa pamamagitan ng Files app.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard import and export files' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
     ],
   },
   pricing: {
@@ -42,7 +42,7 @@ const tl: LocaleDict = {
         tone: 'white',
         lifetime: 'Panghabambuhay na Pag-access',
         price: '₱0',
-        description: 'Para sa mga gumagamit ng pagsubok',
+        description: 'Trial na plano',
         features: ['25 Teksto', '25 Larawan', '25 Sticker', '2 Grupo Bawat Uri', '2 Naka-pin Bawat Grupo'],
       },
       {
@@ -50,7 +50,7 @@ const tl: LocaleDict = {
         tone: 'green',
         lifetime: 'Panghabambuhay na Pag-access',
         price: '₱149',
-        description: 'Para sa mga kaswal na gumagamit',
+        description: 'Basic na plano',
         features: ['100 Teksto', '100 Larawan', '100 Sticker', '5 Grupo Bawat Uri', '5 Naka-pin Bawat Grupo'],
       },
       {
@@ -58,7 +58,7 @@ const tl: LocaleDict = {
         tone: 'blue',
         lifetime: 'Panghabambuhay na Pag-access',
         price: '₱299',
-        description: 'Para sa mga multitasking na gumagamit',
+        description: 'Multitasking na plano',
         features: ['250 Teksto', '250 Larawan', '250 Sticker', '15 Grupo Bawat Uri', '15 Naka-pin Bawat Grupo'],
       },
       {
@@ -66,7 +66,7 @@ const tl: LocaleDict = {
         tone: 'red',
         lifetime: 'Panghabambuhay na Pag-access',
         price: '₱549',
-        description: 'Para sa mga propesyonal na gumagamit',
+        description: 'Propesyonal na plano',
         features: ['500 Teksto', '500 Larawan', '500 Sticker', '40 Grupo Bawat Uri', '40 Naka-pin Bawat Grupo'],
       },
     ],
@@ -79,9 +79,9 @@ const tl: LocaleDict = {
       'Gumawa at agad na magbahagi ng mga sticker, paboritong meme, mensahe ng pagbati, at emosyonal na ekspresyon para kumonekta sa mga mahal sa buhay at mga customer. I-personalize ang iyong komunikasyon sa mga visual na elementong nagpapahiwatig ng pakiramdam at nagpapahusay ng pakikipag-ugnayan.',
     ],
     images: [
-      { src: '/assets/lb-text.PNG', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.PNG', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.PNG', alt: 'LiquidBoard keyboard view' },
+      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
+      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
+      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
     ],
   }
 ,
@@ -98,8 +98,5 @@ const tl: LocaleDict = {
     terms: "Mga Tuntunin ng Paggamit",
     payment: "Pagbabayad at Pag-refund",
   },
-  help: {
-    docsPlaceholder: "Ang dokumentasyon ay ina-update...",
-  }
 };
 export default tl;
