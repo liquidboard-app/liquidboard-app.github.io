@@ -38,6 +38,7 @@ export const Tabs = styled.nav`
   justify-content: center;
   gap: 8px;
   margin-bottom: 38px;
+  @media (max-width: 600px) { gap: 6px; }
 `;
 
 export const Tab = styled(NavLink)`
@@ -51,4 +52,5 @@ export const Tab = styled(NavLink)`
   transition: transform .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
   &:hover { border-color: rgba(70, 48, 38, .28); color: #2c2623; transform: translateY(-2px); }
   &.active { border-color: #2c2724; background: #2c2724; color: #fff3e4; }
+  @media (max-width: 600px) { padding: 9px 13px; font-size: 15px; }
 `;

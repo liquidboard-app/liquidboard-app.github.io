@@ -25,24 +25,24 @@ const copy: Record<string, HomeCopy> = {
   pl: { downloadForIPhone: 'Pobierz na iPhone’a', clipboardFeatures: ['Przykładowe teksty', 'Szablony e-mail', 'Dane kontaktowe', 'Kody kolorów', 'Prompty AI', 'Kody QR', 'Ulubione zdjęcia', 'Obrazy memów', 'Tworzenie naklejek', 'Grupy', 'Eksport plików', 'Treści wygasające', 'Synchronizacja iCloud'] },
 };
 
-const clipboardAdditions: Record<string, { copy: string; pin: string; clone: string; filter: string; search: string; sort: string }> = {
-  en: { copy: 'Copy', pin: 'Pin', clone: 'Clone', filter: 'Filter', search: 'Search', sort: 'Sort' },
-  vi: { copy: 'Sao chép', pin: 'Ghim', clone: 'Nhân bản', filter: 'Lọc', search: 'Tìm kiếm', sort: 'Sắp xếp' },
-  ja: { copy: 'コピー', pin: 'ピン留め', clone: '複製', filter: 'フィルター', search: '検索', sort: '並べ替え' },
-  es: { copy: 'Copiar', pin: 'Fijar', clone: 'Clonar', filter: 'Filtrar', search: 'Buscar', sort: 'Ordenar' },
-  'zh-TW': { copy: '複製', pin: '釘選', clone: '建立副本', filter: '篩選', search: '搜尋', sort: '排序' },
-  'pt-BR': { copy: 'Copiar', pin: 'Fixar', clone: 'Clonar', filter: 'Filtrar', search: 'Pesquisar', sort: 'Ordenar' },
-  fr: { copy: 'Copier', pin: 'Épingler', clone: 'Dupliquer', filter: 'Filtrer', search: 'Rechercher', sort: 'Trier' },
-  de: { copy: 'Kopieren', pin: 'Anheften', clone: 'Klonen', filter: 'Filtern', search: 'Suchen', sort: 'Sortieren' },
-  ru: { copy: 'Копировать', pin: 'Закрепить', clone: 'Клонировать', filter: 'Фильтровать', search: 'Поиск', sort: 'Сортировать' },
-  ko: { copy: '복사', pin: '고정', clone: '복제', filter: '필터', search: '검색', sort: '정렬' },
-  hi: { copy: 'कॉपी करें', pin: 'पिन करें', clone: 'क्लोन करें', filter: 'फ़िल्टर', search: 'खोजें', sort: 'क्रमबद्ध करें' },
-  bn: { copy: 'কপি', pin: 'পিন', clone: 'ক্লোন', filter: 'ফিল্টার', search: 'খোঁজ', sort: 'সাজানো' },
-  id: { copy: 'Salin', pin: 'Sematkan', clone: 'Klon', filter: 'Filter', search: 'Cari', sort: 'Urutkan' },
-  it: { copy: 'Copia', pin: 'Fissa', clone: 'Clona', filter: 'Filtra', search: 'Cerca', sort: 'Ordina' },
-  th: { copy: 'คัดลอก', pin: 'ปักหมุด', clone: 'โคลน', filter: 'ตัวกรอง', search: 'ค้นหา', sort: 'จัดเรียง' },
-  tl: { copy: 'Kopyahin', pin: 'I-pin', clone: 'I-clone', filter: 'I-filter', search: 'Maghanap', sort: 'Ayusin' },
-  pl: { copy: 'Kopiuj', pin: 'Przypnij', clone: 'Sklonuj', filter: 'Filtruj', search: 'Wyszukiwanie', sort: 'Sortowanie' },
+const clipboardAdditions: Record<string, { copy: string; pin: string; clone: string; filter: string; group: string; search: string; sort: string; import: string; system: string }> = {
+  en: { copy: 'Copy', pin: 'Pin', clone: 'Clone', filter: 'Filter', group: 'Groups', search: 'Search', sort: 'Sort', import: 'Import files', system: 'System Pasteboard' },
+  vi: { copy: 'Sao chép', pin: 'Ghim', clone: 'Nhân bản', filter: 'Bộ lọc', group: 'Nhóm', search: 'Tìm kiếm', sort: 'Sắp xếp', import: 'Nhập file', system: 'Bảng Tạm Hệ Thống' },
+  ja: { copy: 'コピー', pin: 'ピン留め', clone: '複製', filter: 'フィルター', group: 'グループ', search: '検索', sort: '並べ替え', import: 'ファイルを読み込む', system: 'システムクリップボード' },
+  es: { copy: 'Copiar', pin: 'Fijar', clone: 'Clonar', filter: 'Filtrar', group: 'Grupos', search: 'Buscar', sort: 'Ordenar', import: 'Importar archivos', system: 'Portapapeles del sistema' },
+  'zh-TW': { copy: '複製', pin: '釘選', clone: '建立副本', filter: '篩選', group: '群組', search: '搜尋', sort: '排序', import: '匯入檔案', system: '系統剪貼板' },
+  'pt-BR': { copy: 'Copiar', pin: 'Fixar', clone: 'Clonar', filter: 'Filtrar', group: 'Grupos', search: 'Pesquisar', sort: 'Ordenar', import: 'Importar arquivos', system: 'Área de transferência do sistema' },
+  fr: { copy: 'Copier', pin: 'Épingler', clone: 'Dupliquer', filter: 'Filtrer', group: 'Groupes', search: 'Rechercher', sort: 'Trier', import: 'Importer des fichiers', system: 'Presse-papiers système' },
+  de: { copy: 'Kopieren', pin: 'Anheften', clone: 'Klonen', filter: 'Filtern', group: 'Gruppen', search: 'Suchen', sort: 'Sortieren', import: 'Dateien importieren', system: 'Systemzwischenablage' },
+  ru: { copy: 'Копировать', pin: 'Закрепить', clone: 'Клонировать', filter: 'Фильтровать', group: 'Группы', search: 'Поиск', sort: 'Сортировать', import: 'Импорт файлов', system: 'Системный буфер обмена' },
+  ko: { copy: '복사', pin: '고정', clone: '복제', filter: '필터', group: '그룹', search: '검색', sort: '정렬', import: '파일 가져오기', system: '시스템 클립보드' },
+  hi: { copy: 'कॉपी करें', pin: 'पिन करें', clone: 'क्लोन करें', filter: 'फ़िल्टर', group: 'समूह', search: 'खोजें', sort: 'क्रमबद्ध करें', import: 'फ़ाइलें आयात करें', system: 'सिस्टम क्लिपबोर्ड' },
+  bn: { copy: 'কপি', pin: 'পিন', clone: 'ক্লোন', filter: 'ফিল্টার', group: 'গ্রুপ', search: 'খোঁজ', sort: 'সাজানো', import: 'ফাইল আমদানি', system: 'সিস্টেম ক্লিপবোর্ড' },
+  id: { copy: 'Salin', pin: 'Sematkan', clone: 'Klon', filter: 'Filter', group: 'Grup', search: 'Cari', sort: 'Urutkan', import: 'Impor file', system: 'Papan klip sistem' },
+  it: { copy: 'Copia', pin: 'Fissa', clone: 'Clona', filter: 'Filtra', group: 'Gruppi', search: 'Cerca', sort: 'Ordina', import: 'Importa file', system: 'Appunti di sistema' },
+  th: { copy: 'คัดลอก', pin: 'ปักหมุด', clone: 'โคลน', filter: 'ตัวกรอง', group: 'กลุ่ม', search: 'ค้นหา', sort: 'จัดเรียง', import: 'นำเข้าไฟล์', system: 'คลิปบอร์ดระบบ' },
+  tl: { copy: 'Kopyahin', pin: 'I-pin', clone: 'I-clone', filter: 'I-filter', group: 'Mga grupo', search: 'Maghanap', sort: 'Ayusin', import: 'Mag-import ng file', system: 'System pasteboard' },
+  pl: { copy: 'Kopiuj', pin: 'Przypnij', clone: 'Sklonuj', filter: 'Filtruj', group: 'Grupy', search: 'Wyszukiwanie', sort: 'Sortowanie', import: 'Importuj pliki', system: 'Schowek systemowy' },
 };
 
 Object.entries(copy).forEach(([lang, value]) => {
@@ -54,11 +54,12 @@ Object.entries(copy).forEach(([lang, value]) => {
     additions.pin,
     additions.clone,
     additions.filter,
-    items[9],
+    additions.group,
     additions.search,
     additions.sort,
     items[10],
-    'System Pasteboard',
+    additions.import,
+    additions.system,
     ...items.slice(11),
   ];
 });

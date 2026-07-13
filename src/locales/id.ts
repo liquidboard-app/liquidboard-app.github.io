@@ -95,6 +95,7 @@ const id: LocaleDict = {
     faqTab: 'Tanya Jawab',
     docsTab: 'Dokumen',
     docsPlaceholder: "Dokumentasi sedang diperbarui...",
+    contactTab: 'Kontak', email: 'Email', problem: 'Masalah', problemPlaceholder: 'Ceritakan kepada kami apa yang terjadi…', media: 'Lampiran', addMedia: 'Tambah file', mediaLimit: 'Maksimal 20 MB per file', removeMedia: 'Hapus', send: 'Kirim', sending: 'Mengirim…', mediaTooLarge: 'Setiap lampiran tidak boleh melebihi 20 MB.', mediaMax: 'Anda dapat melampirkan hingga 5 gambar atau video.', sent: 'Terima kasih — laporan Anda telah dikirim.', sendFailed: 'Laporan tidak dapat dikirim.',
   }
 };
 

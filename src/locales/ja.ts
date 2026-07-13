@@ -95,6 +95,7 @@ const ja: LocaleDict = {
     faqTab: 'よくある質問',
     docsTab: 'ドキュメント',
     docsPlaceholder: "ドキュメントを更新しています...",
+    contactTab: 'お問い合わせ', email: 'メールアドレス', problem: '問題', problemPlaceholder: '何が起きたのかを教えてください…', media: '添付ファイル', addMedia: 'ファイルを追加', mediaLimit: '1件につき最大20 MB', removeMedia: '削除', send: '送信', sending: '送信中…', mediaTooLarge: '添付ファイルは1件につき20 MB以下にしてください。', mediaMax: '添付できる画像または動画は最大5件です。', sent: 'ありがとうございます — 報告を送信しました。', sendFailed: '報告を送信できませんでした。',
   }
 };
 export default ja;

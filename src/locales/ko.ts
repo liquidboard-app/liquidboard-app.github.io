@@ -95,6 +95,7 @@ const ko: LocaleDict = {
     faqTab: '자주 묻는 질문',
     docsTab: '문서',
     docsPlaceholder: "문서가 업데이트되고 있습니다...",
+    contactTab: '문의하기', email: '이메일', problem: '문제', problemPlaceholder: '무슨 일이 있었는지 알려주세요…', media: '첨부 파일', addMedia: '파일 추가', mediaLimit: '파일당 최대 20 MB', removeMedia: '삭제', send: '보내기', sending: '보내는 중…', mediaTooLarge: '각 첨부 파일은 20 MB 이하여야 합니다.', mediaMax: '이미지 또는 동영상을 최대 5개까지 첨부할 수 있습니다.', sent: '감사합니다 — 보고서가 전송되었습니다.', sendFailed: '보고서를 전송할 수 없습니다.',
   }
 };
 export default ko;

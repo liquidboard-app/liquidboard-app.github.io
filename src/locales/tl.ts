@@ -90,6 +90,7 @@ const tl: LocaleDict = {
     faqTab: 'Mga Madalas Itanong',
     docsTab: 'Mga dokumento',
     docsPlaceholder: "Ang dokumentasyon ay ina-update...",
+    contactTab: 'Makipag-ugnayan', email: 'Email', problem: 'Problema', problemPlaceholder: 'Sabihin sa amin kung ano ang nangyari…', media: 'Mga attachment', addMedia: 'Magdagdag ng file', mediaLimit: 'Hanggang 20 MB bawat file', removeMedia: 'Alisin', send: 'Ipadala', sending: 'Ipinapadala…', mediaTooLarge: 'Ang bawat attachment ay dapat 20 MB o mas maliit.', mediaMax: 'Makakapag-attach ka ng hanggang 5 larawan o video.', sent: 'Salamat — naipadala na ang iyong ulat.', sendFailed: 'Hindi maipadala ang ulat.',
   }
 ,
   policy: {

@@ -18,7 +18,7 @@ const en: LocaleDict = {
   },
   action: {
     download: "Download LiquidBoard",
-    titles: ['Create Group', 'Pin', 'Copy & Duplicate', 'Import & Export Files'],
+    titles: ['Group', 'Pin', 'Copy & Duplicate', 'Import & Export Files'],
     paragraphs: [
       'Create additional groups and categorize texts, images, and stickers based on your needs. Switch smoothly between groups and pin essential groups to the top first.',
       'Pin important texts, images, and stickers that you use frequently to the top so you can send them faster.',
@@ -95,6 +95,20 @@ const en: LocaleDict = {
     faqTab: 'FAQ',
     docsTab: 'Docs',
     docsPlaceholder: 'Documentation is being updated...',
+    contactTab: 'Contact',
+    email: 'Email',
+    problem: 'Problem',
+    problemPlaceholder: 'Tell us what happened…',
+    media: 'Media',
+    addMedia: 'Add media',
+    mediaLimit: 'Up to 20 MB per file',
+    removeMedia: 'Remove',
+    send: 'Send',
+    sending: 'Sending…',
+    mediaTooLarge: 'Each media attachment must be 20 MB or less.',
+    mediaMax: 'You can attach up to 5 images or videos.',
+    sent: 'Thanks — your report has been sent.',
+    sendFailed: 'Unable to send the report.',
   }
 };
 

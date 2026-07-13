@@ -1,14 +1,27 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { inlineCase } from '@/locales/casing';
+import { sentenceCase } from '@/locales/casing';
 import { getAboutComponent } from '../../locales';
 
 const Content = styled.div`
   padding: clamp(18px, 3.5dvw, 38px);
   p { margin: 0 0 20px; color: #665249; font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
   p:last-child { margin-bottom: 0; }
-  a { display: inline-flex; align-items: center; gap: 4px; color: inherit; font: inherit; font-weight: 700; text-decoration: none; }
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    margin-inline: .2em;
+    gap: 4px;
+    color: #6f4fc7;
+    font: inherit;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    border-bottom: 1px solid currentColor;
+    text-decoration: none;
+  }
   a[href$='/data-security']::before,
   a[href$='/privacy']::before {
     display: inline-block;
@@ -57,7 +70,7 @@ const AboutContent: React.FC = () => {
 
   useLayoutEffect(() => {
     contentRef.current?.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
-      link.textContent = inlineCase(link.textContent ?? '', lang);
+      link.textContent = sentenceCase(link.textContent ?? '', lang);
     });
   }, [LocalizedContent, lang]);
 

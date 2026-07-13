@@ -94,6 +94,20 @@ const vi: LocaleDict = {
     faqTab: 'Câu hỏi thường gặp',
     docsTab: 'Tài liệu',
     docsPlaceholder: 'Tài liệu đang được cập nhật...',
+    contactTab: 'Liên hệ',
+    email: 'Email',
+    problem: 'Vấn đề',
+    problemPlaceholder: 'Hãy cho chúng tôi biết điều gì đã xảy ra…',
+    media: 'Tệp đính kèm',
+    addMedia: 'Thêm tệp',
+    mediaLimit: 'Tối đa 20 MB mỗi tệp',
+    removeMedia: 'Xóa',
+    send: 'Gửi',
+    sending: 'Đang gửi…',
+    mediaTooLarge: 'Mỗi tệp đính kèm không được quá 20 MB.',
+    mediaMax: 'Bạn chỉ có thể đính kèm tối đa 5 ảnh hoặc video.',
+    sent: 'Cảm ơn bạn — báo cáo đã được gửi.',
+    sendFailed: 'Không thể gửi báo cáo.',
   }
 };
 

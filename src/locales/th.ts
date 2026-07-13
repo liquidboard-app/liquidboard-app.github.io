@@ -90,6 +90,7 @@ const th: LocaleDict = {
     faqTab: 'คำถามที่พบบ่อย',
     docsTab: 'เอกสาร',
     docsPlaceholder: "กำลังอัปเดตเอกสาร...",
+    contactTab: 'ติดต่อเรา', email: 'อีเมล', problem: 'ปัญหา', problemPlaceholder: 'โปรดบอกเราว่าเกิดอะไรขึ้น…', media: 'ไฟล์แนบ', addMedia: 'เพิ่มไฟล์', mediaLimit: 'สูงสุด 20 MB ต่อไฟล์', removeMedia: 'ลบ', send: 'ส่ง', sending: 'กำลังส่ง…', mediaTooLarge: 'ไฟล์แนบแต่ละไฟล์ต้องมีขนาดไม่เกิน 20 MB', mediaMax: 'คุณสามารถแนบรูปภาพหรือวิดีโอได้สูงสุด 5 ไฟล์', sent: 'ขอบคุณ — ส่งรายงานของคุณแล้ว', sendFailed: 'ไม่สามารถส่งรายงานได้',
   }
 ,
   policy: {

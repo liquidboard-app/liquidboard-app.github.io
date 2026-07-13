@@ -20,7 +20,9 @@ const protectedTerms: Array<[RegExp, string]> = [
   [/\bqr\b/giu, 'QR'],
   [/\bai\b/giu, 'AI'],
   [/\bia\b/giu, 'IA'],
-  [/\bki\b/giu, 'KI'],
+  // `\b` only understands ASCII word characters. In Vietnamese it treats the
+  // `ế` in “kiếm” as a boundary, which incorrectly turns it into “KIếm”.
+  [/(?<!\p{L})ki(?!\p{L})/giu, 'KI'],
   [/\bapi\b/giu, 'API'],
   [/\burl\b/giu, 'URL'],
   [/\bhtml\b/giu, 'HTML'],

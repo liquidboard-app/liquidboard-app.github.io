@@ -95,6 +95,7 @@ const fr: LocaleDict = {
     faqTab: 'FAQ',
     docsTab: 'Docs',
     docsPlaceholder: "La documentation est en cours de mise à jour...",
+    contactTab: 'Contact', email: 'E-mail', problem: 'Problème', problemPlaceholder: 'Dites-nous ce qui s’est passé…', media: 'Pièces jointes', addMedia: 'Ajouter un fichier', mediaLimit: 'Jusqu’à 20 Mo par fichier', removeMedia: 'Supprimer', send: 'Envoyer', sending: 'Envoi…', mediaTooLarge: 'Chaque pièce jointe doit faire 20 Mo ou moins.', mediaMax: 'Vous pouvez joindre jusqu’à 5 images ou vidéos.', sent: 'Merci — votre signalement a été envoyé.', sendFailed: 'Impossible d’envoyer le signalement.',
   }
 };
 export default fr;

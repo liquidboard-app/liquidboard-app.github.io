@@ -95,6 +95,7 @@ const hi: LocaleDict = {
     faqTab: 'अक्सर पूछे जाने वाले प्रश्न',
     docsTab: 'डॉक्स',
     docsPlaceholder: "दस्तावेज़ीकरण अपडेट किया जा रहा है...",
+    contactTab: 'संपर्क करें', email: 'ईमेल', problem: 'समस्या', problemPlaceholder: 'हमें बताएं कि क्या हुआ…', media: 'संलग्नक', addMedia: 'फ़ाइल जोड़ें', mediaLimit: 'प्रति फ़ाइल अधिकतम 20 MB', removeMedia: 'हटाएं', send: 'भेजें', sending: 'भेजा जा रहा है…', mediaTooLarge: 'हर संलग्नक 20 MB या उससे कम होना चाहिए।', mediaMax: 'आप अधिकतम 5 चित्र या वीडियो संलग्न कर सकते हैं।', sent: 'धन्यवाद — आपकी रिपोर्ट भेज दी गई है।', sendFailed: 'रिपोर्ट भेजी नहीं जा सकी।',
   }
 };
 

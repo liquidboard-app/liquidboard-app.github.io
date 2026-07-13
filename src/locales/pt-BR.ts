@@ -95,6 +95,7 @@ const ptBR: LocaleDict = {
     faqTab: 'Perguntas Frequentes',
     docsTab: 'Docs',
     docsPlaceholder: "A documentação está sendo atualizada...",
+    contactTab: 'Contato', email: 'E-mail', problem: 'Problema', problemPlaceholder: 'Conte-nos o que aconteceu…', media: 'Anexos', addMedia: 'Adicionar arquivo', mediaLimit: 'Até 20 MB por arquivo', removeMedia: 'Remover', send: 'Enviar', sending: 'Enviando…', mediaTooLarge: 'Cada anexo pode ter no máximo 20 MB.', mediaMax: 'Você pode anexar até 5 imagens ou vídeos.', sent: 'Obrigado — seu relato foi enviado.', sendFailed: 'Não foi possível enviar o relato.',
   }
 };
 export default ptBR;

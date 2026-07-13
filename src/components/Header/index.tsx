@@ -30,7 +30,7 @@ const Header: React.FC = () => {
     { to: '/pricing', label: sentenceCase(dict.nav.pricing, lang) },
     { to: '/updates', label: sentenceCase(getUpdatesLabel(lang), lang) },
     { to: '/policy', label: sentenceCase(dict.nav.policy, lang) },
-    { to: '/faq', label: sentenceCase(dict.nav.help, lang) },
+    { to: '/help/contact', label: sentenceCase(dict.nav.help, lang) },
   ];
 
   useEffect(() => {

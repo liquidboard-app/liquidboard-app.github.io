@@ -95,6 +95,7 @@ const bn: LocaleDict = {
     faqTab: 'প্রায়শই জিজ্ঞাসিত প্রশ্ন',
     docsTab: 'ডকস',
     docsPlaceholder: "ডকুমেন্টেশন আপডেট করা হচ্ছে...",
+    contactTab: 'যোগাযোগ', email: 'ইমেইল', problem: 'সমস্যা', problemPlaceholder: 'কী ঘটেছে তা আমাদের জানান…', media: 'সংযুক্তি', addMedia: 'ফাইল যোগ করুন', mediaLimit: 'প্রতি ফাইলে সর্বোচ্চ ২০ MB', removeMedia: 'সরান', send: 'পাঠান', sending: 'পাঠানো হচ্ছে…', mediaTooLarge: 'প্রতিটি সংযুক্তি ২০ MB বা তার কম হতে হবে।', mediaMax: 'আপনি সর্বোচ্চ ৫টি ছবি বা ভিডিও সংযুক্ত করতে পারবেন।', sent: 'ধন্যবাদ — আপনার প্রতিবেদন পাঠানো হয়েছে।', sendFailed: 'প্রতিবেদন পাঠানো যায়নি।',
   }
 };
 

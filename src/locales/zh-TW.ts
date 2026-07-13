@@ -95,6 +95,7 @@ const zhTW: LocaleDict = {
     faqTab: '常見問題',
     docsTab: '文件',
     docsPlaceholder: "文件正在更新中...",
+    contactTab: '聯絡我們', email: '電子郵件', problem: '問題', problemPlaceholder: '請告訴我們發生了什麼事…', media: '附件', addMedia: '新增檔案', mediaLimit: '每個檔案最多 20 MB', removeMedia: '移除', send: '傳送', sending: '傳送中…', mediaTooLarge: '每個附件不得超過 20 MB。', mediaMax: '您最多可以附加 5 張圖片或影片。', sent: '感謝您 — 您的回報已送出。', sendFailed: '無法送出回報。',
   }
 };
 export default zhTW;

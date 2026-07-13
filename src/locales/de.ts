@@ -95,6 +95,7 @@ const de: LocaleDict = {
     faqTab: 'Häufig gestellte Fragen',
     docsTab: 'Dokumente',
     docsPlaceholder: "Die Dokumentation wird aktualisiert...",
+    contactTab: 'Kontakt', email: 'E-Mail', problem: 'Problem', problemPlaceholder: 'Erzählen Sie uns, was passiert ist…', media: 'Anhänge', addMedia: 'Datei hinzufügen', mediaLimit: 'Bis zu 20 MB pro Datei', removeMedia: 'Entfernen', send: 'Senden', sending: 'Wird gesendet…', mediaTooLarge: 'Jeder Anhang darf höchstens 20 MB groß sein.', mediaMax: 'Sie können bis zu 5 Bilder oder Videos anhängen.', sent: 'Danke — Ihr Bericht wurde gesendet.', sendFailed: 'Der Bericht konnte nicht gesendet werden.',
   }
 };
 export default de;

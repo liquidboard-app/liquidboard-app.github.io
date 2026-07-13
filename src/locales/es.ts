@@ -95,6 +95,7 @@ const es: LocaleDict = {
     faqTab: 'Preguntas frecuentes',
     docsTab: 'Documentos',
     docsPlaceholder: "La documentación se está actualizando...",
+    contactTab: 'Contacto', email: 'Email', problem: 'Problema', problemPlaceholder: 'Cuéntanos qué ocurrió…', media: 'Archivos adjuntos', addMedia: 'Añadir archivo', mediaLimit: 'Hasta 20 MB por archivo', removeMedia: 'Eliminar', send: 'Enviar', sending: 'Enviando…', mediaTooLarge: 'Cada archivo adjunto debe ser de 20 MB o menos.', mediaMax: 'Puedes adjuntar hasta 5 imágenes o vídeos.', sent: 'Gracias — tu informe se ha enviado.', sendFailed: 'No se ha podido enviar el informe.',
   }
 };
 export default es;

@@ -95,6 +95,7 @@ const ru: LocaleDict = {
     faqTab: 'ЧАВО',
     docsTab: 'Документы',
     docsPlaceholder: "Документация обновляется...",
+    contactTab: 'Связаться с нами', email: 'Электронная почта', problem: 'Проблема', problemPlaceholder: 'Расскажите, что произошло…', media: 'Вложения', addMedia: 'Добавить файл', mediaLimit: 'До 20 МБ на файл', removeMedia: 'Удалить', send: 'Отправить', sending: 'Отправка…', mediaTooLarge: 'Размер каждого вложения не должен превышать 20 МБ.', mediaMax: 'Можно прикрепить до 5 изображений или видео.', sent: 'Спасибо — ваш отчёт отправлен.', sendFailed: 'Не удалось отправить отчёт.',
   }
 };
 export default ru;

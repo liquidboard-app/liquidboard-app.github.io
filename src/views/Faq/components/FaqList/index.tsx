@@ -18,11 +18,11 @@ const Question = styled.button<{ $open: boolean }>`
   border: 0;
   background: ${({ $open }) => $open ? 'rgba(235, 207, 183, .5)' : 'transparent'};
   color: #302824;
-  font-size: 16px;
+  font-size: clamp(18px, 1.4dvw, 21px);
   font-weight: 750;
   text-align: left;
   svg { flex: 0 0 auto; transform: rotate(${({ $open }) => $open ? '180deg' : '0'}); transition: transform .25s ease; }
-  @media (max-width: 650px) { padding: 18px; font-size: 14px; }
+  @media (max-width: 650px) { padding: 18px; font-size: 16px; }
 `;
 const Answer = styled.div<{ $open: boolean }>`
   display: grid;

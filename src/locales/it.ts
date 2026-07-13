@@ -95,6 +95,7 @@ const it: LocaleDict = {
     faqTab: 'Domande frequenti',
     docsTab: 'Documenti',
     docsPlaceholder: "La documentazione è in fase di aggiornamento...",
+    contactTab: 'Contatti', email: 'Email', problem: 'Problema', problemPlaceholder: 'Raccontaci cosa è successo…', media: 'Allegati', addMedia: 'Aggiungi file', mediaLimit: 'Fino a 20 MB per file', removeMedia: 'Rimuovi', send: 'Invia', sending: 'Invio in corso…', mediaTooLarge: 'Ogni allegato non può superare 20 MB.', mediaMax: 'Puoi allegare fino a 5 immagini o video.', sent: 'Grazie — la tua segnalazione è stata inviata.', sendFailed: 'Impossibile inviare la segnalazione.',
   }
 };
 

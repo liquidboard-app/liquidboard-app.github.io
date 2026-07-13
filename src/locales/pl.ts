@@ -90,6 +90,7 @@ const pl: LocaleDict = {
     faqTab: 'Najczęściej zadawane pytania',
     docsTab: 'Dokumenty',
     docsPlaceholder: "Dokumentacja jest aktualizowana...",
+    contactTab: 'Kontakt', email: 'E-mail', problem: 'Problem', problemPlaceholder: 'Opisz, co się stało…', media: 'Załączniki', addMedia: 'Dodaj plik', mediaLimit: 'Do 20 MB na plik', removeMedia: 'Usuń', send: 'Wyślij', sending: 'Wysyłanie…', mediaTooLarge: 'Każdy załącznik może mieć maksymalnie 20 MB.', mediaMax: 'Możesz załączyć do 5 obrazów lub filmów.', sent: 'Dziękujemy — zgłoszenie zostało wysłane.', sendFailed: 'Nie udało się wysłać zgłoszenia.',
   }
 ,
   policy: {
