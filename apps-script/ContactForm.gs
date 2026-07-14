@@ -8,6 +8,9 @@
  * Optional: SHEET_NAME (defaults to "Contact")
  */
 
+var MAX_IMAGE_FILE_BYTES = 5 * 1024 * 1024;
+var MAX_VIDEO_FILE_BYTES = 50 * 1024 * 1024;
+
 function doGet() {
   return response_({ ok: true, service: 'LiquidBoard contact endpoint' });
 }
@@ -37,6 +40,12 @@ function doPost(event) {
       const name = safeFileName_(item.name || 'attachment');
       const bytes = Utilities.base64Decode(item.base64 || '');
       if (!bytes.length) throw new Error('An attachment could not be read.');
+      const sizeLimit = /^video\//.test(item.type || '') ? MAX_VIDEO_FILE_BYTES : MAX_IMAGE_FILE_BYTES;
+      if (bytes.length > sizeLimit) {
+        throw new Error(/^video\//.test(item.type || '')
+          ? 'Each video attachment must be 50 MB or less.'
+          : 'Each image attachment must be 5 MB or less.');
+      }
       const file = folder.createFile(Utilities.newBlob(bytes, item.type, name));
       return file.getUrl();
     });

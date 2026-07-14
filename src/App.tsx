@@ -13,6 +13,79 @@ const Updates = lazy(() => import('@/views/Updates'));
 
 const RouteContent = ({ children }: { children: React.ReactNode }) => <Suspense fallback={null}>{children}</Suspense>;
 
+const pageMetadata: Record<string, { title: string; description: string }> = {
+  '/': {
+    title: 'LiquidBoard — Copy, organize, and paste faster',
+    description: 'LiquidBoard keeps texts, photos, stickers, and links organized so they are ready to paste from your iPhone keyboard.',
+  },
+  '/about': {
+    title: 'About LiquidBoard',
+    description: 'Learn how LiquidBoard helps you keep everyday clipboard content private, organized, and ready to send.',
+  },
+  '/pricing': {
+    title: 'LiquidBoard Pricing',
+    description: 'Explore LiquidBoard plans and choose the clipboard workspace that fits the way you work.',
+  },
+  '/updates': {
+    title: 'LiquidBoard Updates',
+    description: 'See the latest LiquidBoard features, improvements, and product updates.',
+  },
+  '/help/contact': {
+    title: 'LiquidBoard Help & Support',
+    description: 'Get help with LiquidBoard, browse frequently asked questions, or contact support.',
+  },
+  '/help/faq': {
+    title: 'LiquidBoard FAQ',
+    description: 'Find answers to common questions about LiquidBoard and its keyboard features.',
+  },
+  '/policy/data-security': {
+    title: 'LiquidBoard Data Security',
+    description: 'Read how LiquidBoard protects your data and keeps your content under your control.',
+  },
+  '/policy/privacy': {
+    title: 'LiquidBoard Privacy Policy',
+    description: 'Read the LiquidBoard privacy policy and learn how your information is handled.',
+  },
+  '/policy/terms-of-use': {
+    title: 'LiquidBoard Terms of Use',
+    description: 'Read the terms that apply to your use of LiquidBoard.',
+  },
+  '/policy/payment-and-refund': {
+    title: 'LiquidBoard Payment & Refund Policy',
+    description: 'Read LiquidBoard payment, purchase, and refund information.',
+  },
+};
+
+const PageMetadata: React.FC = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const metadata = pageMetadata[pathname] ?? pageMetadata['/'];
+    const canonicalUrl = new URL(pathname, window.location.origin).toString();
+    const setMeta = (attribute: 'name' | 'property', key: string, content: string) => {
+      let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute(attribute, key);
+        document.head.append(element);
+      }
+      element.content = content;
+    };
+    const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+
+    document.title = metadata.title;
+    canonical?.setAttribute('href', canonicalUrl);
+    setMeta('name', 'description', metadata.description);
+    setMeta('property', 'og:title', metadata.title);
+    setMeta('property', 'og:description', metadata.description);
+    setMeta('property', 'og:url', canonicalUrl);
+    setMeta('name', 'twitter:title', metadata.title);
+    setMeta('name', 'twitter:description', metadata.description);
+  }, [pathname]);
+
+  return null;
+};
+
 const ScrollTopButton = styled.button<{ $visible: boolean; $leaving: boolean }>`
   position: fixed;
   right: clamp(16px, 3dvw, 32px);
@@ -110,9 +183,14 @@ const ScrollTopControl: React.FC = () => {
 
   useEffect(() => {
     const updateVisibility = () => {
-      const threshold = window.matchMedia('(max-width: 700px)').matches
+      const isMobile = window.matchMedia('(max-width: 700px)').matches;
+      const isDesktop = window.matchMedia('(min-width: 1200px)').matches;
+      const featureStackStart = Number(document.querySelector<HTMLElement>('[data-feature-stack-start]')?.dataset.featureStackStart);
+      const threshold = isMobile
         ? Math.max(420, window.innerHeight * 0.9)
-        : 240;
+        : isDesktop && Number.isFinite(featureStackStart)
+          ? featureStackStart
+          : Math.max(720, window.innerHeight * 0.95);
       const isPastThreshold = window.scrollY > threshold;
       setVisible(isPastThreshold);
       if (!isPastThreshold) setDismissed(false);
@@ -120,9 +198,11 @@ const ScrollTopControl: React.FC = () => {
     updateVisibility();
     window.addEventListener('scroll', updateVisibility, { passive: true });
     window.addEventListener('resize', updateVisibility, { passive: true });
+    window.addEventListener('liquidboard:feature-stack-threshold-change', updateVisibility);
     return () => {
       window.removeEventListener('scroll', updateVisibility);
       window.removeEventListener('resize', updateVisibility);
+      window.removeEventListener('liquidboard:feature-stack-threshold-change', updateVisibility);
     };
   }, []);
 
@@ -178,6 +258,7 @@ const ScrollTopControl: React.FC = () => {
 
 const App: React.FC = () => (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <PageMetadata />
     <ScrollToTop />
     <Header />
     <Routes>

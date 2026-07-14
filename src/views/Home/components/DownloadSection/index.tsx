@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SectionDownload } from '../../styled';
 import AppStoreButton from '../AppStoreButton';
 
@@ -18,15 +18,40 @@ const socialLinks: Array<{ name: SocialName; href: string; label: string }> = [
   { name: 'tiktok', href: 'https://tiktok.com', label: 'TikTok' },
 ];
 
-const DownloadSection: React.FC = () => (
-  <SectionDownload>
-    <AppStoreButton />
-    <div className="socials" aria-label="Social media links">
-      {socialLinks.map(({ name, href, label }) => (
-        <a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><SocialMark name={name} /></a>
-      ))}
-    </div>
-  </SectionDownload>
-);
+const DownloadSection: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || entry.intersectionRatio < 0.2) return;
+      setIsVisible(true);
+      observer.disconnect();
+    }, { threshold: [0, 0.2] });
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <SectionDownload ref={sectionRef} className={`download-reveal${isVisible ? ' is-visible' : ''}`}>
+      <div className="download-reveal-control"><AppStoreButton /></div>
+      <div className="socials" aria-label="Social media links">
+        {socialLinks.map(({ name, href, label }, index) => (
+          <span
+            className="social-reveal-item"
+            key={name}
+            style={{ '--social-reveal-delay': `${150 + index * 65}ms` } as React.CSSProperties}
+          >
+            <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><SocialMark name={name} /></a>
+          </span>
+        ))}
+      </div>
+    </SectionDownload>
+  );
+};
 
 export default DownloadSection;

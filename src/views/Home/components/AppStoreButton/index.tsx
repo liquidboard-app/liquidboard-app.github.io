@@ -9,12 +9,16 @@ const AppleMark = () => (
   </svg>
 );
 
-const AppStoreButton: React.FC = () => {
+type AppStoreButtonProps = {
+  className?: string;
+};
+
+const AppStoreButton: React.FC<AppStoreButtonProps> = ({ className }) => {
   const { lang } = useTranslation();
   return (
-    <DownloadButton href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
+    <DownloadButton className={className} href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
       <AppleMark />
-      {getHomeCopy(lang).downloadForIPhone}
+      <span className="download-label">{getHomeCopy(lang).downloadForIPhone}</span>
     </DownloadButton>
   );
 };

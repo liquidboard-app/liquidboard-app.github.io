@@ -9,7 +9,8 @@ import FaqList from '../FaqList';
 export type HelpSection = 'faq' | 'documents' | 'contact';
 
 const MAX_MEDIA = 5;
-const MAX_MEDIA_FILE_BYTES = 20 * 1024 * 1024;
+const MAX_IMAGE_FILE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_FILE_BYTES = 50 * 1024 * 1024;
 const EMAIL_DOMAINS = ['@gmail.com', '@outlook.com', '@hotmail.com'];
 const contactEndpointPlaceholder = 'https://script.google.com/macros/s/AKfycbxLiquidBoardContactPlaceholder/exec';
 
@@ -24,6 +25,32 @@ const readFileAsBase64 = (file: File) => new Promise<string>((resolve, reject) =
   reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
   reader.readAsDataURL(file);
 });
+
+const getMediaByteLimit = (file: File) => (
+  file.type.startsWith('video/') ? MAX_VIDEO_FILE_BYTES : MAX_IMAGE_FILE_BYTES
+);
+
+const mediaLimitLabels: Record<string, string> = {
+  en: 'Images up to 5 MB · Videos up to 50 MB',
+  vi: 'Ảnh tối đa 5 MB · Video tối đa 50 MB',
+  ja: '画像は最大5 MB・動画は最大50 MB',
+  es: 'Imágenes de hasta 5 MB · Vídeos de hasta 50 MB',
+  'zh-TW': '圖片最多 5 MB · 影片最多 50 MB',
+  'pt-BR': 'Imagens de até 5 MB · Vídeos de até 50 MB',
+  fr: 'Images jusqu’à 5 MB · Vidéos jusqu’à 50 MB',
+  de: 'Bilder bis 5 MB · Videos bis 50 MB',
+  ru: 'Изображения до 5 MB · Видео до 50 MB',
+  ko: '이미지는 최대 5 MB · 동영상은 최대 50 MB',
+  hi: 'छवियाँ अधिकतम 5 MB · वीडियो अधिकतम 50 MB',
+  bn: 'ছবি সর্বোচ্চ 5 MB · ভিডিও সর্বোচ্চ 50 MB',
+  id: 'Gambar hingga 5 MB · Video hingga 50 MB',
+  it: 'Immagini fino a 5 MB · Video fino a 50 MB',
+  th: 'รูปภาพสูงสุด 5 MB · วิดีโอสูงสุด 50 MB',
+  tl: 'Mga larawan hanggang 5 MB · Mga video hanggang 50 MB',
+  pl: 'Obrazy do 5 MB · Filmy do 50 MB',
+};
+
+const getMediaLimitLabel = (lang: string) => mediaLimitLabels[lang] ?? mediaLimitLabels.en;
 
 const TabList = styled.div`
   display: flex;
@@ -86,7 +113,7 @@ const Form = styled(GlassCard)`
 `;
 
 const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
-  const { dict } = useTranslation();
+  const { dict, lang } = useTranslation();
   const [email, setEmail] = useState('');
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -100,7 +127,7 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
     problemPlaceholder: dict.help?.problemPlaceholder ?? 'Tell us what happened…',
     media: dict.help?.media ?? 'Media',
     addMedia: dict.help?.addMedia ?? 'Add media',
-    mediaLimit: dict.help?.mediaLimit ?? 'Up to 20 MB per file',
+    mediaLimit: getMediaLimitLabel(lang),
     removeMedia: dict.help?.removeMedia ?? 'Remove',
     sending: dict.help?.sending ?? 'Sending…',
     send: dict.help?.send ?? 'Send',
@@ -108,7 +135,7 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
     mediaMax: dict.help?.mediaMax ?? 'You can attach up to 5 images or videos.',
     sent: dict.help?.sent ?? 'Thanks — your report has been sent.',
     sendFailed: dict.help?.sendFailed ?? 'Unable to send the report.',
-  }), [dict.help]);
+  }), [dict.help, lang]);
 
   useEffect(() => () => {
     previewUrls.current.forEach((url) => URL.revokeObjectURL(url));
@@ -118,7 +145,7 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
     const chosen = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith('image/') || file.type.startsWith('video/'));
     const available = MAX_MEDIA - mediaItems.length;
     const next = chosen.slice(0, Math.max(0, available));
-    if (next.some((file) => file.size > MAX_MEDIA_FILE_BYTES)) {
+    if (next.some((file) => file.size > getMediaByteLimit(file))) {
       event.target.value = '';
       return;
     }

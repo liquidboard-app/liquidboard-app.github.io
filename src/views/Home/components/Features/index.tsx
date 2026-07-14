@@ -86,13 +86,21 @@ const Features: React.FC = () => {
     const stackTrack = stackTrackRef.current;
     if (!section || !pin || !track || !stackTrack) return undefined;
 
-    const cards = Array.from(section.querySelectorAll<HTMLElement>('article:not(.stacked-feature)'));
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('article'));
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let revealObserver: IntersectionObserver | undefined;
     let revealResizeObserver: ResizeObserver | undefined;
     let iconObserver: IntersectionObserver | undefined;
     let refreshTimer: number | undefined;
     let active = true;
+
+    const revealCard = (card: HTMLElement) => {
+      if (card.classList.contains('is-visible')) return;
+      card.classList.add('is-preparing');
+      void card.offsetWidth;
+      card.classList.remove('is-preparing');
+      card.classList.add('is-visible');
+    };
 
     const updateRevealOffset = (card: HTMLElement) => {
       const visual = card.querySelector<HTMLElement>('.content-visual');
@@ -128,14 +136,10 @@ const Features: React.FC = () => {
         entries.forEach((entry) => {
           const card = entry.target as HTMLElement;
           const isDesktop = window.matchMedia('(min-width: 1200px)').matches;
+          if (isDesktop && card.classList.contains('stacked-feature')) return;
           const revealRatio = isDesktop ? (track.contains(card) ? 0.52 : 0.18) : 0.08;
           if (entry.isIntersecting && entry.intersectionRatio >= revealRatio) {
-            if (card.classList.contains('is-visible')) return;
-            card.classList.add('is-preparing');
-            card.classList.remove('is-visible');
-            void card.offsetWidth;
-            card.classList.remove('is-preparing');
-            card.classList.add('is-visible');
+            revealCard(card);
           }
         });
       }, { threshold: [0, 0.08, 0.18, 0.52] });
@@ -165,6 +169,7 @@ const Features: React.FC = () => {
         const groupCard = track.lastElementChild as HTMLElement | null;
         const stickerCard = track.children.item(2) as HTMLElement | null;
         const horizontalCards = Array.from(track.children) as HTMLElement[];
+        const fadingHorizontalCards = horizontalCards.slice(0, 3);
         const stackCards = Array.from(stackTrack.querySelectorAll<HTMLElement>('article'));
         if (!groupCard || !stackCards.length) return undefined;
 
@@ -177,7 +182,18 @@ const Features: React.FC = () => {
         const horizontalScrollDistance = Math.max(distance() * 1.8 + settleDistance(), 1);
         const stickerExitDistance = Math.max(viewportHeight() * 0.44, 1);
         const stackStepDistance = Math.max(viewportHeight() * 1.48, 1);
-        const stackHoldDistance = Math.max(viewportHeight() * 0.8, 1);
+        const stackEntryDuration = stackStepDistance * 0.84;
+        const stackSettleDuration = stackStepDistance * 0.16;
+        const stackFadeStart = stackStepDistance * 0.46;
+        const stackFadeDuration = stackEntryDuration - stackFadeStart;
+        // Keep the transitions long enough to read smoothly, while reducing the idle hold after Group and its following cards.
+        const stackHoldDistance = Math.max(viewportHeight() * 0.48, 1);
+        const finalStackHoldDistance = Math.max(viewportHeight() * 0.8, 1);
+        const publishStackStart = () => {
+          const pinStart = pin.getBoundingClientRect().top + window.scrollY - headerOffset();
+          section.dataset.featureStackStart = String(Math.round(pinStart + horizontalScrollDistance + stickerExitDistance));
+          window.dispatchEvent(new Event('liquidboard:feature-stack-threshold-change'));
+        };
 
         gsap.set(groupCard, {
           transformOrigin: 'center top',
@@ -210,7 +226,7 @@ const Features: React.FC = () => {
           scrollTrigger: {
             trigger: pin,
             start: () => `top ${headerOffset()}px`,
-            end: () => `+=${Math.max(distance() * 1.8 + settleDistance() + stickerExitDistance + stackCards.length * viewportHeight() * 1.48 + Math.max(stackCards.length - 1, 0) * viewportHeight() * 0.8, 1)}`,
+            end: () => `+=${Math.max(distance() * 1.8 + settleDistance() + stickerExitDistance + stackCards.length * viewportHeight() * 1.48 + Math.max(stackCards.length - 1, 0) * stackHoldDistance + finalStackHoldDistance, 1)}`,
             pin: true,
             pinSpacing: true,
             scrub: 1.1,
@@ -218,6 +234,8 @@ const Features: React.FC = () => {
             invalidateOnRefresh: true,
           },
         });
+        publishStackStart();
+        ScrollTrigger.addEventListener('refresh', publishStackStart);
 
         timeline
           .to(track, { x: () => -distance() * 0.99, duration: horizontalScrollDistance * 0.94, ease: 'none' })
@@ -227,14 +245,21 @@ const Features: React.FC = () => {
         const updateHorizontalDepth = () => {
           const pinRect = pin.getBoundingClientRect();
           const pinCenter = pinRect.left + pinRect.width / 2;
+          const fadeStart = pinRect.left + pinRect.width * 0.56;
+          const fadeEnd = pinRect.left - pinRect.width * 0.07;
           horizontalCards.forEach((card) => {
             const rect = card.getBoundingClientRect();
             const offset = gsap.utils.clamp(-1, 1, (rect.left + rect.width / 2 - pinCenter) / (rect.width * 0.9));
             const depth = Math.abs(offset);
+            const fadeProgress = fadingHorizontalCards.includes(card)
+              ? gsap.utils.clamp(0, 1, (fadeStart - rect.right) / (fadeStart - fadeEnd))
+              : 0;
             gsap.set(card, {
               rotationY: -offset * 11,
               scale: 1 - depth * 0.06,
               z: -depth * 56,
+              autoAlpha: 1 - fadeProgress,
+              filter: `blur(${fadeProgress * 16}px)`,
             });
           });
         };
@@ -256,39 +281,49 @@ const Features: React.FC = () => {
         stackCards.forEach((card, index) => {
           const previousCard = index === 0 ? groupCard : stackCards[index - 1];
           timeline
-            .to(card, { yPercent: 11, y: 0, rotationX: 5, z: 0, scale: 1, duration: stackStepDistance * 0.9, ease: 'none' })
+            .call(() => revealCard(card))
+            .to(card, { yPercent: 8, y: 0, rotationX: 3, z: 0, scale: 0.995, duration: stackEntryDuration, ease: 'none' })
             .to(previousCard, {
-              scale: 0.84,
-              yPercent: -2,
+              scale: 0.9,
+              yPercent: -1,
               rotationX: 10,
               z: 0,
-              duration: stackStepDistance * 0.9,
+              duration: stackEntryDuration,
               ease: 'none',
             }, '<')
             .to(previousCard, {
-              backgroundColor: '#e8cfb4',
-              duration: stackStepDistance * 0.36,
-              ease: 'power1.out',
+              backgroundColor: '#f3dfca',
+              duration: stackEntryDuration * 0.72,
+              ease: 'none',
             }, '<')
             .to(previousCard, {
-              filter: 'blur(14px)',
-              duration: stackStepDistance * 0.32,
-              ease: 'power1.in',
-            }, `<+=${stackStepDistance * 0.58}`)
-            .to(card, { yPercent: 0, y: 0, rotationX: 0, z: 0, scale: 1, duration: stackStepDistance * 0.1, ease: 'none' })
+              autoAlpha: 0.34,
+              filter: 'blur(9px)',
+              duration: stackFadeDuration,
+              ease: 'none',
+            }, `<+=${stackFadeStart}`)
+            .to(card, { yPercent: 0, y: 0, rotationX: 0, z: 0, scale: 1, duration: stackSettleDuration, ease: 'power1.out' })
             .to(previousCard, {
               autoAlpha: 0,
-              yPercent: -4,
-              rotationX: 14,
+              filter: 'blur(12px)',
+              yPercent: -3,
+              rotationX: 12,
               z: 0,
-              duration: stackStepDistance * 0.1,
-              ease: 'none',
+              duration: stackSettleDuration,
+              ease: 'power1.out',
             }, '<');
 
-          if (index < stackCards.length - 1) {
-            timeline.to({}, { duration: stackHoldDistance, ease: 'none' });
-          }
+          timeline.to({}, {
+            duration: index < stackCards.length - 1 ? stackHoldDistance : finalStackHoldDistance,
+            ease: 'none',
+          });
         });
+
+        return () => {
+          ScrollTrigger.removeEventListener('refresh', publishStackStart);
+          delete section.dataset.featureStackStart;
+          window.dispatchEvent(new Event('liquidboard:feature-stack-threshold-change'));
+        };
       });
       return () => media.revert();
     }, section);
@@ -326,7 +361,7 @@ const Features: React.FC = () => {
     <LegacyContentItem
       key={item.id}
       className={stacked
-        ? `stacked-feature is-visible${item.group === 'actions' ? ' reverse-layout' : ''}`
+        ? `stacked-feature feature-reveal-ready${item.group === 'actions' ? ' reverse-layout' : ''}`
         : `feature-reveal-ready${item.group === 'actions' ? ' reverse-layout' : ''}`}
     >
       <div className="content-visual"><img src={item.image.src} alt={item.image.alt} loading="lazy" decoding="async" /></div>

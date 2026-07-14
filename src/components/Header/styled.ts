@@ -8,7 +8,7 @@ const itemSpinner = keyframes`
 export const HeaderWrapper = styled.header`
   position: fixed;
   inset: 0 0 auto;
-  z-index: 100;
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -52,7 +52,7 @@ export const HeaderWrapper = styled.header`
     .menu-links {
       position: fixed;
       inset: 0;
-      z-index: -1;
+      z-index: 1;
       flex-direction: column;
       justify-content: center;
       width: 100%;

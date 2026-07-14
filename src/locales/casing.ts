@@ -39,7 +39,7 @@ const lowerForLocale = (value: string, lang: string) => normalizeTerms(value.toL
 export const sentenceCase = (value: string, lang: string) => {
   if (!sentenceCaseLanguages.has(lang)) return normalizeTerms(value);
   const normalized = lowerForLocale(value, lang);
-  return normalized.replace(/^(\s*)(\p{L})/u, (_, space: string, letter: string) => `${space}${letter.toLocaleUpperCase(lang)}`);
+  return normalizeTerms(normalized.replace(/^(\s*)(\p{L})/u, (_, space: string, letter: string) => `${space}${letter.toLocaleUpperCase(lang)}`));
 };
 
 export const inlineCase = (value: string, lang: string) => (

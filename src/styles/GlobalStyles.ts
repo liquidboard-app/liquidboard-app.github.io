@@ -25,6 +25,10 @@ const GlobalStyles = createGlobalStyle`
 
 * {
   box-sizing: border-box;
+}
+
+img,
+[draggable='true'] {
   user-select: none;
   -webkit-user-select: none;
 }

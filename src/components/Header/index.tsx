@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Globe2, X } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -22,7 +22,15 @@ const Header: React.FC = () => {
   const [pendingLanguage, setPendingLanguage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const activeLanguageRef = useRef<HTMLButtonElement>(null);
+  const languageModalRef = useRef<HTMLDivElement>(null);
+  const languageTriggerRef = useRef<HTMLButtonElement>(null);
+  const closeLanguageButtonRef = useRef<HTMLButtonElement>(null);
   const { pathname } = useLocation();
+
+  const closeLanguageModal = useCallback(() => {
+    setLanguageOpen(false);
+    languageTriggerRef.current?.focus();
+  }, []);
 
   const menuItems = [
     { to: '/', label: sentenceCase(dict.nav.home, lang), end: true },
@@ -45,12 +53,40 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     if (!languageOpen) return undefined;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !isLanguageChanging) setLanguageOpen(false);
+    const focusFrame = window.requestAnimationFrame(() => closeLanguageButtonRef.current?.focus());
+    const keepFocusInModal = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isLanguageChanging) {
+        closeLanguageModal();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const modal = languageModalRef.current;
+      if (!modal) return;
+      const focusable = Array.from(modal.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )).filter((element) => element.getClientRects().length > 0);
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    document.addEventListener('keydown', closeOnEscape);
-    return () => document.removeEventListener('keydown', closeOnEscape);
-  }, [isLanguageChanging, languageOpen]);
+    document.addEventListener('keydown', keepFocusInModal);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', keepFocusInModal);
+    };
+  }, [closeLanguageModal, isLanguageChanging, languageOpen]);
 
   useLayoutEffect(() => {
     if (!languageOpen) return;
@@ -62,7 +98,7 @@ const Header: React.FC = () => {
     setPendingLanguage(code);
     try {
       await changeLang(code);
-      setLanguageOpen(false);
+      closeLanguageModal();
     } finally {
       setPendingLanguage(null);
     }
@@ -71,6 +107,7 @@ const Header: React.FC = () => {
   const languageModal = (
     <LanguageModal
       id="language-modal"
+      ref={languageModalRef}
       role="dialog"
       aria-modal="true"
       aria-hidden={!languageOpen}
@@ -84,9 +121,10 @@ const Header: React.FC = () => {
         <h2 id="language-modal-title">{getLanguageConfig(lang).chooseLabel}</h2>
         <button
           type="button"
+          ref={closeLanguageButtonRef}
           aria-label="Close language selection"
           disabled={isLanguageChanging}
-          onClick={() => setLanguageOpen(false)}
+          onClick={closeLanguageModal}
         >
           <X size={22} strokeWidth={2.4} />
         </button>
@@ -145,6 +183,7 @@ const Header: React.FC = () => {
         <span className="language-divider" aria-hidden="true" />
         <LanguageTrigger
           type="button"
+          ref={languageTriggerRef}
           aria-label="Change language"
           aria-expanded={languageOpen}
           aria-controls="language-modal"
