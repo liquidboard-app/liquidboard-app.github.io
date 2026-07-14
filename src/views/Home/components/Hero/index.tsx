@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { splitGraphemes } from '@/utils/graphemes';
 import { getHeroHighlight } from '../../copy';
 import { Hero as HeroSection } from '../../styled';
 import AppStoreButton from '../AppStoreButton';
@@ -17,6 +18,7 @@ const splitHeroText = (
   startIndex: number,
   keyPrefix: string,
   splitCharacters: boolean,
+  locale: string,
 ): SplitHeroText => {
   let nextIndex = startIndex;
   const content: React.ReactNode[] = [];
@@ -28,7 +30,7 @@ const splitHeroText = (
       return;
     }
 
-    const units = splitCharacters ? Array.from(part) : [part];
+    const units = splitCharacters ? splitGraphemes(part, locale) : [part];
     units.forEach((unit, unitIndex) => {
       const wordIndex = nextIndex;
       nextIndex += 1;
@@ -59,10 +61,10 @@ const Hero: React.FC = () => {
   const splitFirstLineByCharacter = !/\s/.test(dict.hero.line1);
   const secondLine = `${dict.hero.line2.left} ${dict.hero.line2.right}`.trim();
   const splitSecondLineByCharacter = !/\s/.test(`${dict.hero.line2.left}${dict.hero.line2.right}`);
-  const prefixSplit = splitHeroText(prefix, 0, 'hero-prefix', splitFirstLineByCharacter);
-  const highlightSplit = splitHeroText(highlight, prefixSplit.nextIndex, 'hero-highlight', splitFirstLineByCharacter);
-  const suffixSplit = splitHeroText(suffix, highlightSplit.nextIndex, 'hero-suffix', splitFirstLineByCharacter);
-  const secondLineSplit = splitHeroText(secondLine, suffixSplit.nextIndex, 'hero-line-two', splitSecondLineByCharacter);
+  const prefixSplit = splitHeroText(prefix, 0, 'hero-prefix', splitFirstLineByCharacter, lang);
+  const highlightSplit = splitHeroText(highlight, prefixSplit.nextIndex, 'hero-highlight', splitFirstLineByCharacter, lang);
+  const suffixSplit = splitHeroText(suffix, highlightSplit.nextIndex, 'hero-suffix', splitFirstLineByCharacter, lang);
+  const secondLineSplit = splitHeroText(secondLine, suffixSplit.nextIndex, 'hero-line-two', splitSecondLineByCharacter, lang);
   const splitEnd = Math.max(HERO_WORD_DURATION, (secondLineSplit.nextIndex - 1) * HERO_WORD_STAGGER + HERO_WORD_DURATION);
   const highlightDelay = splitEnd + 110;
   const buttonDelay = Math.round(splitEnd * 0.5);

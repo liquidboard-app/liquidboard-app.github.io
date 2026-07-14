@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { sentenceCase } from '@/locales/casing';
+import { splitGraphemes } from '@/utils/graphemes';
 import { getHomeCopy } from '../../copy';
 import { FeatureGrid, FeatureItem } from '../../styled';
 
@@ -21,7 +22,7 @@ const GRID_REVEAL_STAGGER = 38;
 const ICON_WAVE_INTERVAL = 3000;
 const ICON_WAVE_STAGGER = 120;
 
-const splitGridTitle = (text: string): React.ReactNode[] => {
+const splitGridTitle = (text: string, locale: string): React.ReactNode[] => {
   const splitCharacters = !/\s/.test(text);
   let revealIndex = 0;
 
@@ -29,7 +30,7 @@ const splitGridTitle = (text: string): React.ReactNode[] => {
     if (!part) return [];
     if (/^\s+$/.test(part)) return [<React.Fragment key={`grid-title-space-${partIndex}`}>{part}</React.Fragment>];
 
-    const units = splitCharacters ? Array.from(part) : [part];
+    const units = splitCharacters ? splitGraphemes(part, locale) : [part];
     return units.map((unit, unitIndex) => {
       const currentIndex = revealIndex;
       revealIndex += 1;
@@ -119,7 +120,7 @@ const GridFeatures: React.FC = () => {
 
   return (
     <FeatureGrid ref={gridRef} className={`grid-reveal-ready${isRevealed ? ' is-visible' : ''}`}>
-      <h2 className="grid-title">{splitGridTitle(homeCopy.clipboardTitle)}</h2>
+      <h2 className="grid-title">{splitGridTitle(homeCopy.clipboardTitle, lang)}</h2>
       {items.map(([Icon, motion], index) => (
         <FeatureItem
           className="grid-feature-item"

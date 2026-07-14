@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { sentenceCase } from '@/locales/casing';
+import { splitGraphemes } from '@/utils/graphemes';
 import { getFeatureDetails } from '../../featureContent';
 import { FeatureStack, LegacyContent, LegacyContentItem } from '../../styled';
 
@@ -24,13 +25,13 @@ const actionImages = [
   '/assets/lb-keyboard.webp', '/assets/lb-text.webp', '/assets/lb-photos.webp',
 ];
 
-const renderSplitText = (text: string, startIndex = 0) => {
+const renderSplitText = (text: string, locale: string, startIndex = 0) => {
   let animationIndex = startIndex;
   return text.split(/(\s+)/).flatMap((part, partIndex) => {
     if (/^\s+$/.test(part)) {
       return <React.Fragment key={`space-${partIndex}`}>{part}</React.Fragment>;
     }
-    const units = part.length > 18 ? Array.from(part) : [part];
+    const units = part.length > 18 ? splitGraphemes(part, locale) : [part];
     return units.map((unit, unitIndex) => {
       const splitIndex = Math.min(animationIndex, 60);
       animationIndex += 1;
@@ -366,8 +367,8 @@ const Features: React.FC = () => {
     >
       <div className="content-visual"><img src={item.image.src} alt={item.image.alt} loading="lazy" decoding="async" /></div>
       <div className="content-copy">
-        <div className="title-row"><Icon size={30} strokeWidth={2.25} aria-hidden="true" /><h2>{renderSplitText(sentenceCase(item.title, lang))}</h2></div>
-        <p>{renderSplitText(item.paragraph, 6)}</p>
+        <div className="title-row"><Icon size={30} strokeWidth={2.25} aria-hidden="true" /><h2>{renderSplitText(sentenceCase(item.title, lang), lang)}</h2></div>
+        <p>{renderSplitText(item.paragraph, lang, 6)}</p>
       </div>
     </LegacyContentItem>
   );
