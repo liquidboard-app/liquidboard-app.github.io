@@ -2,8 +2,12 @@ import { Link } from 'react-router-dom';
 
 export const AboutContent_vi = () => (
   <>
-    <p>LiquidBoard là ứng dụng quản lý clipboard cho văn bản và hình ảnh. Ứng dụng giúp bạn tự tạo nội dung dùng thường xuyên hoặc lưu trữ nội dung sao chép từ ứng dụng khác. Các tính năng như tìm kiếm, sắp xếp, phân nhóm, ghim nội dung cần thiết và xuất file theo định dạng JSON hoặc CSV đều được hỗ trợ để đơn giản hóa việc quản lý dữ liệu.</p>
-    <p>LiquidBoard tích hợp vào bàn phím của bạn để việc gửi văn bản, hình ảnh đã lưu trữ sẵn hoặc đã sao chép trước đó trở nên dễ dàng hơn. Bạn có thể tận dụng ứng dụng để lưu trữ các câu thoại lặp lại thường xuyên hằng ngày với khách hàng, nội dung báo cáo, liên kết bán hàng, số tài khoản, địa chỉ, ảnh QR Code, ... Ngoài ra, LiquidBoard còn có mục Nhãn Dán, cho phép bạn tạo nhãn dán từ hình ảnh đã thêm vào.</p>
-    <p>Tất cả dữ liệu đều được lưu trữ cục bộ và an toàn trên thiết bị và iCloud của bạn (sau khi liên kết iCloud). LiquidBoard cam kết không lưu trữ, không tải bất kỳ dữ liệu nào của bạn lên bất kỳ nơi nào khác. Mọi cam kết đều được thực hiện và kiểm soát bởi Apple thông qua các tài liệu <Link to="/policy/data-security">Bảo Mật Dữ Liệu</Link> và <Link to="/policy/privacy">Quyền Riêng Tư</Link> trong ứng dụng. Chúng tôi công khai các tài liệu này trong ứng dụng và trên website của mình và bạn có thể tìm đọc dễ dàng tại <Link to="/policy/data-security">Bảo Mật Dữ Liệu</Link> và <Link to="/policy/privacy">Quyền Riêng Tư</Link>.</p>
+    <p>LiquidBoard là ứng dụng quản lý clipboard cho văn bản, hình ảnh và nhãn dán cho iPhone. Ứng dụng giúp bạn tạo nội dung dùng thường xuyên hoặc lưu trữ những nội dung bạn sao chép từ ứng dụng hoặc thiết bị khác. Các tính năng được cung cấp đầy đủ để hỗ trợ để đơn giản hóa việc quản lý dữ liệu.</p>
+    <p>LiquidBoard tích hợp vào bàn phím iPhone bạn để việc gửi văn bản, hình ảnh, nhãn dán đã lưu trữ sẵn trở nên dễ dàng hơn. Bạn có thể tận dụng ứng dụng để lưu trữ các văn bản lặp lại thường xuyên sử dụng, ảnh QR Code và tạo những nhãn dán yêu thích.</p>
+    <p>Tất cả dữ liệu đều được lưu trữ cục bộ và an toàn trên thiết bị hoặc iCloud của bạn khi đồng bộ. LiquidBoard cam kết không lưu trữ, không sử dụng và không tải bất kỳ dữ liệu nào của bạn lên bất kỳ nơi nào khác.</p>
+    <p>Tính năng Nhãn dán trong ứng dụng được tạo ra từ Vision Framework, một thư viện xử lí thị giác máy tính và học máy của Apple tích hợp sẵn trên các thiết bị iOS để tách nền và cắt nhãn dán.</p>
+    <p>Mọi cam kết về quyền và tính năng đều được thực hiện và kiểm soát bởi Apple thông qua các tài liệu Bảo mật dữ liệu và Quyền riêng tư trong ứng dụng.</p>
+    <p>Chúng tôi công khai các tài liệu trong ứng dụng và trên website này. <br /><Link to="/policy/data-security">Bảo mật dữ liệu</Link><br /><Link to="/policy/privacy">Quyền riêng tư</Link></p>
+    <p>Trong tương lai chúng tôi sẽ cố gắng mở rộng thêm những tính năng AI ở các phiên bản iOS mới nhất với Siri AI và các phiên bản cho macOS, iPadOS. LiquidBoard cam kết chỉ phát triển các tính năng AI ở cấp độ hệ thống để đảm bảo quyền và dữ liệu nhạy cảm cho người dùng.</p>
   </>
 );

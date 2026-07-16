@@ -3,9 +3,14 @@ import { Link } from 'react-router-dom';
 
 const AboutContent_zh_TW: React.FC = () => (
   <>
-    <p>LiquidBoard 是一款用於文字和圖像的剪貼簿管理應用程式。該應用程式可協助您建立常用內容或儲存從其他應用程式複製的內容。支援搜尋、排序、分組、固定基本內容以及以 JSON 或 CSV 格式匯出文件等功能，以簡化資料管理。</p>
-    <p>LiquidBoard 整合到您的鍵盤中，使發送預先儲存或先前複製的文字和圖像變得更加容易。您可以利用應用程式儲存客戶日常重複使用的短語、報告內容、銷售連結、帳號、地址、二維碼等。此外，LiquidBoard 還具有貼紙部分，可讓您從添加的圖像建立貼紙。</p>
-    <p>所有資料都安全地儲存在您的裝置和 iCloud 上（連結 iCloud 後）。LiquidBoard 承諾不會在其他地方儲存或上傳您的任何資料。所有承諾均由 Apple 透過以下方式執行和控制： <Link to="/policy/data-security">資料安全</Link> 和 <Link to="/policy/privacy">隱私</Link> 應用程式內的政策。我們在應用程式和我們的網站上公開發布這些文檔，您可以在以下位置輕鬆找到它們： <Link to="/policy/data-security">資料安全</Link> 和 <Link to="/policy/privacy">隱私</Link>.</p>
+    <p>LiquidBoard 是 iPhone 上用於文字、圖片與貼圖的剪貼簿管理 App。它能協助你建立常用內容或儲存你從其他 App 或裝置複製的內容。完整功能皆為簡化資料管理而設計。</p>
+    <p>LiquidBoard 整合到你的 iPhone 鍵盤，讓傳送已儲存的文字、圖片與貼圖更加容易。你可以用它保存常用的重複文字、QR Code 圖片，並建立喜愛的貼圖。</p>
+    <p>所有資料都會在同步時安全地儲存在你的裝置本機或你的 iCloud。LiquidBoard 承諾不會在其他任何地方儲存、使用或上傳你的任何資料。</p>
+    <p>App 中的貼圖功能由 Vision Framework 建立，這是 Apple 內建於 iOS 裝置的電腦視覺與機器學習函式庫，用於分離背景並裁切貼圖。</p>
+    <p>所有關於權限與功能的承諾，都由 Apple 透過 App 內的資料安全與隱私文件實作並控管。</p>
+    <p>我們在 App 內與本網站公開這些文件. <br /><Link to="/policy/data-security">資料安全</Link><br /><Link to="/policy/privacy">隱私</Link>。</p>
+    <p>未來我們會嘗試在最新 iOS 版本中透過 Siri AI，以及在 macOS、iPadOS 版本中擴充更多 AI 功能。LiquidBoard 承諾只在系統層級開發 AI 功能，以保障使用者權限與敏感資料。</p>
   </>
 );
+
 export default AboutContent_zh_TW;

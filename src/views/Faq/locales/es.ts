@@ -13,7 +13,7 @@ export const faqs = [
   },
   {
     q: '¿Cómo abro y uso el teclado LiquidBoard?',
-    a: 'Abre cualquier aplicación con un campo de entrada de texto para mostrar el teclado normal. Luego toca el icono del globo en la esquina inferior izquierda, selecciona LiquidBoard de la lista de teclados, y entrarás en la interfaz del teclado de la aplicación.'
+    a: 'Abre cualquier aplicación con un campo de entrada de texto para mostrar el teclado normal. Luego toca el icono del globo en la esquina inferior izquierda, selecciona LiquidBoard de la lista de teclados y entrarás en la interfaz del teclado de la aplicación.'
   },
   {
     q: '¿Cómo puedo pegar texto, imágenes o pegatinas?',

@@ -20,9 +20,9 @@ const en: LocaleDict = {
     download: "Download LiquidBoard",
     titles: ['Group', 'Pin', 'Copy & Duplicate', 'Import & Export Files'],
     paragraphs: [
-      'Create additional groups and categorize texts, images, and stickers based on your needs. Switch smoothly between groups and pin essential groups to the top first.',
-      'Pin important texts, images, and stickers that you use frequently to the top so you can send them faster.',
-      'Copy and duplicate texts, images, and stickers easily and quickly.',
+      'Create additional groups and categorize texts, images and stickers based on your needs. Switch smoothly between groups and pin essential groups to the top first.',
+      'Pin important texts, images and stickers that you use frequently to the top so you can send them faster.',
+      'Copy and duplicate texts, images and stickers easily and quickly.',
       'Export and import text data as JSON and CSV directly through the Files app.',
     ],
     images: [
@@ -34,7 +34,7 @@ const en: LocaleDict = {
   },
   pricing: {
     intro: { 
-      line1: "Choose the right plan for how you save, organize, and share content every day.", 
+      line1: "Choose the right plan for how you save, organize and share content every day.", 
       line2: "Every plan is a one-time purchase for lifetime access." 
     },
     plans: [
@@ -76,8 +76,8 @@ const en: LocaleDict = {
     titles: ['Text', 'Images', 'Stickers'],
     paragraphs: [
       'Create and compose multiple text documents, introductory information and content tailored to your writing needs. Set up pre-built response templates for immediate use. Input and quickly share contact information. Store website links, code snippets, AI prompt structures for efficient reference and reuse.',
-      'Rapidly share payment QR codes and bank transfer QR codes. Access a diverse collection of product sample prototypes, design mockups, infographics, and instructional screenshots. Organize and retrieve visual assets seamlessly for professional communication.',
-      'Create and instantly share stickers, favorite memes, congratulatory messages, and emotional expressions to connect with loved ones and customers. Personalize your communication with visual elements that convey sentiment and enhance engagement.',
+      'Rapidly share payment QR codes and bank transfer QR codes. Access a diverse collection of product sample prototypes, design mockups, infographics and instructional screenshots. Organize and retrieve visual assets seamlessly for professional communication.',
+      'Create and instantly share stickers, favorite memes, congratulatory messages and emotional expressions to connect with loved ones and customers. Personalize your communication with visual elements that convey sentiment and enhance engagement.',
     ],
     images: [
       { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },

@@ -23,24 +23,46 @@ export const HeaderWrapper = styled.header`
   }
 
   nav { position: relative; z-index: 104; gap: 0; }
-  .menu-links { gap: clamp(12px, 2dvw, 30px); }
+  .menu-links {
+    position: relative;
+    min-height: 46px;
+    gap: clamp(12px, 2dvw, 30px);
+  }
   .language-divider { width: 2px; height: 14px; margin-left: 16px; margin-right: 9px; border-radius: 999px; background: rgba(52, 42, 37, .42); }
 
+  .desktop-menu-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 0;
+    height: 46px;
+    border-radius: 999px;
+    background: rgba(44, 39, 36, .1);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate3d(0, 0, 0) scale(0, 0);
+    transform-origin: left top;
+    will-change: transform, opacity;
+  }
+
   .menu-link {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 0;
+    padding: 13px 0;
     color: rgba(38, 33, 32, .72);
     font-size: 17px;
     font-weight: 760;
     letter-spacing: -.025em;
     white-space: nowrap;
-    transition: color .2s ease, transform .2s ease;
+    transition: color .2s ease;
   }
 
   .menu-link:hover,
-  .menu-link.active { color: #262120; transform: translateY(-1px); }
+  .menu-link.active { color: #262120; }
 
   .mobile-menu-trigger { display: none; }
 
@@ -68,6 +90,7 @@ export const HeaderWrapper = styled.header`
       transform: translateY(-14px);
       transition: opacity .25s ease, visibility .25s ease, transform .3s ease;
     }
+    .desktop-menu-indicator { display: none; }
     .menu-links.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
     .menu-link { padding: 10px 22px; border-radius: 999px; font-size: clamp(24px, 7dvw, 34px); line-height: 1.2; }
     .menu-link.active { background: rgba(44, 39, 36, .1); color: #2c2724; }

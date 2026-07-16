@@ -5,15 +5,15 @@ export const faqs = [
   },
   {
     q: 'Comment puis-je commencer avec LiquidBoard ?',
-    a: 'Pour utiliser LiquidBoard, vous n\'avez besoin que de deux étapes : ajouter le clavier LiquidBoard dans la section Claviers sous Paramètres, et accorder les autorisations nécessaires pour que le clavier fonctionne. Après cela, vous pouvez commencer à l\'utiliser.'
+    a: 'Pour utiliser LiquidBoard, vous n\'avez besoin que de deux étapes : ajouter le clavier LiquidBoard dans la section Claviers sous Paramètres et accorder les autorisations nécessaires pour que le clavier fonctionne. Après cela, vous pouvez commencer à l\'utiliser.'
   },
   {
     q: 'Pourquoi LiquidBoard a-t-il besoin d\'un accès complet et puis-je choisir de ne pas le lui accorder ?',
-    a: 'Vous devez accorder un accès complet pour pouvoir coller des images depuis le clavier dans d\'autres applications. C\'est une exigence d\'Apple pour tous les claviers tiers. Si vous n\'accordez pas l\'accès, vous pouvez toujours envoyer du texte après avoir ajouté le clavier, mais vous ne pourrez pas envoyer d\'images, de stickers, ni utiliser la fonction Presse-papiers du système. LiquidBoard s\'engage à respecter la vie privée des données, est régulièrement examiné par Apple, et nous n\'avons aucun intérêt à utiliser les données des utilisateurs.'
+    a: 'Vous devez accorder un accès complet pour pouvoir coller des images depuis le clavier dans d\'autres applications. C\'est une exigence d\'Apple pour tous les claviers tiers. Si vous n\'accordez pas l\'accès, vous pouvez toujours envoyer du texte après avoir ajouté le clavier, mais vous ne pourrez pas envoyer d\'images, de stickers, ni utiliser la fonction Presse-papiers du système. LiquidBoard s\'engage à respecter la vie privée des données, est régulièrement examiné par Apple et nous n\'avons aucun intérêt à utiliser les données des utilisateurs.'
   },
   {
     q: 'Comment ouvrir et utiliser le clavier LiquidBoard ?',
-    a: 'Ouvrez n\'importe quelle application avec un champ de saisie de texte pour afficher le clavier standard. Ensuite, appuyez sur l\'icône du globe en bas à gauche, sélectionnez LiquidBoard dans la liste des claviers, et vous entrerez dans l\'interface du clavier de l\'application.'
+    a: 'Ouvrez n\'importe quelle application avec un champ de saisie de texte pour afficher le clavier standard. Ensuite, appuyez sur l\'icône du globe en bas à gauche, sélectionnez LiquidBoard dans la liste des claviers et vous entrerez dans l\'interface du clavier de l\'application.'
   },
   {
     q: 'Comment puis-je coller du texte, des images ou des autocollants ?',

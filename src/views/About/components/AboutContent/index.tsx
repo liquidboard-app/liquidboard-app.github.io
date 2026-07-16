@@ -13,14 +13,19 @@ const Content = styled.div`
     align-items: center;
     min-width: 0;
     max-width: 100%;
-    margin-inline: .2em;
-    gap: 4px;
+    margin: .5em 0 0;
+    gap: 7px;
     color: #6f4fc7;
     font: inherit;
     font-weight: 700;
+    line-height: 1.2;
     overflow-wrap: anywhere;
-    border-bottom: 1px solid currentColor;
     text-decoration: none;
+    transition: color .18s ease, transform .18s ease;
+  }
+  a:hover {
+    color: #4f35a0;
+    transform: translateY(-1px);
   }
   a[href$='/data-security']::before,
   a[href$='/privacy']::before {

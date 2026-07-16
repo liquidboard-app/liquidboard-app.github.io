@@ -3,9 +3,14 @@ import { Link } from 'react-router-dom';
 
 const AboutContent_tl: React.FC = () => (
   <>
-    <p>Ang LiquidBoard ay isang clipboard management app para sa teksto at mga imahe. Tinutulungan ka ng app na lumikha ng madalas gamitin na nilalaman o i-imbak ang nilalaman na kinopya mula sa ibang mga app. Sinusuportahan ang mga tampok tulad ng paghahanap, pag-aayos, pag-grupo, pag-pin ng mahahalagang nilalaman, at pag-export ng mga file sa format na JSON o CSV upang mapadali ang pamamahala ng data.</p>
-    <p>Ang LiquidBoard ay nagsasama sa iyong keyboard upang gawing mas madali ang pagpapadala ng mga naunang naka-imbak o kinopyang teksto at larawan. Maaari mong gamitin ang app upang mag-imbak ng paulit-ulit na pang-araw-araw na mga parirala para sa mga customer, nilalaman ng ulat, mga link sa benta, numero ng account, mga address, QR Code, at iba pa. Bukod dito, ang LiquidBoard ay may seksyon ng Stickers, na nagbibigay-daan sa iyo upang lumikha ng mga sticker mula sa mga idinagdag na larawan.</p>
-    <p>Lahat ng datos ay nakaimbak nang lokal at ligtas sa iyong device at iCloud (pagkatapos i-link ang iCloud). Nangako ang LiquidBoard na hindi mag-iimbak o mag-a-upload ng anumang datos mo sa iba pang lugar. Lahat ng pangako ay ipinatutupad at kinokontrol ng Apple sa pamamagitan ng <Link to="/policy/data-security">Seguridad ng Datos</Link> at <Link to="/policy/privacy">Pagkapribado</Link> mga patakaran sa loob ng app. Inilalathala namin ang mga dokumentong ito sa publiko sa app at sa aming website, at madali mo silang mahahanap sa <Link to="/policy/data-security">Seguridad ng Datos</Link> at <Link to="/policy/privacy">Pribado</Link>.</p>
+    <p>Ang LiquidBoard ay isang clipboard management app para sa text, mga larawan at stickers sa iPhone. Tinutulungan ka ng app na gumawa ng madalas gamitin na content o mag-imbak ng content na kinopya mo mula sa ibang app o device. Ibinibigay ang kumpletong hanay ng mga feature upang gawing mas simple ang pamamahala ng data.</p>
+    <p>Nakakabit ang LiquidBoard sa keyboard ng iyong iPhone upang mas madaling magpadala ng naka-save na text, mga larawan at stickers. Maaari mong gamitin ang app upang mag-imbak ng madalas uliting text, mga larawan ng QR Code at gumawa ng mga paborito mong sticker.</p>
+    <p>Lahat ng data ay lokal at ligtas na nakaimbak sa iyong device o sa iyong iCloud kapag nagsi-sync. Nangangako ang LiquidBoard na hindi mag-iimbak, gagamit o mag-a-upload ng alinman sa iyong data sa ibang lugar.</p>
+    <p>Ang feature na Stickers sa app ay ginawa gamit ang Vision Framework, ang built-in na computer vision at machine learning library ng Apple sa mga iOS device, upang paghiwalayin ang background at gupitin ang stickers.</p>
+    <p>Ang lahat ng pangako tungkol sa permissions at features ay ipinatutupad at kinokontrol ng Apple sa pamamagitan ng mga dokumentong Seguridad ng Data at Privacy sa app.</p>
+    <p>Inilalathala namin ang mga dokumentong ito sa app at sa website na ito. <br /><Link to="/policy/data-security">Seguridad ng Data</Link><br /><Link to="/policy/privacy">Privacy</Link></p>
+    <p>Sa hinaharap, susubukan naming palawakin ang mga AI feature sa pinakabagong bersyon ng iOS gamit ang Siri AI at sa mga bersyon para sa macOS at iPadOS. Nangangako ang LiquidBoard na bubuo lamang ng mga AI feature sa system level upang maprotektahan ang permissions at sensitibong data ng mga user.</p>
   </>
 );
+
 export default AboutContent_tl;

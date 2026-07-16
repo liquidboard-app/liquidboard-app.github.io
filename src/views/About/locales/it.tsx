@@ -3,9 +3,14 @@ import { Link } from 'react-router-dom';
 
 const AboutContent_it: React.FC = () => (
   <>
-    <p>LiquidBoard è un'app per la gestione degli appunti per testo e immagini. L'app ti aiuta a creare contenuti utilizzati frequentemente o a memorizzare contenuti copiati da altre app. Sono supportate funzionalità come ricerca, ordinamento, raggruppamento, fissaggio dei contenuti essenziali ed esportazione dei file in formato JSON o CSV per semplificare la gestione dei dati.</p>
-    <p>LiquidBoard si integra nella tua tastiera per rendere più facile l'invio di testi e immagini pre-memorizzati o precedentemente copiati. Puoi utilizzare l'app per memorizzare frasi ricorrenti quotidiane per i clienti, contenuti dei report, link di vendita, numeri di conto, indirizzi, codici QR, ecc. Inoltre, LiquidBoard ha una sezione Sticker, che ti permette di creare sticker dalle immagini aggiunte.</p>
-    <p>Tutti i dati sono memorizzati localmente e in modo sicuro sul tuo dispositivo e su iCloud (dopo aver collegato iCloud). LiquidBoard si impegna a non memorizzare o caricare alcuno dei tuoi dati altrove. Tutti gli impegni sono applicati e controllati da Apple attraverso il <Link to="/policy/data-security">Sicurezza dei dati</Link> e <Link to="/policy/privacy">Privacy</Link> politiche all'interno dell'app. Pubblichiamo questi documenti pubblicamente nell'app e sul nostro sito web, e puoi trovarli facilmente su <Link to="/policy/data-security">Sicurezza dei dati</Link> e <Link to="/policy/privacy">Privacy</Link>.</p>
+    <p>LiquidBoard è un'app di gestione degli appunti per testo, immagini e adesivi su iPhone. L'app ti aiuta a creare contenuti usati spesso o a conservare contenuti copiati da altre app o dispositivi. Offre un set completo di funzioni per semplificare la gestione dei dati.</p>
+    <p>LiquidBoard si integra con la tastiera del tuo iPhone per rendere più semplice inviare testi, immagini e adesivi salvati. Puoi usare l'app per archiviare testi ricorrenti, immagini di QR Code e creare i tuoi adesivi preferiti.</p>
+    <p>Tutti i dati vengono archiviati localmente e in modo sicuro sul tuo dispositivo o nel tuo iCloud durante la sincronizzazione. LiquidBoard si impegna a non archiviare, usare o caricare i tuoi dati altrove.</p>
+    <p>La funzione Adesivi dell'app è creata con Vision Framework, la libreria di computer vision e machine learning di Apple integrata nei dispositivi iOS, per separare gli sfondi e ritagliare gli adesivi.</p>
+    <p>Tutti gli impegni relativi ad autorizzazioni e funzioni sono implementati e controllati da Apple tramite i documenti Sicurezza dei dati e Privacy nell'app.</p>
+    <p>Pubbliciamo questi documenti nell'app e su questo sito web. <br /><Link to="/policy/data-security">Sicurezza dei dati</Link><br /><Link to="/policy/privacy">Privacy</Link></p>
+    <p>In futuro proveremo ad ampliare le funzioni AI sulle versioni più recenti di iOS con Siri AI e sulle versioni per macOS e iPadOS. LiquidBoard si impegna a sviluppare funzioni AI solo a livello di sistema per proteggere autorizzazioni e dati sensibili degli utenti.</p>
   </>
 );
+
 export default AboutContent_it;

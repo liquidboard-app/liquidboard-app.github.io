@@ -9,15 +9,15 @@ export const faqs = [
   },
   {
     q: 'Warum benötigt LiquidBoard vollen Zugriff und kann ich mich dagegen entscheiden, ihn zu gewähren?',
-    a: 'Sie müssen die volle Zugriffsberechtigung erteilen, um Bilder von der Tastatur in andere Apps einfügen zu können. Dies ist eine Anforderung von Apple für alle Tastaturen von Drittanbietern. Wenn Sie keinen Zugriff gewähren, können Sie nach dem Hinzufügen der Tastatur weiterhin Text senden, aber Sie können keine Bilder, Aufkleber senden oder die Zwischenablage-Funktion des Systems verwenden. LiquidBoard verpflichtet sich zum Datenschutz, wird regelmäßig von Apple überprüft, und wir haben kein Interesse daran, Kundendaten zu verwenden.'
+    a: 'Sie müssen die volle Zugriffsberechtigung erteilen, um Bilder von der Tastatur in andere Apps einfügen zu können. Dies ist eine Anforderung von Apple für alle Tastaturen von Drittanbietern. Wenn Sie keinen Zugriff gewähren, können Sie nach dem Hinzufügen der Tastatur weiterhin Text senden, aber Sie können keine Bilder, Aufkleber senden oder die Zwischenablage-Funktion des Systems verwenden. LiquidBoard verpflichtet sich zum Datenschutz, wird regelmäßig von Apple überprüft und wir haben kein Interesse daran, Kundendaten zu verwenden.'
   },
   {
     q: 'Wie öffne und benutze ich die LiquidBoard-Tastatur?',
-    a: 'Öffnen Sie eine beliebige App mit einem Texteingabefeld, um die normale Tastatur anzuzeigen. Tippen Sie dann auf das Globus-Symbol in der unteren linken Ecke, wählen Sie LiquidBoard aus der Tastaturliste, und Sie gelangen zur Tastaturoberfläche der App.'
+    a: 'Öffnen Sie eine beliebige App mit einem Texteingabefeld, um die normale Tastatur anzuzeigen. Tippen Sie dann auf das Globus-Symbol in der unteren linken Ecke, wählen Sie LiquidBoard aus der Tastaturliste und Sie gelangen zur Tastaturoberfläche der App.'
   },
   {
     q: 'Wie füge ich Text, Bilder oder Aufkleber ein?',
-    a: 'Für Text tippen Sie einfach auf den Inhalt, den Sie einfügen möchten, und er erscheint im Eingabefeld. Sie können auch die Funktionstasten unten verwenden, um Leerzeichen hinzuzufügen, zu löschen oder neue Zeilen einzufügen. Für Bilder und Sticker tippen Sie auf den Inhalt, um ihn zu kopieren, dann drücken Sie lange im Eingabefeld und wählen Einfügen. Einige Apps zeigen eine Vorschau an, und Sie müssen nur auf Senden tippen. Wenn das Eingabefeld keine Einfügen-Schaltfläche hat, bedeutet dies normalerweise, dass die App oder der spezifische Eingabebereich nur Text zulässt und keine Bilder unterstützt.'
+    a: 'Für Text tippen Sie einfach auf den Inhalt, den Sie einfügen möchten und er erscheint im Eingabefeld. Sie können auch die Funktionstasten unten verwenden, um Leerzeichen hinzuzufügen, zu löschen oder neue Zeilen einzufügen. Für Bilder und Sticker tippen Sie auf den Inhalt, um ihn zu kopieren, dann drücken Sie lange im Eingabefeld und wählen Einfügen. Einige Apps zeigen eine Vorschau an und Sie müssen nur auf Senden tippen. Wenn das Eingabefeld keine Einfügen-Schaltfläche hat, bedeutet dies normalerweise, dass die App oder der spezifische Eingabebereich nur Text zulässt und keine Bilder unterstützt.'
   },
   {
     q: 'Kann ich die Tastaturoberfläche anpassen?',

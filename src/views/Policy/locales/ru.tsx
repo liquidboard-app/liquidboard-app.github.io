@@ -157,20 +157,20 @@ export const Terms = () => (<>
 
                 <h2>Keyboard Extension & Full Access</h2>
                 <p>Enabling Full Access for the keyboard extension is required to paste images and stickers into other apps and to enable iCloud Sync. Full Access does not grant us access to anything you type.</p>
-                <p>You acknowledge that by enabling Full Access, iOS will display a system notice informing you that the keyboard developer could potentially access your typing. We want to be explicit: LiquidBoard does not collect, log, or transmit any keystroke data.</p>
+                <p>You acknowledge that by enabling Full Access, iOS will display a system notice informing you that the keyboard developer could potentially access your typing. We want to be explicit: LiquidBoard does not collect, log or transmit any keystroke data.</p>
 
                 <h2>iCloud Sync</h2>
                 <p>iCloud Sync is an optional feature that uses your personal Apple iCloud account to sync your data across devices. Use of iCloud is subject to Apple's Terms and Conditions. We are not responsible for any data loss resulting from iCloud service interruptions.</p>
 
                 <h2>Disclaimer of Warranties</h2>
-                <p>LiquidBoard is provided "as is" and "as available" without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
-                <p>We do not warrant that the App will be uninterrupted, error-free, or free of viruses or other harmful components.</p>
+                <p>LiquidBoard is provided "as is" and "as available" without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose or non-infringement.</p>
+                <p>We do not warrant that the App will be uninterrupted, error-free or free of viruses or other harmful components.</p>
 
                 <h2>Limitation of Liability</h2>
-                <p>To the maximum extent permitted by applicable law, we shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of data, loss of profits, or loss of goodwill, arising from your use of or inability to use the App.</p>
+                <p>To the maximum extent permitted by applicable law, we shall not be liable for any indirect, incidental, special, consequential or punitive damages, including but not limited to loss of data, loss of profits or loss of goodwill, arising from your use of or inability to use the App.</p>
 
                 <h2>Termination</h2>
-                <p>We reserve the right to terminate or restrict your access to the App at any time, without notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties.</p>
+                <p>We reserve the right to terminate or restrict your access to the App at any time, without notice, for conduct that we believe violates these Terms or is harmful to other users, us or third parties.</p>
                 <p>You may stop using the App at any time by deleting it from your device.</p>
 
                 <h2>Changes to These Terms</h2>
@@ -186,7 +186,7 @@ export const Terms = () => (<>
 export const Payment = () => (<>
     <h2>Payment & Refund Policy</h2>
                 <p>Last updated: June 05 2026 · LiquidBoard</p>
-                <p>LiquidBoard offers optional in-app purchases to unlock premium features. All payments are handled entirely by Apple through the App Store — we do not process, store, or have access to your payment information.</p>
+                <p>LiquidBoard offers optional in-app purchases to unlock premium features. All payments are handled entirely by Apple through the App Store — we do not process, store or have access to your payment information.</p>
 
                 <h2>What You Can Purchase</h2>
                 <p>LiquidBoard offers the following optional purchases:</p>
@@ -196,7 +196,7 @@ export const Payment = () => (<>
                 <p>Available purchases and pricing are displayed within the App at the time of purchase. Prices may vary by region and are shown in your local currency.</p>
 
                 <h2>Payment Processing</h2>
-                <p>All transactions are processed securely by Apple. We never see or store your credit card, billing address, or any payment details.</p>
+                <p>All transactions are processed securely by Apple. We never see or store your credit card, billing address or any payment details.</p>
                 <p>By completing a purchase, you agree to Apple's App Store Terms of Sale. Your payment method on file with Apple will be charged at the time of purchase confirmation.</p>
 
                 <h2>Restoring Purchases</h2>
@@ -214,7 +214,7 @@ export const Payment = () => (<>
 
                 <h2>Refund Policy</h2>
                 <p>We do not process refunds directly. All refund requests must be submitted to Apple, as they are the merchant of record for all App Store transactions.</p>
-                <p>Apple handles refunds at their discretion in accordance with their refund policy. Common eligible cases include accidental purchases, unauthorized charges, or purchases that did not function as described.</p>
+                <p>Apple handles refunds at their discretion in accordance with their refund policy. Common eligible cases include accidental purchases, unauthorized charges or purchases that did not function as described.</p>
                 <p>To request a refund from Apple:</p>
                 <ul>
                   <li>Go to<a href="https://reportaproblem.apple.com" target="_blank" rel="noopener noreferrer">reportaproblem.apple.com</a>and sign in with your Apple ID</li>
@@ -224,7 +224,7 @@ export const Payment = () => (<>
                 <p>Apple typically responds within a few business days. Refund decisions are made solely by Apple.</p>
 
                 <h2>Price Changes</h2>
-                <p>We reserve the right to change pricing for in-app purchases at any time. Price changes for subscriptions will be communicated in advance through the App or App Store, and will take effect at the start of your next billing cycle. You will be notified by Apple before any subscription price change takes effect.</p>
+                <p>We reserve the right to change pricing for in-app purchases at any time. Price changes for subscriptions will be communicated in advance through the App or App Store and will take effect at the start of your next billing cycle. You will be notified by Apple before any subscription price change takes effect.</p>
 
                 <h2>Failed or Incomplete Purchases</h2>
                 <p>If a purchase fails or you are charged but do not receive the content, please first try restoring purchases within the App. If the issue persists, contact us at<a href="mailto:liquidboard.app@gmail.com">liquidboard.app@gmail.com</a>and we will investigate promptly.</p>

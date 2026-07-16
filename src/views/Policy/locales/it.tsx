@@ -17,8 +17,8 @@ export const Security = () => (
                 <p>I tuoi dati sono protetti da iOS e dagli strati di sicurezza di Apple:</p>
                 <ul>
                   <li><strong>A riposo</strong>— I dati memorizzati sul tuo dispositivo sono crittografati da iOS utilizzando il codice del dispositivo e il Secure Enclave.</li>
-                  <li><strong>In transito</strong>— Se la sincronizzazione iCloud è abilitata, i dati vengono crittografati da CloudKit di Apple prima di essere trasmessi.</li>
-                  <li><strong>Backup iCloud</strong>— Se il tuo dispositivo è eseguito il backup su iCloud, i dati delle app sono inclusi nel sistema di backup crittografato di Apple.</li>
+                  <li><strong>In transito</strong>— Se la sincronizzazione iCloud è abilitata i dati vengono crittografati da CloudKit di Apple prima di essere trasmessi.</li>
+                  <li><strong>Backup iCloud</strong>— Se il tuo dispositivo è eseguito il backup su iCloud i dati delle app sono inclusi nel sistema di backup crittografato di Apple.</li>
                 </ul>
 
                 <h2>Sicurezza di Foto e Immagini</h2>
@@ -63,7 +63,7 @@ export const Security = () => (
 export const Privacy = () => (<>
     <h2>Informativa sulla Privacy</h2>
                 <p>Ultimo aggiornamento: 05 giugno 2026 · LiquidBoard</p>
-                <p>LiquidBoard ("noi", "nostro", o "l'app") si impegna a proteggere la tua privacy. Questa Informativa sulla Privacy spiega come gestiamo le informazioni quando utilizzi LiquidBoard e la sua estensione della tastiera.</p>
+                <p>LiquidBoard ("noi", "nostro" o "l'app") si impegna a proteggere la tua privacy. Questa Informativa sulla Privacy spiega come gestiamo le informazioni quando utilizzi LiquidBoard e la sua estensione della tastiera.</p>
 
                 <h2>Dati che raccogliamo</h2>
                 <p>LiquidBoard non raccoglie, memorizza né trasmette alcun dato personale a server esterni. Tutti i dati che crei all'interno dell'app — inclusi frammenti di testo, immagini, adesivi, categorie e impostazioni — sono memorizzati esclusivamente sul tuo dispositivo o nel tuo account iCloud personale.</p>
@@ -94,7 +94,7 @@ export const Privacy = () => (<>
                 <p>L'accesso completo è utilizzato esclusivamente per queste funzionalità. La tastiera non registra, memorizza o trasmette nulla di ciò che digiti in altre app. Nessun dato viene inviato a server esterni.</p>
 
                 <h2>Sincronizzazione iCloud</h2>
-                <p>Se scegli di attivare la sincronizzazione iCloud, i tuoi frammenti di testo, immagini e adesivi vengono sincronizzati tramite l'infrastruttura iCloud di Apple utilizzando il tuo ID Apple personale. Questi dati sono regolati dall'Informativa sulla privacy di Apple. Non abbiamo accesso ai tuoi dati iCloud.</p>
+                <p>Se scegli di attivare la sincronizzazione iCloud i tuoi frammenti di testo, immagini e adesivi vengono sincronizzati tramite l'infrastruttura iCloud di Apple utilizzando il tuo ID Apple personale. Questi dati sono regolati dall'Informativa sulla privacy di Apple. Non abbiamo accesso ai tuoi dati iCloud.</p>
 
                 <h2>Condivisione dei dati</h2>
                 <p>Non vendiamo, condividiamo o divulghiamo i tuoi dati a terzi. Non utilizziamo alcun SDK di analytics, pubblicità o strumenti di tracciamento di terze parti.</p>
@@ -135,7 +135,7 @@ export const Terms = () => (<>
 
                 <h2>Il tuo contenuto</h2>
                 <p>Mantieni la piena proprietà di tutti i frammenti di testo, immagini e sticker che crei o importi in LiquidBoard. Non rivendichiamo alcun diritto sul tuo contenuto.</p>
-                <p>Sei l'unicamente responsabile di garantire che i contenuti che crei o incolli utilizzando l'App non violino i diritti di terzi, inclusi i diritti d'autore, i marchi o i diritti alla privacy.</p>
+                <p>Sei l'unicamente responsabile di garantire che i contenuti che crei o incolli utilizzando l'App non violino i diritti di terzi, inclusi i diritti d'autore i marchi o i diritti alla privacy.</p>
 
                 <h2>Uso Accettabile</h2>
                 <p>Accetti di non utilizzare LiquidBoard per creare, conservare o distribuire contenuti che:</p>

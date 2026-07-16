@@ -19,9 +19,9 @@ const id: LocaleDict = {
     download: "Unduh LiquidBoard",
     titles: ['Buat Grup', 'Sematkan', 'Salin & Gandakan', 'Impor & Ekspor File'],
     paragraphs: [
-      'Buat grup tambahan dan kategorikan teks, gambar, dan stiker berdasarkan kebutuhan Anda. Beralih dengan mulus antar grup dan sematkan grup penting ke atas terlebih dahulu.',
-      'Sematkan teks, gambar, dan stiker penting yang sering Anda gunakan ke atas sehingga Anda dapat mengirimkannya lebih cepat.',
-      'Salin dan gandakan teks, gambar, dan stiker dengan mudah dan cepat.',
+      'Buat grup tambahan dan kategorikan teks, gambar dan stiker berdasarkan kebutuhan Anda. Beralih dengan mulus antar grup dan sematkan grup penting ke atas terlebih dahulu.',
+      'Sematkan teks, gambar dan stiker penting yang sering Anda gunakan ke atas sehingga Anda dapat mengirimkannya lebih cepat.',
+      'Salin dan gandakan teks, gambar dan stiker dengan mudah dan cepat.',
       'Ekspor dan impor data teks sebagai JSON dan CSV langsung melalui aplikasi File.',
     ],
     images: [
@@ -33,7 +33,7 @@ const id: LocaleDict = {
   },
   pricing: {
     intro: { 
-      line1: "Pilih paket yang tepat untuk cara Anda menyimpan, mengatur, dan berbagi konten setiap hari.", 
+      line1: "Pilih paket yang tepat untuk cara Anda menyimpan, mengatur dan berbagi konten setiap hari.", 
       line2: "Setiap paket adalah pembelian satu kali untuk akses seumur hidup." 
     },
     plans: [
@@ -74,9 +74,9 @@ const id: LocaleDict = {
   features: {
     titles: ['Teks', 'Gambar', 'Stiker'],
     paragraphs: [
-      'Buat dan tulis beberapa dokumen teks, informasi pengantar, dan konten yang disesuaikan dengan kebutuhan penulisan Anda. Siapkan templat respons bawaan untuk penggunaan langsung. Masukkan dan bagikan informasi kontak dengan cepat. Simpan tautan situs web, cuplikan kode, struktur prompt AI untuk referensi dan penggunaan kembali yang efisien.',
-      'Bagikan kode QR pembayaran dan kode QR transfer bank dengan cepat. Akses beragam koleksi prototipe sampel produk, maket desain, infografis, dan tangkapan layar instruksional. Atur dan ambil aset visual dengan mulus untuk komunikasi profesional.',
-      'Buat dan bagikan stiker, meme favorit, pesan ucapan selamat, dan ekspresi emosional secara instan untuk terhubung dengan orang terkasih dan pelanggan. Personalisasikan komunikasi Anda dengan elemen visual yang menyampaikan perasaan dan meningkatkan keterlibatan.',
+      'Buat dan tulis beberapa dokumen teks, informasi pengantar dan konten yang disesuaikan dengan kebutuhan penulisan Anda. Siapkan templat respons bawaan untuk penggunaan langsung. Masukkan dan bagikan informasi kontak dengan cepat. Simpan tautan situs web, cuplikan kode, struktur prompt AI untuk referensi dan penggunaan kembali yang efisien.',
+      'Bagikan kode QR pembayaran dan kode QR transfer bank dengan cepat. Akses beragam koleksi prototipe sampel produk, maket desain, infografis dan tangkapan layar instruksional. Atur dan ambil aset visual dengan mulus untuk komunikasi profesional.',
+      'Buat dan bagikan stiker, meme favorit, pesan ucapan selamat dan ekspresi emosional secara instan untuk terhubung dengan orang terkasih dan pelanggan. Personalisasikan komunikasi Anda dengan elemen visual yang menyampaikan perasaan dan meningkatkan keterlibatan.',
     ],
     images: [
       { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },

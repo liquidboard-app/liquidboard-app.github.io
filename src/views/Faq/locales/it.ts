@@ -37,7 +37,7 @@ export const faqs = [
   },
   {
     q: 'Posso recuperare contenuti eliminati?',
-    a: 'Sì. Testi, immagini e adesivi eliminati vengono spostati nella sezione Eliminati di recente nelle Impostazioni. Puoi recuperarli o eliminarli definitivamente da lì. Gli elementi vengono conservati in Eliminati di recente per 30 giorni dal momento dell\'eliminazione; dopo questo periodo, i contenuti non recuperati verranno cancellati definitivamente dalla memoria.'
+    a: 'Sì. Testi, immagini e adesivi eliminati vengono spostati nella sezione Eliminati di recente nelle Impostazioni. Puoi recuperarli o eliminarli definitivamente da lì. Gli elementi vengono conservati in Eliminati di recente per 30 giorni dal momento dell\'eliminazione; dopo questo periodo i contenuti non recuperati verranno cancellati definitivamente dalla memoria.'
   },
   {
     q: 'LiquidBoard è gratuito e come funzionano i piani?',

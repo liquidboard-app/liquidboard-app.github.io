@@ -15,12 +15,12 @@ const RouteContent = ({ children }: { children: React.ReactNode }) => <Suspense 
 
 const pageMetadata: Record<string, { title: string; description: string }> = {
   '/': {
-    title: 'LiquidBoard — Copy, organize, and paste faster',
-    description: 'LiquidBoard keeps texts, photos, stickers, and links organized so they are ready to paste from your iPhone keyboard.',
+    title: 'LiquidBoard — Copy, organize and paste faster',
+    description: 'LiquidBoard keeps texts, photos, stickers and links organized so they are ready to paste from your iPhone keyboard.',
   },
   '/about': {
     title: 'About LiquidBoard',
-    description: 'Learn how LiquidBoard helps you keep everyday clipboard content private, organized, and ready to send.',
+    description: 'Learn how LiquidBoard helps you keep everyday clipboard content private, organized and ready to send.',
   },
   '/pricing': {
     title: 'LiquidBoard Pricing',
@@ -28,11 +28,11 @@ const pageMetadata: Record<string, { title: string; description: string }> = {
   },
   '/updates': {
     title: 'LiquidBoard Updates',
-    description: 'See the latest LiquidBoard features, improvements, and product updates.',
+    description: 'See the latest LiquidBoard features, improvements and product updates.',
   },
   '/help/contact': {
     title: 'LiquidBoard Help & Support',
-    description: 'Get help with LiquidBoard, browse frequently asked questions, or contact support.',
+    description: 'Get help with LiquidBoard, browse frequently asked questions or contact support.',
   },
   '/help/faq': {
     title: 'LiquidBoard FAQ',
@@ -52,7 +52,7 @@ const pageMetadata: Record<string, { title: string; description: string }> = {
   },
   '/policy/payment-and-refund': {
     title: 'LiquidBoard Payment & Refund Policy',
-    description: 'Read LiquidBoard payment, purchase, and refund information.',
+    description: 'Read LiquidBoard payment, purchase and refund information.',
   },
 };
 

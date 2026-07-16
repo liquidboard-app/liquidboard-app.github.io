@@ -3,9 +3,14 @@ import { Link } from 'react-router-dom';
 
 const AboutContentEn: React.FC = () => (
   <>
-    <p>LiquidBoard is a clipboard management app for text and images. The app helps you create frequently used content or store content copied from other apps. Features like search, sorting, grouping, pinning essential content, and exporting files in JSON or CSV format are all supported to simplify data management.</p>
-    <p>LiquidBoard integrates into your keyboard to make sending pre-stored or previously copied text and images easier. You can utilize the app to store recurring daily phrases for customers, report contents, sales links, account numbers, addresses, QR Codes, etc. Additionally, LiquidBoard has a Stickers section, allowing you to create stickers from added images.</p>
-    <p>All data is stored locally and securely on your device and iCloud (after linking iCloud). LiquidBoard commits not to store or upload any of your data anywhere else. All commitments are enforced and controlled by Apple through the <Link to="/policy/data-security">Data Security</Link> and <Link to="/policy/privacy">Privacy</Link> policies within the app. We publish these documents publicly in the app and on our website, and you can easily find them at <Link to="/policy/data-security">Data Security</Link> and <Link to="/policy/privacy">Privacy</Link>.</p>
+    <p>LiquidBoard is a clipboard management app for text, images and stickers on iPhone. The app helps you create frequently used content or store content you copy from other apps or devices. A full set of features is provided to help simplify data management.</p>
+    <p>LiquidBoard integrates with your iPhone keyboard, making it easier to send saved text, images and stickers. You can use the app to store frequently repeated text, QR Code images and create your favorite stickers.</p>
+    <p>All data is stored locally and securely on your device or in your iCloud when syncing. LiquidBoard commits not to store, use or upload any of your data anywhere else.</p>
+    <p>The Stickers feature in the app is built with Vision Framework, Apple&apos;s built-in computer vision and machine learning library on iOS devices, to separate backgrounds and crop stickers.</p>
+    <p>All commitments about permissions and features are implemented and controlled by Apple through the app&apos;s Data Security and Privacy documents.</p>
+    <p>We publish these documents in the app and on this website. <br /><Link to="/policy/data-security">Data Security</Link><br /><Link to="/policy/privacy">Privacy</Link></p>
+    <p>In the future, we will try to expand AI features on the latest iOS versions with Siri AI and versions for macOS and iPadOS. LiquidBoard commits to developing AI features only at the system level to protect user permissions and sensitive data.</p>
   </>
 );
+
 export default AboutContentEn;

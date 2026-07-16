@@ -157,7 +157,7 @@ export const Terms = () => (<>
 
                 <h2>Extensão de teclado e acesso total</h2>
                 <p>É necessário ativar o acesso total para a extensão do teclado para colar imagens e adesivos em outros aplicativos e para ativar o iCloud Sync. O Acesso Total não nos concede acesso a nada que você digita.</p>
-                <p>Você reconhece que, ao ativar o Acesso Total, o iOS exibirá um aviso do sistema informando que o desenvolvedor do teclado poderá acessar sua digitação. Queremos ser explícitos: o LiquidBoard não coleta, registra ou transmite quaisquer dados de pressionamento de tecla.</p>
+                <p>Você reconhece que, ao ativar o Acesso Total o iOS exibirá um aviso do sistema informando que o desenvolvedor do teclado poderá acessar sua digitação. Queremos ser explícitos: o LiquidBoard não coleta, registra ou transmite quaisquer dados de pressionamento de tecla.</p>
 
                 <h2>Sincronização do iCloud</h2>
                 <p>iCloud Sync é um recurso opcional que usa sua conta pessoal do Apple iCloud para sincronizar seus dados entre dispositivos. O uso do iCloud está sujeito aos Termos e Condições da Apple. Não nos responsabilizamos por qualquer perda de dados resultante de interrupções do serviço iCloud.</p>

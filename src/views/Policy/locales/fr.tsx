@@ -66,7 +66,7 @@ export const Privacy = () => (<>
                 <p>LiquidBoard (« nous », « notre » ou « l'application ») s'engage à protéger votre vie privée. Cette politique de confidentialité explique comment nous traitons les informations lorsque vous utilisez LiquidBoard et son extension clavier.</p>
 
                 <h2>Données que nous collectons</h2>
-                <p>LiquidBoard ne collecte, ne stocke ni ne transmet aucune donnée personnelle à des serveurs externes. Toutes les données que vous créez dans l'application, y compris les extraits de texte, les images, les autocollants, les catégories et les paramètres, sont stockées exclusivement sur votre appareil ou dans votre compte iCloud personnel.</p>
+                <p>LiquidBoard ne collecte, ne stocke ni ne transmet aucune donnée personnelle à des serveurs externes. Toutes les données que vous créez dans l'application y compris les extraits de texte, les images, les autocollants, les catégories et les paramètres, sont stockées exclusivement sur votre appareil ou dans votre compte iCloud personnel.</p>
 
                 <h2>Photos et images</h2>
                 <p>LiquidBoard peut demander l'accès à votre photothèque aux fins suivantes :</p>
@@ -135,7 +135,7 @@ export const Terms = () => (<>
 
                 <h2>Votre contenu</h2>
                 <p>Vous conservez l'entière propriété de tous les extraits de texte, images et autocollants que vous créez ou importez dans LiquidBoard. Nous ne revendiquons aucun droit sur votre contenu.</p>
-                <p>Vous êtes seul responsable de vous assurer que le contenu que vous créez ou collez à l’aide de l’application ne viole aucun droit de tiers, y compris les droits d’auteur, de marque ou de confidentialité.</p>
+                <p>Vous êtes seul responsable de vous assurer que le contenu que vous créez ou collez à l’aide de l’application ne viole aucun droit de tiers y compris les droits d’auteur, de marque ou de confidentialité.</p>
 
                 <h2>Utilisation acceptable</h2>
                 <p>Vous acceptez de ne pas utiliser LiquidBoard pour créer, stocker ou distribuer du contenu qui :</p>
@@ -163,11 +163,11 @@ export const Terms = () => (<>
                 <p>iCloud Sync est une fonctionnalité facultative qui utilise votre compte personnel Apple iCloud pour synchroniser vos données sur tous les appareils. L'utilisation d'iCloud est soumise aux conditions générales d'Apple. Nous ne sommes pas responsables de toute perte de données résultant des interruptions du service iCloud.</p>
 
                 <h2>Exclusion de garanties</h2>
-                <p>LiquidBoard est fourni « tel quel » et « tel que disponible » sans garantie d'aucune sorte, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande, d'adéquation à un usage particulier ou de non-contrefaçon.</p>
+                <p>LiquidBoard est fourni « tel quel » et « tel que disponible » sans garantie d'aucune sorte, expresse ou implicite y compris, mais sans s'y limiter, les garanties de qualité marchande, d'adéquation à un usage particulier ou de non-contrefaçon.</p>
                 <p>Nous ne garantissons pas que l'application sera ininterrompue, sans erreur ou exempte de virus ou d'autres composants nuisibles.</p>
 
                 <h2>Limitation de responsabilité</h2>
-                <p>Dans la mesure permise par la loi applicable, nous ne serons pas responsables de tout dommage indirect, accidentel, spécial, consécutif ou punitif, y compris, mais sans s'y limiter, la perte de données, la perte de profits ou la perte de clientèle, découlant de votre utilisation ou de votre incapacité à utiliser l'Application.</p>
+                <p>Dans la mesure permise par la loi applicable, nous ne serons pas responsables de tout dommage indirect, accidentel, spécial, consécutif ou punitif y compris, mais sans s'y limiter, la perte de données, la perte de profits ou la perte de clientèle, découlant de votre utilisation ou de votre incapacité à utiliser l'Application.</p>
 
                 <h2>Terminaison</h2>
                 <p>Nous nous réservons le droit de résilier ou de restreindre votre accès à l'Application à tout moment, sans préavis, pour une conduite qui, selon nous, viole les présentes Conditions ou est préjudiciable aux autres utilisateurs, à nous ou à des tiers.</p>

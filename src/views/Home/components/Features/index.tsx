@@ -190,6 +190,25 @@ const Features: React.FC = () => {
         // Keep the transitions long enough to read smoothly, while reducing the idle hold after Group and its following cards.
         const stackHoldDistance = Math.max(viewportHeight() * 0.48, 1);
         const finalStackHoldDistance = Math.max(viewportHeight() * 0.8, 1);
+        const stackStartTime = horizontalScrollDistance + stickerExitDistance;
+        const totalScrollDistance = Math.max(
+          stackStartTime
+          + stackCards.length * stackStepDistance
+          + Math.max(stackCards.length - 1, 0) * stackHoldDistance
+          + finalStackHoldDistance,
+          1,
+        );
+        // Snap inside the stable part of each card's hold. ScrollTrigger's inertia
+        // projects fast gestures forward, so a deliberate swipe lands on the next
+        // card while a quick flick can still pass over multiple cards.
+        const stackSnapProgress = stackCards.map((_, index) => {
+          const previousHolds = index * stackHoldDistance;
+          const currentHold = index < stackCards.length - 1 ? stackHoldDistance : finalStackHoldDistance;
+          const settledTime = stackStartTime + (index + 1) * stackStepDistance + previousHolds;
+          return (settledTime + currentHold * 0.38) / totalScrollDistance;
+        });
+        const stackStartProgress = stackStartTime / totalScrollDistance;
+        const snapStackDirectionally = ScrollTrigger.snapDirectional([stackStartProgress, ...stackSnapProgress, 1]);
         const publishStackStart = () => {
           const pinStart = pin.getBoundingClientRect().top + window.scrollY - headerOffset();
           section.dataset.featureStackStart = String(Math.round(pinStart + horizontalScrollDistance + stickerExitDistance));
@@ -211,7 +230,7 @@ const Features: React.FC = () => {
           gsap.set(card, {
             yPercent: 108,
             y: 15,
-            rotationX: 14,
+            rotationX: 26,
             z: 0,
             scale: 1,
             width: '100%',
@@ -227,10 +246,21 @@ const Features: React.FC = () => {
           scrollTrigger: {
             trigger: pin,
             start: () => `top ${headerOffset()}px`,
-            end: () => `+=${Math.max(distance() * 1.8 + settleDistance() + stickerExitDistance + stackCards.length * viewportHeight() * 1.48 + Math.max(stackCards.length - 1, 0) * stackHoldDistance + finalStackHoldDistance, 1)}`,
+            end: () => `+=${totalScrollDistance}`,
             pin: true,
             pinSpacing: true,
-            scrub: 1.1,
+            scrub: 0.9,
+            snap: {
+              snapTo: (progress, trigger) => {
+                if (progress < stackStartProgress) return progress;
+                return snapStackDirectionally(progress, trigger?.direction);
+              },
+              directional: true,
+              inertia: true,
+              delay: 0.1,
+              duration: { min: 0.18, max: 0.58 },
+              ease: 'power2.out',
+            },
             anticipatePin: 1,
             invalidateOnRefresh: true,
           },
@@ -282,12 +312,21 @@ const Features: React.FC = () => {
         stackCards.forEach((card, index) => {
           const previousCard = index === 0 ? groupCard : stackCards[index - 1];
           timeline
+            .set(previousCard, { transformOrigin: 'center top' })
             .call(() => revealCard(card))
-            .to(card, { yPercent: 8, y: 0, rotationX: 3, z: 0, scale: 0.995, duration: stackEntryDuration, ease: 'none' })
+            .to(card, {
+              yPercent: 8,
+              y: 0,
+              rotationX: 8,
+              z: 0,
+              scale: 0.995,
+              duration: stackEntryDuration,
+              ease: 'none',
+            })
             .to(previousCard, {
               scale: 0.9,
               yPercent: -1,
-              rotationX: 10,
+              rotationX: 20,
               z: 0,
               duration: stackEntryDuration,
               ease: 'none',
@@ -303,12 +342,20 @@ const Features: React.FC = () => {
               duration: stackFadeDuration,
               ease: 'none',
             }, `<+=${stackFadeStart}`)
-            .to(card, { yPercent: 0, y: 0, rotationX: 0, z: 0, scale: 1, duration: stackSettleDuration, ease: 'power1.out' })
+            .to(card, {
+              yPercent: 0,
+              y: 0,
+              rotationX: 0,
+              z: 0,
+              scale: 1,
+              duration: stackSettleDuration,
+              ease: 'power1.out',
+            })
             .to(previousCard, {
               autoAlpha: 0,
               filter: 'blur(12px)',
               yPercent: -3,
-              rotationX: 12,
+              rotationX: 28,
               z: 0,
               duration: stackSettleDuration,
               ease: 'power1.out',

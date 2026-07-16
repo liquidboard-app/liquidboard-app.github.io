@@ -177,7 +177,7 @@ export const Terms = () => (<>
                 <p>Wir können diese Nutzungsbedingungen von Zeit zu Zeit aktualisieren. Durch die fortgesetzte Nutzung der App nach der Veröffentlichung von Änderungen erklären Sie sich mit den überarbeiteten Bedingungen einverstanden. Wir werden Sie über die App oder unsere Website über wesentliche Änderungen informieren.</p>
 
                 <h2>Geltendes Recht</h2>
-                <p>Diese Bedingungen unterliegen den Gesetzen der Gerichtsbarkeit, in der der Entwickler seinen Sitz hat, und werden in Übereinstimmung mit diesen ausgelegt, ohne Rücksicht auf Kollisionsnormen.</p>
+                <p>Diese Bedingungen unterliegen den Gesetzen der Gerichtsbarkeit, in der der Entwickler seinen Sitz hat und werden in Übereinstimmung mit diesen ausgelegt, ohne Rücksicht auf Kollisionsnormen.</p>
 
                 <h2>Kontakt</h2>
                 <p>Wenn Sie Fragen zu diesen Bedingungen haben, kontaktieren Sie uns bitte unter:<a href="mailto:liquidboard.app@gmail.com">liquidboard.app@gmail.com</a></p>

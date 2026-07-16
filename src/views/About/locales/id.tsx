@@ -3,9 +3,14 @@ import { Link } from 'react-router-dom';
 
 const AboutContent_id: React.FC = () => (
   <>
-    <p>LiquidBoard adalah aplikasi manajemen clipboard untuk teks dan gambar. Aplikasi ini membantu Anda membuat konten yang sering digunakan atau menyimpan konten yang disalin dari aplikasi lain. Fitur seperti pencarian, pengurutan, pengelompokan, menyematkan konten penting, dan mengekspor file dalam format JSON atau CSV semuanya didukung untuk mempermudah manajemen data.</p>
-    <p>LiquidBoard terintegrasi ke keyboard Anda untuk memudahkan mengirim teks dan gambar yang telah disimpan sebelumnya atau disalin sebelumnya. Anda dapat menggunakan aplikasi ini untuk menyimpan frasa harian yang sering digunakan untuk pelanggan, konten laporan, tautan penjualan, nomor akun, alamat, Kode QR, dll. Selain itu, LiquidBoard memiliki bagian Stiker, yang memungkinkan Anda membuat stiker dari gambar yang ditambahkan.</p>
-    <p>Semua data disimpan secara lokal dan aman di perangkat Anda serta iCloud (setelah menghubungkan iCloud). LiquidBoard berkomitmen untuk tidak menyimpan atau mengunggah data Anda ke tempat lain. Semua komitmen ditegakkan dan dikontrol oleh Apple melalui <Link to="/policy/data-security">Keamanan Data</Link> dan <Link to="/policy/privacy">Privasi</Link> kebijakan dalam aplikasi. Kami mempublikasikan dokumen-dokumen ini secara terbuka di aplikasi dan di situs web kami, dan Anda dapat dengan mudah menemukannya di <Link to="/policy/data-security">Keamanan Data</Link> dan <Link to="/policy/privacy">Privasi</Link>.</p>
+    <p>LiquidBoard adalah aplikasi manajemen clipboard untuk teks, gambar dan stiker di iPhone. Aplikasi ini membantu Anda membuat konten yang sering digunakan atau menyimpan konten yang Anda salin dari aplikasi atau perangkat lain. Serangkaian fitur lengkap disediakan untuk menyederhanakan pengelolaan data.</p>
+    <p>LiquidBoard terintegrasi dengan keyboard iPhone Anda sehingga lebih mudah mengirim teks, gambar dan stiker yang sudah tersimpan. Anda dapat menggunakannya untuk menyimpan teks yang sering dipakai, gambar QR Code dan membuat stiker favorit.</p>
+    <p>Semua data disimpan secara lokal dan aman di perangkat Anda atau di iCloud Anda saat sinkronisasi. LiquidBoard berkomitmen untuk tidak menyimpan, menggunakan atau mengunggah data Anda ke tempat lain.</p>
+    <p>Fitur Stiker di aplikasi dibuat dengan Vision Framework, pustaka computer vision dan machine learning Apple yang terintegrasi di perangkat iOS, untuk memisahkan latar belakang dan memotong stiker.</p>
+    <p>Semua komitmen tentang izin dan fitur diterapkan serta dikontrol oleh Apple melalui dokumen Keamanan Data dan Privasi di dalam aplikasi.</p>
+    <p>Kami mempublikasikan dokumen ini di aplikasi dan di situs web ini. <br /><Link to="/policy/data-security">Keamanan Data</Link><br /><Link to="/policy/privacy">Privasi</Link></p>
+    <p>Di masa mendatang, kami akan berupaya memperluas fitur AI pada versi iOS terbaru dengan Siri AI serta versi untuk macOS dan iPadOS. LiquidBoard berkomitmen untuk mengembangkan fitur AI hanya pada tingkat sistem demi melindungi izin dan data sensitif pengguna.</p>
   </>
 );
+
 export default AboutContent_id;

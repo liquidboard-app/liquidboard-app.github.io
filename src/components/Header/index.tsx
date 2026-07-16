@@ -16,6 +16,8 @@ import {
   ProgressiveBlur,
 } from './styled';
 
+const DESKTOP_INDICATOR_HEIGHT = 46;
+
 const Header: React.FC = () => {
   const { lang, changeLang, dict, isLanguageChanging } = useTranslation();
   const [languageOpen, setLanguageOpen] = useState(false);
@@ -25,6 +27,11 @@ const Header: React.FC = () => {
   const languageModalRef = useRef<HTMLDivElement>(null);
   const languageTriggerRef = useRef<HTMLButtonElement>(null);
   const closeLanguageButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopMenuRef = useRef<HTMLDivElement>(null);
+  const desktopIndicatorRef = useRef<HTMLSpanElement>(null);
+  const desktopIndicatorAnimationRef = useRef<Animation | null>(null);
+  const desktopIndicatorVisibleRef = useRef(false);
+  const desktopHoveredItemRef = useRef<HTMLAnchorElement | null>(null);
   const { pathname } = useLocation();
 
   const closeLanguageModal = useCallback(() => {
@@ -41,10 +48,167 @@ const Header: React.FC = () => {
     { to: '/help/contact', label: sentenceCase(dict.nav.help, lang) },
   ];
 
+  const getDesktopIndicatorBounds = useCallback((item: HTMLAnchorElement) => {
+    const menu = desktopMenuRef.current;
+    if (!menu) return null;
+
+    const menuRect = menu.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const horizontalBleed = 10;
+
+    return {
+      left: itemRect.left - menuRect.left - horizontalBleed,
+      top: (menuRect.height - DESKTOP_INDICATOR_HEIGHT) / 2,
+      width: itemRect.width + horizontalBleed * 2,
+      height: DESKTOP_INDICATOR_HEIGHT,
+    };
+  }, []);
+
+  const showDesktopIndicator = useCallback((
+    item: HTMLAnchorElement,
+    pointer?: { clientX: number; clientY: number },
+  ) => {
+    if (!window.matchMedia('(min-width: 1081px)').matches) return;
+
+    const menu = desktopMenuRef.current;
+    const indicator = desktopIndicatorRef.current;
+    const target = getDesktopIndicatorBounds(item);
+    if (!menu || !indicator || !target) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const menuRect = menu.getBoundingClientRect();
+    const indicatorRect = indicator.getBoundingClientRect();
+    const wasVisible = desktopIndicatorVisibleRef.current;
+    const dotSize = 8;
+    const start = wasVisible
+      ? {
+          left: indicatorRect.left - menuRect.left,
+          top: indicatorRect.top - menuRect.top,
+          width: indicatorRect.width,
+          height: indicatorRect.height,
+        }
+      : {
+          left: (pointer?.clientX ?? menuRect.left + target.left + target.width / 2) - menuRect.left - dotSize / 2,
+          top: (pointer?.clientY ?? menuRect.top + target.top + DESKTOP_INDICATOR_HEIGHT / 2) - menuRect.top - dotSize / 2,
+          width: dotSize,
+          height: dotSize,
+        };
+
+    desktopIndicatorAnimationRef.current?.cancel();
+    desktopHoveredItemRef.current = item;
+    desktopIndicatorVisibleRef.current = true;
+    indicator.style.width = `${target.width}px`;
+    indicator.style.transform = `translate3d(${target.left}px, ${target.top}px, 0) scale(1, 1)`;
+    indicator.style.opacity = '1';
+
+    if (reducedMotion) return;
+
+    const startCenter = start.left + start.width / 2;
+    const targetCenter = target.left + target.width / 2;
+    const distance = Math.abs(targetCenter - startCenter);
+    const startScale = target.width > 0 ? start.width / target.width : 1;
+    const startScaleY = start.height / DESKTOP_INDICATOR_HEIGHT;
+    const duration = wasVisible ? Math.min(620, 520 + distance * .25) : 460;
+    const easing = 'cubic-bezier(.25, .8, .25, 1)';
+    const startOpacity = wasVisible ? 1 : .35;
+
+    desktopIndicatorAnimationRef.current = indicator.animate([
+      {
+        transform: `translate3d(${start.left}px, ${start.top}px, 0) scale(${startScale}, ${startScaleY})`,
+        opacity: startOpacity,
+      },
+      {
+        transform: `translate3d(${target.left}px, ${target.top}px, 0) scale(1, 1)`,
+        opacity: 1,
+      },
+    ], {
+      duration,
+      easing,
+    });
+
+  }, [getDesktopIndicatorBounds]);
+
+  const hideDesktopIndicator = useCallback((exitPoint?: { clientX: number; clientY: number }) => {
+    const menu = desktopMenuRef.current;
+    const indicator = desktopIndicatorRef.current;
+    if (!menu || !indicator || !desktopIndicatorVisibleRef.current) return;
+
+    const menuRect = menu.getBoundingClientRect();
+    const indicatorRect = indicator.getBoundingClientRect();
+    const left = indicatorRect.left - menuRect.left;
+    const top = indicatorRect.top - menuRect.top;
+    const width = indicatorRect.width;
+    const height = indicatorRect.height;
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    const pointerX = exitPoint ? exitPoint.clientX - menuRect.left : centerX;
+    const pointerY = exitPoint ? exitPoint.clientY - menuRect.top : centerY;
+    const deltaX = pointerX - centerX;
+    const deltaY = pointerY - centerY;
+    const vectorLength = Math.hypot(deltaX, deltaY) || 1;
+    const travel = exitPoint ? 18 : 0;
+    const dotSize = 7;
+    const endCenterX = centerX + (deltaX / vectorLength) * travel;
+    const endCenterY = centerY + (deltaY / vectorLength) * travel;
+    const endLeft = endCenterX - dotSize / 2;
+    const endTop = endCenterY - dotSize / 2;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    desktopIndicatorAnimationRef.current?.cancel();
+    desktopIndicatorVisibleRef.current = false;
+    desktopHoveredItemRef.current = null;
+    indicator.style.width = `${Math.max(width, .01)}px`;
+    indicator.style.transform = `translate3d(${endLeft}px, ${endTop}px, 0) scale(${dotSize / Math.max(width, .01)}, ${dotSize / DESKTOP_INDICATOR_HEIGHT})`;
+    indicator.style.opacity = '0';
+
+    if (reducedMotion) return;
+
+    desktopIndicatorAnimationRef.current = indicator.animate([
+      {
+        transform: `translate3d(${left}px, ${top}px, 0) scale(1, ${height / DESKTOP_INDICATOR_HEIGHT})`,
+        opacity: 1,
+      },
+      {
+        transform: `translate3d(${endLeft}px, ${endTop}px, 0) scale(${dotSize / Math.max(width, .01)}, ${dotSize / DESKTOP_INDICATOR_HEIGHT})`,
+        opacity: 0,
+      },
+    ], {
+      duration: 360,
+      easing: 'cubic-bezier(.25, .8, .25, 1)',
+    });
+
+  }, []);
+
   useEffect(() => {
     setMenuOpen(false);
     setLanguageOpen(false);
-  }, [pathname]);
+    hideDesktopIndicator();
+  }, [hideDesktopIndicator, pathname]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const indicator = desktopIndicatorRef.current;
+      const hoveredItem = desktopHoveredItemRef.current;
+      if (!indicator || !hoveredItem || !desktopIndicatorVisibleRef.current) return;
+
+      if (!window.matchMedia('(min-width: 1081px)').matches) {
+        hideDesktopIndicator();
+        return;
+      }
+
+      const target = getDesktopIndicatorBounds(hoveredItem);
+      if (!target) return;
+      desktopIndicatorAnimationRef.current?.cancel();
+      indicator.style.width = `${target.width}px`;
+      indicator.style.transform = `translate3d(${target.left}px, ${target.top}px, 0) scale(1, 1)`;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      desktopIndicatorAnimationRef.current?.cancel();
+    };
+  }, [getDesktopIndicatorBounds, hideDesktopIndicator]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen || languageOpen ? 'hidden' : '';
@@ -172,9 +336,33 @@ const Header: React.FC = () => {
       </Brand>
 
       <nav aria-label="Primary navigation">
-        <div className={`menu-links ${menuOpen ? 'open' : ''}`}>
+        <div
+          ref={desktopMenuRef}
+          className={`menu-links ${menuOpen ? 'open' : ''}`}
+          onMouseLeave={(event) => hideDesktopIndicator({
+            clientX: event.clientX,
+            clientY: event.clientY,
+          })}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              hideDesktopIndicator();
+            }
+          }}
+        >
+          <span ref={desktopIndicatorRef} className="desktop-menu-indicator" aria-hidden="true" />
           {menuItems.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className="menu-link" onClick={() => setMenuOpen(false)}>
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className="menu-link"
+              onMouseEnter={(event) => showDesktopIndicator(event.currentTarget, {
+                clientX: event.clientX,
+                clientY: event.clientY,
+              })}
+              onFocus={(event) => showDesktopIndicator(event.currentTarget)}
+              onClick={() => setMenuOpen(false)}
+            >
               {item.label}
             </NavLink>
           ))}

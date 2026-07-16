@@ -33,7 +33,7 @@ export const Security = () => (
 
                 <h2>Seguridad de la extensión del teclado</h2>
                 <p>La extensión de teclado no recopila, registra ni transmite ningún dato de pulsación de tecla ni texto que escriba en otras aplicaciones.</p>
-                <p>Se requiere acceso completo para que la extensión del teclado pegue imágenes y pegatinas, y para acceder a iCloud Sync. Incluso con el acceso total habilitado, la extensión del teclado funciona completamente dentro del entorno aislado de iOS. No tiene capacidad para enviar datos a servidores externos.</p>
+                <p>Se requiere acceso completo para que la extensión del teclado pegue imágenes y pegatinas y para acceder a iCloud Sync. Incluso con el acceso total habilitado, la extensión del teclado funciona completamente dentro del entorno aislado de iOS. No tiene capacidad para enviar datos a servidores externos.</p>
 
                 <h2>Sin acceso a datos de terceros</h2>
                 <p>LiquidBoard no integra ninguno de los siguientes:</p>

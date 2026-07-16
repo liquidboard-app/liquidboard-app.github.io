@@ -68,7 +68,7 @@ export const Privacy = () => (
                 <p>LiquidBoard ("chúng tôi" hoặc "ứng dụng") cam kết bảo vệ quyền riêng tư của bạn. Chính sách Quyền riêng tư này giải thích cách chúng tôi xử lý thông tin khi bạn sử dụng LiquidBoard và tiện ích bàn phím của ứng dụng.</p>
 
                 <h2>Dữ liệu Chúng tôi Thu thập</h2>
-                <p>LiquidBoard không thu thập, lưu trữ, hoặc truyền tải bất kỳ dữ liệu cá nhân nào đến các máy chủ bên ngoài. Tất cả dữ liệu bạn tạo trong ứng dụng — bao gồm các đoạn văn bản, hình ảnh, nhãn dán, danh mục và cài đặt — được lưu trữ độc quyền trên thiết bị của bạn hoặc trong tài khoản iCloud cá nhân của bạn.</p>
+                <p>LiquidBoard không thu thập, lưu trữ hoặc truyền tải bất kỳ dữ liệu cá nhân nào đến các máy chủ bên ngoài. Tất cả dữ liệu bạn tạo trong ứng dụng — bao gồm các đoạn văn bản, hình ảnh, nhãn dán, danh mục và cài đặt — được lưu trữ độc quyền trên thiết bị của bạn hoặc trong tài khoản iCloud cá nhân của bạn.</p>
 
                 <h2>Hình ảnh & Ảnh</h2>
                 <p>LiquidBoard có thể yêu cầu quyền truy cập vào thư viện ảnh của bạn cho các mục đích sau:</p>
@@ -93,7 +93,7 @@ export const Privacy = () => (
                   <li>Dán hình ảnh và nhãn dán vào các ứng dụng khác</li>
                   <li>Đồng bộ các đoạn văn bản và nhãn dán của bạn qua iCloud trên các thiết bị của bạn</li>
                 </ul>
-                <p>Quyền truy cập Đầy đủ chỉ được sử dụng duy nhất cho các tính năng này. Bàn phím không ghi nhật ký, ghi lại, hoặc truyền tải bất cứ thứ gì bạn gõ trong bất kỳ ứng dụng nào khác. Không có dữ liệu nào được gửi đến bất kỳ máy chủ bên ngoài nào.</p>
+                <p>Quyền truy cập Đầy đủ chỉ được sử dụng duy nhất cho các tính năng này. Bàn phím không ghi nhật ký, ghi lại hoặc truyền tải bất cứ thứ gì bạn gõ trong bất kỳ ứng dụng nào khác. Không có dữ liệu nào được gửi đến bất kỳ máy chủ bên ngoài nào.</p>
 
                 <h2>Đồng bộ iCloud</h2>
                 <p>Nếu bạn chọn bật Đồng bộ iCloud, các đoạn văn bản, hình ảnh và nhãn dán của bạn sẽ được đồng bộ thông qua hạ tầng iCloud của Apple bằng Apple ID cá nhân của bạn. Dữ liệu này được điều chỉnh bởi Chính sách Quyền riêng tư của Apple. Chúng tôi không có quyền truy cập vào dữ liệu iCloud của bạn.</p>
@@ -104,7 +104,7 @@ export const Privacy = () => (
                 <h2>Lưu giữ & Xóa Dữ liệu</h2>
                 <p>Dữ liệu của bạn được lưu giữ trên thiết bị và/hoặc tài khoản iCloud của bạn và hoàn toàn nằm dưới quyền kiểm soát của bạn. Bạn có thể xóa dữ liệu của mình bất cứ lúc nào bằng cách:</p>
                 <ul>
-                  <li>Xóa từng đoạn văn bản, hình ảnh, hoặc nhãn dán bên trong ứng dụng</li>
+                  <li>Xóa từng đoạn văn bản, hình ảnh hoặc nhãn dán bên trong ứng dụng</li>
                   <li>Thu hồi quyền truy cập thư viện ảnh trong Cài đặt → Quyền riêng tư & Bảo mật → Ảnh</li>
                   <li>Xóa ứng dụng, thao tác này sẽ xóa tất cả dữ liệu được lưu trữ cục bộ</li>
                   <li>Tắt Đồng bộ iCloud và xóa dữ liệu iCloud của ứng dụng khỏi Cài đặt → [Tên của bạn] → iCloud → Quản lý Dung lượng</li>
@@ -128,7 +128,7 @@ export const Terms = () => (
                 <p>Bằng cách tải xuống, cài đặt hoặc sử dụng LiquidBoard ("Ứng dụng"), bạn đồng ý bị ràng buộc bởi các Điều khoản Sử dụng này. Nếu bạn không đồng ý với các điều khoản này, vui lòng không sử dụng Ứng dụng.</p>
 
                 <h2>Cấp phép</h2>
-                <p>Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng, và có thể thu hồi để sử dụng LiquidBoard cho các mục đích cá nhân, phi thương mại của bạn, tuân theo các Điều khoản này.</p>
+                <p>Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng và có thể thu hồi để sử dụng LiquidBoard cho các mục đích cá nhân, phi thương mại của bạn, tuân theo các Điều khoản này.</p>
                 <p>Bạn không được:</p>
                 <ul>
                   <li>Sao chép, sửa đổi hoặc phân phối Ứng dụng hoặc nội dung của Ứng dụng</li>
@@ -167,14 +167,14 @@ export const Terms = () => (
                 <p>Đồng bộ iCloud là một tính năng tùy chọn sử dụng tài khoản Apple iCloud cá nhân của bạn để đồng bộ dữ liệu của bạn trên các thiết bị. Việc sử dụng iCloud tuân theo Điều khoản và Điều kiện của Apple. Chúng tôi không chịu trách nhiệm đối với bất kỳ sự mất mát dữ liệu nào do gián đoạn dịch vụ iCloud.</p>
 
                 <h2>Từ chối Bảo đảm</h2>
-                <p>LiquidBoard được cung cấp "nguyên trạng" ("as is") và "như hiện có" ("as available") mà không có bất kỳ hình thức bảo đảm nào, dù rõ ràng hay ngụ ý, bao gồm nhưng không giới hạn ở các bảo đảm về khả năng bán được, sự phù hợp cho một mục đích cụ thể, hoặc không vi phạm.</p>
-                <p>Chúng tôi không bảo đảm rằng Ứng dụng sẽ không bị gián đoạn, không có lỗi, hoặc không có vi-rút hoặc các thành phần có hại khác.</p>
+                <p>LiquidBoard được cung cấp "nguyên trạng" ("as is") và "như hiện có" ("as available") mà không có bất kỳ hình thức bảo đảm nào, dù rõ ràng hay ngụ ý, bao gồm nhưng không giới hạn ở các bảo đảm về khả năng bán được, sự phù hợp cho một mục đích cụ thể hoặc không vi phạm.</p>
+                <p>Chúng tôi không bảo đảm rằng Ứng dụng sẽ không bị gián đoạn, không có lỗi hoặc không có vi-rút hoặc các thành phần có hại khác.</p>
 
                 <h2>Giới hạn Trách nhiệm pháp lý</h2>
-                <p>Trong phạm vi tối đa được luật pháp áp dụng cho phép, chúng tôi sẽ không chịu trách nhiệm cho bất kỳ thiệt hại gián tiếp, ngẫu nhiên, đặc biệt, do hậu quả, hoặc mang tính trừng phạt nào, bao gồm nhưng không giới hạn ở việc mất dữ liệu, mất lợi nhuận, hoặc mất uy tín, phát sinh từ việc bạn sử dụng hoặc không thể sử dụng Ứng dụng.</p>
+                <p>Trong phạm vi tối đa được luật pháp áp dụng cho phép, chúng tôi sẽ không chịu trách nhiệm cho bất kỳ thiệt hại gián tiếp, ngẫu nhiên, đặc biệt, do hậu quả hoặc mang tính trừng phạt nào, bao gồm nhưng không giới hạn ở việc mất dữ liệu, mất lợi nhuận hoặc mất uy tín, phát sinh từ việc bạn sử dụng hoặc không thể sử dụng Ứng dụng.</p>
 
                 <h2>Chấm dứt</h2>
-                <p>Chúng tôi có quyền chấm dứt hoặc hạn chế quyền truy cập của bạn vào Ứng dụng bất cứ lúc nào, không cần thông báo, đối với những hành vi mà chúng tôi cho là vi phạm các Điều khoản này hoặc có hại cho những người dùng khác, chúng tôi, hoặc các bên thứ ba.</p>
+                <p>Chúng tôi có quyền chấm dứt hoặc hạn chế quyền truy cập của bạn vào Ứng dụng bất cứ lúc nào, không cần thông báo, đối với những hành vi mà chúng tôi cho là vi phạm các Điều khoản này hoặc có hại cho những người dùng khác, chúng tôi hoặc các bên thứ ba.</p>
                 <p>Bạn có thể ngừng sử dụng Ứng dụng bất cứ lúc nào bằng cách xóa nó khỏi thiết bị của bạn.</p>
 
                 <h2>Các Thay đổi đối với các Điều khoản Này</h2>
@@ -220,7 +220,7 @@ export const Payment = () => (
 
                 <h2>Chính sách Hoàn tiền</h2>
                 <p>Chúng tôi không xử lý hoàn tiền trực tiếp. Mọi yêu cầu hoàn tiền phải được gửi tới Apple, vì họ là đơn vị bán hàng chính thức (merchant of record) cho tất cả các giao dịch trên App Store.</p>
-                <p>Apple xử lý việc hoàn tiền theo quyết định của họ và tuân theo chính sách hoàn tiền của Apple. Các trường hợp hợp lệ phổ biến bao gồm mua hàng do sơ ý, các khoản phí trái phép, hoặc các giao dịch mua không hoạt động như mô tả.</p>
+                <p>Apple xử lý việc hoàn tiền theo quyết định của họ và tuân theo chính sách hoàn tiền của Apple. Các trường hợp hợp lệ phổ biến bao gồm mua hàng do sơ ý, các khoản phí trái phép hoặc các giao dịch mua không hoạt động như mô tả.</p>
                 <p>Để yêu cầu hoàn tiền từ Apple:</p>
                 <ul>
                   <li>Truy cập <a href="https://reportaproblem.apple.com" target="_blank" rel="noopener noreferrer">reportaproblem.apple.com</a> và đăng nhập bằng Apple ID của bạn</li>
@@ -230,7 +230,7 @@ export const Payment = () => (
                 <p>Apple thường phản hồi trong vòng vài ngày làm việc. Các quyết định hoàn tiền hoàn toàn do Apple quyết định.</p>
 
                 <h2>Thay đổi Giá</h2>
-                <p>Chúng tôi có quyền thay đổi giá cho các giao dịch mua trong ứng dụng bất cứ lúc nào. Các thay đổi về giá đối với các gói đăng ký sẽ được thông báo trước thông qua Ứng dụng hoặc App Store, và sẽ có hiệu lực vào thời điểm bắt đầu chu kỳ thanh toán tiếp theo của bạn. Bạn sẽ được Apple thông báo trước khi bất kỳ sự thay đổi giá đăng ký nào có hiệu lực.</p>
+                <p>Chúng tôi có quyền thay đổi giá cho các giao dịch mua trong ứng dụng bất cứ lúc nào. Các thay đổi về giá đối với các gói đăng ký sẽ được thông báo trước thông qua Ứng dụng hoặc App Store và sẽ có hiệu lực vào thời điểm bắt đầu chu kỳ thanh toán tiếp theo của bạn. Bạn sẽ được Apple thông báo trước khi bất kỳ sự thay đổi giá đăng ký nào có hiệu lực.</p>
 
                 <h2>Các Giao dịch Mua không Thành công hoặc Không hoàn tất</h2>
                 <p>Nếu giao dịch mua bị lỗi hoặc bạn đã bị tính phí nhưng không nhận được nội dung, trước tiên hãy thử khôi phục lại các giao dịch mua trong Ứng dụng. Nếu sự cố vẫn tiếp diễn, vui lòng liên hệ với chúng tôi tại <a href="mailto:liquidboard.app@gmail.com">liquidboard.app@gmail.com</a> và chúng tôi sẽ nhanh chóng điều tra.</p>

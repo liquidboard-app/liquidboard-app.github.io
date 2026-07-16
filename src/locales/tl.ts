@@ -19,9 +19,9 @@ const tl: LocaleDict = {
     download: "I-download ang LiquidBoard",
     titles: ['Gumawa ng Grupo', 'I-pin', 'Kopyahin at I-duplicate', 'Mag-import at Mag-export ng mga File'],
     paragraphs: [
-      'Gumawa ng karagdagang mga grupo at ikategorya ang mga teksto, larawan, at sticker batay sa iyong mga pangangailangan. Lumipat nang maayos sa pagitan ng mga grupo at i-pin muna ang mahahalagang grupo sa itaas.',
-      'I-pin ang mahahalagang teksto, larawan, at sticker na madalas mong ginagamit sa itaas para mas mabilis mo itong maipadala.',
-      'Madali at mabilis na kopyahin at i-duplicate ang mga teksto, larawan, at sticker.',
+      'Gumawa ng karagdagang mga grupo at ikategorya ang mga teksto, larawan at sticker batay sa iyong mga pangangailangan. Lumipat nang maayos sa pagitan ng mga grupo at i-pin muna ang mahahalagang grupo sa itaas.',
+      'I-pin ang mahahalagang teksto, larawan at sticker na madalas mong ginagamit sa itaas para mas mabilis mo itong maipadala.',
+      'Madali at mabilis na kopyahin at i-duplicate ang mga teksto, larawan at sticker.',
       'Mag-export at mag-import ng data ng teksto bilang JSON at CSV nang direkta sa pamamagitan ng Files app.',
     ],
     images: [
@@ -33,7 +33,7 @@ const tl: LocaleDict = {
   },
   pricing: {
     intro: { 
-      line1: "Piliin ang tamang plano para sa kung paano ka nagse-save, nag-oorganisa, at nagbabahagi ng content araw-araw.", 
+      line1: "Piliin ang tamang plano para sa kung paano ka nagse-save, nag-oorganisa at nagbabahagi ng content araw-araw.", 
       line2: "Ang bawat plano ay isang beses na pagbili para sa panghabambuhay na pag-access." 
     },
     plans: [
@@ -75,8 +75,8 @@ const tl: LocaleDict = {
     titles: ['Teksto', 'Larawan', 'Sticker'],
     paragraphs: [
       'Gumawa at bumuo ng maramihang mga dokumento ng teksto, pambungad na impormasyon at nilalamang iniakma sa iyong mga pangangailangan sa pagsusulat. I-set up ang mga pre-built na template ng pagtugon para magamit kaagad. Mag-input at mabilis na magbahagi ng impormasyon sa pakikipag-ugnayan. Mag-imbak ng mga link ng website, code snippet, istruktura ng prompt ng AI para sa mahusay na sanggunian at muling paggamit.',
-      'Mabilis na ibahagi ang mga QR code sa pagbabayad at mga QR code ng bank transfer. I-access ang isang magkakaibang koleksyon ng mga prototype ng sample ng produkto, mga mockup ng disenyo, infographics, at mga instructional na screenshot. Ayusin at kunin nang maayos ang mga visual na asset para sa propesyonal na komunikasyon.',
-      'Gumawa at agad na magbahagi ng mga sticker, paboritong meme, mensahe ng pagbati, at emosyonal na ekspresyon para kumonekta sa mga mahal sa buhay at mga customer. I-personalize ang iyong komunikasyon sa mga visual na elementong nagpapahiwatig ng pakiramdam at nagpapahusay ng pakikipag-ugnayan.',
+      'Mabilis na ibahagi ang mga QR code sa pagbabayad at mga QR code ng bank transfer. I-access ang isang magkakaibang koleksyon ng mga prototype ng sample ng produkto, mga mockup ng disenyo, infographics at mga instructional na screenshot. Ayusin at kunin nang maayos ang mga visual na asset para sa propesyonal na komunikasyon.',
+      'Gumawa at agad na magbahagi ng mga sticker, paboritong meme, mensahe ng pagbati at emosyonal na ekspresyon para kumonekta sa mga mahal sa buhay at mga customer. I-personalize ang iyong komunikasyon sa mga visual na elementong nagpapahiwatig ng pakiramdam at nagpapahusay ng pakikipag-ugnayan.',
     ],
     images: [
       { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
