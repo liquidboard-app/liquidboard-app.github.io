@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { GlassCard } from '@/components/PageLayout';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { getAccessibilityLabels } from '@/locales/config';
 import FaqList from '../FaqList';
 
 export type HelpSection = 'faq' | 'documents' | 'contact';
@@ -37,6 +38,7 @@ const mediaLimitLabels: Record<string, string> = {
   ja: '画像は最大5 MB・動画は最大50 MB',
   es: 'Imágenes de hasta 5 MB · Vídeos de hasta 50 MB',
   'zh-TW': '圖片最多 5 MB · 影片最多 50 MB',
+  'zh-CN': '图片最大 5 MB · 视频最大 50 MB',
   'pt-BR': 'Imagens de até 5 MB · Vídeos de até 50 MB',
   fr: 'Images jusqu’à 5 MB · Vidéos jusqu’à 50 MB',
   de: 'Bilder bis 5 MB · Videos bis 50 MB',
@@ -49,6 +51,7 @@ const mediaLimitLabels: Record<string, string> = {
   th: 'รูปภาพสูงสุด 5 MB · วิดีโอสูงสุด 50 MB',
   tl: 'Mga larawan hanggang 5 MB · Mga video hanggang 50 MB',
   pl: 'Obrazy do 5 MB · Filmy do 50 MB',
+  tr: 'Görseller en fazla 5 MB · Videolar en fazla 50 MB',
 };
 
 const totalMediaLimitLabels: Record<string, string> = {
@@ -57,6 +60,7 @@ const totalMediaLimitLabels: Record<string, string> = {
   ja: '添付ファイル合計は最大50 MB',
   es: 'Total de archivos adjuntos de hasta 50 MB',
   'zh-TW': '附件總計最多50 MB',
+  'zh-CN': '附件总计最大 50 MB',
   'pt-BR': 'Total de anexos de até 50 MB',
   fr: 'Total des pièces jointes jusqu’à 50 MB',
   de: 'Anhänge insgesamt bis 50 MB',
@@ -69,6 +73,7 @@ const totalMediaLimitLabels: Record<string, string> = {
   th: 'ไฟล์แนบทั้งหมดสูงสุด 50 MB',
   tl: 'Kabuuang attachment hanggang 50 MB',
   pl: 'Łączny rozmiar załączników do 50 MB',
+  tr: 'Eklerin toplamı en fazla 50 MB',
 };
 
 const mediaLimitMessage = (lang: string) => {
@@ -142,6 +147,7 @@ const Form = styled(GlassCard)`
 
 const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
   const { dict, lang } = useTranslation();
+  const accessibility = getAccessibilityLabels(lang);
   const [email, setEmail] = useState('');
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -244,7 +250,7 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
 
   return (
     <>
-      <TabList as="nav" aria-label="Help sections">
+      <TabList as="nav" aria-label={accessibility.helpSections}>
         <NavLink to="/help/contact" end>{labels.contact}</NavLink>
         <NavLink to="/help/faq" end>{labels.faq}</NavLink>
       </TabList>

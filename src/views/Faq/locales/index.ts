@@ -4,6 +4,7 @@ export const getFaqs = async (lang: string) => {
     case 'ja': return (await import('./ja')).faqs;
     case 'es': return (await import('./es')).faqs;
     case 'zh-TW': return (await import('./zh-TW')).faqs;
+    case 'zh-CN': return (await import('./zh-CN')).faqs;
     case 'pt-BR': return (await import('./pt-BR')).faqs;
     case 'fr': return (await import('./fr')).faqs;
     case 'de': return (await import('./de')).faqs;
@@ -16,6 +17,7 @@ export const getFaqs = async (lang: string) => {
     case 'th': return (await import('./th')).faqs;
     case 'tl': return (await import('./tl')).faqs;
     case 'pl': return (await import('./pl')).faqs;
+    case 'tr': return (await import('./tr')).faqs;
     case 'en':
     default: return (await import('./en')).faqs;
   }

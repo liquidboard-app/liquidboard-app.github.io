@@ -1,15 +1,33 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import {
-  ArrowUpDown, ClipboardPaste, Cloud, Copy, CopyPlus, FileDown, FileText, FileUp, Filter,
-  FolderTree, ImagePlay, Pin, Search, Sticker, TimerOff,
+  ArrowUpDown, BookImage, Camera, ClipboardPaste, Cloud, ContactRound, Copy, CopyPlus,
+  createLucideIcon, FileDown, FileImage, FileText, FileUp, Filter, FolderTree, Fullscreen,
+  Heart, ImagePlay, Mail, NotepadText, Pin, Pipette, QrCode, Search, Sparkles, Sticker, TimerOff,
 } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { sentenceCase } from '@/locales/casing';
+import { getAccessibilityLabels } from '@/locales/config';
 import { splitGraphemes } from '@/utils/graphemes';
 import { getFeatureDetails } from '../../featureContent';
 import { FeatureStack, LegacyContent, LegacyContentItem } from '../../styled';
 
 const featureIcons = [FileText, ImagePlay, Sticker];
+const SquareDashedTopSolid = createLucideIcon('SquareDashedTopSolid', [
+  ['path', { d: 'M5 3h14a2 2 0 0 1 2 2v1', key: 'top' }],
+  ['path', { d: 'M21 10v1', key: 'right-top' }],
+  ['path', { d: 'M21 15v1', key: 'right-bottom' }],
+  ['path', { d: 'M21 19a2 2 0 0 1-2 2h-1', key: 'bottom-right' }],
+  ['path', { d: 'M14 21h-1', key: 'bottom-center' }],
+  ['path', { d: 'M9 21H8', key: 'bottom-left-dash' }],
+  ['path', { d: 'M5 21a2 2 0 0 1-2-2v-1', key: 'bottom-left' }],
+  ['path', { d: 'M3 14v-1', key: 'left-bottom' }],
+  ['path', { d: 'M3 9V8', key: 'left-top' }],
+]);
+const featureDetailIcons = [
+  [NotepadText, Mail, ContactRound, Pipette, Sparkles],
+  [FileImage, Camera, Heart, QrCode, BookImage],
+  [SquareDashedTopSolid, Fullscreen],
+] as const;
 const actionIcons = [
   FolderTree, Pin, Copy, CopyPlus, FileDown, FileUp, Filter, Search, ArrowUpDown,
   ClipboardPaste, TimerOff, Cloud,
@@ -46,6 +64,7 @@ const renderSplitText = (text: string, locale: string, startIndex = 0) => {
 
 const Features: React.FC = () => {
   const { dict, lang } = useTranslation();
+  const accessibility = getAccessibilityLabels(lang);
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -58,6 +77,7 @@ const Features: React.FC = () => {
       paragraph: details.featureParagraphs[index] ?? dict.features.paragraphs[index],
       image: dict.features.images[index],
       icon: featureIcons[index],
+      detailIcons: featureDetailIcons[index] ?? [],
       group: 'features',
     })),
     ...details.actionTitles.map((title, index) => ({
@@ -69,6 +89,7 @@ const Features: React.FC = () => {
         alt: dict.action.images[index]?.alt ?? `LiquidBoard ${title}`,
       },
       icon: actionIcons[index],
+      detailIcons: [],
       group: 'actions',
     })),
   ];
@@ -194,14 +215,18 @@ const Features: React.FC = () => {
         const settleDistance = () => gsap.utils.clamp(110, 180, viewportHeight() * 0.18);
         const horizontalScrollDistance = Math.max(distance() * 1.8 + settleDistance(), 1);
         const stickerExitDistance = Math.max(viewportHeight() * 0.44, 1);
-        const stackStepDistance = Math.max(viewportHeight() * 1.48, 1);
-        const stackEntryDuration = stackStepDistance * 0.84;
-        const stackSettleDuration = stackStepDistance * 0.16;
+        const stackStepDistance = Math.max(viewportHeight() * 1.56, 1);
+        // Give the final settling motion a little more room so cards ease into
+        // the stack instead of changing pace sharply near the end.
+        const stackEntryDuration = stackStepDistance * 0.8;
+        const stackSettleDuration = stackStepDistance * 0.2;
         const stackFadeStart = stackStepDistance * 0.46;
         const stackFadeDuration = stackEntryDuration - stackFadeStart;
         // Keep the transitions long enough to read smoothly, while reducing the idle hold after Group and its following cards.
         const stackHoldDistance = Math.max(viewportHeight() * 0.48, 1);
-        const finalStackHoldDistance = Math.max(viewportHeight() * 0.8, 1);
+        // Leave only a short release runway after iCloud; the old .8vh idle
+        // hold made the handoff into the next section feel blocked.
+        const finalStackHoldDistance = Math.max(viewportHeight() * 0.1, 1);
         const stackStartTime = horizontalScrollDistance + stickerExitDistance;
         const totalScrollDistance = Math.max(
           stackStartTime
@@ -210,17 +235,16 @@ const Features: React.FC = () => {
           + finalStackHoldDistance,
           1,
         );
-        // Snap inside the stable part of each card's hold. ScrollTrigger's inertia
-        // projects fast gestures forward, so a deliberate swipe lands on the next
-        // card while a quick flick can still pass over multiple cards.
-        const stackSnapProgress = stackCards.map((_, index) => {
-          const previousHolds = index * stackHoldDistance;
-          const currentHold = index < stackCards.length - 1 ? stackHoldDistance : finalStackHoldDistance;
-          const settledTime = stackStartTime + (index + 1) * stackStepDistance + previousHolds;
-          return (settledTime + currentHold * 0.38) / totalScrollDistance;
+        const stackAutoCompleteThreshold = 0.8;
+        const stackTransitions = stackCards.map((_, index) => {
+          const transitionStart = stackStartTime
+            + index * stackStepDistance
+            + index * stackHoldDistance;
+          return {
+            start: transitionStart / totalScrollDistance,
+            end: (transitionStart + stackStepDistance) / totalScrollDistance,
+          };
         });
-        const stackStartProgress = stackStartTime / totalScrollDistance;
-        const snapStackDirectionally = ScrollTrigger.snapDirectional([stackStartProgress, ...stackSnapProgress, 1]);
         const publishStackStart = () => {
           const pinStart = pin.getBoundingClientRect().top + window.scrollY - headerOffset();
           section.dataset.featureStackStart = String(Math.round(pinStart + horizontalScrollDistance + stickerExitDistance));
@@ -242,7 +266,7 @@ const Features: React.FC = () => {
           gsap.set(card, {
             yPercent: 108,
             y: 15,
-            rotationX: 26,
+            rotationX: 19,
             z: 0,
             scale: 1,
             width: '100%',
@@ -264,13 +288,16 @@ const Features: React.FC = () => {
             scrub: 0.9,
             snap: {
               snapTo: (progress, trigger) => {
-                if (progress < stackStartProgress) return progress;
-                return snapStackDirectionally(progress, trigger?.direction);
+                if ((trigger?.direction ?? 1) <= 0) return progress;
+                const transition = stackTransitions.find(({ start, end }) => progress >= start && progress < end);
+                if (!transition) return progress;
+                const transitionProgress = (progress - transition.start) / (transition.end - transition.start);
+                return transitionProgress >= stackAutoCompleteThreshold ? transition.end : progress;
               },
-              directional: true,
-              inertia: true,
+              directional: false,
+              inertia: false,
               delay: 0.1,
-              duration: { min: 0.18, max: 0.58 },
+              duration: { min: 0.16, max: 0.36 },
               ease: 'power2.out',
             },
             anticipatePin: 1,
@@ -329,7 +356,7 @@ const Features: React.FC = () => {
             .to(card, {
               yPercent: 8,
               y: 0,
-              rotationX: 8,
+              rotationX: 6,
               z: 0,
               scale: 0.995,
               duration: stackEntryDuration,
@@ -338,7 +365,7 @@ const Features: React.FC = () => {
             .to(previousCard, {
               scale: 0.9,
               yPercent: -1,
-              rotationX: 20,
+              rotationX: 14,
               z: 0,
               duration: stackEntryDuration,
               ease: 'none',
@@ -367,7 +394,7 @@ const Features: React.FC = () => {
               autoAlpha: 0,
               filter: 'blur(12px)',
               yPercent: -3,
-              rotationX: 28,
+              rotationX: 20,
               z: 0,
               duration: stackSettleDuration,
               ease: 'power1.out',
@@ -443,22 +470,35 @@ const Features: React.FC = () => {
   }, [dict, lang, horizontalItems.length]);
 
   const renderItem = ({ icon: Icon, ...item }: (typeof items)[number], stacked = false) => (
-    <LegacyContentItem
-      key={item.id}
-      className={stacked
-        ? `stacked-feature feature-reveal-ready${item.group === 'actions' ? ' reverse-layout' : ''}`
-        : `feature-reveal-ready${item.group === 'actions' ? ' reverse-layout' : ''}`}
-    >
-      <div className="content-visual"><img src={item.image.src} alt={item.image.alt} loading="lazy" decoding="async" /></div>
-      <div className="content-copy">
-        <div className="title-row"><Icon size={30} strokeWidth={2.25} aria-hidden="true" /><h2>{renderSplitText(sentenceCase(item.title, lang), lang)}</h2></div>
-        <p>{renderSplitText(item.paragraph, lang, 6)}</p>
-      </div>
-    </LegacyContentItem>
+      <LegacyContentItem
+        key={item.id}
+        className={stacked
+          ? `stacked-feature feature-reveal-ready${item.group === 'actions' ? ' reverse-layout' : ''}`
+          : `feature-reveal-ready${item.group === 'actions' ? ' reverse-layout' : ''}`}
+      >
+        <div className="content-visual"><img src={item.image.src} alt={item.image.alt} loading="lazy" decoding="async" /></div>
+        <div className="content-copy">
+          <div className="title-row"><Icon size={30} strokeWidth={2.25} aria-hidden="true" /><h2>{renderSplitText(sentenceCase(item.title, lang), lang)}</h2></div>
+          <p>{renderSplitText(item.paragraph, lang, 6)}</p>
+          {item.detailIcons.length > 0 && (
+            <div className="feature-icon-list" aria-hidden="true">
+              {item.detailIcons.map((DetailIcon, index) => (
+                <span
+                  className="feature-icon-item"
+                  key={index}
+                  style={{ '--feature-icon-index': index } as React.CSSProperties}
+                >
+                  <DetailIcon size={19} strokeWidth={2.15} />
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </LegacyContentItem>
   );
 
   return (
-    <LegacyContent ref={sectionRef} aria-label="LiquidBoard features">
+    <LegacyContent ref={sectionRef} aria-label={accessibility.features}>
       <div className="feature-pin" ref={pinRef}>
         <div className="feature-track" ref={trackRef}>
           {horizontalItems.map((item) => renderItem(item))}

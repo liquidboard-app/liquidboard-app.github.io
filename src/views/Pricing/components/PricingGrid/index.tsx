@@ -73,7 +73,10 @@ const Card = styled(GlassCard)<{ $tone: string }>`
   &:hover { transform: translateY(-6px); box-shadow: 0 28px 65px rgba(75, 47, 33, .14); }
   h2 { position: relative; z-index: 0; display: inline-block; margin: 0; font-size: clamp(28px, 3.4dvw, 46px); line-height: 1.1; font-weight: 810; letter-spacing: -.018em; }
   h2::after { position: absolute; right: 0; bottom: 2%; left: 0; z-index: -1; height: 26%; border-radius: 3px; background: ${({ $tone }) => planHighlight($tone)}; content: ''; transform: scaleX(0); transform-origin: left center; animation: ${highlightSweep} .64s cubic-bezier(.22, 1, .36, 1) var(--plan-highlight-delay, 0ms) forwards; }
-  .price { margin: 12px 0 0; font-size: clamp(28px, 2.8dvw, 40px); line-height: 1; font-weight: 820; letter-spacing: -.018em; }
+  .price { display: flex; flex-wrap: wrap; align-items: baseline; row-gap: 5px; margin: 12px 0 0; font-size: clamp(20px, 1.8dvw, 26px); line-height: 1; letter-spacing: -.018em; }
+  .price-value { display: inline-flex; align-items: baseline; white-space: nowrap; }
+  .price-amount { font-size: inherit; font-weight: 820; white-space: nowrap; }
+  .price-qualifier { color: #665249; font-size: inherit; font-weight: 720; letter-spacing: -.006em; white-space: nowrap; }
   .lifetime, .description { display: flex; align-items: center; gap: 6px; color: #665249; font-size: 14px; line-height: 1.45; font-weight: 600; letter-spacing: -.006em; }
   .lifetime svg, .description svg { flex: 0 0 auto; color: #9b7160; }
   .lifetime-icon { transform-origin: center; animation: ${infinityFloat} 2.4s ease-in-out infinite; }
@@ -101,10 +104,27 @@ const PricingGrid: React.FC = () => {
     <Grid>
       {dict.pricing.plans.map((plan, index) => {
         const PlanIcon = planIcons[index] || UserRound;
+        const [pricePrefix = '', priceSuffix = ''] = index > 0
+          ? dict.pricing.fromPrice.split('{price}')
+          : ['', ''];
         return (
           <Card key={plan.name} $tone={plan.tone} data-plan-index={index} style={{ '--plan-highlight-delay': `${index * 90 + 120}ms` } as React.CSSProperties}>
             <h2>{plan.name}</h2>
-            <div className="price">{plan.price || '—'}</div>
+            <div className="price">
+              {pricePrefix.trim() && (
+                <span className="price-qualifier" style={{ marginInlineEnd: /\s$/.test(pricePrefix) ? 7 : 0 }}>
+                  {pricePrefix.trim()}
+                </span>
+              )}
+              <span className="price-value">
+                <span className="price-amount">{plan.price || '—'}</span>
+                {priceSuffix.trim() && (
+                  <span className="price-qualifier" style={{ marginInlineStart: /^\s/.test(priceSuffix) ? 5 : 0 }}>
+                    {priceSuffix.trim()}
+                  </span>
+                )}
+              </span>
+            </div>
             <div className="plan-meta">
               <div className="lifetime"><InfinityIcon className="lifetime-icon" size={16} strokeWidth={2.4} />{sentenceCase(plan.lifetime, lang)}</div>
               <p className="description"><PlanIcon className="person-icon" size={16} strokeWidth={2.4} />{sentenceCase(plan.description, lang)}</p>

@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const tl: LocaleDict = {
+  browserTitle: 'LiquidBoard — Mabilis at ligtas na pagkopya at pag-paste',
+  browserDescription: 'Inaayos ng LiquidBoard ang mga text, larawan, sticker, at link para handa itong i-paste mula sa keyboard ng iyong iPhone.',
   nav: {
     home: "Home",
     about: "Tungkol",
@@ -36,6 +38,7 @@ const tl: LocaleDict = {
       line1: "Piliin ang tamang plano para sa kung paano ka nagse-save, nag-oorganisa at nagbabahagi ng content araw-araw.", 
       line2: "Ang bawat plano ay isang beses na pagbili para sa panghabambuhay na pag-access." 
     },
+    fromPrice: 'Mula sa {price}',
     plans: [
       {
         name: 'Free',
@@ -49,7 +52,7 @@ const tl: LocaleDict = {
         name: 'Plus',
         tone: 'green',
         lifetime: 'Panghabambuhay na Pag-access',
-        price: '₱149',
+        price: '₱189',
         description: 'Basic na plano',
         features: ['100 Teksto', '100 Larawan', '100 Sticker', '5 Grupo Bawat Uri', '5 Naka-pin Bawat Grupo'],
       },
@@ -57,7 +60,7 @@ const tl: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'Panghabambuhay na Pag-access',
-        price: '₱299',
+        price: '₱419',
         description: 'Multitasking na plano',
         features: ['250 Teksto', '250 Larawan', '250 Sticker', '15 Grupo Bawat Uri', '15 Naka-pin Bawat Grupo'],
       },
@@ -65,7 +68,7 @@ const tl: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'Panghabambuhay na Pag-access',
-        price: '₱549',
+        price: '₱779',
         description: 'Propesyonal na plano',
         features: ['500 Teksto', '500 Larawan', '500 Sticker', '40 Grupo Bawat Uri', '40 Naka-pin Bawat Grupo'],
       },

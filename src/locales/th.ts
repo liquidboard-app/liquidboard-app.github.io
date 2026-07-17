@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const th: LocaleDict = {
+  browserTitle: 'LiquidBoard — คัดลอกและวางอย่างรวดเร็วและปลอดภัย',
+  browserDescription: 'LiquidBoard จัดระเบียบข้อความ รูปภาพ สติกเกอร์ และลิงก์ เพื่อให้พร้อมวางจากคีย์บอร์ด iPhone ของคุณ',
   nav: {
     home: "หน้าแรก",
     about: "เกี่ยวกับ",
@@ -36,6 +38,7 @@ const th: LocaleDict = {
       line1: "เลือกแพ็กเกจที่เหมาะสมกับวิธีที่คุณบันทึก จัดระเบียบ และแชร์เนื้อหาในแต่ละวัน", 
       line2: "แต่ละแพ็กเกจเป็นการซื้อครั้งเดียวเพื่อการเข้าถึงตลอดชีพ" 
     },
+    fromPrice: 'เริ่มต้นที่ {price}',
     plans: [
       {
         name: 'Free',
@@ -57,7 +60,7 @@ const th: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'การเข้าถึงตลอดชีพ',
-        price: '฿199',
+        price: '฿229',
         description: 'แผนมัลติทาสก์',
         features: ['250 ข้อความ', '250 รูปภาพ', '250 สติกเกอร์', '15 กลุ่มต่อประเภท', '15 ปักหมุดต่อกลุ่ม'],
       },
@@ -65,7 +68,7 @@ const th: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'การเข้าถึงตลอดชีพ',
-        price: '฿349',
+        price: '฿419',
         description: 'แผนมืออาชีพ',
         features: ['500 ข้อความ', '500 รูปภาพ', '500 สติกเกอร์', '40 กลุ่มต่อประเภท', '40 ปักหมุดต่อกลุ่ม'],
       },

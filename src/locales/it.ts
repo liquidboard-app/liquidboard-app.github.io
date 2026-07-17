@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const it: LocaleDict = {
+  browserTitle: 'LiquidBoard — Copia e incolla in modo rapido e sicuro',
+  browserDescription: 'LiquidBoard organizza testi, foto, sticker e link, così sono pronti da incollare dalla tastiera del tuo iPhone.',
   nav: {
     home: "Home",
     about: "Chi siamo",
@@ -36,6 +38,7 @@ const it: LocaleDict = {
       line1: "Scegli il piano giusto per come salvi, organizzi e condividi i contenuti ogni giorno.", 
       line2: "Ogni piano è un acquisto una tantum per l'accesso a vita." 
     },
+    fromPrice: 'Da {price}',
     plans: [
       {
         name: 'Free',

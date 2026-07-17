@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const pl: LocaleDict = {
+  browserTitle: 'LiquidBoard — Kopiuj i wklejaj szybko i bezpiecznie',
+  browserDescription: 'LiquidBoard porządkuje teksty, zdjęcia, naklejki i linki, aby można je było wkleić bezpośrednio z klawiatury iPhone’a.',
   nav: {
     home: "Strona główna",
     about: "O nas",
@@ -36,6 +38,7 @@ const pl: LocaleDict = {
       line1: "Wybierz odpowiedni plan dla sposobu w jaki zapisujesz, organizujesz i udostępniasz treści każdego dnia.", 
       line2: "Każdy plan to jednorazowy zakup zapewniający dożywotni dostęp." 
     },
+    fromPrice: 'Od {price}',
     plans: [
       {
         name: 'Free',
@@ -49,7 +52,7 @@ const pl: LocaleDict = {
         name: 'Plus',
         tone: 'green',
         lifetime: 'Dożywotni dostęp',
-        price: '14,99 zł',
+        price: '11,49 zł',
         description: 'Plan podstawowy',
         features: ['100 Tekstów', '100 Obrazów', '100 Naklejek', '5 Grup Na Typ', '5 Przypięć Na Grupę'],
       },
@@ -57,7 +60,7 @@ const pl: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'Dożywotni dostęp',
-        price: '29,99 zł',
+        price: '25,99 zł',
         description: 'Plan wielozadaniowy',
         features: ['250 Tekstów', '250 Obrazów', '250 Naklejek', '15 Grup Na Typ', '15 Przypięć Na Grupę'],
       },
@@ -65,7 +68,7 @@ const pl: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'Dożywotni dostęp',
-        price: '49,99 zł',
+        price: '47,99 zł',
         description: 'Plan profesjonalny',
         features: ['500 Tekstów', '500 Obrazów', '500 Naklejek', '40 Grup Na Typ', '40 Przypięć Na Grupę'],
       },

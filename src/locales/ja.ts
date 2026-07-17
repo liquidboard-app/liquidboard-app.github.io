@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const ja: LocaleDict = {
+  browserTitle: 'LiquidBoard — 高速かつ安全にコピー＆ペースト',
+  browserDescription: 'LiquidBoardはテキスト、写真、ステッカー、リンクを整理し、iPhoneのキーボードからすぐにペーストできるようにします。',
   nav: {
     home: "ホーム",
     about: "概要",
@@ -36,6 +38,7 @@ const ja: LocaleDict = {
       line1: "毎日のコンテンツの保存、整理、共有方法に合った適切なプランを選択してください。", 
       line2: "すべてのプランは、生涯アクセスのための1回限りの購入です。" 
     },
+    fromPrice: '{price}から',
     plans: [
       {
         name: 'Free',
@@ -57,7 +60,7 @@ const ja: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: '生涯アクセス',
-        price: 'JP¥900',
+        price: 'JP¥1,100',
         description: 'マルチタスクプラン',
         features: ['テキスト250件', '画像250件', 'ステッカー250件', '各タイプ15グループ', 'グループごとに15ピン'],
       },
@@ -65,7 +68,7 @@ const ja: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: '生涯アクセス',
-        price: 'JP¥1800',
+        price: 'JP¥2,000',
         description: 'プロフェッショナルプラン',
         features: ['テキスト500件', '画像500件', 'ステッカー500件', '各タイプ40グループ', 'グループごとに40ピン'],
       },

@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const hi: LocaleDict = {
+  browserTitle: 'LiquidBoard — तेज़ और सुरक्षित तरीके से कॉपी और पेस्ट करें',
+  browserDescription: 'LiquidBoard टेक्स्ट, फ़ोटो, स्टिकर और लिंक को व्यवस्थित रखता है, ताकि वे आपके iPhone कीबोर्ड से तुरंत पेस्ट करने के लिए तैयार रहें।',
   nav: {
     home: "होम",
     about: "हमारे बारे में",
@@ -36,6 +38,7 @@ const hi: LocaleDict = {
       line1: "रोजाना कॉन्टेंट सहेजने, व्यवस्थित करने और शेयर करने के अपने तरीके के लिए सही प्लान चुनें।", 
       line2: "हर प्लान लाइफटाइम एक्सेस के लिए एक बार की खरीदारी है।" 
     },
+    fromPrice: '{price} से शुरू',
     plans: [
       {
         name: 'Free',
@@ -49,7 +52,7 @@ const hi: LocaleDict = {
         name: 'Plus',
         tone: 'green',
         lifetime: 'आजीवन पहुँच',
-        price: '₹249',
+        price: '₹299',
         description: 'बेसिक प्लान',
         features: ['100 टेक्स्ट', '100 चित्र', '100 स्टिकर', 'प्रति प्रकार 5 समूह', 'प्रति समूह 5 पिन'],
       },
@@ -57,7 +60,7 @@ const hi: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'आजीवन पहुँच',
-        price: '₹499',
+        price: '₹649',
         description: 'मल्टीटास्किंग प्लान',
         features: ['250 टेक्स्ट', '250 चित्र', '250 स्टिकर', 'प्रति प्रकार 15 समूह', 'प्रति समूह 15 पिन'],
       },
@@ -65,7 +68,7 @@ const hi: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'आजीवन पहुँच',
-        price: '₹999',
+        price: '₹1,199',
         description: 'प्रोफेशनल प्लान',
         features: ['500 टेक्स्ट', '500 चित्र', '500 स्टिकर', 'प्रति प्रकार 40 समूह', 'प्रति समूह 40 पिन'],
       },

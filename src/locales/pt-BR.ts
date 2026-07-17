@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const ptBR: LocaleDict = {
+  browserTitle: 'LiquidBoard — Copie e cole com rapidez e segurança',
+  browserDescription: 'O LiquidBoard mantém textos, fotos, stickers e links organizados e prontos para colar pelo teclado do iPhone.',
   nav: {
     home: "Início",
     about: "Sobre",
@@ -36,6 +38,7 @@ const ptBR: LocaleDict = {
       line1: "Escolha o plano certo para como você salva, organiza e compartilha conteúdo todos os dias.", 
       line2: "Cada plano é uma compra única para acesso vitalício." 
     },
+    fromPrice: 'A partir de {price}',
     plans: [
       {
         name: 'Free',
@@ -49,7 +52,7 @@ const ptBR: LocaleDict = {
         name: 'Plus',
         tone: 'green',
         lifetime: 'Acesso Vitalício',
-        price: 'R$16,90',
+        price: 'R$15,90',
         description: 'Plano básico',
         features: ['100 Textos', '100 Imagens', '100 Adesivos', '5 Grupos Por Tipo', '5 Fixados Por Grupo'],
       },
@@ -57,7 +60,7 @@ const ptBR: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'Acesso Vitalício',
-        price: 'R$32,90',
+        price: 'R$34,90',
         description: 'Plano multitarefa',
         features: ['250 Textos', '250 Imagens', '250 Adesivos', '15 Grupos Por Tipo', '15 Fixados Por Grupo'],
       },
@@ -65,7 +68,7 @@ const ptBR: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'Acesso Vitalício',
-        price: 'R$54,90',
+        price: 'R$63,90',
         description: 'Plano profissional',
         features: ['500 Textos', '500 Imagens', '500 Adesivos', '40 Grupos Por Tipo', '40 Fixados Por Grupo'],
       },

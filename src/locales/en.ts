@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const en: LocaleDict = {
+  browserTitle: 'LiquidBoard — Copy and Paste, Fast and Safe',
+  browserDescription: 'LiquidBoard keeps texts, photos, stickers, and links organized so they are ready to paste from your iPhone keyboard.',
   nav: {
     home: "Home",
     about: "About",
@@ -37,6 +39,7 @@ const en: LocaleDict = {
       line1: "Choose the right plan for how you save, organize and share content every day.", 
       line2: "Every plan is a one-time purchase for lifetime access." 
     },
+    fromPrice: 'From {price}',
     plans: [
       {
         name: 'Free',
@@ -58,7 +61,7 @@ const en: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'Lifetime',
-        price: '$5.99',
+        price: '$6.99',
         description: 'Multitasking plan',
         features: ['250 Texts', '250 Images', '250 Stickers', '15 Groups Per Type', '15 Pins Per Group'],
       },
@@ -66,7 +69,7 @@ const en: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'Lifetime',
-        price: '$10.99',
+        price: '$12.99',
         description: 'Professional plan',
         features: ['500 Texts', '500 Images', '500 Stickers', '40 Groups Per Type', '40 Pins Per Group'],
       },

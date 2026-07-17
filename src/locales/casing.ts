@@ -1,14 +1,18 @@
 // German nouns are intentionally capitalized, so applying generic sentence casing
 // would make otherwise correct German copy grammatically wrong.
-const sentenceCaseLanguages = new Set(['en', 'vi', 'es', 'pt-BR', 'fr', 'id', 'it', 'tl', 'pl']);
+const sentenceCaseLanguages = new Set(['en', 'vi', 'es', 'pt-BR', 'fr', 'id', 'it', 'tl', 'pl', 'tr']);
 
 const protectedTerms: Array<[RegExp, string]> = [
   [/\bliquidboard\b/giu, 'LiquidBoard'],
   [/\bapple\b/giu, 'Apple'],
   [/\bios\b/giu, 'iOS'],
+  [/(?<!\p{L})İOS(?!\p{L})/gu, 'iOS'],
   [/\bicloud\b/giu, 'iCloud'],
+  [/(?<!\p{L})İCloud(?!\p{L})/gu, 'iCloud'],
   [/\biphone\b/giu, 'iPhone'],
+  [/(?<!\p{L})İPhone(?!\p{L})/gu, 'iPhone'],
   [/\bipad\b/giu, 'iPad'],
+  [/(?<!\p{L})İPad(?!\p{L})/gu, 'iPad'],
   [/\bmacos\b/giu, 'macOS'],
   [/\bapp\s+store\b/giu, 'App Store'],
   [/\bmac\s+app\s+store\b/giu, 'Mac App Store'],
@@ -19,6 +23,7 @@ const protectedTerms: Array<[RegExp, string]> = [
   [/\bcsv\b/giu, 'CSV'],
   [/\bqr\b/giu, 'QR'],
   [/\bai\b/giu, 'AI'],
+  [/(?<!\p{L})aı(?!\p{L})/giu, 'AI'],
   [/\bia\b/giu, 'IA'],
   // `\b` only understands ASCII word characters. In Vietnamese it treats the
   // `ế` in “kiếm” as a boundary, which incorrectly turns it into “KIếm”.

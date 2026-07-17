@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const zhTW: LocaleDict = {
+  browserTitle: 'LiquidBoard — 快速、安全地複製與貼上',
+  browserDescription: 'LiquidBoard 將文字、照片、貼圖與連結整理妥當，讓你能直接從 iPhone 鍵盤貼上。',
   nav: {
     home: "首頁",
     about: "關於",
@@ -36,6 +38,7 @@ const zhTW: LocaleDict = {
       line1: "根據您每天儲存、整理和分享內容的方式，選擇合適的方案。", 
       line2: "所有方案皆為一次性買斷，終身存取。" 
     },
+    fromPrice: '{price} 起',
     plans: [
       {
         name: 'Free',
@@ -49,7 +52,7 @@ const zhTW: LocaleDict = {
         name: 'Plus',
         tone: 'green',
         lifetime: '終身存取',
-        price: 'NT$90',
+        price: 'NT$99',
         description: '基本方案',
         features: ['100 則文字', '100 張圖片', '100 張貼圖', '每種型別 5 個群組', '每個群組 5 個置頂'],
       },
@@ -57,7 +60,7 @@ const zhTW: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: '終身存取',
-        price: 'NT$190',
+        price: 'NT$220',
         description: '多工方案',
         features: ['250 則文字', '250 張圖片', '250 張貼圖', '每種型別 15 個群組', '每個群組 15 個置頂'],
       },
@@ -65,7 +68,7 @@ const zhTW: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: '終身存取',
-        price: 'NT$330',
+        price: 'NT$410',
         description: '專業方案',
         features: ['500 則文字', '500 張圖片', '500 張貼圖', '每種型別 40 個群組', '每個群組 40 個置頂'],
       },

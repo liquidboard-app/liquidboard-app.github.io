@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from '@/contexts/LanguageContext';
+import { getAccessibilityLabels } from '@/locales/config';
 import { SectionDownload } from '../../styled';
 import AppStoreButton from '../AppStoreButton';
 
@@ -19,6 +21,8 @@ const socialLinks: Array<{ name: SocialName; href: string; label: string }> = [
 ];
 
 const DownloadSection: React.FC = () => {
+  const { lang } = useTranslation();
+  const accessibility = getAccessibilityLabels(lang);
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -39,7 +43,7 @@ const DownloadSection: React.FC = () => {
   return (
     <SectionDownload ref={sectionRef} className={`download-reveal${isVisible ? ' is-visible' : ''}`}>
       <div className="download-reveal-control"><AppStoreButton /></div>
-      <div className="socials" aria-label="Social media links">
+      <div className="socials" aria-label={accessibility.socialMediaLinks}>
         {socialLinks.map(({ name, href, label }, index) => (
           <span
             className="social-reveal-item"

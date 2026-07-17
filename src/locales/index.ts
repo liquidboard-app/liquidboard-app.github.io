@@ -9,6 +9,7 @@ const loaders: Record<string, LocaleLoader> = {
   ja: () => import('./ja'),
   es: () => import('./es'),
   'zh-TW': () => import('./zh-TW'),
+  'zh-CN': () => import('./zh-CN'),
   'pt-BR': () => import('./pt-BR'),
   fr: () => import('./fr'),
   de: () => import('./de'),
@@ -21,6 +22,7 @@ const loaders: Record<string, LocaleLoader> = {
   th: () => import('./th'),
   tl: () => import('./tl'),
   pl: () => import('./pl'),
+  tr: () => import('./tr'),
 };
 
 export const defaultDict = en;

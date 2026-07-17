@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const ko: LocaleDict = {
+  browserTitle: 'LiquidBoard — 빠르고 안전하게 복사하고 붙여넣기',
+  browserDescription: 'LiquidBoard는 텍스트, 사진, 스티커와 링크를 정리해 iPhone 키보드에서 바로 붙여넣을 수 있게 합니다.',
   nav: {
     home: "홈",
     about: "소개",
@@ -36,6 +38,7 @@ const ko: LocaleDict = {
       line1: "매일 콘텐츠를 저장, 구성, 공유하는 방식에 맞는 올바른 요금제를 선택하세요.", 
       line2: "모든 요금제는 평생 액세스를 위한 일회성 구매입니다." 
     },
+    fromPrice: '{price}부터',
     plans: [
       {
         name: 'Free',
@@ -49,7 +52,7 @@ const ko: LocaleDict = {
         name: 'Plus',
         tone: 'green',
         lifetime: '평생 액세스',
-        price: '₩4,400',
+        price: '₩4,500',
         description: '기본 플랜',
         features: ['텍스트 100개', '이미지 100개', '스티커 100개', '유형당 5개 그룹', '그룹당 5개 고정'],
       },
@@ -57,7 +60,7 @@ const ko: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: '평생 액세스',
-        price: '₩8,800',
+        price: '₩10,000',
         description: '멀티태스킹 플랜',
         features: ['텍스트 250개', '이미지 250개', '스티커 250개', '유형당 15개 그룹', '그룹당 15개 고정'],
       },
@@ -65,7 +68,7 @@ const ko: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: '평생 액세스',
-        price: '₩15,000',
+        price: '₩18,900',
         description: '프로 플랜',
         features: ['텍스트 500개', '이미지 500개', '스티커 500개', '유형당 40개 그룹', '그룹당 40개 고정'],
       },

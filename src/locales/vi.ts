@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const vi: LocaleDict = {
+  browserTitle: 'LiquidBoard — Sao chép và dán, nhanh chóng và an toàn',
+  browserDescription: 'LiquidBoard sắp xếp văn bản, ảnh, nhãn dán và liên kết gọn gàng để bạn có thể dán ngay từ bàn phím iPhone.',
   nav: {
     home: "Trang chủ",
     about: "Giới Thiệu",
@@ -36,6 +38,7 @@ const vi: LocaleDict = {
       line1: "Các gói được phân phối cho mỗi nhu cầu và công việc khác nhau và có hiệu lực trọn đời.", 
       line2: "Khi bạn nâng cấp từ một gói thấp hơn lên gói cao hơn, chi phí sẽ không thay đổi." 
     },
+    fromPrice: 'Từ {price}',
     plans: [
       {
         name: 'Free',
@@ -57,7 +60,7 @@ const vi: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'Truy Cập Trọn Đời',
-        price: '₫159.000',
+        price: '₫179.000',
         description: 'Gói Đa Tác Vụ',
         features: ['250 Văn Bản', '250 Ảnh', '250 Nhãn Dán', '15 Nhóm Mỗi Loại', '15 Ghim Mỗi Nhóm'],
       },
@@ -65,7 +68,7 @@ const vi: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'Truy Cập Trọn Đời',
-        price: '₫289.000',
+        price: '₫329.000',
         description: 'Gói Chuyên Nghiệp',
         features: ['500 Văn Bản', '500 Ảnh', '500 Nhãn Dán', '40 Nhóm Mỗi Loại', '40 Ghim Mỗi Nhóm'],
       },

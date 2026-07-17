@@ -1,6 +1,8 @@
 import { LocaleDict } from './types';
 
 const id: LocaleDict = {
+  browserTitle: 'LiquidBoard — Salin dan tempel dengan cepat dan aman',
+  browserDescription: 'LiquidBoard menata teks, foto, stiker, dan tautan agar siap ditempel langsung dari papan ketik iPhone Anda.',
   nav: {
     home: "Beranda",
     about: "Tentang",
@@ -36,6 +38,7 @@ const id: LocaleDict = {
       line1: "Pilih paket yang tepat untuk cara Anda menyimpan, mengatur dan berbagi konten setiap hari.", 
       line2: "Setiap paket adalah pembelian satu kali untuk akses seumur hidup." 
     },
+    fromPrice: 'Mulai dari {price}',
     plans: [
       {
         name: 'Free',
@@ -49,7 +52,7 @@ const id: LocaleDict = {
         name: 'Plus',
         tone: 'green',
         lifetime: 'Akses Seumur Hidup',
-        price: 'Rp49.000',
+        price: 'Rp55.000',
         description: 'Paket dasar',
         features: ['100 Teks', '100 Gambar', '100 Stiker', '5 Grup Per Jenis', '5 Sematan Per Grup'],
       },
@@ -57,7 +60,7 @@ const id: LocaleDict = {
         name: 'Pro',
         tone: 'blue',
         lifetime: 'Akses Seumur Hidup',
-        price: 'Rp99.000',
+        price: 'Rp125.000',
         description: 'Paket multitasking',
         features: ['250 Teks', '250 Gambar', '250 Stiker', '15 Grup Per Jenis', '15 Sematan Per Grup'],
       },
@@ -65,7 +68,7 @@ const id: LocaleDict = {
         name: 'Max',
         tone: 'red',
         lifetime: 'Akses Seumur Hidup',
-        price: 'Rp179.000',
+        price: 'Rp229.000',
         description: 'Paket profesional',
         features: ['500 Teks', '500 Gambar', '500 Stiker', '40 Grup Per Jenis', '40 Sematan Per Grup'],
       },

@@ -68,6 +68,11 @@ const localized: Record<string, FeatureDetails> = {
     actionTitles: ['群組', '置頂', '複製', '建立副本', '匯出檔案', '匯入檔案', '篩選', '搜尋', '排序', '系統剪貼板', '自動刪除內容', 'iCloud 同步'],
     actionParagraphs: ['建立群組，依使用需求整理文字、圖片與貼圖。可在鍵盤 App 中流暢切換群組。', '將常用的重要文字、圖片與貼圖置頂，以便更快傳送。', '複製文字、圖片與貼圖，以便快速傳送或重複使用。', '建立文字、圖片與貼圖的可編輯副本，同時保留原始內容。', '透過檔案 App 將文字資料匯出為 JSON 或 CSV 檔案。', '從檔案 App 匯入 JSON 或 CSV 文字資料，快速還原或移動內容。', '依類型、群組或狀態篩選內容，專注於所需項目。', '搜尋已儲存的文字、圖片與貼圖，立即找到內容。', '依喜好排序內容，讓相關項目隨時容易存取。', '需要時使用系統剪貼板，將已複製的內容帶入 LiquidBoard。', '設定內容自動刪除，讓暫時資訊保持隱私與整潔。', '透過 iCloud 安全同步內容，讓所有 Apple 裝置都可使用。'],
   },
+  'zh-CN': {
+    featureParagraphs: ['创建和编辑多个内容模板，随时可从键盘发送。可添加 Email 模板、问候语、联系信息、网站链接、示例内容、颜色代码、AI 提示词和文章草稿。', '保存喜爱的照片、表情包、付款二维码和设计模型。', '从相册或现有相机照片创建贴纸，将你的最爱变成专属贴纸。'],
+    actionTitles: ['分组', '置顶', '复制', '创建副本', '导出文件', '导入文件', '筛选', '搜索', '排序', '系统剪贴板', '自动删除内容', 'iCloud 同步'],
+    actionParagraphs: ['创建分组，并根据使用方式整理文本、图片和贴纸。可在键盘 App 中流畅切换分组。', '将常用的重要文本、图片和贴纸置顶，以便更快发送。', '复制文本、图片和贴纸，以便快速发送或重复使用。', '为文本、图片和贴纸创建可编辑副本，同时保留原始内容。', '通过“文件”App 将文本数据导出为 JSON 或 CSV 文件。', '从“文件”App 导入 JSON 或 CSV 文本数据，快速恢复或移动内容。', '按类型、分组或状态筛选内容，专注于所需项目。', '搜索已保存的文本、图片和贴纸，立即找到内容。', '按你的方式排序内容，让相关项目始终易于访问。', '需要时使用系统剪贴板，将已复制的内容带入 LiquidBoard。', '设置内容自动删除，让临时信息保持私密和整洁。', '通过 iCloud 安全同步内容，使其可在你的所有 Apple 设备上使用。'],
+  },
   'pt-BR': {
     featureParagraphs: ['Crie e edite vários modelos de conteúdo para enviar pelo teclado. Adicione modelos de email, saudações, contatos, links de sites, conteúdo de exemplo, códigos de cor, prompts de IA e rascunhos.', 'Guarde fotos favoritas, memes, códigos QR de pagamento e mockups de design.', 'Crie adesivos do álbum de fotos ou de fotos existentes da câmera e transforme seus favoritos em adesivos exclusivos.'],
     actionTitles: ['Grupos', 'Fixar', 'Copiar', 'Duplicar', 'Exportar arquivos', 'Importar arquivos', 'Filtrar', 'Pesquisar', 'Ordenar', 'Área de transferência do sistema', 'Conteúdo temporário', 'Sincronização com iCloud'],
@@ -127,6 +132,28 @@ const localized: Record<string, FeatureDetails> = {
     featureParagraphs: ['Twórz i edytuj wiele szablonów treści gotowych do wysłania z klawiatury. Dodawaj szablony e-maili, powitania, dane kontaktowe, linki do stron, przykładowe treści, kody kolorów, prompty AI i szkice.', 'Przechowuj ulubione zdjęcia, memy, kody QR do płatności i makiety projektów.', 'Twórz naklejki z albumu zdjęć lub istniejących zdjęć z aparatu, aby ulubione naklejki były wyjątkowo Twoje.'],
     actionTitles: ['Grupy', 'Przypnij', 'Kopiuj', 'Duplikuj', 'Eksport plików', 'Import plików', 'Filtruj', 'Wyszukiwanie', 'Sortowanie', 'Schowek systemowy', 'Treści wygasające', 'Synchronizacja iCloud'],
     actionParagraphs: ['Twórz grupy i organizuj teksty, obrazy oraz naklejki według sposobu użycia. Płynnie przełączaj grupy w aplikacji klawiatury.', 'Przypinaj u góry ważne, często używane teksty, obrazy i naklejki, aby wysyłać je szybciej.', 'Kopiuj teksty, obrazy i naklejki, aby szybko je wysłać lub wykorzystać ponownie.', 'Duplikuj teksty, obrazy i naklejki, aby utworzyć wersję do edycji i zachować oryginał.', 'Eksportuj dane tekstowe jako pliki JSON lub CSV przez aplikację Pliki.', 'Importuj dane tekstowe JSON lub CSV z aplikacji Pliki, aby szybko przywrócić lub przenieść zawartość.', 'Filtruj zawartość według typu, grupy lub stanu, aby skupić się na tym, czego potrzebujesz.', 'Przeszukuj zapisane teksty, obrazy i naklejki, aby natychmiast znaleźć zawartość.', 'Sortuj zawartość po swojemu, aby ważne elementy były zawsze łatwo dostępne.', 'Używaj schowka systemowego, aby w razie potrzeby przenieść skopiowaną zawartość do LiquidBoard.', 'Ustaw automatyczne wygasanie zawartości, aby tymczasowe informacje pozostały prywatne i uporządkowane.', 'Bezpiecznie synchronizuj zawartość z iCloud, aby była dostępna na wszystkich urządzeniach Apple.'],
+  },
+  tr: {
+    featureParagraphs: [
+      'Klavyenizden göndermeye hazır olmaları için birden fazla içerik şablonu oluşturun ve düzenleyin. E-posta şablonları, selamlamalar, iletişim bilgileri, web sitesi bağlantıları, örnek içerikler, renk kodları, AI istemleri ve taslak gönderiler ekleyin.',
+      'Favori fotoğraflarınızı, meme’leri, ödeme QR kodlarını ve tasarım maketlerini saklayın.',
+      'Fotoğraf albümünüzdeki veya kameranızla çektiğiniz mevcut fotoğraflardan çıkartmalar oluşturun ve favorilerinizi yalnızca size özel hâle getirin.',
+    ],
+    actionTitles: ['Gruplar', 'Sabitle', 'Kopyala', 'Çoğalt', 'Dosyaları dışa aktar', 'Dosyaları içe aktar', 'Filtrele', 'Ara', 'Sırala', 'Sistem Panosu', 'Süreli içerik', 'iCloud eşzamanlama'],
+    actionParagraphs: [
+      'Gruplar oluşturun; metinleri, görselleri ve çıkartmaları kullanım biçiminize göre düzenleyin. Klavye uygulamasında gruplar arasında sorunsuzca geçiş yapın.',
+      'Sık kullandığınız önemli metinleri, görselleri ve çıkartmaları daha hızlı gönderebilmek için en üste sabitleyin.',
+      'Metinleri, görselleri ve çıkartmaları hızla göndermek veya yeniden kullanmak için kopyalayın.',
+      'Orijinali korurken düzenlenebilir bir sürüm oluşturmak için metinleri, görselleri ve çıkartmaları çoğaltın.',
+      'Metin verilerinizi Dosyalar uygulaması üzerinden JSON veya CSV dosyaları olarak dışa aktarın.',
+      'İçeriğinizi hızla geri yüklemek veya taşımak için JSON ya da CSV metin verilerini Dosyalar uygulamasından içe aktarın.',
+      'İhtiyacınız olana odaklanmak için içerikleri türe, gruba veya duruma göre filtreleyin.',
+      'İçeriği anında bulmak için kaydedilmiş metinlerde, görsellerde ve çıkartmalarda arama yapın.',
+      'En ilgili öğelere her zaman kolayca ulaşabilmek için içerikleri istediğiniz gibi sıralayın.',
+      'Kopyalanan içeriği gerektiğinde LiquidBoard’a aktarmak için Sistem Panosu’nu kullanın.',
+      'Geçici bilgileri gizli ve düzenli tutmak için içeriği otomatik olarak süresi dolacak biçimde ayarlayın.',
+      'İçeriğinize tüm Apple aygıtlarınızdan erişebilmek için iCloud ile güvenli biçimde eşzamanlayın.',
+    ],
   },
 };
 

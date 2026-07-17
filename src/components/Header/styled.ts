@@ -5,6 +5,19 @@ const itemSpinner = keyframes`
   to { transform: rotate(360deg); }
 `;
 
+const logoExitUp = keyframes`
+  0% { transform: translate3d(0, 0, 0); }
+  58%, 100% { transform: translate3d(0, -100%, 0); }
+`;
+
+const logoEnterUp = keyframes`
+  0% { transform: translate3d(0, 100%, 0); }
+  58% { transform: translate3d(0, 0, 0); }
+  72% { transform: translate3d(0, -6%, 0); }
+  86% { transform: translate3d(0, 2.5%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+`;
+
 export const HeaderWrapper = styled.header`
   position: fixed;
   inset: 0 0 auto;
@@ -125,12 +138,51 @@ export const Brand = styled(Link)`
   font-weight: 790;
   letter-spacing: -.045em;
 
-  > img { width: 38px; height: 38px; border-radius: 11px; object-fit: cover; box-shadow: 0 5px 16px rgba(45, 32, 26, .14); }
+  .brand-logo {
+    position: relative;
+    display: block;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 5px 16px rgba(45, 32, 26, .14);
+  }
+  .brand-logo img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    backface-visibility: hidden;
+    transform-origin: center;
+  }
+  .brand-logo-dark { transform: translate3d(0, 0, 0); }
+  .brand-logo-light { transform: translate3d(0, 100%, 0); }
+  .brand-logo.has-swapped.is-light .brand-logo-dark,
+  .brand-logo.has-swapped:not(.is-light) .brand-logo-light {
+    animation: ${logoExitUp} .88s cubic-bezier(.22, 1, .36, 1) both;
+  }
+  .brand-logo.has-swapped.is-light .brand-logo-light,
+  .brand-logo.has-swapped:not(.is-light) .brand-logo-dark {
+    animation: ${logoEnterUp} .88s cubic-bezier(.22, 1, .36, 1) both;
+  }
 
   @media (max-width: 600px) {
     gap: 8px;
     font-size: 18px;
-    > img { width: 31px; height: 31px; border-radius: 9px; }
+    .brand-logo { width: 31px; height: 31px; border-radius: 8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-logo img { animation: none !important; }
+    .brand-logo-dark,
+    .brand-logo.has-swapped.is-light .brand-logo-dark,
+    .brand-logo.has-swapped:not(.is-light) .brand-logo-dark { opacity: 1; transform: none; }
+    .brand-logo-light,
+    .brand-logo.has-swapped.is-light .brand-logo-light,
+    .brand-logo.has-swapped:not(.is-light) .brand-logo-light { opacity: 0; transform: none; }
   }
 `;
 

@@ -11,6 +11,7 @@ const copy: Record<string, HomeCopy> = {
   ja: { downloadForIPhone: 'iPhone向けにダウンロード', clipboardFeatures: ['定型文', 'メールテンプレート', '連絡先情報', 'カラーコード', 'AIプロンプト', 'QRコード', 'お気に入りの写真', 'ミーム画像', 'ステッカーを作成', 'グループ分け', 'ファイルを書き出す', '自動消去コンテンツ', 'iCloud同期'] },
   es: { downloadForIPhone: 'Descargar para iPhone', clipboardFeatures: ['Textos de ejemplo', 'Plantillas de email', 'Información de contacto', 'Códigos de color', 'Prompts de IA', 'Códigos QR', 'Fotos favoritas', 'Imágenes meme', 'Crear stickers', 'Grupos', 'Exportar archivos', 'Contenido con caducidad', 'Sincronización con iCloud'] },
   'zh-TW': { downloadForIPhone: '下載 iPhone 版', clipboardFeatures: ['文字範本', 'Email 範本', '聯絡資訊', '色碼', 'AI 提示詞', 'QR Code', '喜愛的照片', '迷因圖片', '製作貼圖', '群組分類', '匯出檔案', '自動刪除內容', 'iCloud 同步'] },
+  'zh-CN': { downloadForIPhone: '下载 iPhone 版', clipboardFeatures: ['文本模板', 'Email 模板', '联系信息', '颜色代码', 'AI 提示词', '二维码', '喜爱的照片', '表情包图片', '制作贴纸', '分组分类', '导出文件', '自动删除内容', 'iCloud 同步'] },
   'pt-BR': { downloadForIPhone: 'Baixar para iPhone', clipboardFeatures: ['Textos prontos', 'Modelos de email', 'Informações de contato', 'Códigos de cores', 'Prompts de IA', 'Códigos QR', 'Fotos favoritas', 'Imagens de meme', 'Criar stickers', 'Grupos', 'Exportar arquivos', 'Conteúdo temporário', 'Sincronização com iCloud'] },
   fr: { downloadForIPhone: 'Télécharger pour iPhone', clipboardFeatures: ['Textes modèles', 'Modèles d’email', 'Coordonnées', 'Codes couleur', 'Prompts IA', 'Codes QR', 'Photos favorites', 'Images mèmes', 'Créer des stickers', 'Groupes', 'Exporter des fichiers', 'Contenu éphémère', 'Synchronisation iCloud'] },
   de: { downloadForIPhone: 'Für iPhone laden', clipboardFeatures: ['Textvorlagen', 'E-Mail-Vorlagen', 'Kontaktinformationen', 'Farbcodes', 'KI-Prompts', 'QR-Codes', 'Lieblingsfotos', 'Meme-Bilder', 'Sticker erstellen', 'Gruppen', 'Dateien exportieren', 'Ablaufende Inhalte', 'iCloud-Synchronisierung'] },
@@ -23,6 +24,7 @@ const copy: Record<string, HomeCopy> = {
   th: { downloadForIPhone: 'ดาวน์โหลดสำหรับ iPhone', clipboardFeatures: ['ข้อความตัวอย่าง', 'เทมเพลตอีเมล', 'ข้อมูลติดต่อ', 'รหัสสี', 'AI Prompt', 'รหัส QR', 'รูปโปรด', 'รูปมีม', 'สร้างสติกเกอร์', 'การจัดกลุ่ม', 'ส่งออกไฟล์', 'เนื้อหาลบอัตโนมัติ', 'ซิงค์ iCloud'] },
   tl: { downloadForIPhone: 'I-download para sa iPhone', clipboardFeatures: ['Mga sample na text', 'Mga email template', 'Contact information', 'Mga color code', 'AI prompt', 'Mga QR code', 'Paboritong larawan', 'Mga meme image', 'Gumawa ng sticker', 'Mga grupo', 'Mag-export ng file', 'Kusang nawawalang content', 'iCloud sync'] },
   pl: { downloadForIPhone: 'Pobierz na iPhone’a', clipboardFeatures: ['Przykładowe teksty', 'Szablony e-mail', 'Dane kontaktowe', 'Kody kolorów', 'Prompty AI', 'Kody QR', 'Ulubione zdjęcia', 'Obrazy memów', 'Tworzenie naklejek', 'Grupy', 'Eksport plików', 'Treści wygasające', 'Synchronizacja iCloud'] },
+  tr: { downloadForIPhone: 'iPhone için indirin', clipboardFeatures: ['Örnek metinler', 'E-posta şablonları', 'İletişim bilgileri', 'Renk kodları', 'AI istemleri', 'QR kodları', 'Favori fotoğraflar', 'Meme görselleri', 'Çıkartma oluştur', 'Gruplar', 'Dosyaları dışa aktar', 'Süreli içerik', 'iCloud eşzamanlama'] },
 };
 
 const clipboardAdditions: Record<string, { copy: string; pin: string; clone: string; filter: string; group: string; search: string; sort: string; import: string; system: string }> = {
@@ -31,6 +33,7 @@ const clipboardAdditions: Record<string, { copy: string; pin: string; clone: str
   ja: { copy: 'コピー', pin: 'ピン留め', clone: '複製', filter: 'フィルター', group: 'グループ', search: '検索', sort: '並べ替え', import: 'ファイルを読み込む', system: 'システムクリップボード' },
   es: { copy: 'Copiar', pin: 'Fijar', clone: 'Clonar', filter: 'Filtrar', group: 'Grupos', search: 'Buscar', sort: 'Ordenar', import: 'Importar archivos', system: 'Portapapeles del sistema' },
   'zh-TW': { copy: '複製', pin: '釘選', clone: '建立副本', filter: '篩選', group: '群組', search: '搜尋', sort: '排序', import: '匯入檔案', system: '系統剪貼板' },
+  'zh-CN': { copy: '复制', pin: '置顶', clone: '创建副本', filter: '筛选', group: '分组', search: '搜索', sort: '排序', import: '导入文件', system: '系统剪贴板' },
   'pt-BR': { copy: 'Copiar', pin: 'Fixar', clone: 'Clonar', filter: 'Filtrar', group: 'Grupos', search: 'Pesquisar', sort: 'Ordenar', import: 'Importar arquivos', system: 'Área de transferência do sistema' },
   fr: { copy: 'Copier', pin: 'Épingler', clone: 'Dupliquer', filter: 'Filtrer', group: 'Groupes', search: 'Rechercher', sort: 'Trier', import: 'Importer des fichiers', system: 'Presse-papiers système' },
   de: { copy: 'Kopieren', pin: 'Anheften', clone: 'Klonen', filter: 'Filtern', group: 'Gruppen', search: 'Suchen', sort: 'Sortieren', import: 'Dateien importieren', system: 'Systemzwischenablage' },
@@ -43,6 +46,7 @@ const clipboardAdditions: Record<string, { copy: string; pin: string; clone: str
   th: { copy: 'คัดลอก', pin: 'ปักหมุด', clone: 'โคลน', filter: 'ตัวกรอง', group: 'กลุ่ม', search: 'ค้นหา', sort: 'จัดเรียง', import: 'นำเข้าไฟล์', system: 'คลิปบอร์ดระบบ' },
   tl: { copy: 'Kopyahin', pin: 'I-pin', clone: 'I-clone', filter: 'I-filter', group: 'Mga grupo', search: 'Maghanap', sort: 'Ayusin', import: 'Mag-import ng file', system: 'System pasteboard' },
   pl: { copy: 'Kopiuj', pin: 'Przypnij', clone: 'Sklonuj', filter: 'Filtruj', group: 'Grupy', search: 'Wyszukiwanie', sort: 'Sortowanie', import: 'Importuj pliki', system: 'Schowek systemowy' },
+  tr: { copy: 'Kopyala', pin: 'Sabitle', clone: 'Çoğalt', filter: 'Filtrele', group: 'Gruplar', search: 'Ara', sort: 'Sırala', import: 'Dosyaları içe aktar', system: 'Sistem Panosu' },
 };
 
 Object.entries(copy).forEach(([lang, value]) => {
@@ -65,10 +69,11 @@ Object.entries(copy).forEach(([lang, value]) => {
 });
 
 const heroHighlights: Record<string, string> = {
-  en: 'Clipboard', vi: 'Clipboard', ja: 'クリップボード', es: 'portapapeles', 'zh-TW': '剪貼板',
+  en: 'Clipboard', vi: 'Clipboard', ja: 'クリップボード', es: 'portapapeles', 'zh-TW': '剪貼板', 'zh-CN': '剪贴板',
   'pt-BR': 'área de transferência', fr: 'presse-papiers', de: 'Zwischenablage', ru: 'буфер обмена',
   ko: '클립보드를', hi: 'क्लिपबोर्ड', bn: 'ক্লিপবোর্ড', id: 'papan klip', it: 'appunti', th: 'คลิปบอร์ด',
   tl: 'clipboard', pl: 'schowek',
+  tr: 'pano',
 };
 
 const clipboardTitles: Record<string, string> = {
@@ -77,6 +82,7 @@ const clipboardTitles: Record<string, string> = {
   ja: 'すべてをクリップボードにコピー',
   es: 'Copia todo al portapapeles',
   'zh-TW': '將所有內容複製到剪貼板',
+  'zh-CN': '将所有内容复制到剪贴板',
   'pt-BR': 'Copie tudo para a área de transferência',
   fr: 'Copiez tout dans le presse-papiers',
   de: 'Alles in die Zwischenablage kopieren',
@@ -89,6 +95,7 @@ const clipboardTitles: Record<string, string> = {
   th: 'คัดลอกทุกอย่างไปยังคลิปบอร์ด',
   tl: 'Kopyahin ang lahat sa clipboard',
   pl: 'Kopiuj wszystko do schowka',
+  tr: 'Her şeyi panonuza kopyalayın',
 };
 
 export const getHomeCopy = (lang: string): LocalizedHomeCopy => ({

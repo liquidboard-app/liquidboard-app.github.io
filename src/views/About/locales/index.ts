@@ -4,6 +4,7 @@ export const getAboutComponent = async (lang: string) => {
     case 'ja': return await import('./ja');
     case 'es': return await import('./es');
     case 'zh-TW': return await import('./zh-TW');
+    case 'zh-CN': return await import('./zh-CN');
     case 'pt-BR': return await import('./pt-BR');
     case 'fr': return await import('./fr');
     case 'de': return await import('./de');
@@ -16,6 +17,7 @@ export const getAboutComponent = async (lang: string) => {
     case 'th': return await import('./th');
     case 'tl': return await import('./tl');
     case 'pl': return await import('./pl');
+    case 'tr': return await import('./tr');
     case 'en':
     default: return await import('./en');
   }

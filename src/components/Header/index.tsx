@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Globe2, X } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { getLanguageConfig, getUpdatesLabel, supportedLanguages } from '@/locales/config';
+import { getAccessibilityLabels, getLanguageConfig, getUpdatesLabel, supportedLanguages } from '@/locales/config';
 import { sentenceCase } from '@/locales/casing';
 import {
   Brand,
@@ -20,9 +20,12 @@ const DESKTOP_INDICATOR_HEIGHT = 46;
 
 const Header: React.FC = () => {
   const { lang, changeLang, dict, isLanguageChanging } = useTranslation();
+  const accessibility = getAccessibilityLabels(lang);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [pendingLanguage, setPendingLanguage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showLightLogo, setShowLightLogo] = useState(false);
+  const [hasLogoSwapped, setHasLogoSwapped] = useState(false);
   const activeLanguageRef = useRef<HTMLButtonElement>(null);
   const languageModalRef = useRef<HTMLDivElement>(null);
   const languageTriggerRef = useRef<HTMLButtonElement>(null);
@@ -33,6 +36,22 @@ const Header: React.FC = () => {
   const desktopIndicatorVisibleRef = useRef(false);
   const desktopHoveredItemRef = useRef<HTMLAnchorElement | null>(null);
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const handleHomeNavigation = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
+    setMenuOpen(false);
+
+    const isPlainPrimaryClick = event.button === 0
+      && !event.metaKey
+      && !event.altKey
+      && !event.ctrlKey
+      && !event.shiftKey;
+
+    if (pathname !== '/' || event.defaultPrevented || !isPlainPrimaryClick) return;
+
+    event.preventDefault();
+    navigate('/', { replace: true });
+  }, [navigate, pathname]);
 
   const closeLanguageModal = useCallback(() => {
     setLanguageOpen(false);
@@ -179,11 +198,60 @@ const Header: React.FC = () => {
 
   }, []);
 
+  const resetDesktopIndicator = useCallback(() => {
+    const indicator = desktopIndicatorRef.current;
+    desktopIndicatorAnimationRef.current?.cancel();
+    desktopIndicatorAnimationRef.current = null;
+    desktopIndicatorVisibleRef.current = false;
+    desktopHoveredItemRef.current = null;
+    if (!indicator) return;
+    indicator.style.width = '0px';
+    indicator.style.opacity = '0';
+    indicator.style.transform = 'translate3d(0, 0, 0) scale(0, 0)';
+  }, []);
+
   useEffect(() => {
     setMenuOpen(false);
     setLanguageOpen(false);
     hideDesktopIndicator();
   }, [hideDesktopIndicator, pathname]);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let logoTimer: number | undefined;
+
+    const randomDelay = (minimum: number, maximum: number) => (
+      Math.round(minimum + Math.random() * (maximum - minimum))
+    );
+    const clearLogoTimer = () => {
+      if (logoTimer !== undefined) window.clearTimeout(logoTimer);
+      logoTimer = undefined;
+    };
+    const scheduleLightLogo = () => {
+      logoTimer = window.setTimeout(() => {
+        setHasLogoSwapped(true);
+        setShowLightLogo(true);
+        logoTimer = window.setTimeout(() => {
+          setShowLightLogo(false);
+          scheduleLightLogo();
+        }, randomDelay(3500, 5000));
+      }, randomDelay(8000, 13000));
+    };
+    const updateLogoMotion = () => {
+      clearLogoTimer();
+      setHasLogoSwapped(false);
+      setShowLightLogo(false);
+      if (!reducedMotion.matches) scheduleLightLogo();
+    };
+
+    updateLogoMotion();
+    reducedMotion.addEventListener('change', updateLogoMotion);
+
+    return () => {
+      clearLogoTimer();
+      reducedMotion.removeEventListener('change', updateLogoMotion);
+    };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -209,6 +277,21 @@ const Header: React.FC = () => {
       desktopIndicatorAnimationRef.current?.cancel();
     };
   }, [getDesktopIndicatorBounds, hideDesktopIndicator]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') resetDesktopIndicator();
+    };
+
+    window.addEventListener('blur', resetDesktopIndicator);
+    window.addEventListener('pagehide', resetDesktopIndicator);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      window.removeEventListener('blur', resetDesktopIndicator);
+      window.removeEventListener('pagehide', resetDesktopIndicator);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [resetDesktopIndicator]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen || languageOpen ? 'hidden' : '';
@@ -286,7 +369,7 @@ const Header: React.FC = () => {
         <button
           type="button"
           ref={closeLanguageButtonRef}
-          aria-label="Close language selection"
+          aria-label={accessibility.closeLanguageSelection}
           disabled={isLanguageChanging}
           onClick={closeLanguageModal}
         >
@@ -330,12 +413,18 @@ const Header: React.FC = () => {
         {Array.from({ length: 8 }).map((_, index) => <div key={index} />)}
       </ProgressiveBlur>
 
-      <Brand to="/" aria-label="LiquidBoard home">
-        <img src="/assets/logo-app-dark.jpg" alt="" />
+      <Brand to="/" aria-label={accessibility.brandHome} onClick={handleHomeNavigation}>
+        <span
+          className={`brand-logo ${hasLogoSwapped ? 'has-swapped' : ''} ${showLightLogo ? 'is-light' : ''}`}
+          aria-hidden="true"
+        >
+          <img className="brand-logo-dark" src="/assets/logo-app-dark.jpg" alt="" />
+          <img className="brand-logo-light" src="/assets/logo-app-light.jpg" alt="" />
+        </span>
         <span>LiquidBoard</span>
       </Brand>
 
-      <nav aria-label="Primary navigation">
+      <nav aria-label={accessibility.primaryNavigation}>
         <div
           ref={desktopMenuRef}
           className={`menu-links ${menuOpen ? 'open' : ''}`}
@@ -356,12 +445,17 @@ const Header: React.FC = () => {
               to={item.to}
               end={item.end}
               className="menu-link"
-              onMouseEnter={(event) => showDesktopIndicator(event.currentTarget, {
-                clientX: event.clientX,
-                clientY: event.clientY,
-              })}
-              onFocus={(event) => showDesktopIndicator(event.currentTarget)}
-              onClick={() => setMenuOpen(false)}
+              onMouseEnter={(event) => {
+                if (!document.hasFocus()) return;
+                showDesktopIndicator(event.currentTarget, {
+                  clientX: event.clientX,
+                  clientY: event.clientY,
+                });
+              }}
+              onFocus={(event) => {
+                if (event.currentTarget.matches(':focus-visible')) showDesktopIndicator(event.currentTarget);
+              }}
+              onClick={item.to === '/' ? handleHomeNavigation : () => setMenuOpen(false)}
             >
               {item.label}
             </NavLink>
@@ -372,7 +466,7 @@ const Header: React.FC = () => {
         <LanguageTrigger
           type="button"
           ref={languageTriggerRef}
-          aria-label="Change language"
+          aria-label={accessibility.changeLanguage}
           aria-expanded={languageOpen}
           aria-controls="language-modal"
           onClick={() => {
@@ -385,7 +479,7 @@ const Header: React.FC = () => {
         <button
           type="button"
           className={`mobile-menu-trigger ${menuOpen ? 'open' : ''}`}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? accessibility.closeMenu : accessibility.openMenu}
           aria-expanded={menuOpen}
           onClick={() => {
             setLanguageOpen(false);

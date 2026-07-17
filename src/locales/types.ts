@@ -14,6 +14,8 @@ export type FeatureConfig = {
 };
 
 export type LocaleDict = {
+  browserTitle: string;
+  browserDescription: string;
   nav: {
     home: string;
     about: string;
@@ -34,6 +36,7 @@ export type LocaleDict = {
   };
   pricing: {
     intro: { line1: string; line2: string };
+    fromPrice: string;
     plans: PlanConfig[];
   };
   features: FeatureConfig;
