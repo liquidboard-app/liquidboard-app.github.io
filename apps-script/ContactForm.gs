@@ -10,6 +10,7 @@
 
 var MAX_IMAGE_FILE_BYTES = 5 * 1024 * 1024;
 var MAX_VIDEO_FILE_BYTES = 50 * 1024 * 1024;
+var MAX_TOTAL_MEDIA_BYTES = 50 * 1024 * 1024;
 
 function doGet() {
   return response_({ ok: true, service: 'LiquidBoard contact endpoint' });
@@ -33,6 +34,7 @@ function doPost(event) {
     const sheetName = properties.getProperty('SHEET_NAME') || 'Contact';
 
     const folder = DriveApp.getFolderById(driveFolderId);
+    var totalMediaBytes = 0;
     const mediaUrls = media.map(function (item) {
       if (!item || !/^image\//.test(item.type || '') && !/^video\//.test(item.type || '')) {
         throw new Error('Only image and video uploads are allowed.');
@@ -45,6 +47,10 @@ function doPost(event) {
         throw new Error(/^video\//.test(item.type || '')
           ? 'Each video attachment must be 50 MB or less.'
           : 'Each image attachment must be 5 MB or less.');
+      }
+      totalMediaBytes += bytes.length;
+      if (totalMediaBytes > MAX_TOTAL_MEDIA_BYTES) {
+        throw new Error('All attachments together must be 50 MB or less.');
       }
       const file = folder.createFile(Utilities.newBlob(bytes, item.type, name));
       return file.getUrl();

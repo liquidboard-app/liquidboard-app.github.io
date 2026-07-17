@@ -385,7 +385,7 @@ const Header: React.FC = () => {
         <button
           type="button"
           className={`mobile-menu-trigger ${menuOpen ? 'open' : ''}`}
-          aria-label="Toggle menu"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
           onClick={() => {
             setLanguageOpen(false);

@@ -11,6 +11,7 @@ export type HelpSection = 'faq' | 'documents' | 'contact';
 const MAX_MEDIA = 5;
 const MAX_IMAGE_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_VIDEO_FILE_BYTES = 50 * 1024 * 1024;
+const MAX_TOTAL_MEDIA_BYTES = 50 * 1024 * 1024;
 const EMAIL_DOMAINS = ['@gmail.com', '@outlook.com', '@hotmail.com'];
 const contactEndpointPlaceholder = 'https://script.google.com/macros/s/AKfycbxLiquidBoardContactPlaceholder/exec';
 
@@ -50,7 +51,31 @@ const mediaLimitLabels: Record<string, string> = {
   pl: 'Obrazy do 5 MB · Filmy do 50 MB',
 };
 
-const getMediaLimitLabel = (lang: string) => mediaLimitLabels[lang] ?? mediaLimitLabels.en;
+const totalMediaLimitLabels: Record<string, string> = {
+  en: 'Total attachments up to 50 MB',
+  vi: 'Tổng tệp đính kèm tối đa 50 MB',
+  ja: '添付ファイル合計は最大50 MB',
+  es: 'Total de archivos adjuntos de hasta 50 MB',
+  'zh-TW': '附件總計最多50 MB',
+  'pt-BR': 'Total de anexos de até 50 MB',
+  fr: 'Total des pièces jointes jusqu’à 50 MB',
+  de: 'Anhänge insgesamt bis 50 MB',
+  ru: 'Общий размер вложений до 50 MB',
+  ko: '첨부 파일 전체는 최대 50 MB',
+  hi: 'सभी अटैचमेंट कुल मिलाकर अधिकतम 50 MB',
+  bn: 'মোট সংযুক্তি সর্বোচ্চ 50 MB',
+  id: 'Total lampiran hingga 50 MB',
+  it: 'Totale allegati fino a 50 MB',
+  th: 'ไฟล์แนบทั้งหมดสูงสุด 50 MB',
+  tl: 'Kabuuang attachment hanggang 50 MB',
+  pl: 'Łączny rozmiar załączników do 50 MB',
+};
+
+const mediaLimitMessage = (lang: string) => {
+  const base = mediaLimitLabels[lang] ?? mediaLimitLabels.en;
+  const total = totalMediaLimitLabels[lang] ?? totalMediaLimitLabels.en;
+  return `${base} · ${total}`;
+};
 
 const TabList = styled.div`
   display: flex;
@@ -110,6 +135,9 @@ const Form = styled(GlassCard)`
   .submit { display: inline-flex; min-height: 56px; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; padding: 0 20px; border: 0; border-radius: 16px; background: #2c2724; color: #fff3e4; font: inherit; font-size: 17px; font-weight: 800; transition: transform .18s ease, opacity .18s ease; }
   .submit:hover:not(:disabled) { transform: translateY(-2px); }
   .submit:disabled { cursor: wait; opacity: .6; }
+  .form-message { margin: -4px 0 0; font-size: 14px; font-weight: 670; line-height: 1.45; text-align: center; }
+  .form-message.error { color: #a34e47; }
+  .form-message.success { color: #44713c; }
 `;
 
 const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
@@ -117,6 +145,7 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
   const [email, setEmail] = useState('');
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState<{ tone: 'error' | 'success'; text: string } | null>(null);
   const previewUrls = useRef(new Set<string>());
   const labels = useMemo(() => ({
     faq: dict.help?.faqTab ?? 'FAQs',
@@ -127,7 +156,7 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
     problemPlaceholder: dict.help?.problemPlaceholder ?? 'Tell us what happened…',
     media: dict.help?.media ?? 'Media',
     addMedia: dict.help?.addMedia ?? 'Add media',
-    mediaLimit: getMediaLimitLabel(lang),
+    mediaLimit: mediaLimitMessage(lang),
     removeMedia: dict.help?.removeMedia ?? 'Remove',
     sending: dict.help?.sending ?? 'Sending…',
     send: dict.help?.send ?? 'Send',
@@ -145,10 +174,14 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
     const chosen = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith('image/') || file.type.startsWith('video/'));
     const available = MAX_MEDIA - mediaItems.length;
     const next = chosen.slice(0, Math.max(0, available));
-    if (next.some((file) => file.size > getMediaByteLimit(file))) {
+    const nextTotalBytes = mediaItems.reduce((total, item) => total + item.file.size, 0)
+      + next.reduce((total, file) => total + file.size, 0);
+    if (next.some((file) => file.size > getMediaByteLimit(file)) || nextTotalBytes > MAX_TOTAL_MEDIA_BYTES) {
+      setFormMessage({ tone: 'error', text: labels.mediaLimit });
       event.target.value = '';
       return;
     }
+    setFormMessage(null);
     setMediaItems((current) => [...current, ...next.map((file) => {
       const previewUrl = URL.createObjectURL(file);
       previewUrls.current.add(previewUrl);
@@ -175,14 +208,19 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const endpoint = (import.meta.env.VITE_CONTACT_ENDPOINT as string | undefined) || contactEndpointPlaceholder;
+    const totalMediaBytes = mediaItems.reduce((total, item) => total + item.file.size, 0);
+    if (totalMediaBytes > MAX_TOTAL_MEDIA_BYTES) {
+      setFormMessage({ tone: 'error', text: labels.mediaLimit });
+      return;
+    }
     setSubmitting(true);
+    setFormMessage(null);
     try {
       const data = new FormData(form);
-      const media = await Promise.all(mediaItems.map(async ({ file }) => ({
-        name: file.name,
-        type: file.type,
-        base64: await readFileAsBase64(file),
-      })));
+      const media = [] as { name: string; type: string; base64: string }[];
+      for (const { file } of mediaItems) {
+        media.push({ name: file.name, type: file.type, base64: await readFileAsBase64(file) });
+      }
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -196,8 +234,9 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
       previewUrls.current.forEach((url) => URL.revokeObjectURL(url));
       previewUrls.current.clear();
       setMediaItems([]);
+      setFormMessage({ tone: 'success', text: labels.sent });
     } catch {
-      // The form remains available for another attempt without showing a message below the button.
+      setFormMessage({ tone: 'error', text: labels.sendFailed });
     } finally {
       setSubmitting(false);
     }
@@ -223,6 +262,7 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
             <span className="media-limit"><Info size={14} strokeWidth={2.2} aria-hidden="true" />{labels.mediaLimit}</span>
           </div>
           <button className="submit" type="submit" disabled={submitting}><Send size={17} />{submitting ? labels.sending : labels.send}</button>
+          {formMessage && <p className={`form-message ${formMessage.tone}`} role={formMessage.tone === 'error' ? 'alert' : 'status'}>{formMessage.text}</p>}
         </Form>
       )}
     </>

@@ -77,9 +77,15 @@ const GridFeatures: React.FC = () => {
 
     const getFeatureItems = () => Array.from(grid.querySelectorAll<HTMLElement>('.grid-feature-item'));
     const restartIconAnimation = (item: HTMLElement) => {
-      item.classList.remove('is-icon-animating');
-      void item.offsetWidth;
-      item.classList.add('is-icon-animating');
+      const animations = item.getAnimations({ subtree: true });
+      if (!animations.length) {
+        item.classList.add('is-icon-animating');
+        return;
+      }
+      animations.forEach((animation) => {
+        animation.currentTime = 0;
+        animation.play();
+      });
     };
     const playWave = () => {
       if (!isRunning) return;

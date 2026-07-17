@@ -45,9 +45,10 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (newLang === lang || isLanguageChanging) return;
 
     setIsLanguageChanging(true);
+    const nextDictPromise = getDict(newLang);
     try {
       await wait(240);
-      const nextDict = await getDict(newLang);
+      const nextDict = await nextDictPromise;
       setDict(nextDict);
       setLang(newLang);
       localStorage.setItem('lb_lang', newLang);

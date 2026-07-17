@@ -1,6 +1,4 @@
 import React, { useLayoutEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   ArrowUpDown, ClipboardPaste, Cloud, Copy, CopyPlus, FileDown, FileText, FileUp, Filter,
   FolderTree, ImagePlay, Pin, Search, Sticker, TimerOff,
@@ -10,8 +8,6 @@ import { sentenceCase } from '@/locales/casing';
 import { splitGraphemes } from '@/utils/graphemes';
 import { getFeatureDetails } from '../../featureContent';
 import { FeatureStack, LegacyContent, LegacyContentItem } from '../../styled';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const featureIcons = [FileText, ImagePlay, Sticker];
 const actionIcons = [
@@ -162,7 +158,23 @@ const Features: React.FC = () => {
       section.querySelectorAll<SVGSVGElement>('.title-row > svg').forEach((icon) => iconObserver?.observe(icon));
     }
 
-    const context = gsap.context(() => {
+    const desktopMotionQuery = window.matchMedia('(min-width: 1200px) and (prefers-reduced-motion: no-preference)');
+    let timelineCleanup: (() => void) | undefined;
+    let timelineLoading = false;
+
+    const initializeDesktopTimeline = async () => {
+      if (!active || !desktopMotionQuery.matches || timelineCleanup || timelineLoading) return;
+      timelineLoading = true;
+
+      try {
+        const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+          import('gsap'),
+          import('gsap/ScrollTrigger'),
+        ]);
+        if (!active || !desktopMotionQuery.matches) return;
+
+        gsap.registerPlugin(ScrollTrigger);
+        const context = gsap.context(() => {
       const media = gsap.matchMedia();
       const headerOffset = () => document.querySelector('header')?.getBoundingClientRect().height ?? 0;
       const viewportHeight = () => window.visualViewport?.height ?? document.documentElement.clientHeight;
@@ -374,34 +386,59 @@ const Features: React.FC = () => {
         };
       });
       return () => media.revert();
-    }, section);
+        }, section);
 
-    const scheduleRefresh = (delay = 140) => {
-      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
-      refreshTimer = window.setTimeout(() => {
-        refreshTimer = undefined;
-        if (!active) return;
-        cards.forEach(updateRevealOffset);
-        ScrollTrigger.refresh();
-      }, delay);
+        const scheduleRefresh = (delay = 140) => {
+          if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+          refreshTimer = window.setTimeout(() => {
+            refreshTimer = undefined;
+            if (!active || !desktopMotionQuery.matches) return;
+            cards.forEach(updateRevealOffset);
+            ScrollTrigger.refresh();
+          }, delay);
+        };
+        const handleResize = () => scheduleRefresh(140);
+        const handleOrientationChange = () => scheduleRefresh(320);
+        window.addEventListener('resize', handleResize, { passive: true });
+        window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
+        window.visualViewport?.addEventListener('resize', handleResize, { passive: true });
+        void document.fonts.ready.then(() => { if (active) scheduleRefresh(0); });
+
+        timelineCleanup = () => {
+          if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+          window.removeEventListener('resize', handleResize);
+          window.removeEventListener('orientationchange', handleOrientationChange);
+          window.visualViewport?.removeEventListener('resize', handleResize);
+          context.revert();
+        };
+      } catch {
+        // The non-GSAP reveal remains available if the optional desktop animation cannot load.
+      } finally {
+        timelineLoading = false;
+      }
     };
-    const handleResize = () => scheduleRefresh(140);
-    const handleOrientationChange = () => scheduleRefresh(320);
-    window.addEventListener('resize', handleResize, { passive: true });
-    window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
-    window.visualViewport?.addEventListener('resize', handleResize, { passive: true });
-    void document.fonts.ready.then(() => { if (active) scheduleRefresh(0); });
+
+    const stopDesktopTimeline = () => {
+      timelineCleanup?.();
+      timelineCleanup = undefined;
+    };
+    const syncDesktopTimeline = () => {
+      if (desktopMotionQuery.matches) {
+        void initializeDesktopTimeline();
+      } else {
+        stopDesktopTimeline();
+      }
+    };
+    syncDesktopTimeline();
+    desktopMotionQuery.addEventListener('change', syncDesktopTimeline);
 
     return () => {
       active = false;
-      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleOrientationChange);
-      window.visualViewport?.removeEventListener('resize', handleResize);
+      desktopMotionQuery.removeEventListener('change', syncDesktopTimeline);
+      stopDesktopTimeline();
       revealObserver?.disconnect();
       revealResizeObserver?.disconnect();
       iconObserver?.disconnect();
-      context.revert();
     };
   }, [dict, lang, horizontalItems.length]);
 

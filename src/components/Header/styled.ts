@@ -96,6 +96,7 @@ export const HeaderWrapper = styled.header`
     .menu-link.active { background: rgba(44, 39, 36, .1); color: #2c2724; }
     .mobile-menu-trigger {
       position: relative;
+      z-index: 104;
       display: grid;
       width: 40px;
       height: 40px;
