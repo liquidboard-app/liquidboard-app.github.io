@@ -6,7 +6,7 @@ import { getAboutComponent } from '../../locales';
 
 const Content = styled.div`
   padding: clamp(18px, 3.5dvw, 38px);
-  p { margin: 0 0 20px; color: #665249; font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
+  p { margin: 0 0 20px; color: #000; font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
   p:last-child { margin-bottom: 0; }
   a {
     display: inline-flex;

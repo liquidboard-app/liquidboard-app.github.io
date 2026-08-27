@@ -14,24 +14,9 @@ const zhTW: LocaleDict = {
     line1: "把真正的剪貼板帶進",
     line2: { left: "你的", right: "iOS 鍵盤" },
   },
+  coreClipboard: { line1: '從 App 內的剪貼簿，', line2: '到你的 iOS 鍵盤。' },
   header: {
     download: { prefix: "下載\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
-  },
-  action: {
-    download: "下載 LiquidBoard",
-    titles: ['建立群組', '置頂', '複製與拷貝', '匯入與匯出檔案'],
-    paragraphs: [
-      '根據需求建立更多群組，將文字、圖片和貼圖進行分類。在群組之間流暢切換，並優先置頂重要群組。',
-      '將經常使用的重要文字、圖片和貼圖置頂，以便更快地傳送。',
-      '輕鬆快速地複製和拷貝文字、圖片和貼圖。',
-      '直接透過檔案 App 將文字資料匯出和匯入為 JSON 與 CSV 格式。',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
-    ],
   },
   pricing: {
     intro: { 
@@ -74,20 +59,6 @@ const zhTW: LocaleDict = {
       },
     ],
   },
-  features: {
-    titles: ['文字', '圖片', '貼圖'],
-    paragraphs: [
-      '建立和撰寫多個文字文件、介紹資訊和符合您寫作需求的內容。設定預先建立的回覆範本以便立即使用。輸入並快速分享聯絡資訊。儲存網站連結、程式碼片段、AI 提示詞結構，以便高效參考和重複使用。',
-      '快速分享付款行動條碼和銀行轉帳行動條碼。存取多樣化的產品範例原型、設計模型、資訊圖表和教學螢幕截圖集合。無縫整理和擷取視覺資產，以進行專業溝通。',
-      '建立並立即分享貼圖、最愛的迷因、祝賀訊息和情感表達，以與親人或客戶建立聯絡。使用傳達情感並提高參與度的視覺元素來個人化您的溝通。',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
-    ],
-  }
-,
   policy: {
     dataSecurity: "數據安全",
     privacy: "隱私",

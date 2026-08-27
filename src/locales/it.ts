@@ -14,24 +14,9 @@ const it: LocaleDict = {
     line1: "Porta veri appunti",
     line2: { left: "nella tua", right: "Tastiera iOS" },
   },
+  coreClipboard: { line1: 'Dagli appunti nell’app,', line2: 'alla tua tastiera iOS.' },
   header: {
     download: { prefix: "Scarica\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
-  },
-  action: {
-    download: "Scarica LiquidBoard",
-    titles: ['Crea gruppo', 'Fissa', 'Copia e duplica', 'Importa ed esporta file'],
-    paragraphs: [
-      'Crea gruppi aggiuntivi e categorizza testi, immagini e adesivi in base alle tue esigenze. Passa senza problemi da un gruppo all\'altro e fissa prima in alto i gruppi essenziali.',
-      'Fissa in alto i testi, le immagini e gli adesivi importanti che usi di frequente in modo da poterli inviare più velocemente.',
-      'Copia e duplica testi, immagini e adesivi in modo facile e veloce.',
-      'Esporta e importa dati di testo come JSON e CSV direttamente tramite l\'app File.',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
-    ],
   },
   pricing: {
     intro: { 
@@ -74,20 +59,6 @@ const it: LocaleDict = {
       },
     ],
   },
-  features: {
-    titles: ['Testo', 'Immagini', 'Adesivi'],
-    paragraphs: [
-      'Crea e componi più documenti di testo, informazioni introduttive e contenuti su misura per le tue esigenze di scrittura. Imposta modelli di risposta predefiniti per un uso immediato. Inserisci e condividi rapidamente le informazioni di contatto. Archivia collegamenti a siti Web, frammenti di codice, strutture di prompt AI per una consultazione e un riutilizzo efficienti.',
-      'Condividi rapidamente codici QR di pagamento e codici QR per bonifici bancari. Accedi a una vasta raccolta di prototipi di campioni di prodotti, modelli di progettazione, infografiche e screenshot di istruzioni. Organizza e recupera le risorse visive senza problemi per la comunicazione professionale.',
-      'Crea e condividi all\'istante adesivi, meme preferiti, messaggi di congratulazioni ed espressioni emotive per connetterti con i tuoi cari e i clienti. Personalizza la tua comunicazione con elementi visivi che trasmettono sentimenti e migliorano il coinvolgimento.',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
-    ],
-  }
-,
   policy: {
     dataSecurity: "Sicurezza dei dati",
     privacy: "Privacy",

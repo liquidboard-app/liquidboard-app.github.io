@@ -19,7 +19,8 @@ const logoEnterUp = keyframes`
 `;
 
 export const HeaderWrapper = styled.header`
-  position: fixed;
+  /* The header belongs to the page flow visually: it scrolls away with the hero. */
+  position: absolute;
   inset: 0 0 auto;
   z-index: 200;
   display: flex;
@@ -94,7 +95,7 @@ export const HeaderWrapper = styled.header`
       gap: 8px;
       padding: 100px 20px 40px;
       overflow: hidden;
-      background: rgba(255, 239, 222, .76);
+      background: rgba(255, 255, 255, .76);
       backdrop-filter: blur(32px) saturate(135%);
       -webkit-backdrop-filter: blur(32px) saturate(135%);
       opacity: 0;
@@ -102,6 +103,12 @@ export const HeaderWrapper = styled.header`
       pointer-events: none;
       transform: translateY(-14px);
       transition: opacity .25s ease, visibility .25s ease, transform .3s ease;
+    }
+    @media (pointer: coarse) {
+      .menu-links {
+        backdrop-filter: blur(20px) saturate(125%);
+        -webkit-backdrop-filter: blur(20px) saturate(125%);
+      }
     }
     .desktop-menu-indicator { display: none; }
     .menu-links.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
@@ -209,7 +216,7 @@ export const LanguageModal = styled.div<{ $open: boolean }>`
   inset: 0;
   z-index: 4000;
   display: block;
-  background: rgba(255, 239, 222, .72);
+  background: rgba(255, 255, 255, .72);
   backdrop-filter: blur(34px) saturate(135%);
   -webkit-backdrop-filter: blur(34px) saturate(135%);
   opacity: ${({ $open }) => ($open ? 1 : 0)};
@@ -223,7 +230,12 @@ export const LanguageModal = styled.div<{ $open: boolean }>`
     inset: 0 0 auto;
     z-index: 2;
     height: 148px;
-    background: linear-gradient(to bottom, rgba(255, 239, 222, .94), rgba(255, 239, 222, 0));
+    background: linear-gradient(to bottom, rgba(255, 255, 255, .94), rgba(255, 255, 255, 0));
+  }
+
+  @media (max-width: 1080px) and (pointer: coarse) {
+    backdrop-filter: blur(20px) saturate(125%);
+    -webkit-backdrop-filter: blur(20px) saturate(125%);
   }
 `;
 
@@ -329,7 +341,7 @@ export const ProgressiveBlur = styled.div`
   height: 132px;
   overflow: hidden;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(255, 239, 222, .82), rgba(255, 239, 222, 0));
+  background: linear-gradient(to bottom, rgba(255, 255, 255, .82), rgba(255, 255, 255, 0));
   > div { position: absolute; inset: 0; }
   > div:nth-child(1) { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); mask-image: linear-gradient(to bottom, #000 0%, transparent 32%); -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 32%); }
   > div:nth-child(2) { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); mask-image: linear-gradient(to bottom, #000 5%, transparent 44%); -webkit-mask-image: linear-gradient(to bottom, #000 5%, transparent 44%); }
@@ -339,4 +351,15 @@ export const ProgressiveBlur = styled.div`
   > div:nth-child(6) { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); mask-image: linear-gradient(to bottom, #000 46%, transparent 87%); -webkit-mask-image: linear-gradient(to bottom, #000 46%, transparent 87%); }
   > div:nth-child(7) { backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px); mask-image: linear-gradient(to bottom, #000 58%, transparent 96%); -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 96%); }
   > div:nth-child(8) { backdrop-filter: blur(.5px); -webkit-backdrop-filter: blur(.5px); mask-image: linear-gradient(to bottom, #000 70%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%); }
+
+  @media (max-width: 1080px) and (pointer: coarse) {
+    > div { display: none; }
+    > div:nth-child(3) {
+      display: block;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      mask-image: linear-gradient(to bottom, #000 8%, transparent 88%);
+      -webkit-mask-image: linear-gradient(to bottom, #000 8%, transparent 88%);
+    }
+  }
 `;

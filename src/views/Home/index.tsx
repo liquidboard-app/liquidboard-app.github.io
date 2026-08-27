@@ -1,9 +1,10 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import Features from './components/Features';
+import ClipboardGrid from './components/ClipboardGrid';
+import CoreClipboard from './components/CoreClipboard';
+import FeatureClipboard from './components/FeatureClipboard';
 import Hero from './components/Hero';
 import { LandingPage } from './styled';
 
-const GridFeatures = lazy(() => import('./components/GridFeatures'));
 const DownloadSection = lazy(() => import('./components/DownloadSection'));
 const Footer = lazy(() => import('./components/Footer'));
 
@@ -19,25 +20,35 @@ const DeferredSection: React.FC<{ children: React.ReactNode }> = ({ children }) 
       if (!entry.isIntersecting) return;
       setIsReady(true);
       observer.disconnect();
-    }, { rootMargin: '900px 0px' });
+    }, { rootMargin: '1200px 0px' });
+    // A nonzero sentinel normally resolves this on iOS Safari. Keep a short
+    // fallback as well so the final page sections can never disappear when
+    // IntersectionObserver misses a zero-area boundary after a long pin.
+    const fallbackTimer = window.setTimeout(() => setIsReady(true), 2500);
 
     observer.observe(sentinel);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(fallbackTimer);
+    };
   }, [isReady]);
 
-  return <div ref={sentinelRef}>{isReady ? <Suspense fallback={null}>{children}</Suspense> : null}</div>;
+  return (
+    <div ref={sentinelRef} style={isReady ? undefined : { minHeight: 1 }}>
+      {isReady ? <Suspense fallback={null}>{children}</Suspense> : null}
+    </div>
+  );
 };
 
 const Home: React.FC = () => (
   <LandingPage>
     <Hero />
-    <Features />
+    <ClipboardGrid />
+    <CoreClipboard />
+    <FeatureClipboard />
     <DeferredSection>
-      <GridFeatures />
-      <DeferredSection>
-        <DownloadSection />
-        <DeferredSection><Footer /></DeferredSection>
-      </DeferredSection>
+      <DownloadSection />
+      <Footer />
     </DeferredSection>
   </LandingPage>
 );

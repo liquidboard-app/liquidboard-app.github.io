@@ -14,24 +14,9 @@ const ja: LocaleDict = {
     line1: "本物のクリップボードを",
     line2: { left: "あなたの", right: "iOSキーボードに" },
   },
+  coreClipboard: { line1: 'アプリのクリップボードから、', line2: 'iOSキーボードへ。' },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "をダウンロード" },
-  },
-  action: {
-    download: "LiquidBoard をダウンロード",
-    titles: ['グループ作成', 'ピン留め', 'コピー＆複製', 'ファイルのインポート＆エクスポート'],
-    paragraphs: [
-      'ニーズに合わせてグループを追加し、テキスト、画像、ステッカーを分類します。グループ間をスムーズに切り替え、重要なグループを最初にピン留めします。',
-      '頻繁に使用する重要なテキスト、画像、ステッカーをピン留めして、すばやく送信できるようにします。',
-      'テキスト、画像、ステッカーを簡単かつ迅速にコピーおよび複製します。',
-      'ファイルアプリを通じて、テキストデータをJSONおよびCSVとして直接エクスポートおよびインポートします。',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
-    ],
   },
   pricing: {
     intro: { 
@@ -74,20 +59,6 @@ const ja: LocaleDict = {
       },
     ],
   },
-  features: {
-    titles: ['テキスト', '画像', 'ステッカー'],
-    paragraphs: [
-      '複数のテキストドキュメント、紹介情報、ニーズに合わせたコンテンツを作成・構成します。すぐに使用できる応答テンプレートを設定します。連絡先情報を入力してすばやく共有します。効率的な参照と再利用のために、Webサイトのリンク、コードスニペット、AIプロンプト構造を保存します。',
-      '支払いQRコードや銀行振込QRコードをすばやく共有します。製品のサンプルプロトタイプ、デザインモックアップ、インフォグラフィック、説明用スクリーンショットなどの多様なコレクションにアクセスします。プロフェッショナルなコミュニケーションのために視覚アセットをシームレスに整理・取得します。',
-      'ステッカー、お気に入りのミーム、お祝いのメッセージ、感情表現を作成してすぐに共有し、愛する人や顧客とつながります。感情を伝え、エンゲージメントを高める視覚要素でコミュニケーションをパーソナライズします。',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
-    ],
-  }
-,
   policy: {
     dataSecurity: "データセキュリティ",
     privacy: "プライバシー",

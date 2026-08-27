@@ -2,7 +2,8 @@ import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } f
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { ArrowUp } from 'lucide-react';
-import Header from './components/Header';
+import Header from './components/MinimalHeader';
+import CollaboratorCursor from './components/CollaboratorCursor';
 import { useTranslation } from './contexts/LanguageContext';
 import { getAccessibilityLabels } from './locales/config';
 
@@ -169,7 +170,7 @@ const ScrollTopButton = styled.button<{ $visible: boolean; $leaving: boolean }>`
   border-radius: 50%;
   background: #2c2724;
   box-shadow: 0 12px 24px rgba(67, 42, 31, .22);
-  color: #fff3e4;
+  color: #fff;
   opacity: ${({ $visible }) => $visible ? 1 : 0};
   filter: blur(${({ $visible }) => $visible ? '0' : '8px'});
   pointer-events: ${({ $visible }) => $visible ? 'auto' : 'none'};
@@ -177,7 +178,7 @@ const ScrollTopButton = styled.button<{ $visible: boolean; $leaving: boolean }>`
   transition: opacity .24s ease, filter .24s ease, transform .24s ease, background .2s ease;
 
   &:hover { background: #4a3933; }
-  &:focus-visible { outline: 3px solid #e3c76c; outline-offset: 3px; }
+  &:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
   @media (max-width: 700px) {
     width: 40px;
@@ -331,6 +332,7 @@ const App: React.FC = () => (
     <PageMetadata />
     <ScrollToTop />
     <Header />
+    <CollaboratorCursor />
     <Routes>
       <Route path="/" element={<HomeRoute />} />
       <Route path="/about" element={<RouteContent><About /></RouteContent>} />

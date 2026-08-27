@@ -9,16 +9,32 @@ const AppleMark = () => (
   </svg>
 );
 
+const DownloadMark = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 17V3" />
+    <path d="m6 11 6 6 6-6" />
+    <path d="M19 21H5" />
+  </svg>
+);
+
 type AppStoreButtonProps = {
   className?: string;
+  label?: React.ReactNode;
+  iconTile?: boolean;
+  animatedIcon?: boolean;
 };
 
-const AppStoreButton: React.FC<AppStoreButtonProps> = ({ className }) => {
+const AppStoreButton: React.FC<AppStoreButtonProps> = ({ className, label, iconTile = false, animatedIcon = false }) => {
   const { lang } = useTranslation();
   return (
     <DownloadButton className={className} href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
-      <AppleMark />
-      <span className="download-label">{getHomeCopy(lang).downloadForIPhone}</span>
+      {iconTile ? <span className="download-icon"><AppleMark /></span> : animatedIcon ? (
+        <span className="download-icon-stack">
+          <span className="download-icon-apple"><AppleMark /></span>
+          <span className="download-icon-arrow"><DownloadMark /></span>
+        </span>
+      ) : <AppleMark />}
+      <span className="download-label">{label ?? getHomeCopy(lang).downloadForIPhone}</span>
     </DownloadButton>
   );
 };

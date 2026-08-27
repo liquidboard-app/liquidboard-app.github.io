@@ -14,24 +14,9 @@ const de: LocaleDict = {
     line1: "Bringen Sie eine echte Zwischenablage",
     line2: { left: "in Ihre", right: "iOS-Tastatur" },
   },
+  coreClipboard: { line1: 'Von der Zwischenablage in der App,', line2: 'zu deiner iOS-Tastatur.' },
   header: {
     download: { prefix: "Laden Sie\u00A0", brand: "LiquidBoard\u00A0", suffix: "herunter" },
-  },
-  action: {
-    download: "Laden Sie LiquidBoard herunter",
-    titles: ['Gruppe erstellen', 'Anpinnen', 'Kopieren & Duplizieren', 'Dateien importieren & exportieren'],
-    paragraphs: [
-      'Erstellen Sie zusätzliche Gruppen und kategorisieren Sie Texte, Bilder und Aufkleber nach Ihren Bedürfnissen. Wechseln Sie reibungslos zwischen Gruppen und pinnen Sie wichtige Gruppen zuerst oben an.',
-      'Pinnen Sie wichtige Texte, Bilder und Aufkleber, die Sie häufig verwenden, ganz oben an, damit Sie sie schneller senden können.',
-      'Kopieren und duplizieren Sie Texte, Bilder und Aufkleber einfach und schnell.',
-      'Exportieren und importieren Sie Textdaten als JSON und CSV direkt über die Dateien-App.',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
-    ],
   },
   pricing: {
     intro: { 
@@ -74,20 +59,6 @@ const de: LocaleDict = {
       },
     ],
   },
-  features: {
-    titles: ['Text', 'Bilder', 'Aufkleber'],
-    paragraphs: [
-      'Erstellen und verfassen Sie mehrere Textdokumente, Einführungsinformationen und auf Ihre Schreibbedürfnisse zugeschnittene Inhalte. Richten Sie vorgefertigte Antwortvorlagen zur sofortigen Verwendung ein. Geben Sie Kontaktinformationen ein und teilen Sie sie schnell. Speichern Sie Website-Links, Code-Snippets und KI-Prompt-Strukturen zur effizienten Referenz und Wiederverwendung.',
-      'Teilen Sie schnell Zahlungs-QR-Codes und Banküberweisungs-QR-Codes. Greifen Sie auf eine vielfältige Sammlung von Produktbeispiel-Prototypen, Design-Mockups, Infografiken und anleitenden Screenshots zu. Organisieren und rufen Sie visuelle Assets nahtlos für die professionelle Kommunikation ab.',
-      'Erstellen Sie sofort Aufkleber, Lieblings-Memes, Glückwunschbotschaften und emotionale Ausdrücke und teilen Sie diese, um mit Ihren Lieben und Kunden in Kontakt zu treten. Personalisieren Sie Ihre Kommunikation mit visuellen Elementen, die Gefühle vermitteln und das Engagement steigern.',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
-    ],
-  }
-,
   policy: {
     dataSecurity: "Datensicherheit",
     privacy: "Privatsphäre",

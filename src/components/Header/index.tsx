@@ -20,6 +20,7 @@ const DESKTOP_INDICATOR_HEIGHT = 46;
 
 const Header: React.FC = () => {
   const { lang, changeLang, dict, isLanguageChanging } = useTranslation();
+  const orderedLanguages = [...supportedLanguages].sort((a, b) => Number(b.code === lang) - Number(a.code === lang));
   const accessibility = getAccessibilityLabels(lang);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [pendingLanguage, setPendingLanguage] = useState<string | null>(null);
@@ -378,7 +379,7 @@ const Header: React.FC = () => {
       </LanguageModalHeader>
       <LanguageList>
         <div>
-          {supportedLanguages.map((language) => {
+          {orderedLanguages.map((language) => {
             const active = lang === language.code;
             const loading = pendingLanguage === language.code && isLanguageChanging;
             return (

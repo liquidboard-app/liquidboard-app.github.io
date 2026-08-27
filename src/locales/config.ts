@@ -34,6 +34,30 @@ const updatesLabels: Record<string, string> = {
 
 export const getUpdatesLabel = (code: string) => updatesLabels[code] ?? updatesLabels.en;
 
+const menuToggleLabels: Record<string, { menu: string; close: string }> = {
+  en: { menu: 'Menu', close: 'Close' },
+  vi: { menu: 'Menu', close: 'Đóng' },
+  ja: { menu: 'メニュー', close: '閉じる' },
+  es: { menu: 'Menú', close: 'Cerrar' },
+  'zh-TW': { menu: '選單', close: '關閉' },
+  'zh-CN': { menu: '菜单', close: '关闭' },
+  'pt-BR': { menu: 'Menu', close: 'Fechar' },
+  fr: { menu: 'Menu', close: 'Fermer' },
+  de: { menu: 'Menü', close: 'Schließen' },
+  ru: { menu: 'Меню', close: 'Закрыть' },
+  ko: { menu: '메뉴', close: '닫기' },
+  hi: { menu: 'मेनू', close: 'बंद करें' },
+  bn: { menu: 'মেনু', close: 'বন্ধ' },
+  id: { menu: 'Menu', close: 'Tutup' },
+  it: { menu: 'Menu', close: 'Chiudi' },
+  th: { menu: 'เมนู', close: 'ปิด' },
+  tl: { menu: 'Menu', close: 'Isara' },
+  pl: { menu: 'Menu', close: 'Zamknij' },
+  tr: { menu: 'Menü', close: 'Kapat' },
+};
+
+export const getMenuToggleLabels = (code: string) => menuToggleLabels[code] ?? menuToggleLabels.en;
+
 const accessibilityLabels = {
   en: {
     closeLanguageSelection: 'Close language selection',

@@ -14,15 +14,15 @@ const UpdateItem = styled.article`
   padding: clamp(22px, 3dvw, 34px);
   border: 1px solid rgba(73, 48, 36, .15);
   border-radius: 20px;
-  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: #715c52; font-size: 14px; font-weight: 720; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: #000; font-size: 14px; font-weight: 720; }
   time { font-variant-numeric: tabular-nums; }
   .tag { padding: 5px 9px; border-radius: 999px; color: #282321; font-size: 12px; font-weight: 820; line-height: 1; }
   .tag.fixed { background: #edb6ac; }
   .tag.feature { background: #b8dba4; }
-  .tag.optimized { background: #e3c76c; }
+  .tag.optimized { background: #fff; }
   .tag.privacy { background: #b3c5ef; }
   h2 { margin: 15px 0 8px; font-size: clamp(24px, 3.1dvw, 38px); line-height: 1.12; font-weight: 810; letter-spacing: -.025em; }
-  ul { display: grid; gap: 5px; margin: 0; padding-left: 22px; color: #665249; font-size: clamp(16px, 1.35dvw, 19px); line-height: 1.6; font-weight: 540; }
+  ul { display: grid; gap: 5px; margin: 0; padding-left: 22px; color: #000; font-size: clamp(16px, 1.35dvw, 19px); line-height: 1.6; font-weight: 540; }
 `;
 
 type Update = {

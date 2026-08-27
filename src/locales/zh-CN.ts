@@ -14,24 +14,9 @@ const zhCN: LocaleDict = {
     line1: '把真正的剪贴板带入',
     line2: { left: '你的', right: 'iOS 键盘' },
   },
+  coreClipboard: { line1: '从 App 中的剪贴板，', line2: '到你的 iOS 键盘。' },
   header: {
     download: { prefix: '下载\u00A0', brand: 'LiquidBoard\u00A0', suffix: '' },
-  },
-  action: {
-    download: '下载 LiquidBoard',
-    titles: ['创建分组', '置顶', '复制与创建副本', '导入与导出文件'],
-    paragraphs: [
-      '根据需要创建更多分组，对文本、图片和贴纸进行分类。在分组之间流畅切换，并优先将重要分组置顶。',
-      '将经常使用的重要文本、图片和贴纸置顶，以便更快发送。',
-      '轻松快速地复制文本、图片和贴纸，或为它们创建副本。',
-      '直接通过“文件”App 将文本数据导出或导入为 JSON 和 CSV 格式。',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard 分组' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard 置顶内容' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard 复制和创建副本' },
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard 导入和导出文件' },
-    ],
   },
   pricing: {
     intro: {
@@ -72,19 +57,6 @@ const zhCN: LocaleDict = {
         description: '专业方案',
         features: ['500 条文本', '500 张图片', '500 张贴纸', '每种类型 40 个分组', '每个分组 40 个置顶'],
       },
-    ],
-  },
-  features: {
-    titles: ['文本', '图片', '贴纸'],
-    paragraphs: [
-      '创建和编辑多个文本文档、介绍信息及符合写作需求的内容。设置预先编写的回复模板以便立即使用。快速输入并分享联系信息。保存网站链接、代码片段和 AI 提示词结构，便于高效查阅和重复使用。',
-      '快速分享付款二维码和银行转账二维码。访问丰富的产品示例原型、设计模型、信息图和教学截图。无缝整理并查找视觉素材，用于专业沟通。',
-      '创建并即时分享贴纸、喜爱的表情包、祝福信息和情感表达，与亲友或客户保持联系。通过能够传达情感并提升互动的视觉元素，让沟通更具个性。',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard 文本片段' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard 图片面板' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard 键盘视图' },
     ],
   },
   policy: {

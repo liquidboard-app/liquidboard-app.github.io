@@ -7,12 +7,6 @@ export type PlanConfig = {
   features: string[];
 };
 
-export type FeatureConfig = {
-  titles: string[];
-  paragraphs: string[];
-  images: { src: string; alt: string }[];
-};
-
 export type LocaleDict = {
   browserTitle: string;
   browserDescription: string;
@@ -28,18 +22,18 @@ export type LocaleDict = {
     line1: string;
     line2: { left: string; right: string };
   };
+  coreClipboard: {
+    line1: string;
+    line2: string;
+  };
   header: {
     download: { prefix: string; brand: string; suffix: string };
-  };
-  action: FeatureConfig & {
-    download?: string;
   };
   pricing: {
     intro: { line1: string; line2: string };
     fromPrice: string;
     plans: PlanConfig[];
   };
-  features: FeatureConfig;
   policy?: {
     dataSecurity: string;
     privacy: string;

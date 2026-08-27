@@ -14,24 +14,9 @@ const pl: LocaleDict = {
     line1: "Prawdziwy schowek",
     line2: { left: "w Twojej", right: "Klawiaturze iOS" },
   },
+  coreClipboard: { line1: 'Ze schowka w aplikacji,', line2: 'na klawiaturę iOS.' },
   header: {
     download: { prefix: "Pobierz\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
-  },
-  action: {
-    download: "Pobierz LiquidBoard",
-    titles: ['Utwórz grupę', 'Przypnij', 'Kopiuj i powielaj', 'Importuj i eksportuj pliki'],
-    paragraphs: [
-      'Twórz dodatkowe grupy i kategoryzuj teksty, obrazy i naklejki na podstawie swoich potrzeb. Płynnie przełączaj się między grupami i przypinaj ważne grupy na samej górze.',
-      'Przypinaj ważne teksty, obrazy i naklejki, których często używasz, na samej górze, aby móc je szybciej wysyłać.',
-      'Kopiuj i powielaj teksty, obrazy i naklejki łatwo i szybko.',
-      'Eksportuj i importuj dane tekstowe jako JSON i CSV bezpośrednio przez aplikację Pliki.',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard groups' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard pinned items' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard copy and duplicate' },
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard import and export files' },
-    ],
   },
   pricing: {
     intro: { 
@@ -74,20 +59,6 @@ const pl: LocaleDict = {
       },
     ],
   },
-  features: {
-    titles: ['Tekst', 'Obrazy', 'Naklejki'],
-    paragraphs: [
-      'Twórz i komponuj wiele dokumentów tekstowych, informacji wprowadzających i treści dostosowanych do Twoich potrzeb w zakresie pisania. Skonfiguruj gotowe szablony odpowiedzi do natychmiastowego wykorzystania. Wprowadzaj i szybko udostępniaj informacje kontaktowe. Przechowuj łącza do witryn internetowych, fragmenty kodu, struktury zapytań AI do wydajnego wyszukiwania i ponownego wykorzystania.',
-      'Szybko udostępniaj kody QR płatności i kody QR przelewów bankowych. Uzyskaj dostęp do różnorodnej kolekcji prototypów próbek produktów, makiet projektów, infografik i instruktażowych zrzutów ekranu. Bezproblemowo organizuj i pobieraj zasoby wizualne do profesjonalnej komunikacji.',
-      'Twórz i natychmiast udostępniaj naklejki, ulubione memy, wiadomości z gratulacjami i wyrażenia emocjonalne, aby łączyć się z bliskimi i klientami. Spersonalizuj swoją komunikację za pomocą elementów wizualnych, które przekazują uczucia i zwiększają zaangażowanie.',
-    ],
-    images: [
-      { src: '/assets/lb-text.webp', alt: 'LiquidBoard text snippets' },
-      { src: '/assets/lb-photos.webp', alt: 'LiquidBoard photo board' },
-      { src: '/assets/lb-keyboard.webp', alt: 'LiquidBoard keyboard view' },
-    ],
-  }
-,
   
   help: {
     faqTab: 'Najczęściej zadawane pytania',
