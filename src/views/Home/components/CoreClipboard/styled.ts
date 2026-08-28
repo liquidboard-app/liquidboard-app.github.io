@@ -10,26 +10,29 @@ const coreHeadingUnderlineReverse = keyframes`
   to { transform: scaleX(0); transform-origin: right center; }
 `;
 
-const corePhoneEnterFromLeft = keyframes`
-  to { transform: translateX(0); }
+const corePhoneSpreadFromCenterLeft = keyframes`
+  from { transform: translateX(var(--core-phone-center-shift)) scale(.92); }
+  to { transform: translateX(0) scale(1); }
 `;
 
-const corePhoneEnterFromRight = keyframes`
-  to { transform: translateX(0); }
+const corePhoneSpreadFromCenterRight = keyframes`
+  from { transform: translateX(calc(var(--core-phone-center-shift) * -1)) scale(.92); }
+  to { transform: translateX(0) scale(1); }
+`;
+
+const corePhoneConvergeToCenterLeft = keyframes`
+  from { transform: translateX(0) scale(1); }
+  to { transform: translateX(var(--core-phone-center-shift)) scale(.92); }
+`;
+
+const corePhoneConvergeToCenterRight = keyframes`
+  from { transform: translateX(0) scale(1); }
+  to { transform: translateX(calc(var(--core-phone-center-shift) * -1)) scale(.92); }
 `;
 
 const corePhoneEnterFromBottom = keyframes`
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const corePhoneExitToLeft = keyframes`
-  from { transform: translateX(0); }
-  to { transform: translateX(-14vw); }
-`;
-
-const corePhoneExitToRight = keyframes`
-  from { transform: translateX(0); }
-  to { transform: translateX(14vw); }
+  from { transform: translateY(0); }
+  to { transform: translateY(0); }
 `;
 
 const corePhoneExitToBottom = keyframes`
@@ -78,7 +81,7 @@ const coreDarkLogoHide = keyframes`
 `;
 
 export const CoreClipboardSection = styled.section`
-  --core-progress: 0;
+  --core-phone-center-shift: 0px;
   position: relative;
   min-height: 132dvh;
   overflow: clip;
@@ -228,7 +231,7 @@ export const CoreClipboardSection = styled.section`
     will-change: transform;
   }
   .core-phone-1,
-  .core-phone-3 { transform: translate3d(0, calc((1 - var(--core-progress)) * -112px), 0); }
+  .core-phone-3 { transform: translate3d(0, 0, 0); }
   .core-phone-frame {
     position: relative;
     aspect-ratio: .49;
@@ -275,18 +278,21 @@ export const CoreClipboardSection = styled.section`
     .core-phone-row { align-items: start; gap: clamp(6px, .85vw, 16px); padding-top: 60px; }
     .core-phone { width: min(24.4vw, 332px); }
     .core-phone-stage { min-height: min(58vw, 820px); }
-    .core-phone-1 { transform: translate3d(0, calc((1 - var(--core-progress)) * -112px), 0); }
+    .core-phone-1 { transform: translate3d(0, 0, 0); }
     .core-phone-2 { transform: translate3d(0, 0, 0); }
-    .core-phone-3 { transform: translate3d(0, calc((1 - var(--core-progress)) * -112px), 0); }
-    .core-phone-1 .core-phone-frame { transform: translateX(-14vw); }
-    .core-phone-2 .core-phone-frame { opacity: 0; transform: translateY(110px); }
-    .core-phone-3 .core-phone-frame { transform: translateX(14vw); }
-    &.is-phones-entered .core-phone-1 .core-phone-frame { animation: ${corePhoneEnterFromLeft} 1.05s cubic-bezier(.16, 1, .3, 1) forwards; }
+    .core-phone-3 { transform: translate3d(0, 0, 0); }
+    .core-phone-1,
+    .core-phone-3 { position: relative; z-index: 1; }
+    .core-phone-2 { position: relative; z-index: 2; }
+    .core-phone-1 .core-phone-frame { transform: translateX(var(--core-phone-center-shift)) scale(.92); }
+    .core-phone-2 .core-phone-frame { opacity: 1; transform: translateY(0); }
+    .core-phone-3 .core-phone-frame { transform: translateX(calc(var(--core-phone-center-shift) * -1)) scale(.92); }
+    &.is-phones-entered .core-phone-1 .core-phone-frame { animation: ${corePhoneSpreadFromCenterLeft} .72s cubic-bezier(.33, 1, .68, 1) forwards; }
     &.is-center-phone-entered .core-phone-2 .core-phone-frame { animation: ${corePhoneEnterFromBottom} .86s cubic-bezier(.16, 1, .3, 1) forwards; }
-    &.is-phones-entered .core-phone-3 .core-phone-frame { animation: ${corePhoneEnterFromRight} 1.05s cubic-bezier(.16, 1, .3, 1) forwards; }
-    &.is-phones-reversing .core-phone-1 .core-phone-frame { animation: ${corePhoneExitToLeft} .72s cubic-bezier(.4, 0, 1, 1) forwards; }
+    &.is-phones-entered .core-phone-3 .core-phone-frame { animation: ${corePhoneSpreadFromCenterRight} .72s cubic-bezier(.33, 1, .68, 1) forwards; }
+    &.is-phones-reversing .core-phone-1 .core-phone-frame { animation: ${corePhoneConvergeToCenterLeft} .62s cubic-bezier(.33, 1, .68, 1) forwards; }
     &.is-center-phone-reversing .core-phone-2 .core-phone-frame { animation: ${corePhoneExitToBottom} .62s cubic-bezier(.4, 0, 1, 1) forwards; }
-    &.is-phones-reversing .core-phone-3 .core-phone-frame { animation: ${corePhoneExitToRight} .72s cubic-bezier(.4, 0, 1, 1) forwards; }
+    &.is-phones-reversing .core-phone-3 .core-phone-frame { animation: ${corePhoneConvergeToCenterRight} .62s cubic-bezier(.33, 1, .68, 1) forwards; }
   }
   @media (min-width: 768px) and (max-width: 1199px) {
     min-height: auto;

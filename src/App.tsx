@@ -16,9 +16,13 @@ const Updates = lazy(() => import('@/views/Updates'));
 
 const RouteContent = ({ children }: { children: React.ReactNode }) => <Suspense fallback={null}>{children}</Suspense>;
 
-const HomeRoute: React.FC = () => {
+const RoutePage: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="route-page">{children}</div>
+);
+
+const HomeRoute: React.FC<{ replayKey?: number }> = ({ replayKey = 0 }) => {
   const { key } = useLocation();
-  return <RouteContent><Home key={key} /></RouteContent>;
+  return <RouteContent><Home key={`${key}-${replayKey}`} /></RouteContent>;
 };
 
 type PageMetadataMap = Record<string, { description: string }>;
@@ -212,8 +216,6 @@ const ScrollTopButton = styled.button<{ $visible: boolean; $leaving: boolean }>`
 `;
 
 const ScrollToTop = () => {
-  const { key, pathname } = useLocation();
-
   useLayoutEffect(() => {
     const scrollToStart = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     scrollToStart();
@@ -238,7 +240,25 @@ const ScrollToTop = () => {
       window.clearTimeout(timer);
       window.removeEventListener('pageshow', handlePageShow);
     };
-  }, [key, pathname]);
+  }, []);
+
+  useEffect(() => {
+    const handleRouteContentSwapped = () => {
+      // The outgoing page is fully hidden before RoutedPages swaps the route.
+      // Reset scroll in that hidden gap so the user never watches the jump.
+      const scrollToStart = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      scrollToStart();
+
+      if (!window.matchMedia('(min-width: 1200px)').matches) return;
+      window.requestAnimationFrame(() => {
+        scrollToStart();
+        window.requestAnimationFrame(scrollToStart);
+      });
+    };
+
+    window.addEventListener('liquidboard:route-content-swapped', handleRouteContentSwapped);
+    return () => window.removeEventListener('liquidboard:route-content-swapped', handleRouteContentSwapped);
+  }, []);
 
   return null;
 };
@@ -327,25 +347,84 @@ const ScrollTopControl: React.FC = () => {
   );
 };
 
+const RoutedPages: React.FC = () => {
+  const location = useLocation();
+  const [displayLocation, setDisplayLocation] = useState(location);
+  const [transitionPhase, setTransitionPhase] = useState<'idle' | 'exiting' | 'entering'>('idle');
+  const [homeReplayKey, setHomeReplayKey] = useState(0);
+  const displayLocationRef = useRef(location);
+  const homeReplayTimersRef = useRef<{ swap?: number; settle?: number }>({});
+
+  useEffect(() => {
+    if (location.key === displayLocationRef.current.key) {
+      return undefined;
+    }
+
+    setTransitionPhase('exiting');
+    const swapTimer = window.setTimeout(() => {
+      displayLocationRef.current = location;
+      setDisplayLocation(location);
+      setTransitionPhase('entering');
+      window.dispatchEvent(new Event('liquidboard:route-content-swapped'));
+    }, 360);
+    const settleTimer = window.setTimeout(() => setTransitionPhase('idle'), 1160);
+
+    return () => {
+      window.clearTimeout(swapTimer);
+      window.clearTimeout(settleTimer);
+    };
+  }, [location]);
+
+  useEffect(() => {
+    if (location.pathname !== '/') return undefined;
+    const replayTimers = homeReplayTimersRef.current;
+
+    const handleHomeReplay = () => {
+      window.clearTimeout(replayTimers.swap);
+      window.clearTimeout(replayTimers.settle);
+      setTransitionPhase('exiting');
+      replayTimers.swap = window.setTimeout(() => {
+        setHomeReplayKey((current) => current + 1);
+        setTransitionPhase('entering');
+        window.dispatchEvent(new Event('liquidboard:route-content-swapped'));
+      }, 360);
+      replayTimers.settle = window.setTimeout(() => setTransitionPhase('idle'), 1160);
+    };
+
+    window.addEventListener('liquidboard:replay-home', handleHomeReplay);
+    return () => {
+      window.removeEventListener('liquidboard:replay-home', handleHomeReplay);
+      window.clearTimeout(replayTimers.swap);
+      window.clearTimeout(replayTimers.settle);
+    };
+  }, [location.pathname]);
+
+  return (
+    <div className={`route-transition-stage is-${transitionPhase}`}>
+      <Routes location={displayLocation}>
+      <Route path="/" element={<RoutePage><HomeRoute replayKey={homeReplayKey} /></RoutePage>} />
+      <Route path="/about" element={<RoutePage><RouteContent><About /></RouteContent></RoutePage>} />
+      <Route path="/pricing" element={<RoutePage><RouteContent><Pricing /></RouteContent></RoutePage>} />
+      <Route path="/updates" element={<RoutePage><RouteContent><Updates /></RouteContent></RoutePage>} />
+      <Route path="/faq" element={<RoutePage><Navigate to="/help/faq" replace /></RoutePage>} />
+      <Route path="/help" element={<RoutePage><Navigate to="/help/contact" replace /></RoutePage>} />
+      <Route path="/help/faq" element={<RoutePage><RouteContent><Faq section="faq" /></RouteContent></RoutePage>} />
+      <Route path="/help/document" element={<RoutePage><RouteContent><Faq section="documents" /></RouteContent></RoutePage>} />
+      <Route path="/help/documents" element={<RoutePage><Navigate to="/help/document" replace /></RoutePage>} />
+      <Route path="/help/contact" element={<RoutePage><RouteContent><Faq section="contact" /></RouteContent></RoutePage>} />
+      <Route path="/policy/*" element={<RoutePage><RouteContent><Policy /></RouteContent></RoutePage>} />
+      </Routes>
+    </div>
+  );
+};
+
 const App: React.FC = () => (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <PageMetadata />
     <ScrollToTop />
     <Header />
     <CollaboratorCursor />
-    <Routes>
-      <Route path="/" element={<HomeRoute />} />
-      <Route path="/about" element={<RouteContent><About /></RouteContent>} />
-      <Route path="/pricing" element={<RouteContent><Pricing /></RouteContent>} />
-      <Route path="/updates" element={<RouteContent><Updates /></RouteContent>} />
-      <Route path="/faq" element={<Navigate to="/help/faq" replace />} />
-      <Route path="/help" element={<Navigate to="/help/contact" replace />} />
-      <Route path="/help/faq" element={<RouteContent><Faq section="faq" /></RouteContent>} />
-      <Route path="/help/document" element={<RouteContent><Faq section="documents" /></RouteContent>} />
-      <Route path="/help/documents" element={<Navigate to="/help/document" replace />} />
-      <Route path="/help/contact" element={<RouteContent><Faq section="contact" /></RouteContent>} />
-      <Route path="/policy/*" element={<RouteContent><Policy /></RouteContent>} />
-    </Routes>
+    <RoutedPages />
     <ScrollTopControl />
   </BrowserRouter>
 );

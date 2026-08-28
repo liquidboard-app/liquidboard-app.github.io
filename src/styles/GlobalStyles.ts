@@ -133,6 +133,41 @@ body {
   -webkit-backdrop-filter: blur(24px) saturate(135%);
 }
 
+.route-transition-stage {
+  position: relative;
+  min-height: 100dvh;
+}
+
+.route-page {
+  min-height: 100dvh;
+}
+
+.route-transition-stage.is-exiting > :first-child {
+  pointer-events: none;
+  will-change: filter, opacity;
+  animation: route-page-leave .36s cubic-bezier(.4, 0, 1, 1) both;
+}
+
+.route-transition-stage.is-entering > :first-child {
+  will-change: filter, opacity;
+  animation: route-page-arrive .76s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes route-page-leave {
+  from { opacity: 1; filter: blur(0); }
+  to { opacity: 0; filter: blur(12px); }
+}
+
+@keyframes route-page-arrive {
+  from { opacity: 0; filter: blur(12px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-transition-stage.is-exiting > :first-child,
+  .route-transition-stage.is-entering > :first-child { animation: none; }
+}
+
 a {
   color: inherit;
   text-decoration: none;

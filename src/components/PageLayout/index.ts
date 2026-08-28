@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
-export const PageShell = styled.main`
+export const PageShell = styled.main<{ $afterHero?: boolean }>`
   min-height: 100dvh;
-  padding: 150px 10px 140px;
+  padding: ${({ $afterHero }) => $afterHero ? '72px 10px 140px' : '150px 10px 140px'};
   background: #fff;
   color: #2b2523;
-  @media (max-width: 700px) { padding: 112px 10px 130px; }
+  @media (max-width: 700px) { padding: ${({ $afterHero }) => $afterHero ? '34px 10px 110px' : '112px 10px 130px'}; }
 `;
 
 export const PageInner = styled.div<{ $wide?: boolean }>`

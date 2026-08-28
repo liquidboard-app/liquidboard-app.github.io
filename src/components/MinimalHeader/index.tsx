@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Check, Globe } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getAccessibilityLabels, getLanguageConfig, getMenuToggleLabels, getUpdatesLabel, supportedLanguages } from '@/locales/config';
 import { sentenceCase } from '@/locales/casing';
@@ -29,7 +29,6 @@ const MinimalHeader: React.FC = () => {
   const accessibility = getAccessibilityLabels(lang);
   const menuLabels = getMenuToggleLabels(lang);
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [languageHasOpened, setLanguageHasOpened] = useState(false);
@@ -37,6 +36,8 @@ const MinimalHeader: React.FC = () => {
   const closeLanguageRef = useRef<HTMLButtonElement>(null);
   const activeLanguageRef = useRef<HTMLButtonElement>(null);
   const languageOptionsRef = useRef<HTMLDivElement>(null);
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const menuOverlayRef = useRef<HTMLDivElement>(null);
 
   const menuItems = [
     { to: '/', label: sentenceCase(dict.nav.home, lang), end: true },
@@ -59,8 +60,8 @@ const MinimalHeader: React.FC = () => {
     setMenuOpen(false);
     if (pathname !== '/' || event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return;
     event.preventDefault();
-    navigate('/', { replace: true });
-  }, [navigate, pathname]);
+    window.dispatchEvent(new Event('liquidboard:replay-home'));
+  }, [pathname]);
 
   const selectLanguage = async (code: string) => {
     if (code === lang || isLanguageChanging) return;
@@ -83,8 +84,17 @@ const MinimalHeader: React.FC = () => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') closeMenu();
     };
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (target && (menuOverlayRef.current?.contains(target) || menuToggleRef.current?.contains(target))) return;
+      closeMenu();
+    };
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
   }, [closeMenu, menuOpen]);
 
   useEffect(() => {
@@ -169,6 +179,7 @@ const MinimalHeader: React.FC = () => {
             <Globe className="language-globe" size={18} strokeWidth={2} aria-hidden="true" />
           </LanguageButton>
           <MenuToggleButton
+            ref={menuToggleRef}
             type="button"
             className={menuOpen ? 'open' : ''}
             aria-label={menuOpen ? accessibility.closeMenu : accessibility.openMenu}
@@ -186,7 +197,7 @@ const MinimalHeader: React.FC = () => {
         </HeaderActions>
       </HeaderShell>
 
-      <MenuOverlay $open={menuOpen} aria-hidden={!menuOpen}>
+      <MenuOverlay ref={menuOverlayRef} $open={menuOpen} aria-hidden={!menuOpen}>
         <MenuOverlayContent>
           <MenuOverlayList>
             <div className="menu-navigation">
