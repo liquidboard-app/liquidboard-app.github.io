@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import ClipboardGrid from './components/ClipboardGrid';
 import CoreClipboard from './components/CoreClipboard';
 import FeatureClipboard from './components/FeatureClipboard';
+import ActionClipboard from './components/ActionClipboard';
 import Hero from './components/Hero';
 import { LandingPage } from './styled';
 
@@ -46,6 +47,7 @@ const Home: React.FC = () => (
     <ClipboardGrid />
     <CoreClipboard />
     <FeatureClipboard />
+    <ActionClipboard />
     <DeferredSection>
       <DownloadSection />
       <Footer />

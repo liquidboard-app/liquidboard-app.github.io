@@ -1,0 +1,912 @@
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { Check, ClipboardPenLine, Cloud, Download, Folder, Instagram, Mic, Pin as PinIcon, ScanSearch, ScanText, Send, Share2 } from 'lucide-react';
+import SocialMark from '../SocialMark';
+import { ActionClipboardSection } from './styled';
+
+const actionFeatures = [
+  { label: 'Group', icon: Folder },
+  { label: 'Pin', icon: PinIcon },
+  { label: 'Share', icon: Share2 },
+  { label: 'Export', icon: Download },
+  { label: 'Voice', icon: Mic },
+  { label: 'Scan Text', icon: ScanText },
+  { label: 'System Pasteboard', icon: ClipboardPenLine },
+  { label: 'iCloud', icon: Cloud },
+] as const;
+
+const mockupTypes = ['text', 'link', 'color', 'image'] as const;
+const exportMockupTypes = mockupTypes.slice(0, 3);
+
+type MockupType = (typeof mockupTypes)[number];
+
+const MockupCard: React.FC<{ type: MockupType; marker?: React.ReactNode }> = ({ type, marker }) => {
+  if (type === 'link') {
+    return (
+      <div className="action-clipboard-mockup action-clipboard-mockup--link">
+        <span className="action-clipboard-mockup-link-thumbnail" aria-hidden="true"><i /><i /></span>
+        <span className="action-clipboard-mockup-link-title" aria-hidden="true" />
+        <span className="action-clipboard-mockup-link-url" aria-hidden="true" />
+        {marker}
+      </div>
+    );
+  }
+
+  if (type === 'color') {
+    return (
+      <div className="action-clipboard-mockup action-clipboard-mockup--color" aria-hidden="true">
+        <span className="action-clipboard-mockup-color-title" />
+        <span className="action-clipboard-mockup-color-name" />
+        {marker}
+      </div>
+    );
+  }
+
+  if (type === 'image') {
+    return (
+      <div className="action-clipboard-mockup action-clipboard-mockup--image" aria-hidden="true">
+        <span className="action-clipboard-mockup-image-placeholder"><i /><i /></span>
+        {marker}
+      </div>
+    );
+  }
+
+  return (
+    <div className="action-clipboard-mockup action-clipboard-mockup--text" aria-hidden="true">
+      <span className="action-clipboard-mockup-skeleton action-clipboard-mockup-skeleton--title" />
+      <span className="action-clipboard-mockup-skeleton-lines"><i /><i /><i /><i /><i /><i /><i /></span>
+      {marker}
+    </div>
+  );
+};
+
+type TabStyle = React.CSSProperties & { '--tab-progress': number };
+
+const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
+const PHASE_LABEL_PREFIX = 'action-phase-';
+const SCROLL_TUNING = {
+  pixelsPerPhase: 270,
+  scrub: .46,
+  snapDelay: .12,
+  snapDuration: { min: .38, max: 1.05 },
+} as const;
+
+const ActionClipboard: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [introComplete, setIntroComplete] = useState(false);
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    const pin = pinRef.current;
+    if (!section || !pin) return undefined;
+
+    let active = true;
+    let cleanup: (() => void) | undefined;
+
+    const initialize = async () => {
+      const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ]);
+      if (!active) return;
+
+      gsap.registerPlugin(ScrollTrigger);
+      const contentFrame = pin.querySelector<HTMLElement>('.action-clipboard-content-frame');
+      const content = pin.querySelector<HTMLElement>('.action-clipboard-content');
+      const tabScroll = pin.querySelector<HTMLElement>('.action-clipboard-tab-scroll');
+      const tabs = Array.from(pin.querySelectorAll<HTMLElement>('.action-clipboard-tab'));
+      if (!content || !contentFrame || !tabScroll) return;
+
+      const visualViewport = window.visualViewport;
+      const reduceViewportMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let viewportHeight = 0;
+      let viewportRefreshTimer: number | undefined;
+      const syncViewportHeight = (refresh: boolean) => {
+        const nextHeight = Math.round(visualViewport?.height ?? window.innerHeight);
+        if (Math.abs(nextHeight - viewportHeight) < 2) return;
+        viewportHeight = nextHeight;
+        section.style.setProperty('--action-mobile-viewport-height', `${nextHeight}px`);
+        if (!refresh) return;
+        window.clearTimeout(viewportRefreshTimer);
+        viewportRefreshTimer = window.setTimeout(() => {
+          if (!active) return;
+          const previousTop = contentFrame.getBoundingClientRect().top;
+          ScrollTrigger.refresh();
+          const topDelta = previousTop - contentFrame.getBoundingClientRect().top;
+          if (!reduceViewportMotion && Math.abs(topDelta) > 1) {
+            gsap.fromTo(contentFrame, { y: topDelta }, {
+              y: 0,
+              duration: .42,
+              ease: 'power3.out',
+              overwrite: 'auto',
+            });
+          }
+        }, 160);
+      };
+      const handleViewportChange = () => syncViewportHeight(true);
+      syncViewportHeight(false);
+
+      const groupScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--group');
+      const pinScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--pin');
+      const shareScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--share');
+      const exportScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--export');
+      const voiceScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--voice');
+      const scanScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--scan');
+      const systemScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--system');
+      const cloudScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--cloud');
+      const groupTitle = groupScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const pinTitle = pinScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const shareTitle = shareScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const exportTitle = exportScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const voiceTitle = voiceScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const scanTitle = scanScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const scanMotion = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-motion');
+      const systemTitle = systemScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const cloudTitle = cloudScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
+      const groupIcon = groupScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const pinIcon = pinScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const shareIcon = shareScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const exportIcon = exportScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const voiceIcon = voiceScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const scanIcon = scanScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const systemIcon = systemScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const cloudIcon = cloudScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
+      const groupWords = groupScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const pinWords = pinScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const shareWords = shareScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const exportWords = exportScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const voiceWords = voiceScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const scanWords = scanScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const systemWords = systemScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const cloudWords = cloudScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
+      const groupWordItems = Array.from(groupScene?.querySelectorAll<HTMLElement>('.action-clipboard-title-word-track > span') ?? []);
+      const exportWordItems = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-title-word-track > span') ?? []);
+      const groupMockups = Array.from(groupScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
+      const pinMockups = Array.from(pinScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
+      const shareMockups = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
+      const exportMockups = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
+      const pinOrb = pinScene?.querySelector<HTMLElement>('.action-clipboard-pin-orb');
+      const groupChecks = Array.from(groupScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
+      const exportChecks = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
+      const shareChecks = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
+      const shareAction = shareScene?.querySelector<HTMLElement>('.action-clipboard-share-action');
+      const sharePlane = shareScene?.querySelector<HTMLElement>('.action-clipboard-share-plane');
+      const shareSocials = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-socials > span') ?? []);
+      const exportOptions = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-options > span') ?? []);
+      const exportOptionLabels = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-option-label') ?? []);
+      const exportPreviews = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-previews > span') ?? []);
+      const voiceLines = Array.from(voiceScene?.querySelectorAll<HTMLElement>('.action-clipboard-voice-line') ?? []);
+      const voiceTranscript = voiceScene?.querySelector<HTMLElement>('.action-clipboard-voice-transcript');
+      const voiceTranscriptTitle = voiceScene?.querySelector<HTMLElement>('.action-clipboard-voice-transcript-title');
+      const voiceTranscriptLines = Array.from(voiceScene?.querySelectorAll<HTMLElement>('.action-clipboard-voice-transcript-lines i') ?? []);
+      const scanSearch = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-search');
+      const scanPhone = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-phone');
+      const scanResult = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-result');
+      const scanResultTitle = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-result-title');
+      const scanResultLines = Array.from(scanScene?.querySelectorAll<HTMLElement>('.action-clipboard-scan-result-lines i') ?? []);
+      const systemMockups = Array.from(systemScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
+      const cloudMockups = Array.from(cloudScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
+      if (!groupScene || !pinScene || !shareScene || !exportScene || !voiceScene || !scanScene || !systemScene || !cloudScene || !groupTitle || !pinTitle || !shareTitle || !exportTitle || !voiceTitle || !scanTitle || !scanMotion || !systemTitle || !cloudTitle || !groupIcon || !pinIcon || !shareIcon || !exportIcon || !voiceIcon || !scanIcon || !systemIcon || !cloudIcon || !groupWords || !pinWords || !shareWords || !exportWords || !voiceWords || !scanWords || !systemWords || !cloudWords || !pinOrb || !shareAction || !sharePlane || !voiceTranscript || !voiceTranscriptTitle || !scanSearch || !scanPhone || !scanResult || !scanResultTitle || groupWordItems.length < 2 || exportWordItems.length < 2 || pinMockups.length < 4 || shareMockups.length < 4 || exportMockups.length < 3 || systemMockups.length < 4 || cloudMockups.length < 4 || exportOptions.length < 1 || exportOptionLabels.length < 1 || exportPreviews.length < 2 || voiceLines.length < 10 || voiceTranscriptLines.length < 6 || scanResultLines.length < 6) return;
+
+      let introProgress = 0;
+
+      const updateFeatureProgress = (progress: number) => {
+        const nextProgress = clamp01(progress);
+        const nextIndex = Math.min(actionFeatures.length - 1, Math.floor(nextProgress * actionFeatures.length));
+        setScrollProgress((currentProgress) => Math.abs(currentProgress - nextProgress) < .001 ? currentProgress : nextProgress);
+        setActiveIndex((currentIndex) => currentIndex === nextIndex ? currentIndex : nextIndex);
+      };
+
+      const context = gsap.context(() => {
+        const isMobile = () => window.innerWidth <= 760;
+        const expandedTitleGap = () => isMobile() ? 8 : 18;
+        const expandedTitlePadding = () => isMobile() ? '16px 24px' : '28px 56px';
+        const liftedTitleScale = () => isMobile() ? .72 : .4;
+        const liftedScanScale = () => isMobile() ? .7 : .5;
+        const expandedShareWidth = () => Math.min(
+          contentFrame.clientWidth * (isMobile() ? .68 : .74),
+          isMobile() ? 260 : 360,
+        );
+        const expandedSharePlaneX = () => -(
+          (expandedShareWidth() - sharePlane.offsetWidth) / 2 - (isMobile() ? 12 : 18)
+        );
+        gsap.set(content, {
+          autoAlpha: 0,
+          filter: 'blur(18px)',
+          width: 32,
+          height: 32,
+          borderRadius: 16,
+        });
+        gsap.set(tabs, { autoAlpha: 0, filter: 'blur(13px)', y: 28 });
+        gsap.set([groupScene, pinScene, shareScene, exportScene, voiceScene, scanScene, systemScene, cloudScene], { autoAlpha: 0 });
+        gsap.set([groupTitle, pinTitle, shareTitle, exportTitle, voiceTitle, scanTitle, systemTitle, cloudTitle], { gap: 0 });
+        gsap.set([groupIcon, pinIcon, shareIcon, exportIcon, voiceIcon, scanIcon, systemIcon, cloudIcon], { autoAlpha: 0, scale: .72, filter: 'blur(12px)' });
+        gsap.set([groupWords, pinWords, shareWords, exportWords, voiceWords, scanWords, systemWords, cloudWords], { autoAlpha: 0, width: 0, x: 42, filter: 'blur(12px)' });
+        gsap.set(groupWordItems, { autoAlpha: 0, x: 26, filter: 'blur(12px)' });
+        gsap.set(groupWordItems[0], { autoAlpha: 1, x: 0, filter: 'blur(0px)' });
+        gsap.set(exportWordItems, { autoAlpha: 0, y: 16, filter: 'blur(10px)' });
+        gsap.set(exportWordItems[0], { autoAlpha: 1, y: 0, filter: 'blur(0px)' });
+        gsap.set([...groupMockups, ...pinMockups, ...shareMockups, ...exportMockups, ...systemMockups, ...cloudMockups], { autoAlpha: 0, y: 56, filter: 'blur(18px)', scale: .94 });
+        gsap.set(pinOrb, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
+        gsap.set(groupChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
+        gsap.set(exportChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
+        gsap.set(shareChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
+        gsap.set(shareAction, { autoAlpha: 0, scale: .76, filter: 'blur(12px)' });
+        gsap.set(sharePlane, { autoAlpha: 0, x: -28, filter: 'blur(10px)' });
+        gsap.set(shareSocials, { autoAlpha: 0, x: 20, filter: 'blur(10px)' });
+        gsap.set(exportOptions, {
+          autoAlpha: 0,
+          scale: liftedTitleScale,
+          x: 0,
+          y: () => -contentFrame.clientHeight * .34,
+          filter: 'blur(12px)',
+        });
+        gsap.set(exportPreviews, { autoAlpha: 0, y: 28, filter: 'blur(14px)' });
+        gsap.set(exportOptionLabels, { autoAlpha: 0, y: 10, filter: 'blur(10px)' });
+        gsap.set(voiceLines, { autoAlpha: 0, scaleY: .18, filter: 'blur(10px)', transformOrigin: 'center' });
+        gsap.set(voiceTranscript, { autoAlpha: 0, y: 52, filter: 'blur(16px)' });
+        gsap.set(voiceTranscriptTitle, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.set(voiceTranscriptLines, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.set(scanSearch, { autoAlpha: 0, scale: .65, filter: 'blur(12px)' });
+        gsap.set(scanPhone, { autoAlpha: 0, scale: .92, filter: 'blur(14px)' });
+        gsap.set(scanResult, { autoAlpha: 0, y: -64, filter: 'blur(16px)' });
+        gsap.set(scanResultTitle, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.set(scanResultLines, { scaleX: 0, transformOrigin: 'left center' });
+
+        let phaseIndex = 0;
+        const reveal = gsap.timeline({ defaults: { overwrite: 'auto' } });
+        const phase = (name: string) => {
+          reveal.addLabel(`${PHASE_LABEL_PREFIX}${String(phaseIndex).padStart(2, '0')}-${name}`);
+          phaseIndex += 1;
+          return reveal;
+        };
+
+        phase('intro-dot')
+          .to(content, { autoAlpha: 1, filter: 'blur(0px)', duration: .42, ease: 'power2.out' });
+        phase('intro-height')
+          .to(content, { height: () => contentFrame.clientHeight, borderRadius: 16, duration: .7, ease: 'power2.inOut' });
+        phase('intro-width')
+          .to(content, { width: () => contentFrame.clientWidth, borderRadius: 40, duration: .78, ease: 'power3.inOut' });
+        phase('intro-tabs')
+          .to(tabs, { autoAlpha: 1, filter: 'blur(0px)', y: 0, duration: .42, stagger: .08, ease: 'power3.out' });
+        const revealDuration = reveal.duration();
+
+        const groupWordWidth = (index: number) => (groupWordItems[index]?.scrollWidth ?? 0) + 12;
+        const groupNameWidth = () => groupWordItems.reduce((width, item) => width + item.scrollWidth, 0) + 28;
+        const scanInitialTitleWidth = () => scanIcon.offsetWidth;
+        const pullMockupX = (_: number, mockup: HTMLElement) => {
+          const itemBounds = mockup.getBoundingClientRect();
+          const titleBounds = groupTitle.getBoundingClientRect();
+          return titleBounds.left + (titleBounds.width / 2) - (itemBounds.left + (itemBounds.width / 2));
+        };
+        const pullMockupY = (_: number, mockup: HTMLElement) => {
+          const itemBounds = mockup.getBoundingClientRect();
+          const titleBounds = groupTitle.getBoundingClientRect();
+          return titleBounds.top + (titleBounds.height / 2) - (itemBounds.top + (itemBounds.height / 2));
+        };
+        const pullShareMockupX = (_: number, mockup: HTMLElement) => {
+          const itemBounds = mockup.getBoundingClientRect();
+          const titleBounds = shareTitle.getBoundingClientRect();
+          return titleBounds.left + (titleBounds.width / 2) - (itemBounds.left + (itemBounds.width / 2));
+        };
+        const pullShareMockupY = (_: number, mockup: HTMLElement) => {
+          const itemBounds = mockup.getBoundingClientRect();
+          const titleBounds = shareTitle.getBoundingClientRect();
+          return titleBounds.top + (titleBounds.height / 2) - (itemBounds.top + (itemBounds.height / 2));
+        };
+        const pullExportMockupX = (_: number, mockup: HTMLElement) => {
+          const itemBounds = mockup.getBoundingClientRect();
+          const titleBounds = exportTitle.getBoundingClientRect();
+          return titleBounds.left + (titleBounds.width / 2) - (itemBounds.left + (itemBounds.width / 2));
+        };
+        const pullExportMockupY = (_: number, mockup: HTMLElement) => {
+          const itemBounds = mockup.getBoundingClientRect();
+          const titleBounds = exportTitle.getBoundingClientRect();
+          return titleBounds.top + (titleBounds.height / 2) - (itemBounds.top + (itemBounds.height / 2));
+        };
+        const exportFrameCenterX = () => {
+          const frameBounds = contentFrame.getBoundingClientRect();
+          return frameBounds.left + (frameBounds.width / 2);
+        };
+        const exportLeftPillX = () => {
+          const previewBounds = exportPreviews[0]?.getBoundingClientRect();
+          if (!previewBounds) return 0;
+          return previewBounds.left + (previewBounds.width / 2) - exportFrameCenterX();
+        };
+        const exportRightPillX = () => {
+          const previewBounds = exportPreviews[1]?.getBoundingClientRect();
+          if (!previewBounds) return 0;
+          return previewBounds.left + (previewBounds.width / 2) - exportFrameCenterX();
+        };
+        const exportCsvPillWidth = () => (exportOptionLabels[0]?.scrollWidth ?? 0) + 112;
+        const pinSlotOffset = (fromIndex: number, toIndex: number) => {
+          const fromBounds = pinMockups[fromIndex]?.getBoundingClientRect();
+          const toBounds = pinMockups[toIndex]?.getBoundingClientRect();
+          if (!fromBounds || !toBounds) return 0;
+          return toBounds.left - fromBounds.left;
+        };
+        const pinShiftRight = (_: number, mockup: HTMLElement) => {
+          const index = pinMockups.indexOf(mockup);
+          if (index < 0) return 0;
+          if (index < pinMockups.length - 1) return pinSlotOffset(index, index + 1);
+          const bounds = mockup.getBoundingClientRect();
+          const previousBounds = pinMockups[index - 1]?.getBoundingClientRect();
+          return bounds.width + (bounds.left - (previousBounds?.left ?? bounds.left) - bounds.width);
+        };
+        const pinBetweenSecondAndThirdX = () => {
+          const baseCenterX = (mockup: HTMLElement) => {
+            const bounds = mockup.getBoundingClientRect();
+            return bounds.left + (bounds.width / 2) - Number(gsap.getProperty(mockup, 'x'));
+          };
+          const pinnedBaseCenter = baseCenterX(pinMockups[2]!);
+          const targetCenter = (baseCenterX(pinMockups[1]!) + pinnedBaseCenter) / 2;
+          return targetCenter - pinnedBaseCenter;
+        };
+        gsap.set(scanTitle, { width: scanInitialTitleWidth });
+        const pinnedMockup = pinMockups[2]!;
+        const remainingPinMockups = pinMockups.filter((_, index) => index !== 2);
+        const shiftedPinMockups = pinMockups.slice(0, 2);
+        phase('group-icon')
+          .to(groupScene, { autoAlpha: 1, duration: .01 })
+          .to(groupIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
+        phase('group-title')
+          .to(groupWords, { autoAlpha: 1, width: () => groupWordWidth(0), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(groupTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('group-background')
+          .to(groupTitle, {
+            backgroundColor: '#fff',
+            color: '#151515',
+            padding: expandedTitlePadding,
+            duration: .78,
+            ease: 'power3.inOut',
+          });
+        phase('group-lift')
+          .to(groupTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
+        phase('group-hide-icon')
+          .to(groupIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
+          .to(groupTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+        phase('group-items')
+          .to(groupMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
+        phase('group-name')
+          .to(groupWords, { width: groupNameWidth, duration: .9, ease: 'power3.inOut' })
+          .to(groupWordItems[1], { autoAlpha: 1, x: 0, filter: 'blur(0px)', duration: .9, ease: 'power3.out' }, '<.12');
+        phase('group-select')
+          .to(groupChecks, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, stagger: .14, ease: 'back.out(1.8)' });
+        phase('group-collapse')
+          .to(groupMockups, { x: pullMockupX, y: pullMockupY, scale: .1, autoAlpha: 0, filter: 'blur(12px)', duration: 1.05, stagger: .12, ease: 'power4.in' });
+        phase('group-exit')
+          .to(groupTitle, { autoAlpha: 0, y: () => -contentFrame.clientHeight * .78, filter: 'blur(12px)', duration: .54, ease: 'power2.in' })
+          .to(groupScene, { autoAlpha: 0, duration: .01 });
+        phase('pin-icon')
+          .to(pinScene, { autoAlpha: 1, duration: .01 })
+          .to(pinIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
+        phase('pin-title')
+          .to(pinWords, { autoAlpha: 1, width: () => pinWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(pinTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('pin-background')
+          .to(pinTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
+        phase('pin-lift')
+          .to(pinTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
+        phase('pin-hide-icon')
+          .to(pinIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
+          .to(pinTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+        phase('pin-items')
+          .to(pinMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
+        phase('pin-mark')
+          .to(pinOrb, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'back.out(1.8)' });
+        phase('pin-reorder')
+          .to(pinnedMockup, { x: () => pinSlotOffset(2, 0), duration: .82, ease: 'power3.inOut' })
+          .to(shiftedPinMockups, { x: pinShiftRight, duration: .82, ease: 'power3.inOut' }, '<');
+        phase('pin-filter')
+          .to(remainingPinMockups, { y: () => contentFrame.clientHeight * .58, autoAlpha: 0, filter: 'blur(14px)', duration: .76, stagger: .12, ease: 'power3.in' });
+        phase('pin-center')
+          .to(pinnedMockup, { x: pinBetweenSecondAndThirdX, y: 0, duration: .82, ease: 'power3.inOut' });
+        phase('pin-exit')
+          .to(pinnedMockup, { y: () => Number(gsap.getProperty(pinnedMockup, 'y')) + contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .64, ease: 'power3.in' })
+          .to(pinTitle, { y: () => -contentFrame.clientHeight * .82, autoAlpha: 0, filter: 'blur(12px)', duration: .64, ease: 'power3.in' }, '<')
+          .to(pinScene, { autoAlpha: 0, duration: .01 });
+        phase('share-icon')
+          .to(shareScene, { autoAlpha: 1, duration: .01 })
+          .to(shareIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
+        phase('share-title')
+          .to(shareWords, { autoAlpha: 1, width: () => shareWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(shareTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('share-background')
+          .to(shareTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
+        phase('share-lift')
+          .to(shareTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
+        phase('share-hide-icon')
+          .to(shareIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
+          .to(shareTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+        phase('share-items')
+          .to(shareMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
+        phase('share-select')
+          .to(shareChecks, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, stagger: .14, ease: 'back.out(1.8)' });
+        phase('share-collapse')
+          .to(shareMockups, { x: pullShareMockupX, y: pullShareMockupY, scale: .1, autoAlpha: 0, filter: 'blur(12px)', duration: .82, stagger: .1, ease: 'power4.in' });
+        phase('share-action')
+          .to(shareTitle, { scale: 1, y: 0, duration: .52, ease: 'power3.inOut' })
+          .to(shareWords, { autoAlpha: 0, width: 0, filter: 'blur(10px)', duration: .28, ease: 'power2.inOut' }, '<.04')
+          .to(shareTitle, { autoAlpha: 0, filter: 'blur(10px)', duration: .22, ease: 'power2.in' })
+          .to(shareAction, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, ease: 'power3.out' }, '<')
+          .to(sharePlane, { autoAlpha: 1, x: 0, filter: 'blur(0px)', duration: .42, ease: 'power3.out' }, '<.06');
+        phase('share-socials')
+          .to(shareAction, { width: expandedShareWidth, duration: .56, ease: 'power3.inOut' })
+          .to(sharePlane, { x: expandedSharePlaneX, duration: .42, ease: 'power3.inOut' }, '<')
+          .to(shareSocials, { autoAlpha: 1, x: 0, filter: 'blur(0px)', duration: .42, stagger: .1, ease: 'power3.out' }, '<.05');
+        phase('share-exit')
+          .to(shareAction, { y: () => -contentFrame.clientHeight * .68, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
+          .to(shareScene, { autoAlpha: 0, duration: .01 });
+
+        phase('export-icon')
+          .to(exportScene, { autoAlpha: 1, duration: .01 })
+          .to(exportIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
+        phase('export-title')
+          .to(exportWords, { autoAlpha: 1, width: () => (exportWordItems[0]?.scrollWidth ?? 0) + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(exportTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('export-background')
+          .to(exportTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
+        phase('export-lift')
+          .to(exportTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
+        phase('export-hide-icon')
+          .to(exportIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
+          .to(exportTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+        phase('export-items')
+          .to(exportMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
+        phase('export-select')
+          .to(exportChecks, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, stagger: .14, ease: 'back.out(1.8)' });
+        phase('export-collapse')
+          .to(exportMockups, { x: pullExportMockupX, y: pullExportMockupY, scale: .1, autoAlpha: 0, filter: 'blur(12px)', duration: .82, stagger: .1, ease: 'power4.in' });
+        phase('export-formats')
+          .to(exportWordItems[0], { autoAlpha: 0, y: -16, filter: 'blur(10px)', duration: .28, ease: 'power2.inOut' })
+          .to(exportWords, { width: 150, duration: .34, ease: 'power3.inOut' }, '<')
+          .set(exportOptions, { width: () => exportTitle.offsetWidth })
+          .to(exportTitle, { x: exportLeftPillX, duration: .5, ease: 'power3.inOut' }, '>.18')
+          .to(exportOptions, { autoAlpha: 1, x: exportRightPillX, filter: 'blur(0px)', duration: .5, ease: 'power3.inOut' }, '<')
+          .to(exportWords, { width: () => (exportWordItems[1]?.scrollWidth ?? 0) + 12, duration: .42, ease: 'power3.inOut' }, '>.16')
+          .to(exportTitle, { x: exportLeftPillX, duration: .42, ease: 'power3.inOut' }, '<')
+          .to(exportOptions, { width: exportCsvPillWidth, duration: .42, ease: 'power3.inOut' }, '<')
+          .to(exportOptions, { x: exportRightPillX, duration: .42, ease: 'power3.inOut' }, '<')
+          .to(exportWordItems[1], { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .36, ease: 'power3.out' }, '<.06')
+          .to(exportOptionLabels, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .36, ease: 'power3.out' }, '<');
+        phase('export-previews')
+          .to(exportPreviews, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .52, stagger: .14, ease: 'power3.out' });
+        phase('export-exit')
+          .to([exportTitle, ...exportOptions], { y: () => -contentFrame.clientHeight * .78, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
+          .to(exportPreviews, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, stagger: .08, ease: 'power3.in' }, '<')
+          .to(exportScene, { autoAlpha: 0, duration: .01 });
+
+        phase('voice-icon')
+          .to(voiceScene, { autoAlpha: 1, duration: .01 })
+          .to(voiceIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
+        phase('voice-title')
+          .to(voiceWords, { autoAlpha: 1, width: () => voiceWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(voiceTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('voice-background')
+          .to(voiceTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
+        phase('voice-waveform')
+          .to(voiceIcon, { autoAlpha: 0, x: -58, filter: 'blur(12px)', duration: .44, ease: 'power2.inOut' }, '>.42')
+          .to(voiceWords, { autoAlpha: 0, x: 58, filter: 'blur(12px)', duration: .44, ease: 'power2.inOut' }, '<')
+          .to(voiceLines, { autoAlpha: 1, scaleY: 1, filter: 'blur(0px)', duration: .36, stagger: .025, ease: 'power3.out' }, '>.1');
+        phase('voice-lift')
+          .to(voiceTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .9, ease: 'power3.inOut' })
+          .to(voiceTranscript, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .76, ease: 'power3.out' }, '<')
+          .to(voiceTranscriptTitle, { scaleX: 1, duration: .5, ease: 'power3.out' }, '<.12')
+          .to(voiceLines, { backgroundColor: '#d94c4c', duration: .28, ease: 'power2.out' }, '<')
+          .to(voiceLines, { scaleY: (index) => .42 + ((index * 7) % 8) / 10, duration: .38, stagger: .025, ease: 'sine.inOut' }, '<')
+          .to(voiceLines, { scaleY: (index) => .48 + ((index * 5) % 8) / 10, duration: .38, stagger: .025, ease: 'sine.inOut' }, '<.44');
+        phase('voice-transcript')
+          .to(voiceLines, { scaleY: (index) => .38 + ((index * 3) % 7) / 10, duration: .36, stagger: .022, ease: 'sine.inOut' })
+          .to(voiceTranscriptLines, { scaleX: 1, duration: .24, stagger: .18, ease: 'power2.out' }, '<.04');
+        phase('voice-exit')
+          .to(voiceTitle, { y: () => -contentFrame.clientHeight * .78, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
+          .to(voiceTranscript, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, ease: 'power3.in' }, '<')
+          .to(voiceScene, { autoAlpha: 0, duration: .01 });
+
+        phase('scan-icon')
+          .to(scanScene, { autoAlpha: 1, duration: .01 })
+          .to(scanIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
+          .set(scanTitle, { clearProps: 'width' });
+        phase('scan-title')
+          .to(scanWords, { autoAlpha: 1, width: () => scanWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(scanTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('scan-background')
+          .to(scanTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
+        phase('scan-search')
+          .to(scanIcon, { autoAlpha: 0, x: -58, filter: 'blur(12px)', duration: .42, ease: 'power2.inOut' }, '>.42')
+          .to(scanWords, { autoAlpha: 0, x: 58, filter: 'blur(12px)', duration: .42, ease: 'power2.inOut' }, '<')
+          .to(scanTitle, { width: 100, height: 100, padding: 0, borderRadius: 50, duration: .5, ease: 'power3.inOut' }, '>.06')
+          .to(scanSearch, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .38, ease: 'power3.out' }, '<.08');
+        phase('scan-phone')
+          .to(scanPhone, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .52, ease: 'power3.out' });
+        phase('scan-pass')
+          .to(scanMotion, { x: -56, y: -116, duration: .34, ease: 'sine.inOut' })
+          .to(scanMotion, { x: 58, y: -52, duration: .34, ease: 'sine.inOut' })
+          .to(scanMotion, { x: -62, y: 16, duration: .34, ease: 'sine.inOut' })
+          .to(scanMotion, { x: 56, y: 82, duration: .34, ease: 'sine.inOut' })
+          .to(scanMotion, { x: 0, y: 132, duration: .34, ease: 'sine.inOut' });
+        phase('scan-result')
+          .to(scanPhone, { autoAlpha: 0, scale: .94, filter: 'blur(14px)', duration: .46, ease: 'power2.in' }, '>.12')
+          .to(scanResult, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .46, ease: 'power3.out' }, '<.12')
+          .to(scanMotion, { x: 0, y: 0, duration: .46, ease: 'power3.inOut' }, '<');
+        phase('scan-extract')
+          .to(scanMotion, { scale: liftedScanScale, y: () => -contentFrame.clientHeight * .34, duration: .5, ease: 'power3.inOut' })
+          .to(scanResultTitle, { scaleX: 1, duration: .34, ease: 'power3.out' }, '<.08')
+          .to(scanResultLines, { scaleX: 1, duration: .22, stagger: .18, ease: 'power2.out' }, '>.08');
+        phase('scan-exit')
+          .to(scanMotion, { scale: 1.3, autoAlpha: 0, filter: 'blur(14px)', duration: .42, ease: 'power2.in' })
+          .to(scanResult, { autoAlpha: 0, filter: 'blur(14px)', duration: .42, ease: 'power2.in' }, '<')
+          .to(scanScene, { autoAlpha: 0, duration: .01 });
+
+        phase('system-icon')
+          .to(systemScene, { autoAlpha: 1, duration: .01 })
+          .to(systemIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
+        phase('system-title')
+          .to(systemWords, { autoAlpha: 1, width: () => systemWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(systemTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('system-background')
+          .to(systemTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
+        phase('system-lift')
+          .to(systemTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
+        phase('system-hide-icon')
+          .to(systemIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
+          .to(systemTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+        phase('system-items')
+          .to(systemMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
+        phase('system-exit')
+          .to(systemTitle, { autoAlpha: 0, y: () => -contentFrame.clientHeight * .78, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
+          .to(systemMockups, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, stagger: .08, ease: 'power3.in' }, '<')
+          .to(systemScene, { autoAlpha: 0, duration: .01 });
+
+        phase('cloud-icon')
+          .to(cloudScene, { autoAlpha: 1, duration: .01 })
+          .to(cloudIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
+        phase('cloud-title')
+          .to(cloudWords, { autoAlpha: 1, width: () => cloudWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(cloudTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
+        phase('cloud-background')
+          .to(cloudTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
+        phase('cloud-lift')
+          .to(cloudTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
+        phase('cloud-hide-icon')
+          .to(cloudIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
+          .to(cloudTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+        phase('cloud-items')
+          .to(cloudMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
+        phase('complete');
+
+        const timelineDuration = reveal.duration();
+        const phaseTimes = Object.entries(reveal.labels)
+          .filter(([label]) => label.startsWith(PHASE_LABEL_PREFIX))
+          .map(([, time]) => time)
+          .sort((first, second) => first - second);
+        const phaseCount = phaseTimes.length;
+        const snapPoints = phaseTimes.map((_, index) => index / Math.max(phaseCount - 1, 1));
+        const snapToPhase = ScrollTrigger.snapDirectional(snapPoints);
+        const findPhaseProgress = (suffix: string) => {
+          const entry = Object.entries(reveal.labels).find(([label]) => label.endsWith(`-${suffix}`));
+          return entry ? entry[1] / timelineDuration : 1;
+        };
+        const featureStarts = ['group-icon', 'pin-icon', 'share-icon', 'export-icon', 'voice-icon', 'scan-icon', 'system-icon', 'cloud-icon']
+          .map(findPhaseProgress);
+        introProgress = revealDuration / timelineDuration;
+        reveal.pause(0);
+        let visibleTabIndex = -1;
+
+        const focusTab = (index: number) => {
+          if (visibleTabIndex === index) return;
+          visibleTabIndex = index;
+          const tab = tabs[index];
+          if (!tab) return;
+          const targetScrollLeft = tab.offsetLeft - ((tabScroll.clientWidth - tab.offsetWidth) / 2);
+          gsap.to(tabScroll, {
+            scrollLeft: Math.max(0, targetScrollLeft),
+            duration: .52,
+            ease: 'power2.out',
+            overwrite: 'auto',
+          });
+        };
+
+        const syncUi = () => {
+          const timelineProgress = reveal.progress();
+          const isContentRevealed = timelineProgress >= introProgress;
+          setIntroComplete((current) => current === isContentRevealed ? current : isContentRevealed);
+          if (!isContentRevealed) {
+            updateFeatureProgress(0);
+            return;
+          }
+
+          let featureIndex = 0;
+          featureStarts.forEach((start, index) => {
+            if (timelineProgress >= start) featureIndex = index;
+          });
+          focusTab(featureIndex);
+          const currentStart = featureStarts[featureIndex] ?? introProgress;
+          const nextStart = featureStarts[featureIndex + 1] ?? 1;
+          const localProgress = clamp01((timelineProgress - currentStart) / Math.max(nextStart - currentStart, .001));
+          updateFeatureProgress((featureIndex + localProgress) / actionFeatures.length);
+        };
+        reveal.eventCallback('onUpdate', syncUi);
+
+        // ScrollTrigger drives a normalized timeline so every logical phase
+        // receives the same physical scroll distance, regardless of its GSAP
+        // duration or stagger count.
+        const scrollDriver = { progress: 0 };
+        const scrollTimeline = gsap.timeline({ paused: true })
+          .to(scrollDriver, {
+            progress: 1,
+            duration: 1,
+            ease: 'none',
+            onUpdate: () => {
+              const scaledProgress = scrollDriver.progress * (phaseCount - 1);
+              const segmentIndex = Math.min(Math.floor(scaledProgress), phaseCount - 2);
+              const segmentProgress = scaledProgress - segmentIndex;
+              reveal.time(gsap.utils.interpolate(
+                phaseTimes[segmentIndex] ?? 0,
+                phaseTimes[segmentIndex + 1] ?? timelineDuration,
+                segmentProgress,
+              ));
+            },
+          });
+
+        ScrollTrigger.create({
+          trigger: pin,
+          // pin.offsetTop is the same header-and-gap offset used to place the
+          // wrap, so the scene locks precisely where it first appears.
+          start: () => `top top+=${pin.offsetTop}`,
+          end: () => `+=${Math.max((phaseCount - 1) * SCROLL_TUNING.pixelsPerPhase, window.innerHeight)}`,
+          pin: true,
+          pinSpacing: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          animation: scrollTimeline,
+          scrub: SCROLL_TUNING.scrub,
+          snap: {
+            snapTo: (value, self) => snapToPhase(value, self?.direction ?? 0),
+            delay: SCROLL_TUNING.snapDelay,
+            duration: SCROLL_TUNING.snapDuration,
+            ease: 'power3.inOut',
+            inertia: false,
+          },
+          onRefreshInit: () => reveal.invalidate(),
+        });
+      }, sectionRef);
+
+      visualViewport?.addEventListener('resize', handleViewportChange);
+      visualViewport?.addEventListener('scroll', handleViewportChange);
+      window.addEventListener('orientationchange', handleViewportChange);
+      cleanup = () => {
+        visualViewport?.removeEventListener('resize', handleViewportChange);
+        visualViewport?.removeEventListener('scroll', handleViewportChange);
+        window.removeEventListener('orientationchange', handleViewportChange);
+        window.clearTimeout(viewportRefreshTimer);
+        context.revert();
+        section.style.removeProperty('--action-mobile-viewport-height');
+      };
+      ScrollTrigger.refresh();
+    };
+
+    void initialize();
+    return () => {
+      active = false;
+      cleanup?.();
+    };
+  }, []);
+
+  return (
+    <ActionClipboardSection ref={sectionRef} aria-label="Action Clipboard features">
+      <div
+        ref={pinRef}
+        className={`action-clipboard-pin${introComplete ? ' is-content-revealed' : ''}`}
+      >
+        <div className="action-clipboard-content-frame">
+          <div className="action-clipboard-content">
+            <article className="action-clipboard-scene action-clipboard-scene--group" aria-hidden={activeIndex !== 0}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scene-title">
+                  <span className="action-clipboard-scene-icon"><Folder aria-hidden="true" /></span>
+                  <span className="action-clipboard-title-words" aria-label="Group Name">
+                    <span className="action-clipboard-title-word-track">
+                      <span>Group</span>
+                      <span>Name</span>
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <div className="action-clipboard-mockups">
+                {mockupTypes.map((type) => (
+                  <MockupCard
+                    type={type}
+                    key={`group-${type}`}
+                    marker={<span className="action-clipboard-share-orb"><Check aria-hidden="true" /></span>}
+                  />
+                ))}
+              </div>
+            </article>
+
+            <article className="action-clipboard-scene action-clipboard-scene--pin" aria-hidden={activeIndex !== 1}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scene-title">
+                  <span className="action-clipboard-scene-icon"><PinIcon aria-hidden="true" /></span>
+                  <span className="action-clipboard-title-words" aria-label="Pin">
+                    <span className="action-clipboard-title-word-track"><span>Pin</span></span>
+                  </span>
+                </div>
+              </div>
+              <div className="action-clipboard-mockups">
+                {mockupTypes.map((type, index) => (
+                  <MockupCard
+                    type={type}
+                    key={`pin-${type}`}
+                    marker={index === 2 ? <span className="action-clipboard-pin-orb"><PinIcon aria-hidden="true" /></span> : undefined}
+                  />
+                ))}
+              </div>
+            </article>
+
+            <article className="action-clipboard-scene action-clipboard-scene--share" aria-hidden={activeIndex !== 2}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scene-title">
+                  <span className="action-clipboard-scene-icon"><Share2 aria-hidden="true" /></span>
+                  <span className="action-clipboard-title-words" aria-label="Share">
+                    <span className="action-clipboard-title-word-track"><span>Share</span></span>
+                  </span>
+                </div>
+              </div>
+              <div className="action-clipboard-mockups">
+                {mockupTypes.map((type) => (
+                  <MockupCard
+                    type={type}
+                    key={`share-${type}`}
+                    marker={<span className="action-clipboard-share-orb"><Check aria-hidden="true" /></span>}
+                  />
+                ))}
+              </div>
+              <div className="action-clipboard-share-action" aria-hidden="true">
+                <Send className="action-clipboard-share-plane" aria-hidden="true" />
+                <span className="action-clipboard-share-socials">
+                  <span aria-label="Threads"><SocialMark name="threads" /></span>
+                  <span aria-label="Facebook"><SocialMark name="facebook" /></span>
+                  <span aria-label="X"><SocialMark name="x" /></span>
+                  <span><Instagram aria-label="Instagram" /></span>
+                </span>
+              </div>
+            </article>
+
+            <article className="action-clipboard-scene action-clipboard-scene--export" aria-hidden={activeIndex !== 3}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scene-title">
+                  <span className="action-clipboard-scene-icon"><Download aria-hidden="true" /></span>
+                  <span className="action-clipboard-title-words" aria-label="Export">
+                    <span className="action-clipboard-title-word-track"><span>Export</span><span>JSON</span></span>
+                  </span>
+                </div>
+              </div>
+              <div className="action-clipboard-mockups">
+                {exportMockupTypes.map((type) => (
+                  <MockupCard
+                    type={type}
+                    key={`export-${type}`}
+                    marker={<span className="action-clipboard-share-orb"><Check aria-hidden="true" /></span>}
+                  />
+                ))}
+              </div>
+              <div className="action-clipboard-export-options" aria-hidden="true">
+                <span><span className="action-clipboard-export-option-label">CSV</span></span>
+              </div>
+              <div className="action-clipboard-export-previews" aria-hidden="true">
+                <span className="action-clipboard-export-preview action-clipboard-export-preview--json">
+                  <i className="action-clipboard-json-bracket action-clipboard-json-bracket--top" />
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <span className="action-clipboard-json-row" key={`json-${index}`}><i /><b /><i /></span>
+                  ))}
+                  <i className="action-clipboard-json-bracket action-clipboard-json-bracket--bottom" />
+                </span>
+                <span className="action-clipboard-export-preview action-clipboard-export-preview--csv">
+                  <span className="action-clipboard-csv-row action-clipboard-csv-row--header"><i /><i /><i /></span>
+                  {Array.from({ length: 4 }, (_, index) => (
+                    <span className="action-clipboard-csv-row" key={`csv-${index}`}><i /><i /><i /></span>
+                  ))}
+                </span>
+              </div>
+            </article>
+
+            <article className="action-clipboard-scene action-clipboard-scene--voice" aria-hidden={activeIndex !== 4}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scene-title">
+                  <span className="action-clipboard-scene-icon"><Mic aria-hidden="true" /></span>
+                  <span className="action-clipboard-title-words" aria-label="Voice">
+                    <span className="action-clipboard-title-word-track"><span>Voice</span></span>
+                  </span>
+                  <span className="action-clipboard-voice-lines" aria-hidden="true">
+                    {Array.from({ length: 11 }, (_, index) => <i className="action-clipboard-voice-line" key={`voice-line-${index}`} />)}
+                  </span>
+                </div>
+              </div>
+              <div className="action-clipboard-voice-transcript" aria-hidden="true">
+                <span className="action-clipboard-voice-transcript-title" />
+                <span className="action-clipboard-voice-transcript-lines"><i /><i /><i /><i /><i /><i /><i /></span>
+              </div>
+            </article>
+
+            <article className="action-clipboard-scene action-clipboard-scene--scan" aria-hidden={activeIndex !== 5}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scan-motion">
+                  <div className="action-clipboard-scene-title">
+                    <span className="action-clipboard-scan-heading">
+                      <span className="action-clipboard-scene-icon"><ScanText aria-hidden="true" /></span>
+                      <span className="action-clipboard-title-words" aria-label="Scan Text">
+                        <span className="action-clipboard-title-word-track"><span>Scan Text</span></span>
+                      </span>
+                    </span>
+                  </div>
+                  <span className="action-clipboard-scan-search"><ScanSearch aria-hidden="true" /></span>
+                </div>
+              </div>
+              <div className="action-clipboard-scan-phone" aria-hidden="true"><span /></div>
+              <div className="action-clipboard-scan-result" aria-hidden="true">
+                <span className="action-clipboard-scan-result-title" />
+                <span className="action-clipboard-scan-result-lines"><i /><i /><i /><i /><i /><i /><i /></span>
+              </div>
+            </article>
+
+            <article className="action-clipboard-scene action-clipboard-scene--system" aria-hidden={activeIndex !== 6}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scene-title">
+                  <span className="action-clipboard-scene-icon"><ClipboardPenLine aria-hidden="true" /></span>
+                  <span className="action-clipboard-title-words" aria-label="System Pasteboard">
+                    <span className="action-clipboard-title-word-track"><span>System Pasteboard</span></span>
+                  </span>
+                </div>
+              </div>
+              <div className="action-clipboard-mockups">
+                {mockupTypes.map((type) => <MockupCard type={type} key={`system-${type}`} />)}
+              </div>
+            </article>
+
+            <article className="action-clipboard-scene action-clipboard-scene--cloud" aria-hidden={activeIndex !== 7}>
+              <div className="action-clipboard-scene-title-anchor">
+                <div className="action-clipboard-scene-title">
+                  <span className="action-clipboard-scene-icon"><Cloud aria-hidden="true" /></span>
+                  <span className="action-clipboard-title-words" aria-label="iCloud">
+                    <span className="action-clipboard-title-word-track"><span>iCloud</span></span>
+                  </span>
+                </div>
+              </div>
+              <div className="action-clipboard-mockups">
+                {mockupTypes.map((type) => <MockupCard type={type} key={`cloud-${type}`} />)}
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div className="action-clipboard-tab-viewport" aria-label="Action Clipboard feature progress">
+          <div className="action-clipboard-tab-scroll">
+            <div className="action-clipboard-tabs">
+              {actionFeatures.map((feature, index) => {
+                const tabProgress = Math.max(0, Math.min(1, (scrollProgress * actionFeatures.length) - index));
+                const tabStyle: TabStyle = { '--tab-progress': tabProgress };
+                const FeatureIcon = feature.icon;
+                return (
+                  <div
+                    className="action-clipboard-tab"
+                    style={tabStyle}
+                    key={feature.label}
+                    aria-label={feature.label}
+                    aria-current={activeIndex === index ? 'step' : undefined}
+                  >
+                    <span className="action-clipboard-tab-label" aria-hidden="true"><FeatureIcon /></span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ActionClipboardSection>
+  );
+};
+
+export default ActionClipboard;
