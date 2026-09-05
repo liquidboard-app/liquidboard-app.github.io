@@ -15,6 +15,12 @@ const ru: LocaleDict = {
     line2: { left: "в вашу", right: "iOS-клавиатуру" },
   },
   coreClipboard: { line1: 'От буфера обмена в приложении,', line2: 'до вашей клавиатуры iOS.' },
+  actionClipboard: {
+    sectionLabel: 'Возможности LiquidBoard',
+    progressLabel: 'Прогресс функций буфера обмена',
+    groupTitle: { primary: 'Группа', secondary: 'Название' },
+    featureLabels: { group: 'Группа', pin: 'Закрепить', share: 'Поделиться', export: 'Экспорт', voice: 'Голос', scanText: 'Сканировать текст', systemPasteboard: 'Системный буфер обмена', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Скачать\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

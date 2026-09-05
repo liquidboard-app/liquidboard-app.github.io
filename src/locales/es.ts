@@ -15,6 +15,12 @@ const es: LocaleDict = {
     line2: { left: "en tu", right: "Teclado iOS" },
   },
   coreClipboard: { line1: 'Desde el portapapeles de la app,', line2: 'hasta tu teclado de iOS.' },
+  actionClipboard: {
+    sectionLabel: 'Funciones de LiquidBoard',
+    progressLabel: 'Progreso de las funciones del portapapeles',
+    groupTitle: { primary: 'Grupo', secondary: 'Nombre' },
+    featureLabels: { group: 'Grupo', pin: 'Fijar', share: 'Compartir', export: 'Exportar', voice: 'Voz', scanText: 'Escanear texto', systemPasteboard: 'Portapapeles del sistema', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Descargar\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

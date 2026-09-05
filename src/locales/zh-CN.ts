@@ -15,6 +15,12 @@ const zhCN: LocaleDict = {
     line2: { left: '你的', right: 'iOS 键盘' },
   },
   coreClipboard: { line1: '从 App 中的剪贴板，', line2: '到你的 iOS 键盘。' },
+  actionClipboard: {
+    sectionLabel: 'LiquidBoard 功能',
+    progressLabel: '剪贴板功能进度',
+    groupTitle: { primary: '分组', secondary: '名称' },
+    featureLabels: { group: '分组', pin: '置顶', share: '分享', export: '导出', voice: '语音', scanText: '扫描文本', systemPasteboard: '系统剪贴板', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: '下载\u00A0', brand: 'LiquidBoard\u00A0', suffix: '' },
   },

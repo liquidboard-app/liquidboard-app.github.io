@@ -1,17 +1,18 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { Check, ClipboardPenLine, Cloud, Download, Folder, Instagram, Mic, Pin as PinIcon, ScanSearch, ScanText, Send, Share2 } from 'lucide-react';
+import { Check, ClipboardPenLine, Cloud, Download, Folder, Mic, Pin as PinIcon, ScanSearch, ScanText, Send, Share2 } from 'lucide-react';
 import SocialMark from '../SocialMark';
 import { ActionClipboardSection } from './styled';
+import { useTranslation } from '@/contexts/LanguageContext';
 
-const actionFeatures = [
-  { label: 'Group', icon: Folder },
-  { label: 'Pin', icon: PinIcon },
-  { label: 'Share', icon: Share2 },
-  { label: 'Export', icon: Download },
-  { label: 'Voice', icon: Mic },
-  { label: 'Scan Text', icon: ScanText },
-  { label: 'System Pasteboard', icon: ClipboardPenLine },
-  { label: 'iCloud', icon: Cloud },
+const actionFeatureDefinitions = [
+  { key: 'group', icon: Folder },
+  { key: 'pin', icon: PinIcon },
+  { key: 'share', icon: Share2 },
+  { key: 'export', icon: Download },
+  { key: 'voice', icon: Mic },
+  { key: 'scanText', icon: ScanText },
+  { key: 'systemPasteboard', icon: ClipboardPenLine },
+  { key: 'iCloud', icon: Cloud },
 ] as const;
 
 const mockupTypes = ['text', 'link', 'color', 'image'] as const;
@@ -53,13 +54,11 @@ const MockupCard: React.FC<{ type: MockupType; marker?: React.ReactNode }> = ({ 
   return (
     <div className="action-clipboard-mockup action-clipboard-mockup--text" aria-hidden="true">
       <span className="action-clipboard-mockup-skeleton action-clipboard-mockup-skeleton--title" />
-      <span className="action-clipboard-mockup-skeleton-lines"><i /><i /><i /><i /><i /><i /><i /></span>
+      <span className="action-clipboard-mockup-skeleton-lines"><i /><i /><i /><i /><i /></span>
       {marker}
     </div>
   );
 };
-
-type TabStyle = React.CSSProperties & { '--tab-progress': number };
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const PHASE_LABEL_PREFIX = 'action-phase-';
@@ -71,9 +70,9 @@ const SCROLL_TUNING = {
 } as const;
 
 const ActionClipboard: React.FC = () => {
+  const { dict } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [introComplete, setIntroComplete] = useState(false);
 
@@ -93,40 +92,16 @@ const ActionClipboard: React.FC = () => {
       if (!active) return;
 
       gsap.registerPlugin(ScrollTrigger);
+      if (window.matchMedia('(pointer: coarse)').matches) {
+        ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
+      }
       const contentFrame = pin.querySelector<HTMLElement>('.action-clipboard-content-frame');
       const content = pin.querySelector<HTMLElement>('.action-clipboard-content');
       const tabScroll = pin.querySelector<HTMLElement>('.action-clipboard-tab-scroll');
       const tabs = Array.from(pin.querySelectorAll<HTMLElement>('.action-clipboard-tab'));
       if (!content || !contentFrame || !tabScroll) return;
 
-      const visualViewport = window.visualViewport;
       const reduceViewportMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let viewportHeight = 0;
-      let viewportRefreshTimer: number | undefined;
-      const syncViewportHeight = (refresh: boolean) => {
-        const nextHeight = Math.round(visualViewport?.height ?? window.innerHeight);
-        if (Math.abs(nextHeight - viewportHeight) < 2) return;
-        viewportHeight = nextHeight;
-        section.style.setProperty('--action-mobile-viewport-height', `${nextHeight}px`);
-        if (!refresh) return;
-        window.clearTimeout(viewportRefreshTimer);
-        viewportRefreshTimer = window.setTimeout(() => {
-          if (!active) return;
-          const previousTop = contentFrame.getBoundingClientRect().top;
-          ScrollTrigger.refresh();
-          const topDelta = previousTop - contentFrame.getBoundingClientRect().top;
-          if (!reduceViewportMotion && Math.abs(topDelta) > 1) {
-            gsap.fromTo(contentFrame, { y: topDelta }, {
-              y: 0,
-              duration: .42,
-              ease: 'power3.out',
-              overwrite: 'auto',
-            });
-          }
-        }, 160);
-      };
-      const handleViewportChange = () => syncViewportHeight(true);
-      syncViewportHeight(false);
 
       const groupScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--group');
       const pinScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--pin');
@@ -172,8 +147,10 @@ const ActionClipboard: React.FC = () => {
       const exportChecks = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
       const shareChecks = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
       const shareAction = shareScene?.querySelector<HTMLElement>('.action-clipboard-share-action');
-      const sharePlane = shareScene?.querySelector<HTMLElement>('.action-clipboard-share-plane');
+      const sharePlane = shareScene?.querySelector<SVGSVGElement>('.action-clipboard-share-plane');
+      const shareSocialList = shareScene?.querySelector<HTMLElement>('.action-clipboard-share-socials');
       const shareSocials = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-socials > span') ?? []);
+      const shareSocialMarks = shareSocials.map(social => social.querySelector<SVGSVGElement>('.action-clipboard-social-mark'));
       const exportOptions = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-options > span') ?? []);
       const exportOptionLabels = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-option-label') ?? []);
       const exportPreviews = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-previews > span') ?? []);
@@ -188,14 +165,20 @@ const ActionClipboard: React.FC = () => {
       const scanResultLines = Array.from(scanScene?.querySelectorAll<HTMLElement>('.action-clipboard-scan-result-lines i') ?? []);
       const systemMockups = Array.from(systemScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
       const cloudMockups = Array.from(cloudScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
-      if (!groupScene || !pinScene || !shareScene || !exportScene || !voiceScene || !scanScene || !systemScene || !cloudScene || !groupTitle || !pinTitle || !shareTitle || !exportTitle || !voiceTitle || !scanTitle || !scanMotion || !systemTitle || !cloudTitle || !groupIcon || !pinIcon || !shareIcon || !exportIcon || !voiceIcon || !scanIcon || !systemIcon || !cloudIcon || !groupWords || !pinWords || !shareWords || !exportWords || !voiceWords || !scanWords || !systemWords || !cloudWords || !pinOrb || !shareAction || !sharePlane || !voiceTranscript || !voiceTranscriptTitle || !scanSearch || !scanPhone || !scanResult || !scanResultTitle || groupWordItems.length < 2 || exportWordItems.length < 2 || pinMockups.length < 4 || shareMockups.length < 4 || exportMockups.length < 3 || systemMockups.length < 4 || cloudMockups.length < 4 || exportOptions.length < 1 || exportOptionLabels.length < 1 || exportPreviews.length < 2 || voiceLines.length < 10 || voiceTranscriptLines.length < 6 || scanResultLines.length < 6) return;
+      if (!groupScene || !pinScene || !shareScene || !exportScene || !voiceScene || !scanScene || !systemScene || !cloudScene || !groupTitle || !pinTitle || !shareTitle || !exportTitle || !voiceTitle || !scanTitle || !scanMotion || !systemTitle || !cloudTitle || !groupIcon || !pinIcon || !shareIcon || !exportIcon || !voiceIcon || !scanIcon || !systemIcon || !cloudIcon || !groupWords || !pinWords || !shareWords || !exportWords || !voiceWords || !scanWords || !systemWords || !cloudWords || !pinOrb || !shareAction || !sharePlane || !shareSocialList || !voiceTranscript || !voiceTranscriptTitle || !scanSearch || !scanPhone || !scanResult || !scanResultTitle || groupWordItems.length < 2 || exportWordItems.length < 2 || pinMockups.length < 4 || shareMockups.length < 4 || shareSocials.length < 4 || exportMockups.length < 3 || systemMockups.length < 4 || cloudMockups.length < 4 || exportOptions.length < 1 || exportOptionLabels.length < 1 || exportPreviews.length < 2 || voiceLines.length < 10 || voiceTranscriptLines.length < 5 || scanResultLines.length < 5) return;
 
       let introProgress = 0;
 
       const updateFeatureProgress = (progress: number) => {
         const nextProgress = clamp01(progress);
-        const nextIndex = Math.min(actionFeatures.length - 1, Math.floor(nextProgress * actionFeatures.length));
-        setScrollProgress((currentProgress) => Math.abs(currentProgress - nextProgress) < .001 ? currentProgress : nextProgress);
+        const nextIndex = Math.min(actionFeatureDefinitions.length - 1, Math.floor(nextProgress * actionFeatureDefinitions.length));
+        // This runs on every scrub frame. Updating the custom properties
+        // directly avoids rerendering the entire scene tree and guarantees
+        // that completed tabs are cleared immediately while scrolling back.
+        tabs.forEach((tab, index) => {
+          const tabProgress = clamp01((nextProgress * actionFeatureDefinitions.length) - index);
+          tab.style.setProperty('--tab-progress', String(tabProgress));
+        });
         setActiveIndex((currentIndex) => currentIndex === nextIndex ? currentIndex : nextIndex);
       };
 
@@ -203,14 +186,39 @@ const ActionClipboard: React.FC = () => {
         const isMobile = () => window.innerWidth <= 760;
         const expandedTitleGap = () => isMobile() ? 8 : 18;
         const expandedTitlePadding = () => isMobile() ? '16px 24px' : '28px 56px';
-        const liftedTitleScale = () => isMobile() ? .72 : .4;
+        const liftedTitleScale = () => isMobile() ? .88 : .4;
         const liftedScanScale = () => isMobile() ? .7 : .5;
+        // Group is the reference: every single result card uses its card width.
+        const standardMockupWidth = () => groupMockups[0]?.offsetWidth ?? 0;
+        const sectionPixelValue = (property: string, fallback: number) => {
+          const value = Number.parseFloat(getComputedStyle(section).getPropertyValue(property));
+          return Number.isFinite(value) ? value : fallback;
+        };
         const expandedShareWidth = () => Math.min(
-          contentFrame.clientWidth * (isMobile() ? .68 : .74),
-          isMobile() ? 260 : 360,
+          sectionPixelValue('--action-share-expanded-width', 340),
+          contentFrame.clientWidth,
         );
         const expandedSharePlaneX = () => -(
-          (expandedShareWidth() - sharePlane.offsetWidth) / 2 - (isMobile() ? 12 : 18)
+          (expandedShareWidth() - sectionPixelValue('--action-share-plane-size', 35)) / 2
+          - sectionPixelValue('--action-share-plane-edge', 32)
+        );
+        const compactShareWidth = () => Math.min(
+          (sectionPixelValue('--action-share-social-size', 42) * shareSocials.length)
+          + (sectionPixelValue('--action-share-social-gap', 16) * (shareSocials.length - 1))
+          + (sectionPixelValue('--action-share-edge', 18) * 2),
+          contentFrame.clientWidth,
+        );
+        const sharePlaneItemX = (index: number) => {
+          const socialSize = sectionPixelValue('--action-share-social-size', 42);
+          const socialGap = sectionPixelValue('--action-share-social-gap', 16);
+          const edge = sectionPixelValue('--action-share-edge', 18);
+          return -(compactShareWidth() / 2)
+            + edge
+            + (socialSize / 2)
+            + (index * (socialSize + socialGap));
+        };
+        const sharePlaneExitX = () => (
+          (shareAction.clientWidth / 2) + sectionPixelValue('--action-share-plane-size', 35)
         );
         gsap.set(content, {
           autoAlpha: 0,
@@ -233,9 +241,12 @@ const ActionClipboard: React.FC = () => {
         gsap.set(groupChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
         gsap.set(exportChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
         gsap.set(shareChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
+        // Clear a value left by hot reload before the reversible timeline owns
+        // the action width again.
+        gsap.set(shareAction, { clearProps: 'width' });
         gsap.set(shareAction, { autoAlpha: 0, scale: .76, filter: 'blur(12px)' });
         gsap.set(sharePlane, { autoAlpha: 0, x: -28, filter: 'blur(10px)' });
-        gsap.set(shareSocials, { autoAlpha: 0, x: 20, filter: 'blur(10px)' });
+        gsap.set(shareSocials, { autoAlpha: 0, x: 52, filter: 'blur(10px)' });
         gsap.set(exportOptions, {
           autoAlpha: 0,
           scale: liftedTitleScale,
@@ -256,7 +267,8 @@ const ActionClipboard: React.FC = () => {
         gsap.set(scanResultLines, { scaleX: 0, transformOrigin: 'left center' });
 
         let phaseIndex = 0;
-        const reveal = gsap.timeline({ defaults: { overwrite: 'auto' } });
+        // Every phase must remain available when scrubbing backwards.
+        const reveal = gsap.timeline({ paused: true, defaults: { overwrite: false } });
         const phase = (name: string) => {
           reveal.addLabel(`${PHASE_LABEL_PREFIX}${String(phaseIndex).padStart(2, '0')}-${name}`);
           phaseIndex += 1;
@@ -320,7 +332,7 @@ const ActionClipboard: React.FC = () => {
           if (!previewBounds) return 0;
           return previewBounds.left + (previewBounds.width / 2) - exportFrameCenterX();
         };
-        const exportCsvPillWidth = () => (exportOptionLabels[0]?.scrollWidth ?? 0) + 112;
+        const exportCsvPillWidth = standardMockupWidth;
         const pinSlotOffset = (fromIndex: number, toIndex: number) => {
           const fromBounds = pinMockups[fromIndex]?.getBoundingClientRect();
           const toBounds = pinMockups[toIndex]?.getBoundingClientRect();
@@ -435,7 +447,73 @@ const ActionClipboard: React.FC = () => {
         phase('share-socials')
           .to(shareAction, { width: expandedShareWidth, duration: .56, ease: 'power3.inOut' })
           .to(sharePlane, { x: expandedSharePlaneX, duration: .42, ease: 'power3.inOut' }, '<')
-          .to(shareSocials, { autoAlpha: 1, x: 0, filter: 'blur(0px)', duration: .42, stagger: .1, ease: 'power3.out' }, '<.05');
+          .to(shareSocials, {
+            autoAlpha: 1,
+            x: 0,
+            filter: 'blur(0px)',
+            duration: .42,
+            stagger: { each: .09, from: 'end' },
+            ease: 'power3.out',
+          }, '<.28');
+        phase('share-send')
+          .to(sharePlane, {
+            rotation: 45,
+            scale: .62,
+            y: 0,
+            transformOrigin: 'center',
+            duration: .34,
+            ease: 'power3.inOut',
+          })
+          .to(sharePlane, {
+            x: () => sharePlaneItemX(0),
+            y: 0,
+            duration: .62,
+            ease: 'power2.inOut',
+          })
+          .to(shareAction, { width: compactShareWidth, duration: .5, ease: 'power3.inOut' }, '<.12')
+          .to(shareSocialList, {
+            left: () => sectionPixelValue('--action-share-edge', 18),
+            gap: () => sectionPixelValue('--action-share-social-gap', 16),
+            duration: .5,
+            ease: 'power3.inOut',
+          }, '<')
+          .to(shareSocials[0], {
+            backgroundColor: '#151515',
+            duration: .18,
+            ease: 'power2.out',
+          })
+          .to(shareSocialMarks[0], {
+            color: '#fff',
+            duration: .18,
+            ease: 'power2.out',
+          }, '<');
+        shareSocials.slice(1).forEach((_, index) => {
+          reveal
+            .to(sharePlane, {
+              x: () => sharePlaneItemX(index + 1),
+              y: 0,
+              duration: .34,
+              ease: 'power2.inOut',
+            })
+            .to(shareSocials[index + 1], {
+              backgroundColor: '#151515',
+              duration: .18,
+              ease: 'power2.out',
+            }, '>-.1')
+            .to(shareSocialMarks[index + 1], {
+              color: '#fff',
+              duration: .18,
+              ease: 'power2.out',
+            }, '<');
+        });
+        reveal.to(sharePlane, {
+          x: sharePlaneExitX,
+          y: 0,
+          rotation: 45,
+          autoAlpha: 0,
+          duration: .48,
+          ease: 'power3.in',
+        });
         phase('share-exit')
           .to(shareAction, { y: () => -contentFrame.clientHeight * .68, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
           .to(shareScene, { autoAlpha: 0, duration: .01 });
@@ -462,7 +540,7 @@ const ActionClipboard: React.FC = () => {
         phase('export-formats')
           .to(exportWordItems[0], { autoAlpha: 0, y: -16, filter: 'blur(10px)', duration: .28, ease: 'power2.inOut' })
           .to(exportWords, { width: 150, duration: .34, ease: 'power3.inOut' }, '<')
-          .set(exportOptions, { width: () => exportTitle.offsetWidth })
+          .set(exportOptions, { width: standardMockupWidth })
           .to(exportTitle, { x: exportLeftPillX, duration: .5, ease: 'power3.inOut' }, '>.18')
           .to(exportOptions, { autoAlpha: 1, x: exportRightPillX, filter: 'blur(0px)', duration: .5, ease: 'power3.inOut' }, '<')
           .to(exportWords, { width: () => (exportWordItems[1]?.scrollWidth ?? 0) + 12, duration: .42, ease: 'power3.inOut' }, '>.16')
@@ -494,12 +572,9 @@ const ActionClipboard: React.FC = () => {
           .to(voiceTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .9, ease: 'power3.inOut' })
           .to(voiceTranscript, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .76, ease: 'power3.out' }, '<')
           .to(voiceTranscriptTitle, { scaleX: 1, duration: .5, ease: 'power3.out' }, '<.12')
-          .to(voiceLines, { backgroundColor: '#d94c4c', duration: .28, ease: 'power2.out' }, '<')
-          .to(voiceLines, { scaleY: (index) => .42 + ((index * 7) % 8) / 10, duration: .38, stagger: .025, ease: 'sine.inOut' }, '<')
-          .to(voiceLines, { scaleY: (index) => .48 + ((index * 5) % 8) / 10, duration: .38, stagger: .025, ease: 'sine.inOut' }, '<.44');
+          .to(voiceLines, { backgroundColor: '#d94c4c', duration: .28, ease: 'power2.out' }, '<');
         phase('voice-transcript')
-          .to(voiceLines, { scaleY: (index) => .38 + ((index * 3) % 7) / 10, duration: .36, stagger: .022, ease: 'sine.inOut' })
-          .to(voiceTranscriptLines, { scaleX: 1, duration: .24, stagger: .18, ease: 'power2.out' }, '<.04');
+          .to(voiceTranscriptLines, { scaleX: 1, duration: .24, stagger: .18, ease: 'power2.out' });
         phase('voice-exit')
           .to(voiceTitle, { y: () => -contentFrame.clientHeight * .78, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
           .to(voiceTranscript, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, ease: 'power3.in' }, '<')
@@ -589,6 +664,32 @@ const ActionClipboard: React.FC = () => {
           const entry = Object.entries(reveal.labels).find(([label]) => label.endsWith(`-${suffix}`));
           return entry ? entry[1] / timelineDuration : 1;
         };
+        const findPhaseTime = (suffix: string) => {
+          const entry = Object.entries(reveal.labels).find(([label]) => label.endsWith(`-${suffix}`));
+          return entry?.[1] ?? timelineDuration;
+        };
+        const voiceLoopStartTime = findPhaseTime('voice-lift');
+        const voiceLoopEndTime = findPhaseTime('voice-exit');
+        const voiceWaveLoop = gsap.timeline({ paused: true, repeat: -1, yoyo: true })
+          .to(voiceLines, {
+            scaleY: (index) => .34 + ((index * 7) % 10) / 14,
+            duration: .32,
+            stagger: .02,
+            ease: 'sine.inOut',
+          });
+        let isVoiceWaveLooping = false;
+        const syncVoiceWaveLoop = () => {
+          const shouldLoop = !reduceViewportMotion
+            && reveal.time() >= voiceLoopStartTime
+            && reveal.time() < voiceLoopEndTime;
+          if (shouldLoop === isVoiceWaveLooping) return;
+          isVoiceWaveLooping = shouldLoop;
+          if (shouldLoop) {
+            voiceWaveLoop.play(0);
+            return;
+          }
+          voiceWaveLoop.pause(0);
+        };
         const featureStarts = ['group-icon', 'pin-icon', 'share-icon', 'export-icon', 'voice-icon', 'scan-icon', 'system-icon', 'cloud-icon']
           .map(findPhaseProgress);
         introProgress = revealDuration / timelineDuration;
@@ -610,6 +711,7 @@ const ActionClipboard: React.FC = () => {
         };
 
         const syncUi = () => {
+          syncVoiceWaveLoop();
           const timelineProgress = reveal.progress();
           const isContentRevealed = timelineProgress >= introProgress;
           setIntroComplete((current) => current === isContentRevealed ? current : isContentRevealed);
@@ -626,13 +728,23 @@ const ActionClipboard: React.FC = () => {
           const currentStart = featureStarts[featureIndex] ?? introProgress;
           const nextStart = featureStarts[featureIndex + 1] ?? 1;
           const localProgress = clamp01((timelineProgress - currentStart) / Math.max(nextStart - currentStart, .001));
-          updateFeatureProgress((featureIndex + localProgress) / actionFeatures.length);
+          updateFeatureProgress((featureIndex + localProgress) / actionFeatureDefinitions.length);
         };
         reveal.eventCallback('onUpdate', syncUi);
 
         // ScrollTrigger drives a normalized timeline so every logical phase
         // receives the same physical scroll distance, regardless of its GSAP
         // duration or stagger count.
+        const renderScrollProgress = (progress: number) => {
+          const scaledProgress = clamp01(progress) * (phaseCount - 1);
+          const segmentIndex = Math.min(Math.floor(scaledProgress), phaseCount - 2);
+          const segmentProgress = scaledProgress - segmentIndex;
+          reveal.time(gsap.utils.interpolate(
+            phaseTimes[segmentIndex] ?? 0,
+            phaseTimes[segmentIndex + 1] ?? timelineDuration,
+            segmentProgress,
+          ));
+        };
         const scrollDriver = { progress: 0 };
         const scrollTimeline = gsap.timeline({ paused: true })
           .to(scrollDriver, {
@@ -640,27 +752,21 @@ const ActionClipboard: React.FC = () => {
             duration: 1,
             ease: 'none',
             onUpdate: () => {
-              const scaledProgress = scrollDriver.progress * (phaseCount - 1);
-              const segmentIndex = Math.min(Math.floor(scaledProgress), phaseCount - 2);
-              const segmentProgress = scaledProgress - segmentIndex;
-              reveal.time(gsap.utils.interpolate(
-                phaseTimes[segmentIndex] ?? 0,
-                phaseTimes[segmentIndex + 1] ?? timelineDuration,
-                segmentProgress,
-              ));
+              renderScrollProgress(scrollDriver.progress);
             },
           });
 
         ScrollTrigger.create({
-          trigger: pin,
-          // pin.offsetTop is the same header-and-gap offset used to place the
-          // wrap, so the scene locks precisely where it first appears.
-          start: () => `top top+=${pin.offsetTop}`,
+          id: 'action-clipboard',
+          // The section stays in document flow when GSAP wraps the pin.
+          // Its top reaches the viewport exactly when the padded pin should lock.
+          trigger: section,
+          start: 'top top',
           end: () => `+=${Math.max((phaseCount - 1) * SCROLL_TUNING.pixelsPerPhase, window.innerHeight)}`,
-          pin: true,
+          pin,
           pinSpacing: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
+          anticipatePin: 0,
+          refreshPriority: -1,
           animation: scrollTimeline,
           scrub: SCROLL_TUNING.scrub,
           snap: {
@@ -670,20 +776,20 @@ const ActionClipboard: React.FC = () => {
             ease: 'power3.inOut',
             inertia: false,
           },
-          onRefreshInit: () => reveal.invalidate(),
+          onRefresh: (self) => {
+            // Re-evaluate function-based widths after a breakpoint or browser
+            // viewport change, then render the real scroll position. This keeps
+            // Share's final action and the standard cards in the same scale.
+            reveal.invalidate();
+            renderScrollProgress(self.progress);
+            syncUi();
+          },
         });
       }, sectionRef);
 
-      visualViewport?.addEventListener('resize', handleViewportChange);
-      visualViewport?.addEventListener('scroll', handleViewportChange);
-      window.addEventListener('orientationchange', handleViewportChange);
       cleanup = () => {
-        visualViewport?.removeEventListener('resize', handleViewportChange);
-        visualViewport?.removeEventListener('scroll', handleViewportChange);
-        window.removeEventListener('orientationchange', handleViewportChange);
-        window.clearTimeout(viewportRefreshTimer);
+        tabs.forEach(tab => tab.style.removeProperty('--tab-progress'));
         context.revert();
-        section.style.removeProperty('--action-mobile-viewport-height');
       };
       ScrollTrigger.refresh();
     };
@@ -696,7 +802,7 @@ const ActionClipboard: React.FC = () => {
   }, []);
 
   return (
-    <ActionClipboardSection ref={sectionRef} aria-label="Action Clipboard features">
+    <ActionClipboardSection ref={sectionRef} aria-label={dict.actionClipboard.sectionLabel}>
       <div
         ref={pinRef}
         className={`action-clipboard-pin${introComplete ? ' is-content-revealed' : ''}`}
@@ -707,10 +813,10 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><Folder aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label="Group Name">
+                  <span className="action-clipboard-title-words" aria-label={`${dict.actionClipboard.groupTitle.primary} ${dict.actionClipboard.groupTitle.secondary}`}>
                     <span className="action-clipboard-title-word-track">
-                      <span>Group</span>
-                      <span>Name</span>
+                      <span>{dict.actionClipboard.groupTitle.primary}</span>
+                      <span>{dict.actionClipboard.groupTitle.secondary}</span>
                     </span>
                   </span>
                 </div>
@@ -730,8 +836,8 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><PinIcon aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label="Pin">
-                    <span className="action-clipboard-title-word-track"><span>Pin</span></span>
+                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.pin}>
+                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.pin}</span></span>
                   </span>
                 </div>
               </div>
@@ -750,8 +856,8 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><Share2 aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label="Share">
-                    <span className="action-clipboard-title-word-track"><span>Share</span></span>
+                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.share}>
+                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.share}</span></span>
                   </span>
                 </div>
               </div>
@@ -767,10 +873,11 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-share-action" aria-hidden="true">
                 <Send className="action-clipboard-share-plane" aria-hidden="true" />
                 <span className="action-clipboard-share-socials">
-                  <span aria-label="Threads"><SocialMark name="threads" /></span>
-                  <span aria-label="Facebook"><SocialMark name="facebook" /></span>
-                  <span aria-label="X"><SocialMark name="x" /></span>
-                  <span><Instagram aria-label="Instagram" /></span>
+                  <span aria-label="Threads"><SocialMark className="action-clipboard-social-mark" name="threads" /></span>
+                  <span aria-label="Facebook"><SocialMark className="action-clipboard-social-mark" name="facebook" /></span>
+                  <span aria-label="X"><SocialMark className="action-clipboard-social-mark" name="x" /></span>
+                  <span aria-label="Instagram"><SocialMark className="action-clipboard-social-mark action-clipboard-social-instagram" name="instagram" /></span>
+                  <span aria-label="TikTok"><SocialMark className="action-clipboard-social-mark" name="tiktok" /></span>
                 </span>
               </div>
             </article>
@@ -779,8 +886,8 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><Download aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label="Export">
-                    <span className="action-clipboard-title-word-track"><span>Export</span><span>JSON</span></span>
+                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.export}>
+                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.export}</span><span>JSON</span></span>
                   </span>
                 </div>
               </div>
@@ -798,11 +905,18 @@ const ActionClipboard: React.FC = () => {
               </div>
               <div className="action-clipboard-export-previews" aria-hidden="true">
                 <span className="action-clipboard-export-preview action-clipboard-export-preview--json">
-                  <i className="action-clipboard-json-bracket action-clipboard-json-bracket--top" />
-                  {Array.from({ length: 5 }, (_, index) => (
-                    <span className="action-clipboard-json-row" key={`json-${index}`}><i /><b /><i /></span>
-                  ))}
-                  <i className="action-clipboard-json-bracket action-clipboard-json-bracket--bottom" />
+                  <span className="action-clipboard-json-skeleton">
+                    <i className="action-clipboard-json-bracket" />
+                    {[0, 1].map((objectIndex) => (
+                      <span className="action-clipboard-json-object" key={`json-object-${objectIndex}`}>
+                        <i className="action-clipboard-json-brace" />
+                        <span className="action-clipboard-json-property"><i /><i /><i /></span>
+                        <span className="action-clipboard-json-property"><i /><i /><i /></span>
+                        <i className="action-clipboard-json-brace" />
+                      </span>
+                    ))}
+                    <i className="action-clipboard-json-bracket" />
+                  </span>
                 </span>
                 <span className="action-clipboard-export-preview action-clipboard-export-preview--csv">
                   <span className="action-clipboard-csv-row action-clipboard-csv-row--header"><i /><i /><i /></span>
@@ -817,8 +931,8 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><Mic aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label="Voice">
-                    <span className="action-clipboard-title-word-track"><span>Voice</span></span>
+                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.voice}>
+                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.voice}</span></span>
                   </span>
                   <span className="action-clipboard-voice-lines" aria-hidden="true">
                     {Array.from({ length: 11 }, (_, index) => <i className="action-clipboard-voice-line" key={`voice-line-${index}`} />)}
@@ -827,7 +941,7 @@ const ActionClipboard: React.FC = () => {
               </div>
               <div className="action-clipboard-voice-transcript" aria-hidden="true">
                 <span className="action-clipboard-voice-transcript-title" />
-                <span className="action-clipboard-voice-transcript-lines"><i /><i /><i /><i /><i /><i /><i /></span>
+                <span className="action-clipboard-voice-transcript-lines"><i /><i /><i /><i /><i /></span>
               </div>
             </article>
 
@@ -837,8 +951,8 @@ const ActionClipboard: React.FC = () => {
                   <div className="action-clipboard-scene-title">
                     <span className="action-clipboard-scan-heading">
                       <span className="action-clipboard-scene-icon"><ScanText aria-hidden="true" /></span>
-                      <span className="action-clipboard-title-words" aria-label="Scan Text">
-                        <span className="action-clipboard-title-word-track"><span>Scan Text</span></span>
+                      <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.scanText}>
+                        <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.scanText}</span></span>
                       </span>
                     </span>
                   </div>
@@ -848,7 +962,7 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scan-phone" aria-hidden="true"><span /></div>
               <div className="action-clipboard-scan-result" aria-hidden="true">
                 <span className="action-clipboard-scan-result-title" />
-                <span className="action-clipboard-scan-result-lines"><i /><i /><i /><i /><i /><i /><i /></span>
+                <span className="action-clipboard-scan-result-lines"><i /><i /><i /><i /><i /></span>
               </div>
             </article>
 
@@ -856,8 +970,8 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><ClipboardPenLine aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label="System Pasteboard">
-                    <span className="action-clipboard-title-word-track"><span>System Pasteboard</span></span>
+                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.systemPasteboard}>
+                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.systemPasteboard}</span></span>
                   </span>
                 </div>
               </div>
@@ -870,8 +984,8 @@ const ActionClipboard: React.FC = () => {
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><Cloud aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label="iCloud">
-                    <span className="action-clipboard-title-word-track"><span>iCloud</span></span>
+                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.iCloud}>
+                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.iCloud}</span></span>
                   </span>
                 </div>
               </div>
@@ -882,19 +996,17 @@ const ActionClipboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="action-clipboard-tab-viewport" aria-label="Action Clipboard feature progress">
+        <div className="action-clipboard-tab-viewport" aria-label={dict.actionClipboard.progressLabel}>
           <div className="action-clipboard-tab-scroll">
             <div className="action-clipboard-tabs">
-              {actionFeatures.map((feature, index) => {
-                const tabProgress = Math.max(0, Math.min(1, (scrollProgress * actionFeatures.length) - index));
-                const tabStyle: TabStyle = { '--tab-progress': tabProgress };
+              {actionFeatureDefinitions.map((feature, index) => {
                 const FeatureIcon = feature.icon;
+                const label = dict.actionClipboard.featureLabels[feature.key];
                 return (
                   <div
                     className="action-clipboard-tab"
-                    style={tabStyle}
-                    key={feature.label}
-                    aria-label={feature.label}
+                    key={feature.key}
+                    aria-label={label}
                     aria-current={activeIndex === index ? 'step' : undefined}
                   >
                     <span className="action-clipboard-tab-label" aria-hidden="true"><FeatureIcon /></span>

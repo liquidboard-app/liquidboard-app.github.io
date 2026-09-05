@@ -15,6 +15,12 @@ const tl: LocaleDict = {
     line2: { left: "sa iyong", right: "iOS Keyboard" },
   },
   coreClipboard: { line1: 'Mula sa Clipboard sa app,', line2: 'papunta sa iyong iOS Keyboard.' },
+  actionClipboard: {
+    sectionLabel: 'Mga feature ng LiquidBoard',
+    progressLabel: 'Progress ng feature ng Clipboard',
+    groupTitle: { primary: 'Grupo', secondary: 'Pangalan' },
+    featureLabels: { group: 'Grupo', pin: 'I-pin', share: 'Ibahagi', export: 'I-export', voice: 'Boses', scanText: 'I-scan ang Teksto', systemPasteboard: 'System Clipboard', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "I-download ang\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

@@ -5,6 +5,16 @@ export const ActionClipboardSection = styled.section`
   --action-pin-gap: clamp(30px, 3.6dvh, 42px);
   --action-pin-top: calc(var(--action-header-height) + var(--action-pin-gap));
   --action-wrap-height: calc(100dvh - var(--action-header-height) - (var(--action-pin-gap) * 2));
+  --action-mockup-edge: clamp(28px, 5vw, 88px);
+  --action-mockup-gap: clamp(12px, 1.6vw, 24px);
+  --action-standard-mockup-width: calc((100% - var(--action-mockup-edge) - var(--action-mockup-edge) - var(--action-mockup-gap) - var(--action-mockup-gap) - var(--action-mockup-gap)) / 4);
+  --action-standard-mockup-height: clamp(118px, 13vw, 176px);
+  --action-share-edge: 18px;
+  --action-share-plane-edge: 32px;
+  --action-share-expanded-width: 400px;
+  --action-share-plane-size: 35px;
+  --action-share-social-size: 42px;
+  --action-share-social-gap: 16px;
   position: relative;
   min-height: calc(var(--action-pin-top) + var(--action-wrap-height));
   padding-top: var(--action-pin-top);
@@ -117,27 +127,27 @@ export const ActionClipboardSection = styled.section`
 
   .action-clipboard-mockups {
     position: absolute;
-    right: clamp(28px, 5vw, 88px);
+    right: var(--action-mockup-edge);
     bottom: clamp(26px, 5vh, 68px);
-    left: clamp(28px, 5vw, 88px);
+    left: var(--action-mockup-edge);
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(12px, 1.6vw, 24px);
+    gap: var(--action-mockup-gap);
     z-index: 1;
   }
   .action-clipboard-scene--export .action-clipboard-mockups {
-    right: auto;
-    left: 50%;
-    width: min(calc(100% - clamp(56px, 10vw, 176px)), 980px);
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    transform: translateX(-50%);
+    right: 0;
+    left: 0;
+    grid-template-columns: repeat(3, var(--action-standard-mockup-width));
+    justify-content: center;
   }
   .action-clipboard-mockup {
     --action-mockup-radius: 24px;
     position: relative;
     display: flex;
-    min-height: clamp(118px, 13vw, 176px);
+    height: var(--action-standard-mockup-height);
     padding: clamp(16px, 1.7vw, 24px);
+    overflow: hidden;
     box-sizing: border-box;
     flex-direction: column;
     gap: 10px;
@@ -199,8 +209,8 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-share-plane {
     position: absolute;
     inset: 0;
-    width: calc(var(--share-action-size) * .43);
-    height: calc(var(--share-action-size) * .43);
+    width: var(--action-share-plane-size);
+    height: var(--action-share-plane-size);
     margin: auto;
     color: #151515;
   }
@@ -208,15 +218,17 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-share-socials {
     position: absolute;
     top: 50%;
-    right: 14px;
+    right: var(--action-share-edge);
+    left: calc(var(--action-share-plane-edge) + var(--action-share-plane-size) + 16px);
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: clamp(8px, .9vw, 14px);
     transform: translateY(-50%);
   }
   .action-clipboard-share-socials > span {
     display: grid;
-    width: clamp(32px, 2.7vw, 42px);
+    width: var(--action-share-social-size);
     aspect-ratio: 1;
     place-items: center;
     border: 0;
@@ -225,6 +237,9 @@ export const ActionClipboardSection = styled.section`
     color: #151515;
   }
   .action-clipboard-share-socials svg { width: 48%; height: 48%; stroke-width: 2; }
+  .action-clipboard-share-socials .action-clipboard-social-instagram { transform: scale(1.15); }
+  .action-clipboard-share-socials .action-clipboard-social-mark,
+  .action-clipboard-share-socials .action-clipboard-social-mark path { fill: currentColor; stroke: none; }
   .action-clipboard-social-x { font-size: clamp(17px, 1.5vw, 22px); font-weight: 700; line-height: 1; }
   .action-clipboard-export-options {
     position: absolute;
@@ -253,18 +268,19 @@ export const ActionClipboardSection = styled.section`
   }
   .action-clipboard-export-previews {
     position: absolute;
-    right: clamp(76px, 9vw, 158px);
+    right: 0;
     bottom: clamp(26px, 5vh, 68px);
-    left: clamp(76px, 9vw, 158px);
+    left: 0;
     display: grid;
     top: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, var(--action-standard-mockup-width));
+    justify-content: center;
     gap: clamp(14px, 2vw, 30px);
     z-index: 2;
   }
   .action-clipboard-export-previews > span {
     display: grid;
-    min-height: clamp(118px, 13vw, 176px);
+    height: var(--action-standard-mockup-height);
     padding: clamp(18px, 2vw, 30px);
     align-content: stretch;
     border: 1px solid rgba(255, 255, 255, .07);
@@ -278,31 +294,40 @@ export const ActionClipboardSection = styled.section`
     background: rgba(255, 255, 255, .19);
   }
   .action-clipboard-export-preview--json {
-    grid-template-rows: auto repeat(5, minmax(0, 1fr)) auto;
-    gap: clamp(9px, 1vw, 15px);
+    display: block !important;
   }
-  .action-clipboard-json-bracket {
-    width: auto;
-    height: auto !important;
-    background: transparent !important;
-    color: rgba(255, 255, 255, .42);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: clamp(18px, 1.8vw, 28px);
-    font-weight: 500;
-    line-height: .8;
-  }
-  .action-clipboard-json-bracket::before { content: '['; }
-  .action-clipboard-json-bracket--bottom::before { content: ']'; }
-  .action-clipboard-json-row {
+  .action-clipboard-json-skeleton {
     display: grid;
-    min-height: 0;
-    grid-template-columns: minmax(28px, .38fr) 4px minmax(56px, 1fr);
-    align-items: center;
-    gap: clamp(9px, 1vw, 15px);
+    height: 100%;
+    grid-template-rows: .3fr 1fr 1fr .3fr;
+    gap: clamp(4px, .45vw, 7px);
   }
-  .action-clipboard-json-row i { width: 100%; }
-  .action-clipboard-json-row i:last-child { background: rgba(255, 255, 255, .28); }
-  .action-clipboard-json-row b { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, .4); }
+  .action-clipboard-json-object {
+    display: grid;
+    min-width: 0;
+    grid-template-rows: .45fr 1fr 1fr .45fr;
+    gap: clamp(2px, .24vw, 4px);
+    padding-left: 6%;
+  }
+  .action-clipboard-json-bracket,
+  .action-clipboard-json-brace {
+    width: 10% !important;
+    height: clamp(3px, .3vw, 5px) !important;
+    align-self: center;
+    background: rgba(255, 255, 255, .12) !important;
+  }
+  .action-clipboard-json-brace { width: 7% !important; }
+  .action-clipboard-json-property {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(24px, .34fr) 4px minmax(42px, .66fr);
+    align-items: center;
+    gap: clamp(5px, .55vw, 9px);
+    padding-left: 6%;
+  }
+  .action-clipboard-json-property i { width: 100%; }
+  .action-clipboard-json-property i:nth-child(2) { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, .38); }
+  .action-clipboard-json-property i:last-child { background: rgba(255, 255, 255, .28); }
   .action-clipboard-export-preview--csv { grid-template-rows: auto repeat(4, minmax(0, 1fr)); gap: clamp(9px, 1vw, 15px); }
   .action-clipboard-csv-row { display: grid; min-height: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: clamp(8px, .9vw, 14px); }
   .action-clipboard-csv-row i { width: 100%; }
@@ -338,8 +363,8 @@ export const ActionClipboardSection = styled.section`
     position: absolute;
     left: 50%;
     bottom: clamp(28px, 5vh, 68px);
-    width: min(28%, 360px);
-    min-height: clamp(142px, 13vw, 176px);
+    width: var(--action-standard-mockup-width);
+    height: var(--action-standard-mockup-height);
     padding: clamp(16px, 1.7vw, 24px);
     box-sizing: border-box;
     border: 1px solid rgba(255, 255, 255, .07);
@@ -355,7 +380,7 @@ export const ActionClipboardSection = styled.section`
     border-radius: 999px;
     background: rgba(255, 255, 255, .3);
   }
-  .action-clipboard-voice-transcript-lines { display: grid; gap: clamp(7px, .7vw, 10px); }
+  .action-clipboard-voice-transcript-lines { display: grid; gap: clamp(5px, .45vw, 7px); }
   .action-clipboard-voice-transcript-lines i { display: block; width: 100%; height: clamp(7px, .65vw, 10px); border-radius: 999px; background: rgba(255, 255, 255, .13); }
   .action-clipboard-voice-transcript-lines i:nth-child(2) { width: 88%; }
   .action-clipboard-voice-transcript-lines i:nth-child(3) { width: 74%; }
@@ -399,8 +424,8 @@ export const ActionClipboardSection = styled.section`
     position: absolute;
     top: 50%;
     left: 50%;
-    width: min(28%, 360px);
-    min-height: clamp(142px, 13vw, 176px);
+    width: var(--action-standard-mockup-width);
+    height: var(--action-standard-mockup-height);
     padding: clamp(16px, 1.7vw, 24px);
     box-sizing: border-box;
     border: 1px solid rgba(255, 255, 255, .07);
@@ -409,7 +434,7 @@ export const ActionClipboardSection = styled.section`
     transform: translate(-50%, -50%);
   }
   .action-clipboard-scan-result-title { display: block; width: 48%; height: clamp(16px, 1.4vw, 22px); margin-bottom: clamp(10px, 1vw, 14px); border-radius: 999px; background: rgba(255, 255, 255, .3); }
-  .action-clipboard-scan-result-lines { display: grid; gap: clamp(7px, .7vw, 10px); }
+  .action-clipboard-scan-result-lines { display: grid; gap: clamp(5px, .45vw, 7px); }
   .action-clipboard-scan-result-lines i { display: block; width: 100%; height: clamp(7px, .65vw, 10px); border-radius: 999px; background: rgba(255, 255, 255, .13); }
   .action-clipboard-scan-result-lines i:nth-child(2) { width: 88%; }
   .action-clipboard-scan-result-lines i:nth-child(3) { width: 74%; }
@@ -430,8 +455,10 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-mockup-skeleton-lines {
     display: grid;
     width: 100%;
+    min-height: 0;
     gap: 8px;
     margin-top: 6px;
+    overflow: hidden;
   }
   .action-clipboard-mockup-skeleton-lines i {
     display: block;
@@ -562,6 +589,7 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-tabs { display: flex; width: max-content; min-width: 100%; justify-content: center; gap: 8px; }
 
   .action-clipboard-tab {
+    --tab-progress: 0;
     position: relative;
     display: grid;
     width: 56px;
@@ -605,23 +633,51 @@ export const ActionClipboardSection = styled.section`
     --action-pin-gap: 0px;
     --action-pin-top: var(--action-header-height);
     --action-wrap-height: calc(100dvh - var(--action-header-height));
+    --action-wrap-height: calc(100svh - var(--action-header-height));
+    --action-tablet-frame-height: clamp(480px, 52dvh, 610px);
+    --action-tablet-frame-height: clamp(480px, 52svh, 610px);
     min-height: 100dvh;
+    min-height: 100svh;
     padding-top: var(--action-pin-top);
 
     .action-clipboard-pin {
       height: var(--action-wrap-height);
+      justify-content: center;
       gap: 12px;
+      padding: 20px var(--page-inline-padding);
     }
-    .action-clipboard-content-frame { flex: 1 1 auto; }
-    .action-clipboard-tab-viewport { display: block; min-height: 50px; flex: 0 0 50px; }
-    .action-clipboard-tab { width: 50px; height: 50px; }
-    .action-clipboard-tab-label { width: 21px; height: 21px; }
+    .action-clipboard-content-frame {
+      width: 100%;
+      height: var(--action-tablet-frame-height);
+      max-height: calc(100% - 56px);
+      flex: 0 1 var(--action-tablet-frame-height);
+    }
+    .action-clipboard-tab-viewport { display: block; min-height: 48px; flex: 0 0 48px; }
+    .action-clipboard-tab { width: 48px; height: 48px; }
+    .action-clipboard-tab-label { width: 20px; height: 20px; }
+    .action-clipboard-mockup-skeleton-lines {
+      flex: 1 1 auto;
+      grid-auto-rows: min-content;
+      align-content: start;
+      gap: 4px;
+      margin-top: 0;
+    }
+    .action-clipboard-mockup-skeleton-lines i { height: clamp(4px, .65vw, 7px); }
+    .action-clipboard-mockup--text .action-clipboard-mockup-skeleton-lines i:nth-child(n + 5) { display: none; }
   }
 
   @media (max-width: 760px) {
-    --action-mobile-viewport-height: 100dvh;
+    --action-mobile-viewport-height: 100svh;
     --action-mobile-safe-bottom: max(12px, env(safe-area-inset-bottom));
-    --action-mobile-frame-height: clamp(340px, 90vw, 400px);
+    --action-mobile-frame-height: clamp(380px, 105vw, 455px);
+    --action-mockup-edge: 16px;
+    --action-mockup-gap: 6px;
+    --action-standard-mockup-height: 76px;
+    --action-share-edge: 14px;
+    --action-share-plane-edge: 24px;
+    --action-share-plane-size: 32px;
+    --action-share-social-size: 36px;
+    --action-share-social-gap: 12px;
     --action-pin-top: var(--action-header-height);
     --action-wrap-height: calc(100vh - var(--action-header-height));
     --action-wrap-height: calc(var(--action-mobile-viewport-height) - var(--action-header-height));
@@ -655,14 +711,13 @@ export const ActionClipboardSection = styled.section`
     .action-clipboard-scene-icon { width: 40px; height: 40px; }
     .action-clipboard-title-words { font-size: clamp(24px, 6.5vw, 30px); }
     .action-clipboard-mockups { right: 16px; bottom: 18px; left: 16px; gap: 8px; }
-    .action-clipboard-mockup { --action-mockup-radius: 12px; min-height: 76px; padding: 6px; }
+    .action-clipboard-mockup { --action-mockup-radius: 12px; height: var(--action-standard-mockup-height); padding: 6px; }
     .action-clipboard-mockups { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
     .action-clipboard-scene--export .action-clipboard-mockups {
-      right: auto;
-      left: 50%;
-      width: calc(100% - 32px);
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      transform: translateX(-50%);
+      right: 0;
+      left: 0;
+      width: auto;
+      grid-template-columns: repeat(3, var(--action-standard-mockup-width));
     }
     .action-clipboard-mockup { gap: 5px; }
     .action-clipboard-mockup--image { padding: 0; border: 0; }
@@ -673,25 +728,30 @@ export const ActionClipboardSection = styled.section`
     .action-clipboard-mockup-skeleton--title { height: 8px; }
     .action-clipboard-mockup-skeleton-lines { gap: 4px; margin-top: 2px; }
     .action-clipboard-mockup-skeleton-lines i { height: 4px; }
-    .action-clipboard-mockup-skeleton-lines i:nth-child(n + 5) { display: none; }
+    .action-clipboard-mockup--text .action-clipboard-mockup-skeleton-lines i:nth-child(n + 4) { display: none; }
     .action-clipboard-pin-orb { top: 6px; right: 6px; width: 20px; }
     .action-clipboard-share-orb { right: 6px; bottom: 6px; width: 20px; }
-    .action-clipboard-share-action { --share-action-size: 48px; }
-    .action-clipboard-share-socials { right: 8px; gap: 5px; }
-    .action-clipboard-share-socials > span { width: 24px; }
     .action-clipboard-export-options { gap: 10px; }
     .action-clipboard-export-options > span { min-width: 0; padding: 16px 24px; font-size: clamp(24px, 6.5vw, 30px); }
-    .action-clipboard-export-previews { top: auto; right: 30px; bottom: 18px; left: 30px; gap: 10px; }
-    .action-clipboard-export-previews > span { min-height: 80px; padding: 10px; border-radius: 12px; }
+    .action-clipboard-export-previews { top: auto; right: 0; bottom: 18px; left: 0; gap: 6px; }
+    .action-clipboard-export-previews > span { height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
     .action-clipboard-export-previews i { height: 5px; }
     .action-clipboard-voice-lines { width: 130px; height: 48px; gap: 4px; }
-    .action-clipboard-voice-transcript { right: 16px; bottom: 18px; left: 16px; width: auto; min-height: 190px; padding: 18px; border-radius: 16px; transform: none; }
+    .action-clipboard-voice-transcript { right: auto; bottom: 18px; left: 50%; width: var(--action-standard-mockup-width); height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; transform: translateX(-50%); }
     .action-clipboard-scan-phone { width: 176px; height: 278px; border-radius: 22px; }
-    .action-clipboard-scan-result { width: calc(100% - 32px); min-height: 190px; padding: 18px; border-radius: 16px; }
-    .action-clipboard-tab-viewport { min-height: 36px; flex-basis: 36px; }
-    .action-clipboard-tabs { justify-content: center; gap: 5px; padding: 0; }
-    .action-clipboard-tab { width: 36px; height: 36px; padding: 0; }
-    .action-clipboard-tab-label { width: 15px; height: 15px; }
+    .action-clipboard-scan-result { width: var(--action-standard-mockup-width); height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
+    .action-clipboard-tab-viewport { min-height: 32px; flex-basis: 32px; }
+    .action-clipboard-tabs { justify-content: center; gap: 4px; padding: 0; }
+    .action-clipboard-tab { width: 32px; height: 32px; padding: 0; }
+    .action-clipboard-tab-label { width: 14px; height: 14px; }
+  }
+
+  @media (max-width: 360px) {
+    --action-share-edge: 10px;
+    --action-share-plane-edge: 16px;
+    --action-share-plane-size: 28px;
+    --action-share-social-size: 32px;
+    --action-share-social-gap: 10px;
   }
 
   @media (prefers-reduced-motion: reduce) {

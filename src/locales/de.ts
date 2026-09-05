@@ -15,6 +15,12 @@ const de: LocaleDict = {
     line2: { left: "in Ihre", right: "iOS-Tastatur" },
   },
   coreClipboard: { line1: 'Von der Zwischenablage in der App,', line2: 'zu deiner iOS-Tastatur.' },
+  actionClipboard: {
+    sectionLabel: 'LiquidBoard-Funktionen',
+    progressLabel: 'Fortschritt der Zwischenablage-Funktionen',
+    groupTitle: { primary: 'Gruppe', secondary: 'Name' },
+    featureLabels: { group: 'Gruppe', pin: 'Anheften', share: 'Teilen', export: 'Exportieren', voice: 'Sprache', scanText: 'Text scannen', systemPasteboard: 'System-Zwischenablage', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Laden Sie\u00A0", brand: "LiquidBoard\u00A0", suffix: "herunter" },
   },

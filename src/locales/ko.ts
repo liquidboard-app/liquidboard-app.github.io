@@ -15,6 +15,12 @@ const ko: LocaleDict = {
     line2: { left: "당신의", right: "iOS 키보드에" },
   },
   coreClipboard: { line1: '앱의 클립보드에서,', line2: 'iOS 키보드까지.' },
+  actionClipboard: {
+    sectionLabel: 'LiquidBoard 기능',
+    progressLabel: '클립보드 기능 진행률',
+    groupTitle: { primary: '그룹', secondary: '이름' },
+    featureLabels: { group: '그룹', pin: '고정', share: '공유', export: '내보내기', voice: '음성', scanText: '텍스트 스캔', systemPasteboard: '시스템 클립보드', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "다운로드" },
   },

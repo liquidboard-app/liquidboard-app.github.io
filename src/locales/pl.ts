@@ -15,6 +15,12 @@ const pl: LocaleDict = {
     line2: { left: "w Twojej", right: "Klawiaturze iOS" },
   },
   coreClipboard: { line1: 'Ze schowka w aplikacji,', line2: 'na klawiaturę iOS.' },
+  actionClipboard: {
+    sectionLabel: 'Funkcje LiquidBoard',
+    progressLabel: 'Postęp funkcji schowka',
+    groupTitle: { primary: 'Grupa', secondary: 'Nazwa' },
+    featureLabels: { group: 'Grupa', pin: 'Przypnij', share: 'Udostępnij', export: 'Eksportuj', voice: 'Głos', scanText: 'Skanuj tekst', systemPasteboard: 'Schowek systemowy', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Pobierz\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

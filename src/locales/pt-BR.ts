@@ -15,6 +15,12 @@ const ptBR: LocaleDict = {
     line2: { left: "para o seu", right: "Teclado iOS" },
   },
   coreClipboard: { line1: 'Da área de transferência no app,', line2: 'ao seu teclado do iOS.' },
+  actionClipboard: {
+    sectionLabel: 'Recursos do LiquidBoard',
+    progressLabel: 'Progresso dos recursos da área de transferência',
+    groupTitle: { primary: 'Grupo', secondary: 'Nome' },
+    featureLabels: { group: 'Grupo', pin: 'Fixar', share: 'Compartilhar', export: 'Exportar', voice: 'Voz', scanText: 'Digitalizar texto', systemPasteboard: 'Área de transferência do sistema', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Baixar\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

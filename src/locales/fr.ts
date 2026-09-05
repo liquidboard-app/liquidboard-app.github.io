@@ -15,6 +15,12 @@ const fr: LocaleDict = {
     line2: { left: "dans votre", right: "Clavier iOS" },
   },
   coreClipboard: { line1: 'Du presse-papiers dans l’app,', line2: 'à votre clavier iOS.' },
+  actionClipboard: {
+    sectionLabel: 'Fonctionnalités de LiquidBoard',
+    progressLabel: 'Progression des fonctionnalités du presse-papiers',
+    groupTitle: { primary: 'Groupe', secondary: 'Nom' },
+    featureLabels: { group: 'Groupe', pin: 'Épingler', share: 'Partager', export: 'Exporter', voice: 'Voix', scanText: 'Scanner le texte', systemPasteboard: 'Presse-papiers système', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Télécharger\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

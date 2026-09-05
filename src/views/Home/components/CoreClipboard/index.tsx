@@ -280,7 +280,8 @@ const CoreClipboard: React.FC = () => {
     if (!isPinnedScroll || !stage || !row) return undefined;
 
     let active = true;
-    let tween: { scrollTrigger?: { kill: () => void }; kill: () => void } | undefined;
+    let scrollTrigger: { kill: () => void } | undefined;
+    let clearRowTransform: (() => void) | undefined;
 
     const setupPinnedScroll = async () => {
       const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
@@ -290,6 +291,9 @@ const CoreClipboard: React.FC = () => {
       if (!active) return;
 
       gsap.registerPlugin(ScrollTrigger);
+      if (window.matchMedia('(pointer: coarse)').matches) {
+        ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
+      }
       const headerOffset = () => {
         const header = document.querySelector('header');
         return header && getComputedStyle(header).position === 'fixed'
@@ -302,24 +306,33 @@ const CoreClipboard: React.FC = () => {
         Math.max(stage.clientHeight, 1) * 1.35,
       );
 
-      gsap.set(row, { x: 0, force3D: true, backfaceVisibility: 'hidden' });
-      tween = gsap.to(row, {
-        x: () => -horizontalTravel(),
-        ease: 'none',
+      gsap.set(row, {
+        x: 0,
         force3D: true,
-        overwrite: 'auto',
-        scrollTrigger: {
-          trigger: stage,
-          start: () => `top top+=${headerOffset()}`,
-          end: () => `+=${scrollDistance()}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: .8,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          refreshPriority: 1,
-        },
+        backfaceVisibility: 'hidden',
+        willChange: 'transform',
       });
+      const setRowX = gsap.quickSetter(row, 'x', 'px');
+      const renderProgress = (progress: number) => {
+        setRowX(-horizontalTravel() * progress);
+      };
+
+      // A smoothed scrub keeps chasing the finger after each touch update and
+      // becomes especially visible when the user reverses direction. Render
+      // the horizontal position from ScrollTrigger's exact progress instead,
+      // so the rail and the pinned document scroll always stay in lockstep.
+      scrollTrigger = ScrollTrigger.create({
+        trigger: stage,
+        start: () => `top top+=${headerOffset()}`,
+        end: () => `+=${scrollDistance()}`,
+        pin: true,
+        pinSpacing: true,
+        anticipatePin: 0,
+        refreshPriority: 1,
+        onUpdate: (self) => renderProgress(self.progress),
+        onRefresh: (self) => renderProgress(self.progress),
+      });
+      clearRowTransform = () => gsap.set(row, { clearProps: 'transform,willChange,backfaceVisibility' });
 
       requestAnimationFrame(() => {
         if (active) ScrollTrigger.refresh();
@@ -329,10 +342,8 @@ const CoreClipboard: React.FC = () => {
     void setupPinnedScroll();
     return () => {
       active = false;
-      tween?.scrollTrigger?.kill();
-      tween?.kill();
-      row.style.removeProperty('transform');
-      row.style.removeProperty('will-change');
+      scrollTrigger?.kill();
+      clearRowTransform?.();
     };
   }, [isPinnedScroll, lang]);
 

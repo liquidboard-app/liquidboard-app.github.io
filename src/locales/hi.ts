@@ -15,6 +15,12 @@ const hi: LocaleDict = {
     line2: { left: "अपने", right: "iOS कीबोर्ड में" },
   },
   coreClipboard: { line1: 'ऐप के क्लिपबोर्ड से,', line2: 'आपके iOS कीबोर्ड तक।' },
+  actionClipboard: {
+    sectionLabel: 'LiquidBoard सुविधाएँ',
+    progressLabel: 'क्लिपबोर्ड सुविधाओं की प्रगति',
+    groupTitle: { primary: 'समूह', secondary: 'नाम' },
+    featureLabels: { group: 'समूह', pin: 'पिन', share: 'शेयर', export: 'निर्यात', voice: 'आवाज़', scanText: 'टेक्स्ट स्कैन', systemPasteboard: 'सिस्टम क्लिपबोर्ड', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "डाउनलोड करें" },
   },

@@ -15,6 +15,12 @@ const vi: LocaleDict = {
     line2: { left: "vào trong", right: "Bàn phím iOS" },
   },
   coreClipboard: { line1: 'Đưa Clipboard từ ứng dụng', line2: 'đến Bàn Phím iOS.' },
+  actionClipboard: {
+    sectionLabel: 'Các tính năng LiquidBoard',
+    progressLabel: 'Tiến trình tính năng Clipboard',
+    groupTitle: { primary: 'Nhóm', secondary: 'Tên' },
+    featureLabels: { group: 'Nhóm', pin: 'Ghim', share: 'Chia sẻ', export: 'Xuất', voice: 'Giọng nói', scanText: 'Quét văn bản', systemPasteboard: 'Bảng tạm hệ thống', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Tải xuống\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

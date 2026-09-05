@@ -1,12 +1,13 @@
 import React from 'react';
 
-export type SocialName = 'facebook' | 'x' | 'threads' | 'tiktok';
+export type SocialName = 'facebook' | 'x' | 'threads' | 'instagram' | 'tiktok';
 
-const SocialMark: React.FC<{ name: SocialName }> = ({ name }) => {
-  if (name === 'facebook') return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 8.2V6.5c0-.8.5-1 1-1h2.5V2.1L14.3 2C10.9 2 10 4.6 10 6.3v1.9H7.8V12H10v10h4.2V12h3l.5-3.8h-3.5Z" /></svg>;
-  if (name === 'x') return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22H17l-4.9-6.4L6.5 22H3.4l7.2-8.3L2.8 2h6.4l4.4 5.8L18.9 2Zm-1.1 17.9h1.7L8.3 4H6.5l11.3 15.9Z" /></svg>;
-  if (name === 'threads') return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="M16.6 8.1c-1.1-1.5-2.8-2.2-4.8-2.2-3.6 0-6.1 2.4-6.1 6.1 0 4 2.6 6.5 6.3 6.5 3.3 0 5.5-1.7 5.5-4.2 0-2.2-1.8-3.5-4.6-3.5-2.4 0-3.9 1-3.9 2.6 0 1.3 1.1 2.2 2.7 2.2 2.8 0 4.7-2.3 4.7-5.5 0-4.7-2.6-7.6-6.9-7.6" /></svg>;
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.8 2c.4 2.3 1.7 3.7 4.2 3.9v3.2c-1.5.1-2.9-.3-4.1-1.1v6.5a7.5 7.5 0 1 1-6.5-7.4v3.4a4.1 4.1 0 1 0 3 4V2h3.4Z" /></svg>;
+const SocialMark: React.FC<{ name: SocialName; className?: string }> = ({ name, className }) => {
+  if (name === 'facebook') return <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.2 8.2V6.5c0-.8.5-1 1-1h2.5V2.1L14.3 2C10.9 2 10 4.6 10 6.3v1.9H7.8V12H10v10h4.2V12h3l.5-3.8h-3.5Z" /></svg>;
+  if (name === 'x') return <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.901 1.153h3.68l-8.042 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.9 1.153Zm-1.29 19.67h2.039L6.486 3.07H4.298L17.61 20.823Z" /></svg>;
+  if (name === 'threads') return <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.263 11.097c-.03-3.486-1.92-5.586-5.111-5.586-2.13 0-3.922.963-4.863 2.499l2.062 1.438c.535-.843 1.272-1.543 2.628-1.543 1.528 0 2.318.85 2.544 2.431a15 15 0 0 0-2.236-.173c-4.125 0-6.068 1.867-6.068 4.336s1.943 3.99 4.804 3.99c3.139 0 5.013-2.115 5.781-4.735.798.361 1.348 1.204 1.348 2.47 0 3.387-3.907 5.232-7.22 5.232-4.885 0-8.077-3.207-8.077-8.424 0-6.392 4.223-10.487 9.9-10.487 3.808 0 5.69 1.671 6.97 3.914l2.108-1.475C21.44 2.078 18.331 0 13.663 0 6.227 0 1.168 5.277 1.168 12.934c0 7 4.953 11.066 10.856 11.066 4.878 0 9.809-2.846 9.809-7.716 0-2.545-1.46-4.231-3.569-5.187m-6.33 4.855c-1.077 0-2.026-.512-2.026-1.453 0-1.483 1.822-1.934 3.606-1.934.678 0 1.34.045 1.927.173-.422 1.927-1.671 3.215-3.508 3.214Z" /></svg>;
+  if (name === 'instagram') return <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fillRule="evenodd" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm5.5-2.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z" clipRule="evenodd" /></svg>;
+  return <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07Z" /></svg>;
 };
 
 export default SocialMark;

@@ -26,6 +26,21 @@ export type LocaleDict = {
     line1: string;
     line2: string;
   };
+  actionClipboard: {
+    sectionLabel: string;
+    progressLabel: string;
+    groupTitle: { primary: string; secondary: string };
+    featureLabels: {
+      group: string;
+      pin: string;
+      share: string;
+      export: string;
+      voice: string;
+      scanText: string;
+      systemPasteboard: string;
+      iCloud: string;
+    };
+  };
   header: {
     download: { prefix: string; brand: string; suffix: string };
   };

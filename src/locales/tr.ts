@@ -16,6 +16,12 @@ const tr: LocaleDict = {
     line2: { left: 'iOS klavyenize', right: 'taşıyın' },
   },
   coreClipboard: { line1: 'Uygulamadaki panodan,', line2: 'iOS klavyenize.' },
+  actionClipboard: {
+    sectionLabel: 'LiquidBoard özellikleri',
+    progressLabel: 'Pano özellik ilerlemesi',
+    groupTitle: { primary: 'Grup', secondary: 'Ad' },
+    featureLabels: { group: 'Grup', pin: 'Sabitle', share: 'Paylaş', export: 'Dışa aktar', voice: 'Ses', scanText: 'Metni tara', systemPasteboard: 'Sistem panosu', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: '', brand: 'LiquidBoard\u2019u\u00A0', suffix: 'indirin' },
   },

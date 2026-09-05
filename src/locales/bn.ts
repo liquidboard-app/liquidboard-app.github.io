@@ -15,6 +15,12 @@ const bn: LocaleDict = {
     line2: { left: "আপনার", right: "iOS কিবোর্ডে" },
   },
   coreClipboard: { line1: 'অ্যাপের ক্লিপবোর্ড থেকে,', line2: 'আপনার iOS কীবোর্ডে।' },
+  actionClipboard: {
+    sectionLabel: 'LiquidBoard-এর ফিচার',
+    progressLabel: 'ক্লিপবোর্ড ফিচারের অগ্রগতি',
+    groupTitle: { primary: 'গ্রুপ', secondary: 'নাম' },
+    featureLabels: { group: 'গ্রুপ', pin: 'পিন', share: 'শেয়ার', export: 'এক্সপোর্ট', voice: 'ভয়েস', scanText: 'টেক্সট স্ক্যান', systemPasteboard: 'সিস্টেম ক্লিপবোর্ড', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "ডাউনলোড করুন" },
   },

@@ -15,6 +15,12 @@ const it: LocaleDict = {
     line2: { left: "nella tua", right: "Tastiera iOS" },
   },
   coreClipboard: { line1: 'Dagli appunti nell’app,', line2: 'alla tua tastiera iOS.' },
+  actionClipboard: {
+    sectionLabel: 'Funzionalità di LiquidBoard',
+    progressLabel: 'Avanzamento delle funzionalità degli appunti',
+    groupTitle: { primary: 'Gruppo', secondary: 'Nome' },
+    featureLabels: { group: 'Gruppo', pin: 'Fissa', share: 'Condividi', export: 'Esporta', voice: 'Voce', scanText: 'Scansiona testo', systemPasteboard: 'Appunti di sistema', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Scarica\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },

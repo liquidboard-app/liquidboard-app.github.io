@@ -15,6 +15,12 @@ const id: LocaleDict = {
     line2: { left: "ke dalam", right: "Keyboard iOS-mu" },
   },
   coreClipboard: { line1: 'Dari Clipboard di aplikasi,', line2: 'ke Keyboard iOS Anda.' },
+  actionClipboard: {
+    sectionLabel: 'Fitur LiquidBoard',
+    progressLabel: 'Progres fitur Clipboard',
+    groupTitle: { primary: 'Grup', secondary: 'Nama' },
+    featureLabels: { group: 'Grup', pin: 'Sematkan', share: 'Bagikan', export: 'Ekspor', voice: 'Suara', scanText: 'Pindai Teks', systemPasteboard: 'Clipboard Sistem', iCloud: 'iCloud' },
+  },
   header: {
     download: { prefix: "Unduh\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
   },
