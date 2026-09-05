@@ -18,8 +18,8 @@ const ptBR: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Recursos do LiquidBoard',
     progressLabel: 'Progresso dos recursos da área de transferência',
-    groupTitle: { primary: 'Grupo', secondary: 'Nome' },
-    featureLabels: { group: 'Grupo', pin: 'Fixar', share: 'Compartilhar', export: 'Exportar', voice: 'Voz', scanText: 'Digitalizar texto', systemPasteboard: 'Área de transferência do sistema', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Nome', secondary: 'do grupo' },
+    featureLabels: { group: 'Grupo', pin: 'Fixar', share: 'Compartilhar', export: 'Exportar arquivo', voice: 'Voz', scanText: 'Digitalizar texto', systemPasteboard: 'Área de transferência do sistema', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Baixar\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

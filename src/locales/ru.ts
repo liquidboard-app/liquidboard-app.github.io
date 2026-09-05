@@ -18,8 +18,8 @@ const ru: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Возможности LiquidBoard',
     progressLabel: 'Прогресс функций буфера обмена',
-    groupTitle: { primary: 'Группа', secondary: 'Название' },
-    featureLabels: { group: 'Группа', pin: 'Закрепить', share: 'Поделиться', export: 'Экспорт', voice: 'Голос', scanText: 'Сканировать текст', systemPasteboard: 'Системный буфер обмена', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Название', secondary: 'группы' },
+    featureLabels: { group: 'Группа', pin: 'Закрепить', share: 'Поделиться', export: 'Экспорт файла', voice: 'Голос', scanText: 'Сканировать текст', systemPasteboard: 'Системный буфер обмена', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Скачать\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

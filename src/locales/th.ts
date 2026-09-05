@@ -18,8 +18,8 @@ const th: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'ฟีเจอร์ของ LiquidBoard',
     progressLabel: 'ความคืบหน้าฟีเจอร์คลิปบอร์ด',
-    groupTitle: { primary: 'กลุ่ม', secondary: 'ชื่อ' },
-    featureLabels: { group: 'กลุ่ม', pin: 'ปักหมุด', share: 'แชร์', export: 'ส่งออก', voice: 'เสียง', scanText: 'สแกนข้อความ', systemPasteboard: 'คลิปบอร์ดระบบ', iCloud: 'iCloud' },
+    groupTitle: { primary: 'ชื่อ', secondary: 'กลุ่ม' },
+    featureLabels: { group: 'กลุ่ม', pin: 'ปักหมุด', share: 'แชร์', export: 'ส่งออกไฟล์', voice: 'เสียง', scanText: 'สแกนข้อความ', systemPasteboard: 'คลิปบอร์ดระบบ', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "ดาวน์โหลด\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

@@ -18,8 +18,8 @@ const de: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard-Funktionen',
     progressLabel: 'Fortschritt der Zwischenablage-Funktionen',
-    groupTitle: { primary: 'Gruppe', secondary: 'Name' },
-    featureLabels: { group: 'Gruppe', pin: 'Anheften', share: 'Teilen', export: 'Exportieren', voice: 'Sprache', scanText: 'Text scannen', systemPasteboard: 'System-Zwischenablage', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Name', secondary: 'der Gruppe' },
+    featureLabels: { group: 'Gruppe', pin: 'Anheften', share: 'Teilen', export: 'Datei exportieren', voice: 'Sprache', scanText: 'Text scannen', systemPasteboard: 'System-Zwischenablage', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Laden Sie\u00A0", brand: "LiquidBoard\u00A0", suffix: "herunter" },

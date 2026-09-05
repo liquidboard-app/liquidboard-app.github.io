@@ -20,7 +20,7 @@ const en: LocaleDict = {
     sectionLabel: 'LiquidBoard features',
     progressLabel: 'Action Clipboard feature progress',
     groupTitle: { primary: 'Group', secondary: 'Name' },
-    featureLabels: { group: 'Group', pin: 'Pin', share: 'Share', export: 'Export', voice: 'Voice', scanText: 'Scan Text', systemPasteboard: 'System Pasteboard', iCloud: 'iCloud' },
+    featureLabels: { group: 'Group', pin: 'Pin', share: 'Share', export: 'Export File', voice: 'Voice', scanText: 'Scan Text', systemPasteboard: 'System Pasteboard', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Download\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

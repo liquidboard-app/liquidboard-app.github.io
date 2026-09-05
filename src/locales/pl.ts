@@ -18,8 +18,8 @@ const pl: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Funkcje LiquidBoard',
     progressLabel: 'Postęp funkcji schowka',
-    groupTitle: { primary: 'Grupa', secondary: 'Nazwa' },
-    featureLabels: { group: 'Grupa', pin: 'Przypnij', share: 'Udostępnij', export: 'Eksportuj', voice: 'Głos', scanText: 'Skanuj tekst', systemPasteboard: 'Schowek systemowy', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Nazwa', secondary: 'grupy' },
+    featureLabels: { group: 'Grupa', pin: 'Przypnij', share: 'Udostępnij', export: 'Eksportuj plik', voice: 'Głos', scanText: 'Skanuj tekst', systemPasteboard: 'Schowek systemowy', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Pobierz\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

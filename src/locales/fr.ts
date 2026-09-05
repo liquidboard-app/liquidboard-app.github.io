@@ -18,8 +18,8 @@ const fr: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Fonctionnalités de LiquidBoard',
     progressLabel: 'Progression des fonctionnalités du presse-papiers',
-    groupTitle: { primary: 'Groupe', secondary: 'Nom' },
-    featureLabels: { group: 'Groupe', pin: 'Épingler', share: 'Partager', export: 'Exporter', voice: 'Voix', scanText: 'Scanner le texte', systemPasteboard: 'Presse-papiers système', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Nom', secondary: 'du groupe' },
+    featureLabels: { group: 'Groupe', pin: 'Épingler', share: 'Partager', export: 'Exporter un fichier', voice: 'Voix', scanText: 'Scanner le texte', systemPasteboard: 'Presse-papiers système', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Télécharger\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

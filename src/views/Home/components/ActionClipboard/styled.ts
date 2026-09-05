@@ -97,17 +97,19 @@ export const ActionClipboardSection = styled.section`
 
   .action-clipboard-title-words {
     display: block;
-    height: 1em;
-    padding-inline: 6px;
+    height: 1.08em;
+    padding-inline: 8px;
     box-sizing: border-box;
     overflow: hidden;
-    font-size: clamp(48px, 6vw, 92px);
+    font-size: clamp(44px, 5.4vw, 84px);
     font-weight: 690;
     letter-spacing: -.07em;
-    line-height: .92;
+    line-height: 1.08;
+    text-transform: capitalize;
   }
-  .action-clipboard-title-word-track { display: flex; height: 1em; gap: .14em; }
-  .action-clipboard-title-word-track > span { display: block; flex: 0 0 auto; width: max-content; height: 1em; white-space: nowrap; }
+  .action-clipboard-title-word-track { display: flex; height: 1.08em; gap: .14em; }
+  .action-clipboard-title-word-track > span { display: block; flex: 0 0 auto; width: max-content; height: 1.08em; white-space: nowrap; }
+  .action-clipboard-scene--cloud .action-clipboard-title-words { text-transform: none; }
   .action-clipboard-scene--export .action-clipboard-title-word-track { position: relative; display: block; }
   .action-clipboard-scene--export .action-clipboard-title-word-track > span { position: absolute; top: 0; left: 0; }
 
@@ -260,10 +262,10 @@ export const ActionClipboardSection = styled.section`
     border-radius: 999px;
     background: #fff;
     color: #151515;
-    font-size: clamp(48px, 6vw, 92px);
+    font-size: clamp(44px, 5.4vw, 84px);
     font-weight: 690;
     letter-spacing: -.07em;
-    line-height: .92;
+    line-height: 1.08;
     white-space: nowrap;
   }
   .action-clipboard-export-previews {
@@ -709,7 +711,7 @@ export const ActionClipboardSection = styled.section`
     .action-clipboard-content-state h2 { font-size: clamp(46px, 14vw, 74px); }
     .action-clipboard-scene-title { gap: 8px; }
     .action-clipboard-scene-icon { width: 40px; height: 40px; }
-    .action-clipboard-title-words { font-size: clamp(24px, 6.5vw, 30px); }
+    .action-clipboard-title-words { font-size: clamp(22px, 5.8vw, 27px); }
     .action-clipboard-mockups { right: 16px; bottom: 18px; left: 16px; gap: 8px; }
     .action-clipboard-mockup { --action-mockup-radius: 12px; height: var(--action-standard-mockup-height); padding: 6px; }
     .action-clipboard-mockups { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
@@ -732,7 +734,7 @@ export const ActionClipboardSection = styled.section`
     .action-clipboard-pin-orb { top: 6px; right: 6px; width: 20px; }
     .action-clipboard-share-orb { right: 6px; bottom: 6px; width: 20px; }
     .action-clipboard-export-options { gap: 10px; }
-    .action-clipboard-export-options > span { min-width: 0; padding: 16px 24px; font-size: clamp(24px, 6.5vw, 30px); }
+    .action-clipboard-export-options > span { min-width: 0; padding: 16px 24px; font-size: clamp(22px, 5.8vw, 27px); }
     .action-clipboard-export-previews { top: auto; right: 0; bottom: 18px; left: 0; gap: 6px; }
     .action-clipboard-export-previews > span { height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
     .action-clipboard-export-previews i { height: 5px; }

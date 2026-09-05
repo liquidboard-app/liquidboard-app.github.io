@@ -19,8 +19,8 @@ const tr: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard özellikleri',
     progressLabel: 'Pano özellik ilerlemesi',
-    groupTitle: { primary: 'Grup', secondary: 'Ad' },
-    featureLabels: { group: 'Grup', pin: 'Sabitle', share: 'Paylaş', export: 'Dışa aktar', voice: 'Ses', scanText: 'Metni tara', systemPasteboard: 'Sistem panosu', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Grup', secondary: 'adı' },
+    featureLabels: { group: 'Grup', pin: 'Sabitle', share: 'Paylaş', export: 'Dosyayı dışa aktar', voice: 'Ses', scanText: 'Metni tara', systemPasteboard: 'Sistem panosu', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: '', brand: 'LiquidBoard\u2019u\u00A0', suffix: 'indirin' },

@@ -18,8 +18,8 @@ const bn: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard-এর ফিচার',
     progressLabel: 'ক্লিপবোর্ড ফিচারের অগ্রগতি',
-    groupTitle: { primary: 'গ্রুপ', secondary: 'নাম' },
-    featureLabels: { group: 'গ্রুপ', pin: 'পিন', share: 'শেয়ার', export: 'এক্সপোর্ট', voice: 'ভয়েস', scanText: 'টেক্সট স্ক্যান', systemPasteboard: 'সিস্টেম ক্লিপবোর্ড', iCloud: 'iCloud' },
+    groupTitle: { primary: 'গ্রুপের', secondary: 'নাম' },
+    featureLabels: { group: 'গ্রুপ', pin: 'পিন', share: 'শেয়ার', export: 'ফাইল এক্সপোর্ট করুন', voice: 'ভয়েস', scanText: 'টেক্সট স্ক্যান', systemPasteboard: 'সিস্টেম ক্লিপবোর্ড', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "ডাউনলোড করুন" },

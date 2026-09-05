@@ -18,8 +18,8 @@ const ja: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoardの機能',
     progressLabel: 'クリップボード機能の進行状況',
-    groupTitle: { primary: 'グループ', secondary: '名前' },
-    featureLabels: { group: 'グループ', pin: 'ピン留め', share: '共有', export: '書き出し', voice: '音声', scanText: 'テキストをスキャン', systemPasteboard: 'システムクリップボード', iCloud: 'iCloud' },
+    groupTitle: { primary: 'グループの', secondary: '名前' },
+    featureLabels: { group: 'グループ', pin: 'ピン留め', share: '共有', export: 'ファイルを書き出す', voice: '音声', scanText: 'テキストをスキャン', systemPasteboard: 'システムクリップボード', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "をダウンロード" },

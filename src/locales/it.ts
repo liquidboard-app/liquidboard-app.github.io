@@ -18,8 +18,8 @@ const it: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Funzionalità di LiquidBoard',
     progressLabel: 'Avanzamento delle funzionalità degli appunti',
-    groupTitle: { primary: 'Gruppo', secondary: 'Nome' },
-    featureLabels: { group: 'Gruppo', pin: 'Fissa', share: 'Condividi', export: 'Esporta', voice: 'Voce', scanText: 'Scansiona testo', systemPasteboard: 'Appunti di sistema', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Nome', secondary: 'del gruppo' },
+    featureLabels: { group: 'Gruppo', pin: 'Fissa', share: 'Condividi', export: 'Esporta file', voice: 'Voce', scanText: 'Scansiona testo', systemPasteboard: 'Appunti di sistema', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Scarica\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

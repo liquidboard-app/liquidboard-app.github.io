@@ -18,8 +18,8 @@ const id: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Fitur LiquidBoard',
     progressLabel: 'Progres fitur Clipboard',
-    groupTitle: { primary: 'Grup', secondary: 'Nama' },
-    featureLabels: { group: 'Grup', pin: 'Sematkan', share: 'Bagikan', export: 'Ekspor', voice: 'Suara', scanText: 'Pindai Teks', systemPasteboard: 'Clipboard Sistem', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Nama', secondary: 'grup' },
+    featureLabels: { group: 'Grup', pin: 'Sematkan', share: 'Bagikan', export: 'Ekspor file', voice: 'Suara', scanText: 'Pindai Teks', systemPasteboard: 'Clipboard Sistem', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Unduh\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

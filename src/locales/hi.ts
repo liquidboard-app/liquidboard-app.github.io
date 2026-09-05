@@ -18,8 +18,8 @@ const hi: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard सुविधाएँ',
     progressLabel: 'क्लिपबोर्ड सुविधाओं की प्रगति',
-    groupTitle: { primary: 'समूह', secondary: 'नाम' },
-    featureLabels: { group: 'समूह', pin: 'पिन', share: 'शेयर', export: 'निर्यात', voice: 'आवाज़', scanText: 'टेक्स्ट स्कैन', systemPasteboard: 'सिस्टम क्लिपबोर्ड', iCloud: 'iCloud' },
+    groupTitle: { primary: 'समूह', secondary: 'का नाम' },
+    featureLabels: { group: 'समूह', pin: 'पिन', share: 'शेयर', export: 'फ़ाइल निर्यात करें', voice: 'आवाज़', scanText: 'टेक्स्ट स्कैन', systemPasteboard: 'सिस्टम क्लिपबोर्ड', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "", brand: "LiquidBoard\u00A0", suffix: "डाउनलोड करें" },

@@ -91,6 +91,11 @@ const ActionClipboard: React.FC = () => {
       ]);
       if (!active) return;
 
+      // Locale-specific glyphs can change the measured title width after
+      // their font finishes loading. Build the timeline from final metrics.
+      await document.fonts.ready;
+      if (!active) return;
+
       gsap.registerPlugin(ScrollTrigger);
       if (window.matchMedia('(pointer: coarse)').matches) {
         ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
@@ -186,7 +191,17 @@ const ActionClipboard: React.FC = () => {
         const isMobile = () => window.innerWidth <= 760;
         const expandedTitleGap = () => isMobile() ? 8 : 18;
         const expandedTitlePadding = () => isMobile() ? '16px 24px' : '28px 56px';
-        const liftedTitleScale = () => isMobile() ? .88 : .4;
+        const clampValue = (minimum: number, preferred: number, maximum: number) => (
+          Math.min(maximum, Math.max(minimum, preferred))
+        );
+        const liftedTitleScale = () => {
+          const initialFontSize = Number.parseFloat(getComputedStyle(groupWords).fontSize);
+          const previousFontSize = isMobile()
+            ? clampValue(24, window.innerWidth * .065, 30)
+            : clampValue(48, window.innerWidth * .06, 92);
+          const previousLiftedSize = previousFontSize * (isMobile() ? .88 : .4);
+          return initialFontSize > 0 ? previousLiftedSize / initialFontSize : (isMobile() ? .88 : .4);
+        };
         const liftedScanScale = () => isMobile() ? .7 : .5;
         // Group is the reference: every single result card uses its card width.
         const standardMockupWidth = () => groupMockups[0]?.offsetWidth ?? 0;
@@ -285,8 +300,39 @@ const ActionClipboard: React.FC = () => {
           .to(tabs, { autoAlpha: 1, filter: 'blur(0px)', y: 0, duration: .42, stagger: .08, ease: 'power3.out' });
         const revealDuration = reveal.duration();
 
-        const groupWordWidth = (index: number) => (groupWordItems[index]?.scrollWidth ?? 0) + 12;
-        const groupNameWidth = () => groupWordItems.reduce((width, item) => width + item.scrollWidth, 0) + 28;
+        const titleWordsWidth = (words: HTMLElement, indexes: number[] = [0]) => {
+          const track = words.querySelector<HTMLElement>('.action-clipboard-title-word-track');
+          const items = Array.from(track?.children ?? []) as HTMLElement[];
+          const selectedItems = indexes.map(index => items[index]).filter(Boolean);
+          const wordsStyle = getComputedStyle(words);
+          const trackStyle = track ? getComputedStyle(track) : null;
+          const horizontalPadding = Number.parseFloat(wordsStyle.paddingLeft)
+            + Number.parseFloat(wordsStyle.paddingRight);
+          const gap = Number.parseFloat(trackStyle?.columnGap ?? '0') || 0;
+          const contentWidth = selectedItems.reduce(
+            // BoundingClientRect includes the title's animated scale and
+            // would turn that visual width into a much smaller layout width.
+            (width, item) => width + Math.max(item.scrollWidth, item.offsetWidth),
+            0,
+          ) + (gap * Math.max(selectedItems.length - 1, 0));
+
+          // The small buffer protects fractional glyph overhangs at both ends.
+          return Math.ceil(contentWidth + horizontalPadding + 4);
+        };
+        const groupWordWidth = (index: number) => titleWordsWidth(groupWords, [index]);
+        const groupNameWidth = () => {
+          const wordsStyle = getComputedStyle(groupWords);
+          const trackStyle = getComputedStyle(groupWordItems[0]!.parentElement!);
+          const horizontalPadding = Number.parseFloat(wordsStyle.paddingLeft)
+            + Number.parseFloat(wordsStyle.paddingRight);
+          const gap = Number.parseFloat(trackStyle.columnGap) || 0;
+          const wordsWidth = groupWordItems.reduce(
+            (width, item) => width + Math.max(item.scrollWidth, item.offsetWidth),
+            0,
+          );
+
+          return Math.ceil(wordsWidth + gap + horizontalPadding + 12);
+        };
         const scanInitialTitleWidth = () => scanIcon.offsetWidth;
         const pullMockupX = (_: number, mockup: HTMLElement) => {
           const itemBounds = mockup.getBoundingClientRect();
@@ -383,7 +429,7 @@ const ActionClipboard: React.FC = () => {
           .to(groupMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
         phase('group-name')
           .to(groupWords, { width: groupNameWidth, duration: .9, ease: 'power3.inOut' })
-          .to(groupWordItems[1], { autoAlpha: 1, x: 0, filter: 'blur(0px)', duration: .9, ease: 'power3.out' }, '<.12');
+          .to(groupWordItems[1], { autoAlpha: 1, visibility: 'visible', x: 0, filter: 'blur(0px)', duration: .9, ease: 'power3.out' }, '<.08');
         phase('group-select')
           .to(groupChecks, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, stagger: .14, ease: 'back.out(1.8)' });
         phase('group-collapse')
@@ -395,7 +441,7 @@ const ActionClipboard: React.FC = () => {
           .to(pinScene, { autoAlpha: 1, duration: .01 })
           .to(pinIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('pin-title')
-          .to(pinWords, { autoAlpha: 1, width: () => pinWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(pinWords, { autoAlpha: 1, width: () => titleWordsWidth(pinWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(pinTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('pin-background')
           .to(pinTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -423,7 +469,7 @@ const ActionClipboard: React.FC = () => {
           .to(shareScene, { autoAlpha: 1, duration: .01 })
           .to(shareIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('share-title')
-          .to(shareWords, { autoAlpha: 1, width: () => shareWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(shareWords, { autoAlpha: 1, width: () => titleWordsWidth(shareWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(shareTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('share-background')
           .to(shareTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -522,7 +568,7 @@ const ActionClipboard: React.FC = () => {
           .to(exportScene, { autoAlpha: 1, duration: .01 })
           .to(exportIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('export-title')
-          .to(exportWords, { autoAlpha: 1, width: () => (exportWordItems[0]?.scrollWidth ?? 0) + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(exportWords, { autoAlpha: 1, width: () => titleWordsWidth(exportWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(exportTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('export-background')
           .to(exportTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -543,7 +589,7 @@ const ActionClipboard: React.FC = () => {
           .set(exportOptions, { width: standardMockupWidth })
           .to(exportTitle, { x: exportLeftPillX, duration: .5, ease: 'power3.inOut' }, '>.18')
           .to(exportOptions, { autoAlpha: 1, x: exportRightPillX, filter: 'blur(0px)', duration: .5, ease: 'power3.inOut' }, '<')
-          .to(exportWords, { width: () => (exportWordItems[1]?.scrollWidth ?? 0) + 12, duration: .42, ease: 'power3.inOut' }, '>.16')
+          .to(exportWords, { width: () => titleWordsWidth(exportWords, [1]), duration: .42, ease: 'power3.inOut' }, '>.16')
           .to(exportTitle, { x: exportLeftPillX, duration: .42, ease: 'power3.inOut' }, '<')
           .to(exportOptions, { width: exportCsvPillWidth, duration: .42, ease: 'power3.inOut' }, '<')
           .to(exportOptions, { x: exportRightPillX, duration: .42, ease: 'power3.inOut' }, '<')
@@ -560,7 +606,7 @@ const ActionClipboard: React.FC = () => {
           .to(voiceScene, { autoAlpha: 1, duration: .01 })
           .to(voiceIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('voice-title')
-          .to(voiceWords, { autoAlpha: 1, width: () => voiceWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(voiceWords, { autoAlpha: 1, width: () => titleWordsWidth(voiceWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(voiceTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('voice-background')
           .to(voiceTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -585,7 +631,7 @@ const ActionClipboard: React.FC = () => {
           .to(scanIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
           .set(scanTitle, { clearProps: 'width' });
         phase('scan-title')
-          .to(scanWords, { autoAlpha: 1, width: () => scanWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(scanWords, { autoAlpha: 1, width: () => titleWordsWidth(scanWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(scanTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('scan-background')
           .to(scanTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -619,7 +665,7 @@ const ActionClipboard: React.FC = () => {
           .to(systemScene, { autoAlpha: 1, duration: .01 })
           .to(systemIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('system-title')
-          .to(systemWords, { autoAlpha: 1, width: () => systemWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(systemWords, { autoAlpha: 1, width: () => titleWordsWidth(systemWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(systemTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('system-background')
           .to(systemTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -639,7 +685,7 @@ const ActionClipboard: React.FC = () => {
           .to(cloudScene, { autoAlpha: 1, duration: .01 })
           .to(cloudIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('cloud-title')
-          .to(cloudWords, { autoAlpha: 1, width: () => cloudWords.scrollWidth + 12, x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(cloudWords, { autoAlpha: 1, width: () => titleWordsWidth(cloudWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(cloudTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('cloud-background')
           .to(cloudTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -799,7 +845,7 @@ const ActionClipboard: React.FC = () => {
       active = false;
       cleanup?.();
     };
-  }, []);
+  }, [dict.actionClipboard]);
 
   return (
     <ActionClipboardSection ref={sectionRef} aria-label={dict.actionClipboard.sectionLabel}>

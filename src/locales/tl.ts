@@ -18,8 +18,8 @@ const tl: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Mga feature ng LiquidBoard',
     progressLabel: 'Progress ng feature ng Clipboard',
-    groupTitle: { primary: 'Grupo', secondary: 'Pangalan' },
-    featureLabels: { group: 'Grupo', pin: 'I-pin', share: 'Ibahagi', export: 'I-export', voice: 'Boses', scanText: 'I-scan ang Teksto', systemPasteboard: 'System Clipboard', iCloud: 'iCloud' },
+    groupTitle: { primary: 'Pangalan', secondary: 'ng grupo' },
+    featureLabels: { group: 'Grupo', pin: 'I-pin', share: 'Ibahagi', export: 'I-export ang file', voice: 'Boses', scanText: 'I-scan ang Teksto', systemPasteboard: 'System Clipboard', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "I-download ang\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },
