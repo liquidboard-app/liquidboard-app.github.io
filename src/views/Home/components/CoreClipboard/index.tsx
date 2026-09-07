@@ -255,6 +255,26 @@ const CoreClipboard: React.FC = () => {
       scheduleProgressUpdate();
     };
 
+    // Phone spread/converge is a desktop-only treatment. On touch layouts it
+    // used to keep reading two element bounds on every scroll frame, including
+    // while the horizontal phone rail was pinned. An observer is enough to run
+    // the heading entrance once and keeps the main thread free for the rail.
+    if (!desktopQuery.matches) {
+      const section = sectionRef.current;
+      const headingObserver = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) beginHeadingEnter();
+      }, { rootMargin: '0px 0px -12% 0px' });
+      if (section) headingObserver.observe(section);
+
+      return () => {
+        headingObserver.disconnect();
+        window.clearTimeout(headingAnimationTimer);
+        window.clearTimeout(sidePhonesAnimationTimer);
+        window.clearTimeout(sidePhonesReverseTimer);
+        window.clearTimeout(centerPhoneAnimationTimer);
+      };
+    }
+
     syncPhoneCenterShift();
     updateProgress();
     window.addEventListener('scroll', scheduleProgressUpdate, { passive: true });
@@ -281,9 +301,9 @@ const CoreClipboard: React.FC = () => {
 
     let active = true;
     let scrollTrigger: { kill: () => void } | undefined;
-    let clearRowTransform: (() => void) | undefined;
+    let revertScene: (() => void) | undefined;
 
-    const setupPinnedScroll = async () => {
+    const setupPinnedScene = async () => {
       const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
         import('gsap'),
         import('gsap/ScrollTrigger'),
@@ -300,50 +320,62 @@ const CoreClipboard: React.FC = () => {
           ? Math.round(header.getBoundingClientRect().height)
           : 0;
       };
-      const horizontalTravel = () => Math.max(0, row.scrollWidth - stage.clientWidth);
-      const scrollDistance = () => Math.max(
-        horizontalTravel() * 1.14 + Math.max(stage.clientHeight, 1) * .58,
-        Math.max(stage.clientHeight, 1) * 1.35,
-      );
+      const phoneItems = Array.from(row.querySelectorAll<HTMLElement>('.core-phone'));
+      const [firstPhone, secondPhone, thirdPhone] = phoneItems;
+      if (!firstPhone || !secondPhone || !thirdPhone) return;
 
-      gsap.set(row, {
-        x: 0,
-        force3D: true,
-        backfaceVisibility: 'hidden',
-        willChange: 'transform',
-      });
-      const setRowX = gsap.quickSetter(row, 'x', 'px');
-      const renderProgress = (progress: number) => {
-        setRowX(-horizontalTravel() * progress);
-      };
+      const stageShift = () => Math.max(stage.clientWidth * .78, 260);
+      const scrollDistance = () => Math.max(stage.clientHeight * 2.5, 1500);
 
-      // A smoothed scrub keeps chasing the finger after each touch update and
-      // becomes especially visible when the user reverses direction. Render
-      // the horizontal position from ScrollTrigger's exact progress instead,
-      // so the rail and the pinned document scroll always stay in lockstep.
-      scrollTrigger = ScrollTrigger.create({
-        trigger: stage,
-        start: () => `top top+=${headerOffset()}`,
-        end: () => `+=${scrollDistance()}`,
-        pin: true,
-        pinSpacing: true,
-        anticipatePin: 0,
-        refreshPriority: 1,
-        onUpdate: (self) => renderProgress(self.progress),
-        onRefresh: (self) => renderProgress(self.progress),
-      });
-      clearRowTransform = () => gsap.set(row, { clearProps: 'transform,willChange,backfaceVisibility' });
+      const context = gsap.context(() => {
+        gsap.set(phoneItems, {
+          xPercent: -50,
+          yPercent: -50,
+          x: stageShift,
+          autoAlpha: 0,
+          scale: .94,
+          filter: 'blur(18px)',
+          force3D: true,
+          willChange: 'transform,filter,opacity',
+        });
+        gsap.set(firstPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', zIndex: 1 });
+        gsap.set(secondPhone, { zIndex: 2 });
+        gsap.set(thirdPhone, { zIndex: 3 });
+
+        // The forward scroll replaces each phone from the right. Reverse
+        // scroll naturally restores the prior phone from the left, with the
+        // same blur/opacity transition and without a separate JS scroll loop.
+        const scene = gsap.timeline({ defaults: { overwrite: 'auto' } })
+          .to(secondPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out' })
+          .to(firstPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(22px)', duration: 1, ease: 'power2.inOut' }, '<')
+          .to(thirdPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out' }, '>.2')
+          .to(secondPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(22px)', duration: 1, ease: 'power2.inOut' }, '<');
+
+        scrollTrigger = ScrollTrigger.create({
+          trigger: stage,
+          start: () => `top top+=${headerOffset()}`,
+          end: () => `+=${scrollDistance()}`,
+          pin: true,
+          pinSpacing: true,
+          anticipatePin: 0,
+          refreshPriority: 1,
+          animation: scene,
+          scrub: .32,
+          invalidateOnRefresh: true,
+        });
+      }, stage);
+      revertScene = () => context.revert();
 
       requestAnimationFrame(() => {
         if (active) ScrollTrigger.refresh();
       });
     };
 
-    void setupPinnedScroll();
+    void setupPinnedScene();
     return () => {
       active = false;
       scrollTrigger?.kill();
-      clearRowTransform?.();
+      revertScene?.();
     };
   }, [isPinnedScroll, lang]);
 
@@ -381,7 +413,7 @@ const CoreClipboard: React.FC = () => {
             <article className={`core-phone core-phone-${phone.tone} core-phone-${index + 1}`} key={phone.label}>
               <div className="core-phone-frame">
                 <span className="core-phone-island" aria-hidden="true" />
-                <img src={phone.image} alt={`${phone.label} clipboard preview`} loading="lazy" decoding="async" />
+                <img src={phone.image} alt={`${phone.label} clipboard preview`} loading="eager" decoding="async" />
                 <span className="core-phone-home" aria-hidden="true" />
               </div>
             </article>

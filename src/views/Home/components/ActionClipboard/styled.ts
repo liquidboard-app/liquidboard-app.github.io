@@ -15,6 +15,7 @@ export const ActionClipboardSection = styled.section`
   --action-share-plane-size: 35px;
   --action-share-social-size: 42px;
   --action-share-social-gap: 16px;
+  --action-export-pill-gap: clamp(18px, 2vw, 28px);
   position: relative;
   min-height: calc(var(--action-pin-top) + var(--action-wrap-height));
   padding-top: var(--action-pin-top);
@@ -87,8 +88,8 @@ export const ActionClipboardSection = styled.section`
 
   .action-clipboard-scene-icon {
     display: grid;
-    width: clamp(68px, 6.4vw, 96px);
-    height: clamp(68px, 6.4vw, 96px);
+    width: clamp(48px, 5.2vw, 76px);
+    height: clamp(48px, 5.2vw, 76px);
     flex: 0 0 auto;
     overflow: hidden;
     place-items: center;
@@ -98,10 +99,10 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-title-words {
     display: block;
     height: 1.08em;
-    padding-inline: 8px;
+    padding-inline: 12px;
     box-sizing: border-box;
     overflow: hidden;
-    font-size: clamp(44px, 5.4vw, 84px);
+    font-size: var(--action-title-font-size, clamp(44px, 5.4vw, 84px));
     font-weight: 690;
     letter-spacing: -.07em;
     line-height: 1.08;
@@ -109,7 +110,9 @@ export const ActionClipboardSection = styled.section`
   }
   .action-clipboard-title-word-track { display: flex; height: 1.08em; gap: .14em; }
   .action-clipboard-title-word-track > span { display: block; flex: 0 0 auto; width: max-content; height: 1.08em; white-space: nowrap; }
+  .action-clipboard-scene--group-vi .action-clipboard-title-word-track { flex-direction: row-reverse; }
   .action-clipboard-scene--cloud .action-clipboard-title-words { text-transform: none; }
+  .action-clipboard-scene--export .action-clipboard-scene-title { box-sizing: border-box; justify-content: center; }
   .action-clipboard-scene--export .action-clipboard-title-word-track { position: relative; display: block; }
   .action-clipboard-scene--export .action-clipboard-title-word-track > span { position: absolute; top: 0; left: 0; }
 
@@ -249,12 +252,13 @@ export const ActionClipboardSection = styled.section`
     left: 50%;
     display: flex;
     align-items: center;
-    gap: clamp(12px, 1.8vw, 24px);
+    gap: var(--action-export-pill-gap);
     transform: translate(-50%, -50%);
     z-index: 4;
   }
   .action-clipboard-export-options > span {
     display: grid;
+    width: 100%;
     min-width: 0;
     padding: 28px 56px;
     box-sizing: border-box;
@@ -262,7 +266,7 @@ export const ActionClipboardSection = styled.section`
     border-radius: 999px;
     background: #fff;
     color: #151515;
-    font-size: clamp(44px, 5.4vw, 84px);
+    font-size: var(--action-title-font-size, clamp(44px, 5.4vw, 84px));
     font-weight: 690;
     letter-spacing: -.07em;
     line-height: 1.08;
@@ -277,13 +281,16 @@ export const ActionClipboardSection = styled.section`
     top: auto;
     grid-template-columns: repeat(2, var(--action-standard-mockup-width));
     justify-content: center;
-    gap: clamp(14px, 2vw, 30px);
+    gap: var(--action-export-pill-gap);
     z-index: 2;
   }
   .action-clipboard-export-previews > span {
     display: grid;
+    min-width: 0;
     height: var(--action-standard-mockup-height);
     padding: clamp(18px, 2vw, 30px);
+    overflow: hidden;
+    box-sizing: border-box;
     align-content: stretch;
     border: 1px solid rgba(255, 255, 255, .07);
     border-radius: 24px;
@@ -300,6 +307,7 @@ export const ActionClipboardSection = styled.section`
   }
   .action-clipboard-json-skeleton {
     display: grid;
+    min-width: 0;
     height: 100%;
     grid-template-rows: .3fr 1fr 1fr .3fr;
     gap: clamp(4px, .45vw, 7px);
@@ -372,6 +380,7 @@ export const ActionClipboardSection = styled.section`
     border: 1px solid rgba(255, 255, 255, .07);
     border-radius: 24px;
     background: #2d2d2d;
+    overflow: hidden;
     transform: translateX(-50%);
   }
   .action-clipboard-voice-transcript-title {
@@ -433,6 +442,7 @@ export const ActionClipboardSection = styled.section`
     border: 1px solid rgba(255, 255, 255, .07);
     border-radius: 24px;
     background: #2d2d2d;
+    overflow: hidden;
     transform: translate(-50%, -50%);
   }
   .action-clipboard-scan-result-title { display: block; width: 48%; height: clamp(16px, 1.4vw, 22px); margin-bottom: clamp(10px, 1vw, 14px); border-radius: 999px; background: rgba(255, 255, 255, .3); }
@@ -607,11 +617,21 @@ export const ActionClipboardSection = styled.section`
     font-weight: 680;
     letter-spacing: -.02em;
     line-height: 1;
+    isolation: isolate;
     opacity: 0;
     filter: blur(13px);
-    transform: translateY(28px);
+    transform: translate3d(0, 28px, 0);
   }
-  .action-clipboard-tab::before { position: absolute; inset: 0; border-radius: inherit; background: #151515; content: ''; transform: scaleX(var(--tab-progress)); transform-origin: left center; }
+  .action-clipboard-tab::before {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #151515;
+    content: '';
+    transform: translateZ(0) scaleX(var(--tab-progress));
+    transform-origin: left center;
+    will-change: transform;
+  }
   .action-clipboard-tab-label {
     position: relative;
     z-index: 1;
@@ -619,8 +639,7 @@ export const ActionClipboardSection = styled.section`
     width: 24px;
     height: 24px;
     place-items: center;
-    color: #fff;
-    mix-blend-mode: difference;
+    color: var(--tab-icon-color, #151515);
   }
   .action-clipboard-tab-label svg { width: 100%; height: 100%; stroke-width: 1.9; }
 
@@ -675,11 +694,13 @@ export const ActionClipboardSection = styled.section`
     --action-mockup-edge: 16px;
     --action-mockup-gap: 6px;
     --action-standard-mockup-height: 76px;
-    --action-share-edge: 14px;
-    --action-share-plane-edge: 24px;
-    --action-share-plane-size: 32px;
-    --action-share-social-size: 36px;
-    --action-share-social-gap: 12px;
+    --action-share-edge: 12px;
+    --action-share-plane-edge: 18px;
+    --action-share-expanded-width: 300px;
+    --action-share-plane-size: 26px;
+    --action-share-social-size: 30px;
+    --action-share-social-gap: 8px;
+    --action-export-pill-gap: 10px;
     --action-pin-top: var(--action-header-height);
     --action-wrap-height: calc(100vh - var(--action-header-height));
     --action-wrap-height: calc(var(--action-mobile-viewport-height) - var(--action-header-height));
@@ -709,9 +730,13 @@ export const ActionClipboardSection = styled.section`
     }
     .action-clipboard-content-state { padding: 28px 22px; }
     .action-clipboard-content-state h2 { font-size: clamp(46px, 14vw, 74px); }
-    .action-clipboard-scene-title { gap: 8px; }
-    .action-clipboard-scene-icon { width: 40px; height: 40px; }
-    .action-clipboard-title-words { font-size: clamp(22px, 5.8vw, 27px); }
+    .action-clipboard-scene-title { gap: 3px; }
+    .action-clipboard-scene-icon { width: 22px; height: 22px; }
+    .action-clipboard-title-words { font-size: var(--action-title-font-size, clamp(18px, 5vw, 21px)); letter-spacing: -.055em; }
+    /* Hidden title text still has horizontal padding. Cancel that reserved
+       width while only the icon is visible so every title icon is centered. */
+    .action-clipboard-title-words { margin-left: -24px; }
+    .action-clipboard-scene--export .action-clipboard-title-words { overflow: visible; }
     .action-clipboard-mockups { right: 16px; bottom: 18px; left: 16px; gap: 8px; }
     .action-clipboard-mockup { --action-mockup-radius: 12px; height: var(--action-standard-mockup-height); padding: 6px; }
     .action-clipboard-mockups { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
@@ -733,15 +758,30 @@ export const ActionClipboardSection = styled.section`
     .action-clipboard-mockup--text .action-clipboard-mockup-skeleton-lines i:nth-child(n + 4) { display: none; }
     .action-clipboard-pin-orb { top: 6px; right: 6px; width: 20px; }
     .action-clipboard-share-orb { right: 6px; bottom: 6px; width: 20px; }
-    .action-clipboard-export-options { gap: 10px; }
-    .action-clipboard-export-options > span { min-width: 0; padding: 16px 24px; font-size: clamp(22px, 5.8vw, 27px); }
-    .action-clipboard-export-previews { top: auto; right: 0; bottom: 18px; left: 0; gap: 6px; }
+    .action-clipboard-export-options { gap: var(--action-export-pill-gap); }
+    .action-clipboard-export-options > span { min-width: 0; padding: 16px 18px; font-size: var(--action-title-font-size, clamp(18px, 5vw, 21px)); }
+    .action-clipboard-export-previews { top: auto; right: 0; bottom: 18px; left: 0; gap: var(--action-export-pill-gap); }
     .action-clipboard-export-previews > span { height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
     .action-clipboard-export-previews i { height: 5px; }
-    .action-clipboard-voice-lines { width: 130px; height: 48px; gap: 4px; }
+    .action-clipboard-json-property { grid-template-columns: minmax(0, .34fr) 3px minmax(0, .66fr); gap: 3px; padding-left: 4%; }
+    .action-clipboard-json-property i:nth-child(2) { width: 3px; height: 3px; }
+    .action-clipboard-export-preview--csv { gap: 4px; }
+    .action-clipboard-csv-row { gap: 4px; }
+    .action-clipboard-csv-row--header { margin-bottom: 4px; }
+    .action-clipboard-csv-row--header i { height: 4px; }
+    .action-clipboard-voice-lines { width: 104px; height: 38px; gap: 3px; }
+    .action-clipboard-voice-line { width: 4px; }
     .action-clipboard-voice-transcript { right: auto; bottom: 18px; left: 50%; width: var(--action-standard-mockup-width); height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; transform: translateX(-50%); }
     .action-clipboard-scan-phone { width: 176px; height: 278px; border-radius: 22px; }
     .action-clipboard-scan-result { width: var(--action-standard-mockup-width); height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
+    .action-clipboard-voice-transcript-title,
+    .action-clipboard-scan-result-title { height: 8px; margin-bottom: 6px; }
+    .action-clipboard-voice-transcript-lines,
+    .action-clipboard-scan-result-lines { gap: 4px; }
+    .action-clipboard-voice-transcript-lines i,
+    .action-clipboard-scan-result-lines i { height: 4px; max-width: 100%; }
+    .action-clipboard-voice-transcript-lines i:nth-child(n + 4),
+    .action-clipboard-scan-result-lines i:nth-child(n + 4) { display: none; }
     .action-clipboard-tab-viewport { min-height: 32px; flex-basis: 32px; }
     .action-clipboard-tabs { justify-content: center; gap: 4px; padding: 0; }
     .action-clipboard-tab { width: 32px; height: 32px; padding: 0; }
@@ -750,10 +790,10 @@ export const ActionClipboardSection = styled.section`
 
   @media (max-width: 360px) {
     --action-share-edge: 10px;
-    --action-share-plane-edge: 16px;
-    --action-share-plane-size: 28px;
-    --action-share-social-size: 32px;
-    --action-share-social-gap: 10px;
+    --action-share-plane-edge: 14px;
+    --action-share-plane-size: 24px;
+    --action-share-social-size: 28px;
+    --action-share-social-gap: 7px;
   }
 
   @media (prefers-reduced-motion: reduce) {

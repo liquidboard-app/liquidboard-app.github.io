@@ -70,7 +70,7 @@ const SCROLL_TUNING = {
 } as const;
 
 const ActionClipboard: React.FC = () => {
-  const { dict } = useTranslation();
+  const { dict, lang } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -172,6 +172,34 @@ const ActionClipboard: React.FC = () => {
       const cloudMockups = Array.from(cloudScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
       if (!groupScene || !pinScene || !shareScene || !exportScene || !voiceScene || !scanScene || !systemScene || !cloudScene || !groupTitle || !pinTitle || !shareTitle || !exportTitle || !voiceTitle || !scanTitle || !scanMotion || !systemTitle || !cloudTitle || !groupIcon || !pinIcon || !shareIcon || !exportIcon || !voiceIcon || !scanIcon || !systemIcon || !cloudIcon || !groupWords || !pinWords || !shareWords || !exportWords || !voiceWords || !scanWords || !systemWords || !cloudWords || !pinOrb || !shareAction || !sharePlane || !shareSocialList || !voiceTranscript || !voiceTranscriptTitle || !scanSearch || !scanPhone || !scanResult || !scanResultTitle || groupWordItems.length < 2 || exportWordItems.length < 2 || pinMockups.length < 4 || shareMockups.length < 4 || shareSocials.length < 4 || exportMockups.length < 3 || systemMockups.length < 4 || cloudMockups.length < 4 || exportOptions.length < 1 || exportOptionLabels.length < 1 || exportPreviews.length < 2 || voiceLines.length < 10 || voiceTranscriptLines.length < 5 || scanResultLines.length < 5) return;
 
+      const titleWords = [groupWords, pinWords, shareWords, exportWords, voiceWords, scanWords, systemWords, cloudWords];
+      const fitMobileTitleWords = () => {
+        titleWords.forEach((words) => words.style.removeProperty('--action-title-font-size'));
+        exportScene.style.removeProperty('--action-title-font-size');
+        if (window.innerWidth > 760) return;
+
+        const availableWidth = Math.max(120, contentFrame.clientWidth - 48);
+        titleWords.forEach((words) => {
+          const track = words.querySelector<HTMLElement>('.action-clipboard-title-word-track');
+          const items = (Array.from(track?.children ?? []) as HTMLElement[])
+            .slice(0, words === exportWords ? 1 : undefined);
+          const style = getComputedStyle(words);
+          const gap = Number.parseFloat(track ? getComputedStyle(track).columnGap : '0') || 0;
+          const contentWidth = items.reduce((width, item) => width + Math.max(item.scrollWidth, item.offsetWidth), 0)
+            + (gap * Math.max(items.length - 1, 0));
+          const paddedWidth = contentWidth
+            + Number.parseFloat(style.paddingLeft)
+            + Number.parseFloat(style.paddingRight);
+          if (paddedWidth <= availableWidth) return;
+
+          const baseFontSize = Number.parseFloat(style.fontSize);
+          const fittedFontSize = Math.max(14, baseFontSize * (availableWidth / paddedWidth));
+          const titleFontTarget = words === exportWords ? exportScene : words;
+          titleFontTarget.style.setProperty('--action-title-font-size', `${fittedFontSize}px`);
+        });
+      };
+      fitMobileTitleWords();
+
       let introProgress = 0;
 
       const updateFeatureProgress = (progress: number) => {
@@ -183,24 +211,33 @@ const ActionClipboard: React.FC = () => {
         tabs.forEach((tab, index) => {
           const tabProgress = clamp01((nextProgress * actionFeatureDefinitions.length) - index);
           tab.style.setProperty('--tab-progress', String(tabProgress));
+          // Avoid Safari compositing artifacts from mix-blend-mode while the
+          // circular fill is scrubbed backwards. Switch at the icon center,
+          // where either contrast colour remains readable.
+          tab.style.setProperty('--tab-icon-color', tabProgress >= .5 ? '#fff' : '#151515');
         });
         setActiveIndex((currentIndex) => currentIndex === nextIndex ? currentIndex : nextIndex);
       };
 
       const context = gsap.context(() => {
         const isMobile = () => window.innerWidth <= 760;
-        const expandedTitleGap = () => isMobile() ? 8 : 18;
-        const expandedTitlePadding = () => isMobile() ? '16px 24px' : '28px 56px';
+        const expandedTitleGap = () => isMobile() ? 3 : 18;
+        // Title words retain 12px of right-side overflow room so animated
+        // glyphs are never clipped. Compensate for it in the pill padding:
+        // this keeps the visible edge-to-icon and edge-to-text in balance.
+        const expandedTitlePadding = () => isMobile()
+          ? '16px 12px 16px 24px'
+          : '28px 44px 28px 56px';
+        const exportFormatPadding = () => isMobile() ? '16px 18px' : '28px 56px';
         const clampValue = (minimum: number, preferred: number, maximum: number) => (
           Math.min(maximum, Math.max(minimum, preferred))
         );
         const liftedTitleScale = () => {
+          if (isMobile()) return .72;
           const initialFontSize = Number.parseFloat(getComputedStyle(groupWords).fontSize);
-          const previousFontSize = isMobile()
-            ? clampValue(24, window.innerWidth * .065, 30)
-            : clampValue(48, window.innerWidth * .06, 92);
-          const previousLiftedSize = previousFontSize * (isMobile() ? .88 : .4);
-          return initialFontSize > 0 ? previousLiftedSize / initialFontSize : (isMobile() ? .88 : .4);
+          const previousFontSize = clampValue(48, window.innerWidth * .06, 92);
+          const previousLiftedSize = previousFontSize * .4;
+          return initialFontSize > 0 ? previousLiftedSize / initialFontSize : .4;
         };
         const liftedScanScale = () => isMobile() ? .7 : .5;
         // Group is the reference: every single result card uses its card width.
@@ -316,8 +353,11 @@ const ActionClipboard: React.FC = () => {
             0,
           ) + (gap * Math.max(selectedItems.length - 1, 0));
 
-          // The small buffer protects fractional glyph overhangs at both ends.
-          return Math.ceil(contentWidth + horizontalPadding + 4);
+          return Math.ceil(contentWidth + horizontalPadding);
+        };
+        const titleWordsWidthWithoutLeftBuffer = (words: HTMLElement, indexes: number[] = [0]) => {
+          const leftBuffer = Number.parseFloat(getComputedStyle(words).paddingLeft) || 0;
+          return Math.max(0, titleWordsWidth(words, indexes) - leftBuffer);
         };
         const groupWordWidth = (index: number) => titleWordsWidth(groupWords, [index]);
         const groupNameWidth = () => {
@@ -331,7 +371,7 @@ const ActionClipboard: React.FC = () => {
             0,
           );
 
-          return Math.ceil(wordsWidth + gap + horizontalPadding + 12);
+          return Math.ceil(wordsWidth + gap + horizontalPadding);
         };
         const scanInitialTitleWidth = () => scanIcon.offsetWidth;
         const pullMockupX = (_: number, mockup: HTMLElement) => {
@@ -364,21 +404,36 @@ const ActionClipboard: React.FC = () => {
           const titleBounds = exportTitle.getBoundingClientRect();
           return titleBounds.top + (titleBounds.height / 2) - (itemBounds.top + (itemBounds.height / 2));
         };
-        const exportFrameCenterX = () => {
-          const frameBounds = contentFrame.getBoundingClientRect();
-          return frameBounds.left + (frameBounds.width / 2);
-        };
+        const exportPillGap = () => sectionPixelValue('--action-export-pill-gap', 20);
         const exportLeftPillX = () => {
-          const previewBounds = exportPreviews[0]?.getBoundingClientRect();
-          if (!previewBounds) return 0;
-          return previewBounds.left + (previewBounds.width / 2) - exportFrameCenterX();
+          return -((exportPillWidth() + exportPillGap()) / 2);
         };
         const exportRightPillX = () => {
-          const previewBounds = exportPreviews[1]?.getBoundingClientRect();
-          if (!previewBounds) return 0;
-          return previewBounds.left + (previewBounds.width / 2) - exportFrameCenterX();
+          return (exportPillWidth() + exportPillGap()) / 2;
         };
-        const exportCsvPillWidth = standardMockupWidth;
+        const exportPillWidth = () => {
+          const optionStyle = getComputedStyle(exportOptions[0]!);
+          const optionPadding = Number.parseFloat(optionStyle.paddingLeft)
+            + Number.parseFloat(optionStyle.paddingRight);
+          const jsonWidth = titleWordsWidth(exportWords, [1]) + optionPadding;
+          const csvWidth = (exportOptionLabels[0]?.scrollWidth ?? 0) + optionPadding;
+
+          // The two format controls represent the same choice level, so their
+          // outer pills deliberately share one measured width at every size.
+          return Math.ceil(Math.max(standardMockupWidth(), jsonWidth, csvWidth));
+        };
+        const exportPreviewX = (index: number, preview: HTMLElement) => {
+          const previewBounds = preview.getBoundingClientRect();
+          const targetBounds = (index === 0 ? exportTitle : exportOptions[0]!).getBoundingClientRect();
+
+          // The preview cards should use the format pills as their horizontal
+          // anchors: JSON meets the right edge of the JSON pill, while CSV
+          // meets the left edge of the CSV pill. This keeps the larger visual
+          // gap between the pills instead of re-centering the cards together.
+          return index === 0
+            ? targetBounds.right - previewBounds.right
+            : targetBounds.left - previewBounds.left;
+        };
         const pinSlotOffset = (fromIndex: number, toIndex: number) => {
           const fromBounds = pinMockups[fromIndex]?.getBoundingClientRect();
           const toBounds = pinMockups[toIndex]?.getBoundingClientRect();
@@ -410,7 +465,7 @@ const ActionClipboard: React.FC = () => {
           .to(groupScene, { autoAlpha: 1, duration: .01 })
           .to(groupIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('group-title')
-          .to(groupWords, { autoAlpha: 1, width: () => groupWordWidth(0), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(groupWords, { autoAlpha: 1, width: () => groupWordWidth(0), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(groupTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('group-background')
           .to(groupTitle, {
@@ -424,7 +479,16 @@ const ActionClipboard: React.FC = () => {
           .to(groupTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
         phase('group-hide-icon')
           .to(groupIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(groupTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+          .to(groupTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
+          // The words wrapper reserves left overflow room while an icon is
+          // present. Collapse that room with the icon so text-only pills stay
+          // visually centered; a reversed scrub restores it automatically.
+          .to(groupWords, {
+            paddingLeft: 0,
+            width: () => titleWordsWidthWithoutLeftBuffer(groupWords),
+            duration: .46,
+            ease: 'power2.inOut',
+          }, '<');
         phase('group-items')
           .to(groupMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
         phase('group-name')
@@ -441,7 +505,7 @@ const ActionClipboard: React.FC = () => {
           .to(pinScene, { autoAlpha: 1, duration: .01 })
           .to(pinIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('pin-title')
-          .to(pinWords, { autoAlpha: 1, width: () => titleWordsWidth(pinWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(pinWords, { autoAlpha: 1, width: () => titleWordsWidth(pinWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(pinTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('pin-background')
           .to(pinTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -449,7 +513,13 @@ const ActionClipboard: React.FC = () => {
           .to(pinTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
         phase('pin-hide-icon')
           .to(pinIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(pinTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+          .to(pinTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
+          .to(pinWords, {
+            paddingLeft: 0,
+            width: () => titleWordsWidthWithoutLeftBuffer(pinWords),
+            duration: .46,
+            ease: 'power2.inOut',
+          }, '<');
         phase('pin-items')
           .to(pinMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
         phase('pin-mark')
@@ -469,7 +539,7 @@ const ActionClipboard: React.FC = () => {
           .to(shareScene, { autoAlpha: 1, duration: .01 })
           .to(shareIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('share-title')
-          .to(shareWords, { autoAlpha: 1, width: () => titleWordsWidth(shareWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(shareWords, { autoAlpha: 1, width: () => titleWordsWidth(shareWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(shareTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('share-background')
           .to(shareTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -477,7 +547,13 @@ const ActionClipboard: React.FC = () => {
           .to(shareTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
         phase('share-hide-icon')
           .to(shareIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(shareTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+          .to(shareTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
+          .to(shareWords, {
+            paddingLeft: 0,
+            width: () => titleWordsWidthWithoutLeftBuffer(shareWords),
+            duration: .46,
+            ease: 'power2.inOut',
+          }, '<');
         phase('share-items')
           .to(shareMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
         phase('share-select')
@@ -568,7 +644,7 @@ const ActionClipboard: React.FC = () => {
           .to(exportScene, { autoAlpha: 1, duration: .01 })
           .to(exportIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('export-title')
-          .to(exportWords, { autoAlpha: 1, width: () => titleWordsWidth(exportWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(exportWords, { autoAlpha: 1, width: () => titleWordsWidth(exportWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(exportTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('export-background')
           .to(exportTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -576,7 +652,13 @@ const ActionClipboard: React.FC = () => {
           .to(exportTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
         phase('export-hide-icon')
           .to(exportIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(exportTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+          .to(exportTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
+          .to(exportWords, {
+            paddingLeft: 0,
+            width: () => titleWordsWidthWithoutLeftBuffer(exportWords),
+            duration: .46,
+            ease: 'power2.inOut',
+          }, '<');
         phase('export-items')
           .to(exportMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
         phase('export-select')
@@ -584,19 +666,19 @@ const ActionClipboard: React.FC = () => {
         phase('export-collapse')
           .to(exportMockups, { x: pullExportMockupX, y: pullExportMockupY, scale: .1, autoAlpha: 0, filter: 'blur(12px)', duration: .82, stagger: .1, ease: 'power4.in' });
         phase('export-formats')
+          // Turn the existing centered pill into the two format pills. Both
+          // sides start at the same center and move out together, so JSON
+          // and CSV keep the same centered padding and width.
+          .set(exportWords, { padding: 0 })
+          .set(exportOptions, { width: exportPillWidth, x: 0 })
           .to(exportWordItems[0], { autoAlpha: 0, y: -16, filter: 'blur(10px)', duration: .28, ease: 'power2.inOut' })
-          .to(exportWords, { width: 150, duration: .34, ease: 'power3.inOut' }, '<')
-          .set(exportOptions, { width: standardMockupWidth })
-          .to(exportTitle, { x: exportLeftPillX, duration: .5, ease: 'power3.inOut' }, '>.18')
+          .to(exportWords, { width: () => titleWordsWidth(exportWords, [1]), duration: .34, ease: 'power3.inOut' }, '<')
+          .to(exportTitle, { padding: exportFormatPadding, width: exportPillWidth, x: exportLeftPillX, duration: .5, ease: 'power3.inOut' }, '<')
           .to(exportOptions, { autoAlpha: 1, x: exportRightPillX, filter: 'blur(0px)', duration: .5, ease: 'power3.inOut' }, '<')
-          .to(exportWords, { width: () => titleWordsWidth(exportWords, [1]), duration: .42, ease: 'power3.inOut' }, '>.16')
-          .to(exportTitle, { x: exportLeftPillX, duration: .42, ease: 'power3.inOut' }, '<')
-          .to(exportOptions, { width: exportCsvPillWidth, duration: .42, ease: 'power3.inOut' }, '<')
-          .to(exportOptions, { x: exportRightPillX, duration: .42, ease: 'power3.inOut' }, '<')
           .to(exportWordItems[1], { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .36, ease: 'power3.out' }, '<.06')
           .to(exportOptionLabels, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .36, ease: 'power3.out' }, '<');
         phase('export-previews')
-          .to(exportPreviews, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .52, stagger: .14, ease: 'power3.out' });
+          .to(exportPreviews, { autoAlpha: 1, x: exportPreviewX, y: 0, filter: 'blur(0px)', duration: .52, stagger: .14, ease: 'power3.out' });
         phase('export-exit')
           .to([exportTitle, ...exportOptions], { y: () => -contentFrame.clientHeight * .78, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
           .to(exportPreviews, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, stagger: .08, ease: 'power3.in' }, '<')
@@ -606,7 +688,7 @@ const ActionClipboard: React.FC = () => {
           .to(voiceScene, { autoAlpha: 1, duration: .01 })
           .to(voiceIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('voice-title')
-          .to(voiceWords, { autoAlpha: 1, width: () => titleWordsWidth(voiceWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(voiceWords, { autoAlpha: 1, width: () => titleWordsWidth(voiceWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(voiceTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('voice-background')
           .to(voiceTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -631,7 +713,7 @@ const ActionClipboard: React.FC = () => {
           .to(scanIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
           .set(scanTitle, { clearProps: 'width' });
         phase('scan-title')
-          .to(scanWords, { autoAlpha: 1, width: () => titleWordsWidth(scanWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(scanWords, { autoAlpha: 1, width: () => titleWordsWidth(scanWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(scanTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('scan-background')
           .to(scanTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -665,7 +747,7 @@ const ActionClipboard: React.FC = () => {
           .to(systemScene, { autoAlpha: 1, duration: .01 })
           .to(systemIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('system-title')
-          .to(systemWords, { autoAlpha: 1, width: () => titleWordsWidth(systemWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(systemWords, { autoAlpha: 1, width: () => titleWordsWidth(systemWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(systemTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('system-background')
           .to(systemTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -673,7 +755,13 @@ const ActionClipboard: React.FC = () => {
           .to(systemTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
         phase('system-hide-icon')
           .to(systemIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(systemTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+          .to(systemTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
+          .to(systemWords, {
+            paddingLeft: 0,
+            width: () => titleWordsWidthWithoutLeftBuffer(systemWords),
+            duration: .46,
+            ease: 'power2.inOut',
+          }, '<');
         phase('system-items')
           .to(systemMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
         phase('system-exit')
@@ -685,7 +773,7 @@ const ActionClipboard: React.FC = () => {
           .to(cloudScene, { autoAlpha: 1, duration: .01 })
           .to(cloudIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' });
         phase('cloud-title')
-          .to(cloudWords, { autoAlpha: 1, width: () => titleWordsWidth(cloudWords), x: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
+          .to(cloudWords, { autoAlpha: 1, width: () => titleWordsWidth(cloudWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
           .to(cloudTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
         phase('cloud-background')
           .to(cloudTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
@@ -693,7 +781,13 @@ const ActionClipboard: React.FC = () => {
           .to(cloudTitle, { scale: liftedTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
         phase('cloud-hide-icon')
           .to(cloudIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(cloudTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<');
+          .to(cloudTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
+          .to(cloudWords, {
+            paddingLeft: 0,
+            width: () => titleWordsWidthWithoutLeftBuffer(cloudWords),
+            duration: .46,
+            ease: 'power2.inOut',
+          }, '<');
         phase('cloud-items')
           .to(cloudMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
         phase('complete');
@@ -826,6 +920,7 @@ const ActionClipboard: React.FC = () => {
             // Re-evaluate function-based widths after a breakpoint or browser
             // viewport change, then render the real scroll position. This keeps
             // Share's final action and the standard cards in the same scale.
+            fitMobileTitleWords();
             reveal.invalidate();
             renderScrollProgress(self.progress);
             syncUi();
@@ -834,7 +929,12 @@ const ActionClipboard: React.FC = () => {
       }, sectionRef);
 
       cleanup = () => {
-        tabs.forEach(tab => tab.style.removeProperty('--tab-progress'));
+        tabs.forEach(tab => {
+          tab.style.removeProperty('--tab-progress');
+          tab.style.removeProperty('--tab-icon-color');
+        });
+        titleWords.forEach((words) => words.style.removeProperty('--action-title-font-size'));
+        exportScene.style.removeProperty('--action-title-font-size');
         context.revert();
       };
       ScrollTrigger.refresh();
@@ -855,11 +955,11 @@ const ActionClipboard: React.FC = () => {
       >
         <div className="action-clipboard-content-frame">
           <div className="action-clipboard-content">
-            <article className="action-clipboard-scene action-clipboard-scene--group" aria-hidden={activeIndex !== 0}>
+            <article className={`action-clipboard-scene action-clipboard-scene--group${lang === 'vi' ? ' action-clipboard-scene--group-vi' : ''}`} aria-hidden={activeIndex !== 0}>
               <div className="action-clipboard-scene-title-anchor">
                 <div className="action-clipboard-scene-title">
                   <span className="action-clipboard-scene-icon"><Folder aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={`${dict.actionClipboard.groupTitle.primary} ${dict.actionClipboard.groupTitle.secondary}`}>
+                  <span className="action-clipboard-title-words" aria-label={lang === 'vi' ? 'Tên Nhóm' : `${dict.actionClipboard.groupTitle.primary} ${dict.actionClipboard.groupTitle.secondary}`}>
                     <span className="action-clipboard-title-word-track">
                       <span>{dict.actionClipboard.groupTitle.primary}</span>
                       <span>{dict.actionClipboard.groupTitle.secondary}</span>

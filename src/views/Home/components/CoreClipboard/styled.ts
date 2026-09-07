@@ -300,32 +300,23 @@ export const CoreClipboardSection = styled.section`
       height: calc(100dvh - 72px);
       height: calc(100svh - 72px);
       min-height: 0;
-      /* Clip keeps the horizontal rail inside the viewport without turning
-         the pinned stage into a scroll container. This lets a touch/trackpad
-         vertical gesture keep scrolling the document until ScrollTrigger
-         reaches the end of its pin-spacer. */
       overflow: clip;
       touch-action: pan-y;
+      contain: layout paint;
     }
     .core-phone-row {
-      /* Keep a small vertical breathing area and let viewport height become
-         the limiting dimension when a tablet window is compressed. The svh unit
-         stays fixed while browser chrome expands/collapses. */
       --core-scroll-phone-width: min(62vw, calc(49dvh - 59px));
       --core-scroll-phone-width: min(62vw, calc(49svh - 59px));
-      display: flex;
-      width: max-content;
+      position: relative;
+      width: 100%;
       height: 100%;
       min-height: 0;
       margin: 0;
-      padding-inline: calc((100vw - var(--core-scroll-phone-width)) / 2);
-      gap: clamp(48px, 7vw, 80px);
-      align-items: center;
       backface-visibility: hidden;
-      transform: translateZ(0);
+      contain: layout paint;
     }
-    .core-phone { width: var(--core-scroll-phone-width); flex: 0 0 var(--core-scroll-phone-width); transform: none !important; transition: none; will-change: auto; }
-    .core-phone-frame { translate: 0 16px; }
+    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, filter, opacity; }
+    .core-phone-frame { translate: 0; contain: paint; }
   }
 
   @media (max-width: 767px) {
@@ -341,27 +332,21 @@ export const CoreClipboardSection = styled.section`
       min-height: 0;
       overflow: clip;
       touch-action: pan-y;
+      contain: layout paint;
     }
     .core-phone-row {
-      /* A tall mobile viewport can use the empty space below the header;
-         short viewports shrink the phone before it can be clipped. The small
-         viewport unit prevents the address bar from resizing every image in
-         the middle of the pinned horizontal scroll. */
       --core-scroll-phone-width: min(84vw, calc(49dvh - 60px));
       --core-scroll-phone-width: min(84vw, calc(49svh - 60px));
-      display: flex;
-      width: max-content;
+      position: relative;
+      width: 100%;
       height: 100%;
       min-height: 0;
       margin: 0;
-      padding-inline: calc((100vw - var(--core-scroll-phone-width)) / 2);
-      gap: clamp(40px, 10vw, 60px);
-      align-items: center;
       backface-visibility: hidden;
-      transform: translateZ(0);
+      contain: layout paint;
     }
-    .core-phone { width: var(--core-scroll-phone-width); flex: 0 0 var(--core-scroll-phone-width); transform: none !important; transition: none; will-change: auto; }
-    .core-phone-frame { translate: 0; }
+    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, filter, opacity; }
+    .core-phone-frame { translate: 0; contain: paint; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -385,8 +370,8 @@ export const CoreClipboardSection = styled.section`
   }
 
   @media (max-width: 1199px) and (prefers-reduced-motion: reduce) {
-    .core-phone-stage { overflow-x: auto; scroll-snap-type: x mandatory; }
-    .core-phone-row { transform: none !important; }
-    .core-phone { scroll-snap-align: center; }
+    .core-phone-stage { height: auto; overflow-x: auto; contain: none; scroll-snap-type: x mandatory; }
+    .core-phone-row { display: flex; width: max-content; height: auto; padding-inline: calc((100vw - var(--core-scroll-phone-width)) / 2); gap: 48px; transform: none !important; }
+    .core-phone { position: static; width: var(--core-scroll-phone-width); flex: 0 0 var(--core-scroll-phone-width); opacity: 1 !important; filter: none !important; scroll-snap-align: center; }
   }
 `;
