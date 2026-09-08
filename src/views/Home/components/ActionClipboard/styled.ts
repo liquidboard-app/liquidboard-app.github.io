@@ -7,8 +7,9 @@ export const ActionClipboardSection = styled.section`
   --action-wrap-height: calc(100dvh - var(--action-header-height) - (var(--action-pin-gap) * 2));
   --action-mockup-edge: clamp(28px, 5vw, 88px);
   --action-mockup-gap: clamp(12px, 1.6vw, 24px);
-  --action-standard-mockup-width: calc((100% - var(--action-mockup-edge) - var(--action-mockup-edge) - var(--action-mockup-gap) - var(--action-mockup-gap) - var(--action-mockup-gap)) / 4);
-  --action-standard-mockup-height: clamp(118px, 13vw, 176px);
+  --action-standard-mockup-size: clamp(118px, 13vw, 176px);
+  --action-standard-mockup-width: var(--action-standard-mockup-size);
+  --action-standard-mockup-height: var(--action-standard-mockup-size);
   --action-share-edge: 18px;
   --action-share-plane-edge: 32px;
   --action-share-expanded-width: 400px;
@@ -112,6 +113,10 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-title-word-track > span { display: block; flex: 0 0 auto; width: max-content; height: 1.08em; white-space: nowrap; }
   .action-clipboard-scene--group-vi .action-clipboard-title-word-track { flex-direction: row-reverse; }
   .action-clipboard-scene--cloud .action-clipboard-title-words { text-transform: none; }
+  /* Export changes its title width while the pinned timeline is scrubbed.
+     Keep the glyphs paintable while that width is being restored on reverse;
+     the title pill still provides the visual boundary. */
+  .action-clipboard-scene--export .action-clipboard-title-words { overflow: visible; }
   .action-clipboard-scene--export .action-clipboard-scene-title { box-sizing: border-box; justify-content: center; }
   .action-clipboard-scene--export .action-clipboard-title-word-track { position: relative; display: block; }
   .action-clipboard-scene--export .action-clipboard-title-word-track > span { position: absolute; top: 0; left: 0; }
@@ -136,8 +141,9 @@ export const ActionClipboardSection = styled.section`
     bottom: clamp(26px, 5vh, 68px);
     left: var(--action-mockup-edge);
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, var(--action-standard-mockup-width));
     gap: var(--action-mockup-gap);
+    justify-content: center;
     z-index: 1;
   }
   .action-clipboard-scene--export .action-clipboard-mockups {
@@ -150,6 +156,7 @@ export const ActionClipboardSection = styled.section`
     --action-mockup-radius: 24px;
     position: relative;
     display: flex;
+    width: var(--action-standard-mockup-width);
     height: var(--action-standard-mockup-height);
     padding: clamp(16px, 1.7vw, 24px);
     overflow: hidden;
@@ -158,6 +165,8 @@ export const ActionClipboardSection = styled.section`
     gap: 10px;
     align-items: flex-start;
     justify-content: flex-start;
+    justify-self: center;
+    aspect-ratio: 1;
     border: 1px solid rgba(255, 255, 255, .07);
     border-radius: var(--action-mockup-radius);
     background: #2d2d2d;
@@ -309,31 +318,23 @@ export const ActionClipboardSection = styled.section`
     display: grid;
     min-width: 0;
     height: 100%;
-    grid-template-rows: .3fr 1fr 1fr .3fr;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     gap: clamp(4px, .45vw, 7px);
   }
   .action-clipboard-json-object {
     display: grid;
     min-width: 0;
-    grid-template-rows: .45fr 1fr 1fr .45fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
     gap: clamp(2px, .24vw, 4px);
     padding-left: 6%;
   }
-  .action-clipboard-json-bracket,
-  .action-clipboard-json-brace {
-    width: 10% !important;
-    height: clamp(3px, .3vw, 5px) !important;
-    align-self: center;
-    background: rgba(255, 255, 255, .12) !important;
-  }
-  .action-clipboard-json-brace { width: 7% !important; }
   .action-clipboard-json-property {
     display: grid;
     min-width: 0;
     grid-template-columns: minmax(24px, .34fr) 4px minmax(42px, .66fr);
     align-items: center;
     gap: clamp(5px, .55vw, 9px);
-    padding-left: 6%;
+    padding-left: 4%;
   }
   .action-clipboard-json-property i { width: 100%; }
   .action-clipboard-json-property i:nth-child(2) { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, .38); }
@@ -373,32 +374,8 @@ export const ActionClipboardSection = styled.section`
     position: absolute;
     left: 50%;
     bottom: clamp(28px, 5vh, 68px);
-    width: var(--action-standard-mockup-width);
-    height: var(--action-standard-mockup-height);
-    padding: clamp(16px, 1.7vw, 24px);
-    box-sizing: border-box;
-    border: 1px solid rgba(255, 255, 255, .07);
-    border-radius: 24px;
-    background: #2d2d2d;
-    overflow: hidden;
     transform: translateX(-50%);
   }
-  .action-clipboard-voice-transcript-title {
-    display: block;
-    width: 44%;
-    height: clamp(16px, 1.4vw, 22px);
-    margin-bottom: clamp(10px, 1vw, 14px);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .3);
-  }
-  .action-clipboard-voice-transcript-lines { display: grid; gap: clamp(5px, .45vw, 7px); }
-  .action-clipboard-voice-transcript-lines i { display: block; width: 100%; height: clamp(7px, .65vw, 10px); border-radius: 999px; background: rgba(255, 255, 255, .13); }
-  .action-clipboard-voice-transcript-lines i:nth-child(2) { width: 88%; }
-  .action-clipboard-voice-transcript-lines i:nth-child(3) { width: 74%; }
-  .action-clipboard-voice-transcript-lines i:nth-child(4) { width: 92%; }
-  .action-clipboard-voice-transcript-lines i:nth-child(5) { width: 66%; }
-  .action-clipboard-voice-transcript-lines i:nth-child(6) { width: 84%; }
-  .action-clipboard-voice-transcript-lines i:nth-child(7) { width: 53%; }
   .action-clipboard-scan-search {
     position: absolute;
     inset: 0;
@@ -519,8 +496,8 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-mockup-link-title,
   .action-clipboard-mockup-link-url { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .action-clipboard-mockup--link { padding: 0; gap: 0; overflow: hidden; }
-  .action-clipboard-mockup-link-title { width: 66%; height: clamp(10px, .9vw, 14px); margin: clamp(12px, 1.2vw, 18px) clamp(12px, 1.25vw, 18px) 0; border-radius: 999px; background: rgba(255, 255, 255, .24); }
-  .action-clipboard-mockup-link-url { width: 45%; height: clamp(7px, .65vw, 10px); margin: 8px clamp(12px, 1.25vw, 18px) 0; border-radius: 999px; background: rgba(255, 255, 255, .11); }
+  .action-clipboard-mockup-link-title { width: 66%; height: clamp(10px, .9vw, 14px); margin: clamp(8px, .8vw, 12px) clamp(12px, 1.25vw, 18px) 0; border-radius: 999px; background: rgba(255, 255, 255, .24); }
+  .action-clipboard-mockup-link-url { width: 45%; height: clamp(7px, .65vw, 10px); margin: 6px clamp(12px, 1.25vw, 18px) 0; border-radius: 999px; background: rgba(255, 255, 255, .11); }
   .action-clipboard-mockup--color { align-items: center; justify-content: center; }
   .action-clipboard-mockup-color-title,
   .action-clipboard-mockup-color-name { display: block; border-radius: 999px; background: rgba(255, 255, 255, .16); }
@@ -639,7 +616,8 @@ export const ActionClipboardSection = styled.section`
     width: 24px;
     height: 24px;
     place-items: center;
-    color: var(--tab-icon-color, #151515);
+    color: #fff;
+    mix-blend-mode: difference;
   }
   .action-clipboard-tab-label svg { width: 100%; height: 100%; stroke-width: 1.9; }
 
@@ -687,13 +665,31 @@ export const ActionClipboardSection = styled.section`
     .action-clipboard-mockup--text .action-clipboard-mockup-skeleton-lines i:nth-child(n + 5) { display: none; }
   }
 
+  /* Keep tablet/iPad mockups at a stable width instead of stretching them
+     across the whole content frame. Mobile overrides this below. */
+  @media (min-width: 761px) and (max-width: 1199px), (min-width: 761px) and (any-pointer: coarse) {
+    --action-standard-mockup-size: 160px;
+    --action-mockup-gap: 12px;
+
+    .action-clipboard-mockups {
+      grid-template-columns: repeat(4, var(--action-standard-mockup-width));
+      justify-content: center;
+    }
+    .action-clipboard-scene--export .action-clipboard-mockups {
+      grid-template-columns: repeat(3, var(--action-standard-mockup-width));
+    }
+    .action-clipboard-export-previews {
+      grid-template-columns: repeat(2, var(--action-standard-mockup-width));
+    }
+  }
+
   @media (max-width: 760px) {
     --action-mobile-viewport-height: 100svh;
     --action-mobile-safe-bottom: max(12px, env(safe-area-inset-bottom));
     --action-mobile-frame-height: clamp(380px, 105vw, 455px);
     --action-mockup-edge: 16px;
     --action-mockup-gap: 6px;
-    --action-standard-mockup-height: 76px;
+    --action-standard-mockup-size: 76px;
     --action-share-edge: 12px;
     --action-share-plane-edge: 18px;
     --action-share-expanded-width: 300px;
@@ -736,10 +732,9 @@ export const ActionClipboardSection = styled.section`
     /* Hidden title text still has horizontal padding. Cancel that reserved
        width while only the icon is visible so every title icon is centered. */
     .action-clipboard-title-words { margin-left: -24px; }
-    .action-clipboard-scene--export .action-clipboard-title-words { overflow: visible; }
     .action-clipboard-mockups { right: 16px; bottom: 18px; left: 16px; gap: 8px; }
     .action-clipboard-mockup { --action-mockup-radius: 12px; height: var(--action-standard-mockup-height); padding: 6px; }
-    .action-clipboard-mockups { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+    .action-clipboard-mockups { grid-template-columns: repeat(4, var(--action-standard-mockup-width)); gap: 6px; justify-content: center; }
     .action-clipboard-scene--export .action-clipboard-mockups {
       right: 0;
       left: 0;
@@ -771,16 +766,12 @@ export const ActionClipboardSection = styled.section`
     .action-clipboard-csv-row--header i { height: 4px; }
     .action-clipboard-voice-lines { width: 104px; height: 38px; gap: 3px; }
     .action-clipboard-voice-line { width: 4px; }
-    .action-clipboard-voice-transcript { right: auto; bottom: 18px; left: 50%; width: var(--action-standard-mockup-width); height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; transform: translateX(-50%); }
+    .action-clipboard-voice-transcript { right: auto; bottom: 18px; left: 50%; transform: translateX(-50%); }
     .action-clipboard-scan-phone { width: 176px; height: 278px; border-radius: 22px; }
     .action-clipboard-scan-result { width: var(--action-standard-mockup-width); height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
-    .action-clipboard-voice-transcript-title,
     .action-clipboard-scan-result-title { height: 8px; margin-bottom: 6px; }
-    .action-clipboard-voice-transcript-lines,
     .action-clipboard-scan-result-lines { gap: 4px; }
-    .action-clipboard-voice-transcript-lines i,
     .action-clipboard-scan-result-lines i { height: 4px; max-width: 100%; }
-    .action-clipboard-voice-transcript-lines i:nth-child(n + 4),
     .action-clipboard-scan-result-lines i:nth-child(n + 4) { display: none; }
     .action-clipboard-tab-viewport { min-height: 32px; flex-basis: 32px; }
     .action-clipboard-tabs { justify-content: center; gap: 4px; padding: 0; }
