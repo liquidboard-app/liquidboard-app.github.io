@@ -19,6 +19,11 @@ const ko: LocaleDict = {
     sectionLabel: 'LiquidBoard 기능',
     progressLabel: '클립보드 기능 진행률',
     groupTitle: { primary: '그룹', secondary: '이름' },
+    groupDescription: '필요에 따라 분류',
+    pinDescription: '중요한 항목을 먼저',
+    shareDescription: '모든 플랫폼으로 보내기',
+    exportTitle: '가져오기 / 내보내기',
+    exportDescription: 'JSON 또는 CSV로 저장하고 가져오기',
     featureLabels: { group: '그룹', pin: '고정', share: '공유', export: '파일 내보내기', voice: '음성', scanText: '텍스트 스캔', systemPasteboard: '시스템 클립보드', iCloud: 'iCloud' },
   },
   header: {

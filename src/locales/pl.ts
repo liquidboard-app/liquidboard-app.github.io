@@ -19,6 +19,11 @@ const pl: LocaleDict = {
     sectionLabel: 'Funkcje LiquidBoard',
     progressLabel: 'Postęp funkcji schowka',
     groupTitle: { primary: 'Nazwa', secondary: 'grupy' },
+    groupDescription: 'Kategoryzuj według potrzeb',
+    pinDescription: 'Najważniejsze na górze',
+    shareDescription: 'Wyślij na każdą platformę',
+    exportTitle: 'Importuj / eksportuj',
+    exportDescription: 'Przechowuj i importuj za pomocą JSON lub CSV',
     featureLabels: { group: 'Grupa', pin: 'Przypnij', share: 'Udostępnij', export: 'Eksportuj plik', voice: 'Głos', scanText: 'Skanuj tekst', systemPasteboard: 'Schowek systemowy', iCloud: 'iCloud' },
   },
   header: {

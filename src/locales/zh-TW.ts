@@ -19,6 +19,11 @@ const zhTW: LocaleDict = {
     sectionLabel: 'LiquidBoard 功能',
     progressLabel: '剪貼簿功能進度',
     groupTitle: { primary: '群組', secondary: '名稱' },
+    groupDescription: '依需求分類',
+    pinDescription: '重要項目置於最前',
+    shareDescription: '傳送到所有平台',
+    exportTitle: '匯入 / 匯出',
+    exportDescription: '使用 JSON 或 CSV 儲存與匯入',
     featureLabels: { group: '群組', pin: '置頂', share: '分享', export: '匯出檔案', voice: '語音', scanText: '掃描文字', systemPasteboard: '系統剪貼簿', iCloud: 'iCloud' },
   },
   header: {

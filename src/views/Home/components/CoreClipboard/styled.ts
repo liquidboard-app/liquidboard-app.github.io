@@ -274,9 +274,16 @@ export const CoreClipboardSection = styled.section`
     transform: translateX(-50%);
   }
   @media (min-width: 1200px) {
+    padding-block: clamp(160px, 14vw, 240px);
     .core-clipboard-heading { padding-bottom: clamp(40px, 2.2vw, 50px); }
-    .core-phone-row { align-items: start; gap: clamp(6px, .85vw, 16px); padding-top: 60px; }
-    .core-phone { width: min(24.4vw, 332px); }
+    .core-phone-row {
+      align-items: start;
+      grid-template-columns: repeat(3, minmax(0, min(20vw, 280px)));
+      justify-content: center;
+      gap: clamp(4px, .5vw, 8px);
+      padding-top: 60px;
+    }
+    .core-phone { width: min(20vw, 280px); }
     .core-phone-stage { min-height: min(58vw, 820px); }
     .core-phone-1 { transform: translate3d(0, 0, 0); }
     .core-phone-2 { transform: translate3d(0, 0, 0); }

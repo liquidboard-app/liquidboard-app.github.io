@@ -19,6 +19,11 @@ const zhCN: LocaleDict = {
     sectionLabel: 'LiquidBoard 功能',
     progressLabel: '剪贴板功能进度',
     groupTitle: { primary: '分组', secondary: '名称' },
+    groupDescription: '按需分类',
+    pinDescription: '重要内容置顶',
+    shareDescription: '发送到所有平台',
+    exportTitle: '导入 / 导出',
+    exportDescription: '使用 JSON 或 CSV 保存和导入',
     featureLabels: { group: '分组', pin: '置顶', share: '分享', export: '导出文件', voice: '语音', scanText: '扫描文本', systemPasteboard: '系统剪贴板', iCloud: 'iCloud' },
   },
   header: {

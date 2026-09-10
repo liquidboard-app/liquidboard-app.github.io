@@ -19,7 +19,12 @@ const vi: LocaleDict = {
     sectionLabel: 'Các tính năng LiquidBoard',
     progressLabel: 'Tiến trình tính năng Clipboard',
     groupTitle: { primary: 'Nhóm', secondary: 'Tên' },
-    featureLabels: { group: 'Nhóm', pin: 'Ghim', share: 'Chia sẻ', export: 'Xuất File', voice: 'Giọng nói', scanText: 'Quét văn bản', systemPasteboard: 'Bảng tạm hệ thống', iCloud: 'iCloud' },
+    groupDescription: 'Phân loại theo nhu cầu',
+    pinDescription: 'Quan trọng lên đầu tiên',
+    shareDescription: 'Gửi đến mọi nền tảng',
+    exportTitle: 'Nhập / Xuất',
+    exportDescription: 'Lưu trữ và nhập bằng JSON hoặc CSV',
+    featureLabels: { group: 'Nhóm', pin: 'Ghim', share: 'Chia Sẻ', export: 'Xuất File', voice: 'Giọng nói', scanText: 'Quét văn bản', systemPasteboard: 'Bảng tạm hệ thống', iCloud: 'iCloud' },
   },
   header: {
     download: { prefix: "Tải xuống\u00A0", brand: "LiquidBoard\u00A0", suffix: "" },

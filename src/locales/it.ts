@@ -19,6 +19,11 @@ const it: LocaleDict = {
     sectionLabel: 'Funzionalità di LiquidBoard',
     progressLabel: 'Avanzamento delle funzionalità degli appunti',
     groupTitle: { primary: 'Nome', secondary: 'del gruppo' },
+    groupDescription: 'Classifica secondo necessità',
+    pinDescription: 'Le cose importanti prima',
+    shareDescription: 'Invia a tutte le piattaforme',
+    exportTitle: 'Importa / Esporta',
+    exportDescription: 'Salva e importa con JSON o CSV',
     featureLabels: { group: 'Gruppo', pin: 'Fissa', share: 'Condividi', export: 'Esporta file', voice: 'Voce', scanText: 'Scansiona testo', systemPasteboard: 'Appunti di sistema', iCloud: 'iCloud' },
   },
   header: {

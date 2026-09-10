@@ -457,14 +457,18 @@ const FeatureClipboard: React.FC = () => {
           ? header.getBoundingClientRect().height
           : 0;
       };
+      let trackTween: { kill: () => void } | undefined;
       const context = gsap.context(() => {
         const compact = compactQuery.matches;
-        const slideDistance = () => Math.max(pin.clientWidth, 1);
+        const slideDistance = () => {
+          const slide = track.querySelector<HTMLElement>('.feature-clipboard-copy-item');
+          return Math.max(slide?.getBoundingClientRect().width ?? window.innerWidth, 1);
+        };
         const listStartOffset = (listViewport: HTMLDivElement) => (
-          compact ? listViewport.clientHeight * .58 : pin.clientHeight * .50
+          compact ? listViewport.clientHeight * .58 : pin.clientHeight * .32
         );
         const listEndOffset = (listTrack: HTMLDivElement, listViewport: HTMLDivElement) => (
-          -listTrack.scrollHeight + listViewport.clientHeight * .60
+          -listTrack.scrollHeight + listViewport.clientHeight * (compact ? .60 : .88)
         );
         const textListStage = textListTrack.parentElement as HTMLElement | null;
         const imageListStage = imageListTrack.parentElement as HTMLElement | null;
@@ -613,7 +617,7 @@ const FeatureClipboard: React.FC = () => {
         // Give the long text rail more scroll room than its physical travel so
         // it reads as a calm, deliberate vertical movement.
         const listTravelDistance = (listTrack: HTMLDivElement, listViewport: HTMLDivElement) => (
-          (listStartOffset(listViewport) - listEndOffset(listTrack, listViewport)) * 1.28
+          (listStartOffset(listViewport) - listEndOffset(listTrack, listViewport)) * (compact ? 1.28 : .96)
         );
         let displayedIndex = 0;
         refreshRenderableItems();
@@ -685,21 +689,27 @@ const FeatureClipboard: React.FC = () => {
         const imageVerticalDistance = Math.max(listTravelDistance(imageListTrack, imageListViewport), 1);
         const stickerVerticalDistance = Math.max(listTravelDistance(stickerListTrack, stickerListViewport), 1);
         const horizontalDistance = slideDistance();
-        // Begin changing space while the final cluster is still visible (the
-        // rail keeps moving vertically during this overlap). Previously each
-        // horizontal slide waited for the rail to finish completely, leaving
-        // only the last card on screen before the transition could start.
-        const transitionLead = (verticalDistance: number) => Math.min(
-          verticalDistance * .34,
-          pin.clientHeight * .75,
-        );
-        const textTransitionLead = transitionLead(textVerticalDistance);
-        const imageTransitionLead = transitionLead(imageVerticalDistance);
-        const firstSlideStart = textVerticalDistance - textTransitionLead;
+        // Start the discrete panel push before the scroll has crossed half of
+        // the horizontal gap, so a light, natural wheel/touch gesture can
+        // commit the next phase without requiring a forceful flick.
+        const horizontalTriggerDistance = horizontalDistance * .28;
+        // Let each rail finish completely before the next feature is pushed
+        // in. The previous overlap made the horizontal track follow the wheel
+        // freely while the last cards were still moving vertically.
+        const firstSlideStart = textVerticalDistance;
         const imageRailStart = firstSlideStart + horizontalDistance;
-        const secondSlideStart = imageRailStart + imageVerticalDistance - imageTransitionLead;
+        const secondSlideStart = imageRailStart + imageVerticalDistance;
         const stickerRailStart = secondSlideStart + horizontalDistance;
         const totalDistance = stickerRailStart + stickerVerticalDistance;
+        const moveTrackToIndex = (nextIndex: number) => {
+          trackTween?.kill();
+          trackTween = gsap.to(track, {
+            x: () => -(slideDistance() * nextIndex),
+            duration: .64,
+            ease: 'power3.inOut',
+            overwrite: 'auto',
+          });
+        };
         updateScrollWarp();
         updateCardScale();
         updateImageCardScale();
@@ -715,7 +725,7 @@ const FeatureClipboard: React.FC = () => {
             start: () => `top ${headerOffset()}px`,
             end: () => `+=${Math.max(totalDistance, window.innerHeight * 2.4)}`,
             pin: true,
-            scrub: .7,
+            scrub: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
             onRefresh: () => {
@@ -727,8 +737,8 @@ const FeatureClipboard: React.FC = () => {
             },
             onUpdate: (self) => {
               const progressDistance = self.progress * totalDistance;
-              const firstBoundary = firstSlideStart + horizontalDistance / 2;
-              const secondBoundary = secondSlideStart + horizontalDistance / 2;
+              const firstBoundary = firstSlideStart + horizontalTriggerDistance;
+              const secondBoundary = secondSlideStart + horizontalTriggerDistance;
               const nextIndex = progressDistance < firstBoundary ? 0 : progressDistance < secondBoundary ? 1 : 2;
               // ScrollTrigger can report a one-frame velocity spike while it
               // swaps the scene into fixed pinning. Do not feed that spike to
@@ -738,6 +748,7 @@ const FeatureClipboard: React.FC = () => {
               if (nextIndex === displayedIndex) return;
               displayedIndex = nextIndex;
               setActiveIndex(nextIndex);
+              moveTrackToIndex(nextIndex);
             },
             onScrubComplete: () => {
               const stage = listStages[displayedIndex];
@@ -754,13 +765,12 @@ const FeatureClipboard: React.FC = () => {
         });
         timeline
           .to(textListTrack, { y: () => listEndOffset(textListTrack, textListViewport), force3D: true, duration: textVerticalDistance, ease: 'none' }, 0)
-          .to(track, { x: () => -slideDistance(), force3D: true, duration: horizontalDistance, ease: 'none' }, firstSlideStart)
           .to(imageListTrack, { y: () => listEndOffset(imageListTrack, imageListViewport), force3D: true, duration: imageVerticalDistance, ease: 'none' }, imageRailStart)
-          .to(track, { x: () => -(slideDistance() * 2), force3D: true, duration: horizontalDistance, ease: 'none' }, secondSlideStart)
           .to(stickerListTrack, { y: () => listEndOffset(stickerListTrack, stickerListViewport), force3D: true, duration: stickerVerticalDistance, ease: 'none' }, stickerRailStart);
       });
 
       cleanup = () => {
+        trackTween?.kill();
         context.revert();
         section.querySelectorAll<HTMLElement>('.feature-text-list-item, .feature-image-list-item, .feature-sticker-list-item').forEach((item) => {
           item.style.removeProperty('transform');

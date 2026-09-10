@@ -20,6 +20,11 @@ const en: LocaleDict = {
     sectionLabel: 'LiquidBoard features',
     progressLabel: 'Action Clipboard feature progress',
     groupTitle: { primary: 'Group', secondary: 'Name' },
+    groupDescription: 'Classify as needed',
+    pinDescription: 'Keep important items first',
+    shareDescription: 'Send to every platform',
+    exportTitle: 'Import / Export',
+    exportDescription: 'Store and import with JSON or CSV',
     featureLabels: { group: 'Group', pin: 'Pin', share: 'Share', export: 'Export File', voice: 'Voice', scanText: 'Scan Text', systemPasteboard: 'System Pasteboard', iCloud: 'iCloud' },
   },
   header: {

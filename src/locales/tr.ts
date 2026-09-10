@@ -20,6 +20,11 @@ const tr: LocaleDict = {
     sectionLabel: 'LiquidBoard özellikleri',
     progressLabel: 'Pano özellik ilerlemesi',
     groupTitle: { primary: 'Grup', secondary: 'adı' },
+    groupDescription: 'İhtiyaca göre sınıflandır',
+    pinDescription: 'Önemliler en üstte',
+    shareDescription: 'Tüm platformlara gönder',
+    exportTitle: 'İçe aktar / Dışa aktar',
+    exportDescription: 'JSON veya CSV ile sakla ve içe aktar',
     featureLabels: { group: 'Grup', pin: 'Sabitle', share: 'Paylaş', export: 'Dosyayı dışa aktar', voice: 'Ses', scanText: 'Metni tara', systemPasteboard: 'Sistem panosu', iCloud: 'iCloud' },
   },
   header: {

@@ -19,6 +19,11 @@ const th: LocaleDict = {
     sectionLabel: 'ฟีเจอร์ของ LiquidBoard',
     progressLabel: 'ความคืบหน้าฟีเจอร์คลิปบอร์ด',
     groupTitle: { primary: 'ชื่อ', secondary: 'กลุ่ม' },
+    groupDescription: 'จัดหมวดหมู่ตามต้องการ',
+    pinDescription: 'สิ่งสำคัญไว้ด้านบน',
+    shareDescription: 'ส่งไปยังทุกแพลตฟอร์ม',
+    exportTitle: 'นำเข้า / ส่งออก',
+    exportDescription: 'จัดเก็บและนำเข้าด้วย JSON หรือ CSV',
     featureLabels: { group: 'กลุ่ม', pin: 'ปักหมุด', share: 'แชร์', export: 'ส่งออกไฟล์', voice: 'เสียง', scanText: 'สแกนข้อความ', systemPasteboard: 'คลิปบอร์ดระบบ', iCloud: 'iCloud' },
   },
   header: {

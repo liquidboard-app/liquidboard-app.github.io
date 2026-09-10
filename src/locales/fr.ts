@@ -19,6 +19,11 @@ const fr: LocaleDict = {
     sectionLabel: 'Fonctionnalités de LiquidBoard',
     progressLabel: 'Progression des fonctionnalités du presse-papiers',
     groupTitle: { primary: 'Nom', secondary: 'du groupe' },
+    groupDescription: 'Classez selon vos besoins',
+    pinDescription: 'Les éléments importants en premier',
+    shareDescription: 'Envoyer vers toutes les plateformes',
+    exportTitle: 'Importer / Exporter',
+    exportDescription: 'Stockez et importez avec JSON ou CSV',
     featureLabels: { group: 'Groupe', pin: 'Épingler', share: 'Partager', export: 'Exporter un fichier', voice: 'Voix', scanText: 'Scanner le texte', systemPasteboard: 'Presse-papiers système', iCloud: 'iCloud' },
   },
   header: {

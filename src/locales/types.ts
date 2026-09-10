@@ -30,6 +30,11 @@ export type LocaleDict = {
     sectionLabel: string;
     progressLabel: string;
     groupTitle: { primary: string; secondary: string };
+    groupDescription: string;
+    pinDescription: string;
+    shareDescription: string;
+    exportTitle: string;
+    exportDescription: string;
     featureLabels: {
       group: string;
       pin: string;

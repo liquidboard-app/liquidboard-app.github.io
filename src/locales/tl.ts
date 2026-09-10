@@ -19,6 +19,11 @@ const tl: LocaleDict = {
     sectionLabel: 'Mga feature ng LiquidBoard',
     progressLabel: 'Progress ng feature ng Clipboard',
     groupTitle: { primary: 'Pangalan', secondary: 'ng grupo' },
+    groupDescription: 'I-uri ayon sa pangangailangan',
+    pinDescription: 'Unahin ang mahalaga',
+    shareDescription: 'Ipadala sa lahat ng platform',
+    exportTitle: 'I-import / I-export',
+    exportDescription: 'I-save at i-import gamit ang JSON o CSV',
     featureLabels: { group: 'Grupo', pin: 'I-pin', share: 'Ibahagi', export: 'I-export ang file', voice: 'Boses', scanText: 'I-scan ang Teksto', systemPasteboard: 'System Clipboard', iCloud: 'iCloud' },
   },
   header: {

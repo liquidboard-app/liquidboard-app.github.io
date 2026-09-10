@@ -19,6 +19,11 @@ const bn: LocaleDict = {
     sectionLabel: 'LiquidBoard-এর ফিচার',
     progressLabel: 'ক্লিপবোর্ড ফিচারের অগ্রগতি',
     groupTitle: { primary: 'গ্রুপের', secondary: 'নাম' },
+    groupDescription: 'প্রয়োজন অনুযায়ী শ্রেণিবদ্ধ করুন',
+    pinDescription: 'গুরুত্বপূর্ণগুলো আগে',
+    shareDescription: 'সব প্ল্যাটফর্মে পাঠান',
+    exportTitle: 'ইমপোর্ট / এক্সপোর্ট',
+    exportDescription: 'JSON বা CSV দিয়ে সংরক্ষণ ও ইমপোর্ট করুন',
     featureLabels: { group: 'গ্রুপ', pin: 'পিন', share: 'শেয়ার', export: 'ফাইল এক্সপোর্ট করুন', voice: 'ভয়েস', scanText: 'টেক্সট স্ক্যান', systemPasteboard: 'সিস্টেম ক্লিপবোর্ড', iCloud: 'iCloud' },
   },
   header: {

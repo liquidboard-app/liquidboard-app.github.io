@@ -19,6 +19,11 @@ const ru: LocaleDict = {
     sectionLabel: 'Возможности LiquidBoard',
     progressLabel: 'Прогресс функций буфера обмена',
     groupTitle: { primary: 'Название', secondary: 'группы' },
+    groupDescription: 'Классифицируйте по необходимости',
+    pinDescription: 'Важное — в начале',
+    shareDescription: 'Отправить на все платформы',
+    exportTitle: 'Импорт / экспорт',
+    exportDescription: 'Сохраняйте и импортируйте в JSON или CSV',
     featureLabels: { group: 'Группа', pin: 'Закрепить', share: 'Поделиться', export: 'Экспорт файла', voice: 'Голос', scanText: 'Сканировать текст', systemPasteboard: 'Системный буфер обмена', iCloud: 'iCloud' },
   },
   header: {

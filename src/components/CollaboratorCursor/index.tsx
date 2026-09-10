@@ -11,7 +11,7 @@ const Cursor = styled.div<{ $visible: boolean; $color: string; $textColor: strin
   pointer-events: none;
   opacity: ${({ $visible }) => $visible ? 1 : 0};
   transform: translate3d(-100px, -100px, 0);
-  transition: opacity .18s ease;
+  transition: ${({ $visible }) => $visible ? 'opacity .18s ease' : 'none'};
   will-change: transform;
 
   .cursor-arrow {
@@ -87,6 +87,13 @@ const CollaboratorCursor: React.FC = () => {
       if (!frame) frame = window.requestAnimationFrame(paint);
       updateFromTarget(event.target instanceof Element ? event.target : null);
     };
+    const onPointerOut = (event: PointerEvent) => {
+      if (!media.matches) return;
+      const nextTarget = event.relatedTarget instanceof Element
+        ? event.relatedTarget.closest<HTMLElement>('[data-cursor-label]')
+        : null;
+      if (!nextTarget) hide();
+    };
     const hide = () => {
       document.documentElement.classList.remove('has-collaborator-cursor');
       setVisible(false);
@@ -109,6 +116,7 @@ const CollaboratorCursor: React.FC = () => {
     };
 
     document.addEventListener('pointermove', onPointerMove, { capture: true, passive: true });
+    document.addEventListener('pointerout', onPointerOut, { capture: true, passive: true });
     window.addEventListener('blur', hide);
     document.documentElement.addEventListener('mouseleave', hide);
     media.addEventListener('change', onMediaChange);
@@ -119,6 +127,7 @@ const CollaboratorCursor: React.FC = () => {
     return () => {
       window.cancelAnimationFrame(frame);
       document.removeEventListener('pointermove', onPointerMove, true);
+      document.removeEventListener('pointerout', onPointerOut, true);
       window.removeEventListener('blur', hide);
       document.documentElement.removeEventListener('mouseleave', hide);
       media.removeEventListener('change', onMediaChange);

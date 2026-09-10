@@ -19,6 +19,11 @@ const de: LocaleDict = {
     sectionLabel: 'LiquidBoard-Funktionen',
     progressLabel: 'Fortschritt der Zwischenablage-Funktionen',
     groupTitle: { primary: 'Name', secondary: 'der Gruppe' },
+    groupDescription: 'Nach Bedarf kategorisieren',
+    pinDescription: 'Wichtiges zuerst',
+    shareDescription: 'An jede Plattform senden',
+    exportTitle: 'Importieren / Exportieren',
+    exportDescription: 'Mit JSON oder CSV speichern und importieren',
     featureLabels: { group: 'Gruppe', pin: 'Anheften', share: 'Teilen', export: 'Datei exportieren', voice: 'Sprache', scanText: 'Text scannen', systemPasteboard: 'System-Zwischenablage', iCloud: 'iCloud' },
   },
   header: {

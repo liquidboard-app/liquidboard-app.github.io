@@ -19,6 +19,11 @@ const ptBR: LocaleDict = {
     sectionLabel: 'Recursos do LiquidBoard',
     progressLabel: 'Progresso dos recursos da área de transferência',
     groupTitle: { primary: 'Nome', secondary: 'do grupo' },
+    groupDescription: 'Classifique conforme a necessidade',
+    pinDescription: 'Mantenha o que importa no topo',
+    shareDescription: 'Envie para todas as plataformas',
+    exportTitle: 'Importar / Exportar',
+    exportDescription: 'Armazene e importe com JSON ou CSV',
     featureLabels: { group: 'Grupo', pin: 'Fixar', share: 'Compartilhar', export: 'Exportar arquivo', voice: 'Voz', scanText: 'Digitalizar texto', systemPasteboard: 'Área de transferência do sistema', iCloud: 'iCloud' },
   },
   header: {

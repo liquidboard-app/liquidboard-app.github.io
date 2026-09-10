@@ -19,6 +19,11 @@ const es: LocaleDict = {
     sectionLabel: 'Funciones de LiquidBoard',
     progressLabel: 'Progreso de las funciones del portapapeles',
     groupTitle: { primary: 'Nombre', secondary: 'del grupo' },
+    groupDescription: 'Clasifica según tus necesidades',
+    pinDescription: 'Lo importante, primero',
+    shareDescription: 'Envía a todas las plataformas',
+    exportTitle: 'Importar / Exportar',
+    exportDescription: 'Guarda e importa con JSON o CSV',
     featureLabels: { group: 'Grupo', pin: 'Fijar', share: 'Compartir', export: 'Exportar archivo', voice: 'Voz', scanText: 'Escanear texto', systemPasteboard: 'Portapapeles del sistema', iCloud: 'iCloud' },
   },
   header: {

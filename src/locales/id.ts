@@ -19,6 +19,11 @@ const id: LocaleDict = {
     sectionLabel: 'Fitur LiquidBoard',
     progressLabel: 'Progres fitur Clipboard',
     groupTitle: { primary: 'Nama', secondary: 'grup' },
+    groupDescription: 'Klasifikasikan sesuai kebutuhan',
+    pinDescription: 'Yang penting di urutan teratas',
+    shareDescription: 'Kirim ke semua platform',
+    exportTitle: 'Impor / Ekspor',
+    exportDescription: 'Simpan dan impor dengan JSON atau CSV',
     featureLabels: { group: 'Grup', pin: 'Sematkan', share: 'Bagikan', export: 'Ekspor file', voice: 'Suara', scanText: 'Pindai Teks', systemPasteboard: 'Clipboard Sistem', iCloud: 'iCloud' },
   },
   header: {
