@@ -35,6 +35,14 @@ export type LocaleDict = {
     shareDescription: string;
     exportTitle: string;
     exportDescription: string;
+    voiceTitle: string;
+    voiceDescription: string;
+    scanTitle: string;
+    scanDescription: string;
+    clipboardTitle: string;
+    clipboardDescription: string;
+    icloudTitle: string;
+    icloudDescription: string;
     featureLabels: {
       group: string;
       pin: string;

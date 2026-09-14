@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { splitGraphemes } from '@/utils/graphemes';
 import { CoreClipboardSection } from './styled';
 
 const phones = [
@@ -30,19 +31,27 @@ const coreHighlightTerms: Record<string, { line1: string; line2: string }> = {
   'zh-TW': { line1: '剪貼簿', line2: 'iOS 鍵盤' },
 };
 
-const renderHighlightedCoreLine = (text: string, term: string, tone: 'green' | 'blue') => {
+const coreTextDuration = 620;
+const coreTextStagger = 26;
+
+const renderHighlightedCoreLine = (
+  text: string,
+  term: string,
+  tone: 'green' | 'blue',
+  renderText: (text: string) => React.ReactNode,
+) => {
   const start = text.toLocaleLowerCase().indexOf(term.toLocaleLowerCase());
-  if (start < 0) return <span>{text}</span>;
+  if (start < 0) return <span aria-hidden="true">{renderText(text)}</span>;
 
   const end = start + term.length;
   return (
-    <span>
-      {text.slice(0, start)}
+    <span aria-hidden="true">
+      {renderText(text.slice(0, start))}
       <span className={`core-heading-highlight core-heading-highlight-${tone}`}>
-        {text.slice(start, end)}
+        {renderText(text.slice(start, end))}
         <span className="core-heading-underline" aria-hidden="true" />
       </span>
-      {text.slice(end)}
+      {renderText(text.slice(end))}
     </span>
   );
 };
@@ -60,6 +69,30 @@ const CoreClipboard: React.FC = () => {
   const [sidePhonesPhase, setSidePhonesPhase] = useState<AnimationPhase>('idle');
   const [centerPhonePhase, setCenterPhonePhase] = useState<AnimationPhase>('idle');
   const [isPinnedScroll, setIsPinnedScroll] = useState(false);
+
+  let characterIndex = 0;
+  const renderSplitText = (text: string) => text.split(/(\s+)/).map((word, wordIndex) => {
+    if (!word || /^\s+$/.test(word)) return word;
+    // Preserve connected scripts and keep Vietnamese accents with their letters.
+    const characters = /^(hi|bn|th)(-|$)/.test(lang) ? [word] : splitGraphemes(word, lang);
+    return (
+      <span className="core-heading-word" key={wordIndex}>
+        {characters.map((character, index) => (
+          <span
+            className="core-heading-grapheme"
+            key={index}
+            style={{ animationDelay: `${characterIndex++ * coreTextStagger}ms` }}
+          >{character}</span>
+        ))}
+      </span>
+    );
+  });
+  const terms = coreHighlightTerms[lang] ?? coreHighlightTerms.en;
+  const headingLines = [
+    renderHighlightedCoreLine(dict.coreClipboard.line1, terms.line1, 'green', renderSplitText),
+    renderHighlightedCoreLine(dict.coreClipboard.line2, terms.line2, 'blue', renderSplitText),
+  ];
+  const textRevealDuration = coreTextDuration + Math.max(0, characterIndex - 1) * coreTextStagger;
 
   useEffect(() => {
     const compactViewportQuery = window.matchMedia('(max-width: 1199px)');
@@ -393,17 +426,17 @@ const CoreClipboard: React.FC = () => {
           </span>
           <span className="core-app-name">Board</span>
         </div>
-        <h2>
-          {renderHighlightedCoreLine(
-            dict.coreClipboard.line1,
-            (coreHighlightTerms[lang] ?? coreHighlightTerms.en).line1,
-            'green',
-          )}
-          {renderHighlightedCoreLine(
-            dict.coreClipboard.line2,
-            (coreHighlightTerms[lang] ?? coreHighlightTerms.en).line2,
-            'blue',
-          )}
+        <h2
+          key={lang}
+          lang={lang}
+          aria-label={`${dict.coreClipboard.line1} ${dict.coreClipboard.line2}`}
+          style={{
+            '--core-text-duration': `${coreTextDuration}ms`,
+            '--core-underline-delay': `${textRevealDuration}ms`,
+          } as React.CSSProperties}
+        >
+          {headingLines[0]}
+          {headingLines[1]}
         </h2>
       </div>
 

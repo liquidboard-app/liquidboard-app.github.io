@@ -82,11 +82,12 @@ export const FeatureClipboardSection = styled.section`
     left: var(--feature-content-inline);
     width: calc((100% - (var(--feature-content-inline) * 2)) / 2);
     max-width: none;
-    padding-right: clamp(32px, 5vw, 96px);
+    padding-inline: clamp(32px, 3vw, 48px);
     box-sizing: border-box;
     --feature-copy-scroll-y: 0px;
     --feature-copy-scroll-x: 0px;
-    transform: translate3d(var(--feature-copy-scroll-x), calc(-50% + var(--feature-copy-scroll-y)), 0);
+    --feature-copy-align: center;
+    transform: translate(var(--feature-copy-scroll-x), calc(-50% + var(--feature-copy-scroll-y)));
     will-change: transform;
   }
   .feature-text-list-viewport,
@@ -98,24 +99,19 @@ export const FeatureClipboardSection = styled.section`
     top: calc(var(--feature-pin-block-padding) * -1);
     right: var(--feature-content-inline);
     width: calc((100% - (var(--feature-content-inline) * 2)) / 2);
-    height: calc(100% + var(--feature-pin-block-padding));
+    height: calc(100% + (var(--feature-pin-block-padding) * 2));
     overflow: visible;
     /* This is a visual rail, not another scrolling layout. Keep the long
        off-screen cards from expanding the document's scrollable box. */
     contain: layout;
-    perspective: 1350px;
-    perspective-origin: center bottom;
-    --feature-list-enter-x: 0px;
-    will-change: transform;
   }
-  .feature-text-list-3d,
-  .feature-image-list-3d,
-  .feature-sticker-list-3d {
+  .feature-text-list-stage,
+  .feature-image-list-stage,
+  .feature-sticker-list-stage {
     width: 100%;
     height: 100%;
-    transform: rotateX(var(--feature-list-pitch, 5deg)) rotateY(-2deg) skewX(var(--feature-list-shear, 0deg));
+    transform: none;
     transform-origin: center bottom;
-    transform-style: preserve-3d;
   }
   .feature-text-list-track {
     display: grid;
@@ -124,7 +120,7 @@ export const FeatureClipboardSection = styled.section`
     /* The right card in every row is intentionally staggered down. Include
        that offset in the grid row gap so it never collides diagonally with
        the next row as the rail reaches the narrow part of its arc. */
-    row-gap: calc(clamp(28px, 2vw, 40px) + clamp(22px, 2vw, 36px));
+    row-gap: calc(clamp(18px, 1.4vw, 28px) + clamp(16px, 1.3vw, 24px));
     padding: 0 clamp(34px, 3.1vw, 52px) 76px;
     align-items: start;
   }
@@ -132,7 +128,7 @@ export const FeatureClipboardSection = styled.section`
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: clamp(24px, 1.85vw, 36px);
-    row-gap: clamp(18px, 1.4vw, 26px);
+    row-gap: clamp(12px, 1vw, 20px);
     padding: 0 clamp(34px, 3.1vw, 52px) 76px;
     align-items: start;
   }
@@ -140,7 +136,7 @@ export const FeatureClipboardSection = styled.section`
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: clamp(24px, 1.85vw, 36px);
-    row-gap: clamp(18px, 1.4vw, 26px);
+    row-gap: clamp(12px, 1vw, 20px);
     padding: 0 clamp(34px, 3.1vw, 52px) 76px;
     align-items: start;
   }
@@ -151,13 +147,12 @@ export const FeatureClipboardSection = styled.section`
     background: #fff;
     box-sizing: border-box;
     overflow: hidden;
-    transform: translateY(var(--feature-card-stagger, 0px)) translateX(var(--feature-card-arc-x, 0px)) translateZ(var(--feature-card-depth, 10px)) scale(var(--feature-card-scale, 1));
-    transform-style: preserve-3d;
+    transform: translateY(var(--feature-card-stagger, 0px)) translateX(var(--feature-card-arc-x, 0px)) scale(var(--feature-card-scale, 1));
     transform-origin: right center;
-    will-change: transform;
-    box-shadow: 0 26px 46px rgba(21, 21, 21, .16), 0 4px 10px rgba(21, 21, 21, .06);
+    will-change: auto;
+    box-shadow: 0 12px 24px rgba(21, 21, 21, .09), 0 2px 5px rgba(21, 21, 21, .04);
   }
-  .feature-text-list-item:nth-child(even) { --feature-card-stagger: 36px; --feature-card-depth: 28px; min-height: 216px; transform-origin: left center; }
+  .feature-text-list-item:nth-child(even) { --feature-card-stagger: 28px; min-height: 216px; transform-origin: left center; }
   .feature-text-list-item-link {
     display: flex;
     height: clamp(184px, 15.5vw, 220px);
@@ -174,34 +169,32 @@ export const FeatureClipboardSection = styled.section`
   .feature-text-list-item-color > strong { font-size: clamp(21px, 1.7vw, 29px); font-weight: 650; letter-spacing: -.055em; line-height: 1; }
   .feature-text-list-item-color.is-light { color: #fff; }
   .feature-image-list-item {
-    height: clamp(210px, 21vw, 330px);
+    height: clamp(190px, 17vw, 270px);
     margin: 0;
     overflow: hidden;
     border-radius: 22px;
     background: #ececec;
-    transform: translateX(var(--feature-image-arc-x, 0px)) translateZ(14px) scale(var(--feature-image-scale, 1));
+    transform: translateX(var(--feature-image-arc-x, 0px)) scale(var(--feature-image-scale, 1));
     transform-origin: right center;
-    transform-style: preserve-3d;
-    will-change: transform;
-    box-shadow: 0 20px 36px rgba(21, 21, 21, .13);
+    will-change: auto;
+    box-shadow: 0 12px 24px rgba(21, 21, 21, .08);
   }
-  .feature-image-list-item:nth-child(even) { margin-top: clamp(30px, 2.6vw, 46px); transform-origin: left center; }
+  .feature-image-list-item:nth-child(even) { margin-top: clamp(20px, 1.8vw, 32px); transform-origin: left center; }
   .feature-image-list-item img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .feature-sticker-list-item {
-    height: clamp(210px, 21vw, 330px);
+    height: clamp(190px, 17vw, 270px);
     margin: 0;
     padding: 7px;
     overflow: hidden;
     border-radius: clamp(24px, 2.8vw, 42px);
     box-sizing: border-box;
     background: #fff;
-    transform: translateX(var(--feature-sticker-arc-x, 0px)) translateZ(14px) scale(var(--feature-sticker-scale, 1));
+    transform: translateX(var(--feature-sticker-arc-x, 0px)) scale(var(--feature-sticker-scale, 1));
     transform-origin: right center;
-    transform-style: preserve-3d;
-    will-change: transform;
-    box-shadow: 0 20px 36px rgba(21, 21, 21, .15);
+    will-change: auto;
+    box-shadow: 0 12px 24px rgba(21, 21, 21, .09);
   }
-  .feature-sticker-list-item:nth-child(even) { margin-top: clamp(30px, 2.6vw, 46px); transform-origin: left center; }
+  .feature-sticker-list-item:nth-child(even) { margin-top: clamp(20px, 1.8vw, 32px); transform-origin: left center; }
   .feature-sticker-list-item img { display: block; width: 100%; height: 100%; border-radius: calc(clamp(24px, 2.8vw, 42px) - 7px); object-fit: cover; }
   .feature-text-list-item h3,
   .feature-text-list-item p { max-width: 100%; min-width: 0; margin: 0; overflow-wrap: anywhere; word-break: break-word; }
@@ -221,9 +214,12 @@ export const FeatureClipboardSection = styled.section`
   .feature-clipboard-content.is-text-feature h2,
   .feature-clipboard-content.is-image-feature h2,
   .feature-clipboard-content.is-sticker-feature h2 {
-    font-size: clamp(40px, 4.7vw, 76px);
+    font-size: clamp(38px, 4.4vw, 72px);
     line-height: 1.1;
   }
+  .feature-clipboard-content.is-text-feature h2,
+  .feature-clipboard-content.is-image-feature h2,
+  .feature-clipboard-content.is-sticker-feature h2 { text-align: var(--feature-copy-align, center); }
   .feature-clipboard-description {
     max-width: 100%;
     margin: clamp(16px, 1.8vw, 28px) 0 0;
@@ -231,7 +227,32 @@ export const FeatureClipboardSection = styled.section`
     font-weight: 560;
     letter-spacing: -.045em;
     line-height: 1.26;
-    text-align: left;
+    text-align: var(--feature-copy-align, center);
+  }
+  .feature-split-text {
+    display: block;
+  }
+  .feature-split-text:lang(hi),
+  .feature-split-text:lang(bn),
+  .feature-split-text:lang(th) {
+    letter-spacing: normal;
+  }
+  .feature-split-text-word-wrap {
+    display: inline-block;
+    max-width: 100%;
+    /* Extend the reveal mask beyond the advance box: negative tracking,
+       accents and fallback fonts can paint outside both word edges. */
+    overflow: visible;
+    clip-path: inset(-.3em -.25em);
+    vertical-align: bottom;
+  }
+  .feature-split-text-word {
+    display: inline-block;
+    max-width: 100%;
+  }
+  .feature-split-text-grapheme {
+    display: inline-block;
+    will-change: auto;
   }
 
   @media (max-width: 1199px), (any-pointer: coarse) {
@@ -279,8 +300,10 @@ export const FeatureClipboardSection = styled.section`
       transform: none;
     }
     .feature-clipboard-copy-content > * {
-      width: min(82vw, 660px);
+      width: min(78vw, 628px);
       max-width: 100%;
+      box-sizing: border-box;
+      padding-inline: 16px;
     }
     .feature-clipboard-content.is-text-feature h2,
     .feature-clipboard-content.is-image-feature h2,
@@ -290,7 +313,7 @@ export const FeatureClipboardSection = styled.section`
     h2 { font-size: clamp(44px, 6vw, 70px); }
     .feature-clipboard-content.is-text-feature h2,
     .feature-clipboard-content.is-image-feature h2,
-    .feature-clipboard-content.is-sticker-feature h2 { font-size: clamp(39px, 5vw, 62px); line-height: 1.1; }
+    .feature-clipboard-content.is-sticker-feature h2 { font-size: clamp(37px, 4.7vw, 59px); line-height: 1.1; }
     .feature-text-list-viewport,
     .feature-image-list-viewport,
     .feature-sticker-list-viewport {
@@ -306,14 +329,13 @@ export const FeatureClipboardSection = styled.section`
       contain: layout style;
       transform: none;
     }
-    .feature-text-list-3d,
-    .feature-image-list-3d,
-    .feature-sticker-list-3d {
+    .feature-text-list-stage,
+    .feature-image-list-stage,
+    .feature-sticker-list-stage {
       width: 100%;
       height: auto;
       margin: 0;
       transform: none;
-      transform-style: flat;
     }
     .feature-text-list-item,
     .feature-image-list-item,
@@ -322,9 +344,7 @@ export const FeatureClipboardSection = styled.section`
       contain: layout style;
       content-visibility: auto;
       transform: none;
-      transform-style: flat;
       will-change: auto;
-      backface-visibility: hidden;
     }
     .feature-text-list-track { --feature-text-card-height: clamp(188px, 22vw, 208px); }
     .feature-text-list-item,
@@ -366,28 +386,28 @@ export const FeatureClipboardSection = styled.section`
     }
     .feature-image-list-item,
     .feature-sticker-list-item { box-shadow: 0 16px 30px rgba(21, 21, 21, .13); }
+    .feature-image-list-item,
+    .feature-sticker-list-item { height: clamp(210px, 21vw, 330px); }
     .feature-image-list-item img {
       transform: none;
       will-change: auto;
     }
     .feature-image-list-item {
-      transform: translate3d(
+      transform: translate(
         var(--feature-item-launch-x, 0px),
-        calc(var(--feature-compact-stagger-y, 0px) + var(--feature-item-launch-y, 0px)),
-        0
+        calc(var(--feature-compact-stagger-y, 0px) + var(--feature-item-launch-y, 0px))
       ) scale(var(--feature-item-reveal-scale, 1));
       transform-origin: center center;
       will-change: transform;
     }
     .feature-text-list-item,
     .feature-sticker-list-item {
-      transform: translate3d(
+      transform: translate(
         var(--feature-item-launch-x, 0px),
         calc(
           var(--feature-compact-stagger-y, 0px)
           + var(--feature-item-launch-y, 0px)
-        ),
-        0
+        )
       ) scale(var(--feature-item-reveal-scale, 1));
       transform-origin: center center;
       will-change: transform;
@@ -452,9 +472,9 @@ export const FeatureClipboardSection = styled.section`
       margin-inline: auto;
       transform: none;
     }
-    .feature-text-list-3d,
-    .feature-image-list-3d,
-    .feature-sticker-list-3d {
+    .feature-text-list-stage,
+    .feature-image-list-stage,
+    .feature-sticker-list-stage {
       position: relative;
       left: auto;
       width: 100%;
@@ -515,5 +535,6 @@ export const FeatureClipboardSection = styled.section`
   @media (prefers-reduced-motion: reduce) {
     .feature-clipboard-copy-item,
     .feature-clipboard-phone { transition: none; }
+    .feature-split-text-grapheme { transform: none !important; opacity: 1 !important; }
   }
 `;

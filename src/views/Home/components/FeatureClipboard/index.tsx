@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getHeroImageSrcSet, heroImageSizes } from '@/utils/responsiveImages';
+import { splitGraphemes } from '@/utils/graphemes';
 import { getFeatureClipboardContent, type FeatureClipboardKey } from '../../featureClipboardContent';
 import { getHeroClipboardItemCopy, type HeroTextItemKey } from '../../heroClipboardCopy';
 import { FeatureClipboardSection } from './styled';
@@ -131,6 +132,45 @@ const textRailExtras: TextClipboardRailItem[] = [
 
 type TextClipboardCopy = { title: string; content: string };
 
+const SplitText: React.FC<{ text: string; lang: string; className?: string }> = ({ text, lang, className }) => {
+  const Segmenter = (Intl as typeof Intl & {
+    Segmenter?: new (locale: string, options: { granularity: 'word' }) => {
+      segment: (input: string) => Iterable<{ segment: string }>;
+    };
+  }).Segmenter;
+  // These languages do not consistently separate words with spaces.
+  const words = /^(ja|zh|th)(-|$)/.test(lang) && Segmenter
+    ? Array.from(new Segmenter(lang, { granularity: 'word' }).segment(text), ({ segment }) => segment)
+      .reduce<string[]>((segments, segment) => {
+        // Keep closing punctuation with its word when the line wraps.
+        if (segments.length && /^[\p{Pe}\p{Pf}、。，．！？：；.!?,:;]+$/u.test(segment)) {
+          segments[segments.length - 1] += segment;
+        } else {
+          segments.push(segment);
+        }
+        return segments;
+      }, [])
+    : text.split(/(\s+)/);
+  // Keep contextual shaping and conjuncts intact in connected scripts.
+  const preserveWordShaping = /^(hi|bn|th)(-|$)/.test(lang);
+  return (
+    <span className={className ? `feature-split-text ${className}` : 'feature-split-text'} lang={lang} aria-hidden="true">
+      {words.map((word, index) => {
+        if (/\s+/.test(word)) return word;
+        return (
+          <span className="feature-split-text-word-wrap" key={`${word}-${index}`}>
+            <span className="feature-split-text-word">
+              {(preserveWordShaping ? [word] : splitGraphemes(word, lang)).map((grapheme, graphemeIndex) => (
+                <span className="feature-split-text-grapheme" key={`${grapheme}-${graphemeIndex}`}>{grapheme}</span>
+              ))}
+            </span>
+          </span>
+        );
+      })}
+    </span>
+  );
+};
+
 const buildTextClipboardItems = (localizedTextItems: readonly TextClipboardCopy[]): TextClipboardRailItem[] => {
   const items: TextClipboardRailItem[] = [];
   const reusableText = localizedTextItems.slice(0, 28);
@@ -255,7 +295,10 @@ const FeatureClipboard: React.FC = () => {
       const revealStart = viewportHeight * 1.10;
       const revealEnd = viewportHeight * .54;
       const launchOriginX = viewportWidth * .5;
-      const launchOriginY = viewportHeight + Math.max(220, viewportHeight * .32);
+      // Every pair starts at one shared point on the lower viewport edge.
+      // Keeping the origin on the edge (rather than several hundred pixels
+      // below it) makes the compact launch match the iPad composition.
+      const launchOriginY = viewportHeight;
       const trackBounds = new Map<HTMLElement, DOMRect>();
       const updates: Array<{
         item: HTMLElement;
@@ -307,7 +350,10 @@ const FeatureClipboard: React.FC = () => {
         // Keep every tiny card on the exact horizontal center until it reaches
         // the visible bottom edge. Only then fan it toward its grid column as
         // it grows, so the list visibly launches from one shared point.
-        const horizontalProgress = 1 - ((1 - visibleScaleProgress) ** 1.8);
+        // Let a tiny card travel vertically before it fans out. This keeps
+        // the first visible state stacked at bottom-center, then gives the
+        // horizontal split a clear, accelerating release as the card grows.
+        const horizontalProgress = scaleProgress ** 2.4;
         const x = (launchOriginX - finalCenterX) * (1 - horizontalProgress);
         updates.push({
           item,
@@ -440,6 +486,14 @@ const FeatureClipboard: React.FC = () => {
     if (compactLayout) return undefined;
     if (!section || !pin || !track || !textListViewport || !textListTrack || !imageListViewport || !imageListTrack || !stickerListViewport || !stickerListTrack || !motionQuery.matches) return undefined;
 
+    // GSAP is loaded asynchronously. Keep every desktop copy hidden during that
+    // short gap so no phase can flash in its final state before its own reveal.
+    const prehiddenCopyContents = Array.from(track.querySelectorAll<HTMLElement>('.feature-clipboard-copy-content'));
+    prehiddenCopyContents.forEach((copy) => {
+      copy.style.opacity = '0';
+      copy.style.visibility = 'hidden';
+    });
+
     let active = true;
     let cleanup: (() => void) | undefined;
 
@@ -457,22 +511,37 @@ const FeatureClipboard: React.FC = () => {
           ? header.getBoundingClientRect().height
           : 0;
       };
-      let trackTween: { kill: () => void } | undefined;
+      const motionCleanups: Array<() => void> = [];
       const context = gsap.context(() => {
         const compact = compactQuery.matches;
         const slideDistance = () => {
           const slide = track.querySelector<HTMLElement>('.feature-clipboard-copy-item');
           return Math.max(slide?.getBoundingClientRect().width ?? window.innerWidth, 1);
         };
-        const listStartOffset = (listViewport: HTMLDivElement) => (
-          compact ? listViewport.clientHeight * .58 : pin.clientHeight * .32
-        );
+        const copyCenterOffset = (copy = track.querySelector<HTMLElement>('.feature-clipboard-copy-content')) => {
+          const slide = copy?.closest<HTMLElement>('.feature-clipboard-copy-item');
+          if (!copy || !slide) return 0;
+          // Measure the untransformed layout box. Reading copyRect here is
+          // incorrect once the copy is centered: its current translate makes
+          // the visual center equal the slide center, producing a false 0px
+          // offset and causing the left transition to jump without animating.
+          const slideRect = slide.getBoundingClientRect();
+          const offsetParent = copy.offsetParent as HTMLElement | null;
+          if (!offsetParent) return 0;
+          const parentRect = offsetParent.getBoundingClientRect();
+          const copyLayoutCenter = parentRect.left + copy.offsetLeft + copy.offsetWidth * .5;
+          return (slideRect.left + slideRect.width * .5) - copyLayoutCenter;
+        };
+        const listStartOffset = (listViewport: HTMLDivElement) => {
+          if (compact) return listViewport.clientHeight * .58;
+          // Put the first row close to the visible bottom when a phase lands.
+          // The next cards can then start reading immediately instead of
+          // leaving an empty scroll segment before the rail enters view.
+          return pin.clientHeight * .84;
+        };
         const listEndOffset = (listTrack: HTMLDivElement, listViewport: HTMLDivElement) => (
           -listTrack.scrollHeight + listViewport.clientHeight * (compact ? .60 : .88)
         );
-        const textListStage = textListTrack.parentElement as HTMLElement | null;
-        const imageListStage = imageListTrack.parentElement as HTMLElement | null;
-        const stickerListStage = stickerListTrack.parentElement as HTMLElement | null;
         const copyContents = Array.from(track.querySelectorAll('.feature-clipboard-copy-content')) as HTMLElement[];
         const listViewports = [textListViewport, imageListViewport, stickerListViewport];
         const allTextListItems = Array.from(textListTrack.children) as HTMLElement[];
@@ -484,6 +553,8 @@ const FeatureClipboard: React.FC = () => {
         let cardArcCenters: number[] = [];
         let imageCardArcCenters: number[] = [];
         let stickerCardArcCenters: number[] = [];
+        type CardLayout = { top: number; height: number; left: number; width: number };
+        const cardLayouts: CardLayout[][] = [[], [], []];
         const activeCardIndices = [new Set<number>(), new Set<number>(), new Set<number>()];
         const refreshRenderableItems = () => {
           // Mobile/iPad intentionally keep fewer repeated examples in paint.
@@ -523,21 +594,54 @@ const FeatureClipboard: React.FC = () => {
             return (start + end) / 2;
           });
         };
+        const refreshCardLayouts = () => {
+          const measure = (items: HTMLElement[]) => items.map((item) => ({
+            top: item.offsetTop,
+            height: item.offsetHeight,
+            left: item.offsetLeft,
+            width: item.offsetWidth,
+          }));
+          cardLayouts[0] = measure(textListItems);
+          cardLayouts[1] = measure(imageListItems);
+          cardLayouts[2] = measure(stickerListItems);
+        };
         const updateCardTransforms = (
           railIndex: number,
           items: HTMLElement[],
           centers: number[],
+          layouts: CardLayout[],
           railY: number,
           viewportHeight: number,
-          createTransform: (index: number, arcX: number, scale: number) => string,
+          createTransform: (index: number, arcX: number, y: number, scale: number, settleProgress?: number) => string,
         ) => {
           const previousIndices = activeCardIndices[railIndex];
           const nextIndices = new Set<number>();
-          const buffer = compact ? viewportHeight * .12 : Number.POSITIVE_INFINITY;
+          // Only cards near the viewport need per-frame launch calculations.
+          // Cards outside this window are parked once until they re-enter.
+          const buffer = compact ? viewportHeight * .12 : viewportHeight * .42;
+          const viewportElement = items[0]?.parentElement?.parentElement?.parentElement;
+          const viewportBounds = viewportElement?.getBoundingClientRect();
+          const viewportTop = viewportBounds?.top ?? 0;
+          // The fixed header reserves the top of the browser viewport, while
+          // the launch must always use the real viewport bottom. Do not let a
+          // partially measured pin/rail become a floating intermediate edge.
+          const viewportBottom = window.innerHeight;
+          const railHeight = Math.max(viewportBottom - viewportTop, 1);
+          // Resolve the launch point in rail-local coordinates. Both the
+          // viewport and its card track inherit the horizontal panel tween,
+          // so subtracting their bounds removes that tween from the math and
+          // keeps the origin fixed when scrolling back through a phase.
+          const cardTrack = items[0]?.parentElement;
+          const trackBounds = cardTrack?.getBoundingClientRect();
+          const measuredViewportWidth = viewportBounds?.width ?? 0;
+          const originX = measuredViewportWidth > 0 && trackBounds && viewportBounds
+            ? viewportBounds.left - trackBounds.left + measuredViewportWidth * .5
+            : measuredViewportWidth > 0 ? measuredViewportWidth * .5 : viewportHeight * .5;
 
           centers.forEach((center, index) => {
-            const position = center + railY;
-            if (position >= -buffer && position <= viewportHeight + buffer) nextIndices.add(index);
+            if (!layouts[index]) return;
+            const position = viewportTop + center + railY;
+            if (position >= viewportTop - buffer && position <= viewportBottom + buffer) nextIndices.add(index);
           });
 
           // Once a card leaves the buffered viewport, park it at the narrow
@@ -547,18 +651,76 @@ const FeatureClipboard: React.FC = () => {
             if (nextIndices.has(index)) return;
             const item = items[index];
             if (!item) return;
-            const transform = createTransform(index, 0, .955);
+            item.style.willChange = 'auto';
+            if (compact) {
+              item.style.removeProperty('transform');
+              return;
+            }
+            const transform = createTransform(index, 0, 0, .955);
             if (item.style.transform !== transform) item.style.transform = transform;
-            if (compact) item.style.willChange = 'auto';
           });
 
           nextIndices.forEach((index) => {
-            if (compact && !previousIndices.has(index)) items[index].style.willChange = 'transform';
-            const verticalPosition = (centers[index] + railY) / viewportHeight;
+            if (!previousIndices.has(index)) items[index].style.willChange = 'transform';
+            if (compact) {
+              // The compact reveal loop owns the transform through CSS
+              // variables, keeping the shared-bottom launch in sync with
+              // the document scroll instead of replacing it with the desktop
+              // rail's arc transform.
+              items[index].style.removeProperty('transform');
+              return;
+            }
+            // Use each card's own center for the launch. Row centers are still
+            // useful for visibility checks, but a staggered right-hand card
+            // must leave from the exact same bottom origin as its left pair.
+            const layout = layouts[index];
+            if (!layout) return;
+            const position = viewportTop + layout.top + layout.height * .5 + railY;
+            const verticalPosition = position / viewportHeight;
             const arcDistance = Math.min(1, Math.abs(verticalPosition - .5) / .74);
             const scale = 1.04 - arcDistance * .085;
-            const arcX = (1 - arcDistance * arcDistance) * 72;
-            const transform = createTransform(index, arcX, scale);
+            // Keep the pair in a controlled funnel: the extra lateral offset
+            // is modest, constant at the top, and is multiplied by the launch
+            // progress below so it can only widen as the cards rise.
+            const funnelSpread = Math.min(24, Math.max(12, (viewportBounds?.width ?? viewportHeight) * .018));
+            const arcX = funnelSpread;
+            // Desktop uses the same launch language as the compact layout:
+            // cards are parked at one shared point on the lower viewport edge,
+            // then grow and settle into their two-column rail as they travel up.
+            // Anchor the shared launch on the visible bottom edge itself so
+            // both cards can be seen leaving the middle before fanning out.
+            const originY = viewportBottom;
+            const scaleTravel = Math.min(500, Math.max(420, railHeight * .48));
+            // Use one bottom-up progress for both scale and vertical travel.
+            // A shorter travel window plus an ease-out curve lets the card
+            // become readable sooner, while still beginning at the shared
+            // bottom-center origin.
+            const visibleScaleProgress = Math.max(0, Math.min(1, (viewportBottom - position) / scaleTravel));
+            const scaleProgress = 1 - ((1 - visibleScaleProgress) ** 2.2);
+            // offsetLeft is layout space, so it stays unchanged while the
+            // whole panel is translated left or right by the phase tween.
+            const finalCenterX = layout.left + layout.width * .5;
+            const launchY = (originY - position) * (1 - scaleProgress);
+            // Keep the first frame stacked at the origin, then let the pair
+            // fan outward as soon as the cards become readable.
+            const horizontalProgress = Math.max(0, Math.min(1, scaleProgress ** 1.25));
+            // The two columns leave the same bottom-center origin and fan out
+            // in opposite directions as they settle into the grid.
+            const columnDirection = index % 2 === 0 ? -1 : 1;
+            const targetArcX = columnDirection * arcX;
+            const launchScale = .002 + scaleProgress * (scale - .002);
+            // Cards scale from their outer edge (right edge for the left
+            // column, left edge for the right column). Interpolating only
+            // between the unscaled centers leaves the tiny launch cards one
+            // half-width away from the shared origin. Account for that edge
+            // pivot so their visual centers really meet at bottom-center.
+            const transformOriginDirection = index % 2 === 0 ? 1 : -1;
+            const preScaleVisualCenter = finalCenterX
+              + transformOriginDirection * layout.width * (1 - launchScale) * .5;
+            const targetVisualCenter = originX * (1 - horizontalProgress)
+              + (finalCenterX + targetArcX) * horizontalProgress;
+            const launchX = targetVisualCenter - preScaleVisualCenter;
+            const transform = createTransform(index, launchX, launchY, launchScale, horizontalProgress);
             if (items[index].style.transform !== transform) items[index].style.transform = transform;
           });
 
@@ -568,67 +730,51 @@ const FeatureClipboard: React.FC = () => {
           const railY = Number(gsap.getProperty(textListTrack, 'y')) || 0;
           const viewportHeight = Math.max(textListViewport.clientHeight, 1);
           const mobile = window.matchMedia('(max-width: 767px)').matches;
-          updateCardTransforms(0, textListItems, cardArcCenters, railY, viewportHeight, (index, arcX, scale) => {
-            const stagger = index % 2 === 1 ? (mobile ? 22 : 36) : 0;
-            const depth = index % 2 === 1 ? (mobile ? 20 : 28) : 10;
-            return `translate3d(${arcX.toFixed(2)}px, ${stagger}px, ${depth}px) scale(${scale.toFixed(3)})`;
+          updateCardTransforms(0, textListItems, cardArcCenters, cardLayouts[0], railY, viewportHeight, (index, arcX, y, scale, settleProgress = 1) => {
+            const stagger = index % 2 === 1 ? (mobile ? 22 : 28) : 0;
+            const settledStagger = mobile ? stagger : stagger * settleProgress;
+            return `translate(${arcX.toFixed(2)}px, ${(y + settledStagger).toFixed(2)}px) scale(${scale.toFixed(3)})`;
           });
         };
         const updateImageCardScale = () => {
           const railY = Number(gsap.getProperty(imageListTrack, 'y')) || 0;
           const viewportHeight = Math.max(imageListViewport.clientHeight, 1);
-          updateCardTransforms(1, imageListItems, imageCardArcCenters, railY, viewportHeight, (_index, arcX, scale) => (
-            `translate3d(${arcX.toFixed(2)}px, 0, 14px) scale(${scale.toFixed(3)})`
+          updateCardTransforms(1, imageListItems, imageCardArcCenters, cardLayouts[1], railY, viewportHeight, (_index, arcX, y, scale) => (
+            `translate(${arcX.toFixed(2)}px, ${y.toFixed(2)}px) scale(${scale.toFixed(3)})`
           ));
         };
         const updateStickerCardScale = () => {
           const railY = Number(gsap.getProperty(stickerListTrack, 'y')) || 0;
           const viewportHeight = Math.max(stickerListViewport.clientHeight, 1);
-          updateCardTransforms(2, stickerListItems, stickerCardArcCenters, railY, viewportHeight, (_index, arcX, scale) => (
-            `translate3d(${arcX.toFixed(2)}px, 0, 14px) scale(${scale.toFixed(3)})`
+          updateCardTransforms(2, stickerListItems, stickerCardArcCenters, cardLayouts[2], railY, viewportHeight, (_index, arcX, y, scale) => (
+            `translate(${arcX.toFixed(2)}px, ${y.toFixed(2)}px) scale(${scale.toFixed(3)})`
           ));
-        };
-        const listStages = [textListStage, imageListStage, stickerListStage];
-        const compactWarpTransforms = ['', '', ''];
-        const updateScrollWarp = (velocity = 0, activeRail?: number) => {
-          const momentum = Math.max(-1, Math.min(1, velocity / 2200));
-          listStages.forEach((stage, index) => {
-            if (!stage) return;
-            if (activeRail !== undefined && activeRail !== index) return;
-            if (compact) {
-              // One compositor transform with coarser rounding is cheaper than
-              // cascading two CSS custom-property writes through every card.
-              const transform = `rotateX(${(5 - momentum * 1.6).toFixed(1)}deg) rotateY(-2deg) skewX(${(momentum * .3).toFixed(1)}deg)`;
-              if (compactWarpTransforms[index] !== transform) {
-                compactWarpTransforms[index] = transform;
-                stage.style.transform = transform;
-              }
-              return;
-            }
-            stage.style.setProperty('--feature-list-pitch', `${(5 - momentum * 2.25).toFixed(2)}deg`);
-            stage.style.setProperty('--feature-list-shear', `${(momentum * .45).toFixed(2)}deg`);
-          });
         };
         const updateRail = (index: number) => {
           if (index === 0) updateCardScale();
           else if (index === 1) updateImageCardScale();
           else updateStickerCardScale();
         };
-        // Give the long text rail more scroll room than its physical travel so
-        // it reads as a calm, deliberate vertical movement.
+        // Give every rail more scroll room than its physical travel so all
+        // three phases read as a calm, deliberate vertical movement. Keeping
+        // one multiplier for text, image and sticker avoids a fast phase
+        // transition when the shorter rails take over.
+        const railScrollMultiplier = compact ? 1.6 : 2.5;
         const listTravelDistance = (listTrack: HTMLDivElement, listViewport: HTMLDivElement) => (
-          (listStartOffset(listViewport) - listEndOffset(listTrack, listViewport)) * (compact ? 1.28 : .96)
+          (listStartOffset(listViewport) - listEndOffset(listTrack, listViewport)) * railScrollMultiplier
         );
         let displayedIndex = 0;
         refreshRenderableItems();
         measureCardCenters();
         measureImageCardCenters();
         measureStickerCardCenters();
+        refreshCardLayouts();
         const refreshMeasurements = () => {
           refreshRenderableItems();
           measureCardCenters();
           measureImageCardCenters();
           measureStickerCardCenters();
+          refreshCardLayouts();
         };
 
         if (compact) {
@@ -646,7 +792,6 @@ const FeatureClipboard: React.FC = () => {
           compactRails.forEach(({ viewport, rail }, index) => {
             gsap.set(viewport, { clearProps: 'transform,willChange' });
             gsap.set(rail, { x: 0, y: () => listStartOffset(viewport), willChange: 'transform' });
-            updateScrollWarp(0, index);
             updateRail(index);
 
             const distance = Math.max(listTravelDistance(rail, viewport), window.innerHeight * 1.4);
@@ -662,16 +807,7 @@ const FeatureClipboard: React.FC = () => {
                 invalidateOnRefresh: true,
                 onRefresh: () => {
                   refreshMeasurements();
-                  updateScrollWarp(0, index);
                   updateRail(index);
-                },
-                onUpdate: (self) => {
-                  updateScrollWarp(self.getVelocity(), index);
-                },
-                onScrubComplete: () => {
-                  const stage = listStages[index];
-                  if (!stage) return;
-                  gsap.to(stage, { rotateX: 5, rotateY: -2, skewX: 0, duration: .3, ease: 'power3.out', overwrite: true });
                 },
               },
             }).to(rail, { y: () => listEndOffset(rail, viewport), duration: distance, ease: 'none' });
@@ -679,38 +815,449 @@ const FeatureClipboard: React.FC = () => {
           return;
         }
 
-        gsap.set(track, { x: 0, force3D: true, backfaceVisibility: 'hidden', willChange: 'transform' });
-        gsap.set(copyContents, { '--feature-copy-scroll-x': '0px', '--feature-copy-scroll-y': '0px', opacity: 1, willChange: 'transform' });
-        gsap.set(listViewports, { '--feature-list-enter-x': '0px', willChange: 'transform' });
-        gsap.set(textListTrack, { x: 0, y: () => listStartOffset(textListViewport), force3D: true, backfaceVisibility: 'hidden', willChange: 'transform' });
-        gsap.set(imageListTrack, { x: 0, y: () => listStartOffset(imageListViewport), force3D: true, backfaceVisibility: 'hidden', willChange: 'transform' });
-        gsap.set(stickerListTrack, { x: 0, y: () => listStartOffset(stickerListViewport), force3D: true, backfaceVisibility: 'hidden', willChange: 'transform' });
+        const copyWordGroups = copyContents.map((content) => (
+          Array.from(content.querySelectorAll<HTMLElement>('.feature-split-text-grapheme'))
+        ));
+        const allCopyGraphemes = copyWordGroups.flat();
+        // The copy appears as one centered, blurred block. Keeping every
+        // grapheme at its final Y position avoids a second split-text lift
+        // when the same h2/p nodes later move horizontally as one block.
+        gsap.set(allCopyGraphemes, { yPercent: 0, opacity: 0 });
+        gsap.set(track, { x: 0, willChange: 'transform' });
+        gsap.set(copyContents, {
+          '--feature-copy-scroll-x': '0px',
+          '--feature-copy-scroll-y': '0px',
+          '--feature-copy-align': 'center',
+          autoAlpha: 0,
+          willChange: 'transform',
+        });
+        copyContents.forEach((copy) => {
+          gsap.set(copy, { '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px` });
+        });
+        gsap.set(listViewports, { autoAlpha: 0, willChange: 'opacity' });
+        gsap.set(textListTrack, { x: 0, y: () => listStartOffset(textListViewport), willChange: 'transform' });
+        gsap.set(imageListTrack, { x: 0, y: () => listStartOffset(imageListViewport), willChange: 'transform' });
+        gsap.set(stickerListTrack, { x: 0, y: () => listStartOffset(stickerListViewport), willChange: 'transform' });
         const textVerticalDistance = Math.max(listTravelDistance(textListTrack, textListViewport), 1);
         const imageVerticalDistance = Math.max(listTravelDistance(imageListTrack, imageListViewport), 1);
         const stickerVerticalDistance = Math.max(listTravelDistance(stickerListTrack, stickerListViewport), 1);
-        const horizontalDistance = slideDistance();
-        // Start the discrete panel push before the scroll has crossed half of
-        // the horizontal gap, so a light, natural wheel/touch gesture can
-        // commit the next phase without requiring a forceful flick.
-        const horizontalTriggerDistance = horizontalDistance * .28;
-        // Let each rail finish completely before the next feature is pushed
-        // in. The previous overlap made the horizontal track follow the wheel
-        // freely while the last cards were still moving vertically.
-        const firstSlideStart = textVerticalDistance;
-        const imageRailStart = firstSlideStart + horizontalDistance;
-        const secondSlideStart = imageRailStart + imageVerticalDistance;
-        const stickerRailStart = secondSlideStart + horizontalDistance;
-        const totalDistance = stickerRailStart + stickerVerticalDistance;
-        const moveTrackToIndex = (nextIndex: number) => {
-          trackTween?.kill();
-          trackTween = gsap.to(track, {
-            x: () => -(slideDistance() * nextIndex),
-            duration: .64,
-            ease: 'power3.inOut',
-            overwrite: 'auto',
+        // Reserve a center beat after each phase arrives. The copy is revealed
+        // blurred in the center, moves into the left column while keeping its
+        // centered text alignment, then the list gets its own scroll distance.
+        const phaseCenterHold = Math.max(320, Math.min(500, window.innerHeight * .40));
+        const copyMoveScrollGuard = Math.max(760, Math.min(920, window.innerHeight * .86));
+        const copyMoveDuration = .42;
+        const copyReturnDuration = copyMoveDuration;
+        const copyHideDuration = .42;
+        const phaseHandoffDuration = .72;
+        const phaseIntroDistance = phaseCenterHold + copyMoveScrollGuard;
+        const listRevealDistance = Math.max(96, Math.min(180, window.innerHeight * .12));
+        const textRailStart = phaseIntroDistance + listRevealDistance;
+        const firstSlideStart = textRailStart + textVerticalDistance;
+        // Start each panel handoff at the exact end of the preceding list.
+        // The next title waits for the .72s panel landing, so there is no
+        // empty, scroll-sized gap between the two phases.
+        const imageRailStart = firstSlideStart;
+        const imageContentStart = imageRailStart + phaseIntroDistance + listRevealDistance;
+        const secondSlideStart = imageContentStart + imageVerticalDistance;
+        const stickerRailStart = secondSlideStart;
+        const stickerContentStart = stickerRailStart + phaseIntroDistance + listRevealDistance;
+        const totalDistance = stickerContentStart + stickerVerticalDistance;
+        const phaseStarts = [0, imageRailStart, stickerRailStart];
+        const railStarts = [textRailStart, imageContentStart, stickerContentStart];
+        const copyMoveStarts = phaseStarts.map((phaseStart) => phaseStart + phaseCenterHold);
+
+        type CopyTween = ReturnType<typeof gsap.timeline>;
+        type TrackTween = ReturnType<typeof gsap.to>;
+        type CopyMotionState = 'hidden' | 'center' | 'left' | 'returning';
+        const copyNodes = copyContents.map((copy) => (
+          Array.from(copy.querySelectorAll<HTMLElement>('h2, .feature-clipboard-description'))
+        ));
+        const copyMotionStates: CopyMotionState[] = copyContents.map(() => 'hidden');
+        const copyRevealTweens: Array<CopyTween | undefined> = [];
+        const copyMoveTweens: Array<CopyTween | undefined> = [];
+        const copyHoldReady: boolean[] = copyContents.map(() => false);
+        const copyMoveComplete: boolean[] = copyContents.map(() => false);
+        const copyRevealProgress: number[] = copyContents.map(() => 0);
+        const copyReverseComplete: boolean[] = copyContents.map(() => false);
+        const copyReverseCentered: boolean[] = copyContents.map(() => false);
+        const copyReverseCenterProgress: number[] = copyContents.map(() => 0);
+        // A phase may only begin its center reveal once its horizontal panel
+        // handoff has landed. Without this gate, phase 2/3 reveal off-screen
+        // while the previous panel slides away and appear already finished.
+        const phaseReady: boolean[] = copyContents.map((_copy, index) => index === 0);
+        const listVisibility: boolean[] = listViewports.map(() => false);
+        const listTracks = [textListTrack, imageListTrack, stickerListTrack];
+        // Each rail receives its own zero point only after the matching title
+        // has physically landed on the left. This makes its scroll range
+        // independent from a fast wheel gesture during the title transition.
+        const listStartProgress: number[] = listViewports.map(() => Number.NaN);
+        const listRenderedProgress = listViewports.map(() => 0);
+        const listScrollOffsets = listViewports.map(() => 0);
+        const copyRevealDuration = .68;
+        const copyMoveScrollDistance = Math.max(240, Math.min(360, window.innerHeight * .30));
+        let latestProgressDistance = 0;
+        let latestDirection = 1;
+        let trackHandoffIndex = 0;
+        let trackMoving = false;
+
+        const syncListRail = (index: number, progressDistance: number) => {
+          if (trackMoving || index !== trackHandoffIndex) return;
+          const rail = listTracks[index];
+          const viewport = listViewports[index];
+          const startProgress = listStartProgress[index];
+          if (!rail || !viewport) return;
+          const startY = listStartOffset(viewport);
+          if (!Number.isFinite(startProgress)) {
+            listRenderedProgress[index] = 0;
+            gsap.set(rail, { y: startY });
+            return;
+          }
+          // The travel ratio is identical for every rail, regardless of when
+          // its title finishes moving or how many cards it contains.
+          const endProgress = startProgress + Math.max(listTravelDistance(rail, viewport), 1);
+          const progress = endProgress > startProgress
+            ? Math.max(0, Math.min(1, (progressDistance + listScrollOffsets[index] - startProgress) / (endProgress - startProgress)))
+            : 1;
+          const endY = listEndOffset(rail, viewport);
+          listRenderedProgress[index] = progress;
+          gsap.set(rail, { y: startY + ((endY - startY) * progress) });
+          updateRail(index);
+        };
+
+        const syncListRails = (progressDistance: number) => {
+          listTracks.forEach((_rail, index) => syncListRail(index, progressDistance));
+        };
+
+        const syncListVisibility = (progressDistance: number) => {
+          listViewports.forEach((viewport, index) => {
+            // A rail remains visible until it has fully returned to its first
+            // row. Only then may the title leave the left column on reverse.
+            const revealStart = railStarts[index] ?? Number.POSITIVE_INFINITY;
+            const shouldShow = copyMotionStates[index] === 'left'
+              && copyMoveComplete[index]
+              && progressDistance + listScrollOffsets[index] >= revealStart;
+            if (shouldShow === listVisibility[index]) return;
+            listVisibility[index] = shouldShow;
+            gsap.to(viewport, {
+              autoAlpha: shouldShow ? 1 : 0,
+              duration: shouldShow ? .18 : .12,
+              ease: 'power1.out',
+              overwrite: 'auto',
+            });
           });
         };
-        updateScrollWarp();
+
+        const copyMoveThreshold = (index: number) => Math.max(
+          copyMoveStarts[index] ?? Number.POSITIVE_INFINITY,
+          (copyRevealProgress[index] ?? 0) + copyMoveScrollDistance,
+        );
+        const copyReverseHideDistance = Math.max(56, Math.min(96, window.innerHeight * .08));
+
+        const killCopyTweens = (index: number) => {
+          copyHoldReady[index] = false;
+          copyRevealTweens[index]?.kill();
+          copyMoveTweens[index]?.kill();
+          copyRevealTweens[index] = undefined;
+          copyMoveTweens[index] = undefined;
+        };
+
+        const revealCopyAtCenter = (index: number) => {
+          const copy = copyContents[index];
+          const nodes = copyNodes[index];
+          if (!copy || !nodes || copyMotionStates[index] === 'center') return;
+          const wasHidden = copyMotionStates[index] === 'hidden';
+          killCopyTweens(index);
+          gsap.set(copy, {
+            autoAlpha: 1,
+            '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
+            '--feature-copy-scroll-y': '0px',
+            '--feature-copy-align': 'center',
+          });
+          // Treat title and description as one copy block. Split-text stays
+          // fully rendered; the phase transition uses only blur and opacity,
+          // never a slow per-letter reveal.
+          gsap.set(copyWordGroups[index] ?? [], { yPercent: 0, opacity: 1 });
+          gsap.set(nodes, {
+            filter: wasHidden ? 'blur(16px)' : 'blur(0px)',
+            opacity: wasHidden ? 0 : 1,
+            willChange: 'transform,filter,opacity',
+          });
+          const reveal = gsap.timeline({ defaults: { overwrite: 'auto' } });
+          if (wasHidden) reveal.to(nodes, {
+            filter: 'blur(0px)',
+            opacity: 1,
+            duration: copyRevealDuration,
+            ease: 'power2.out',
+          }, 0);
+          copyRevealTweens[index] = reveal;
+          copyMotionStates[index] = 'center';
+          copyMoveComplete[index] = false;
+          copyReverseComplete[index] = false;
+          copyReverseCentered[index] = false;
+          copyReverseCenterProgress[index] = 0;
+          copyRevealProgress[index] = latestProgressDistance;
+          syncListVisibility(latestProgressDistance);
+          if (wasHidden) {
+            reveal.eventCallback('onComplete', () => {
+              if (copyMotionStates[index] !== 'center') return;
+              copyHoldReady[index] = true;
+              if (latestDirection >= 0 && latestProgressDistance >= copyMoveThreshold(index)) {
+                moveCopyToLeft(index);
+              }
+            });
+          } else {
+            copyHoldReady[index] = true;
+          }
+        };
+
+        function moveCopyToLeft(index: number) {
+          const copy = copyContents[index];
+          const nodes = copyNodes[index];
+          if (!copy || !nodes || copyMotionStates[index] === 'left') return;
+          killCopyTweens(index);
+          gsap.set(copy, {
+            autoAlpha: 1,
+            '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
+            '--feature-copy-scroll-y': '0px',
+            '--feature-copy-align': 'center',
+          });
+          gsap.set(nodes, { filter: 'blur(0px)', opacity: 1 });
+          copyMoveComplete[index] = false;
+          copyReverseComplete[index] = false;
+          copyReverseCentered[index] = false;
+          copyReverseCenterProgress[index] = 0;
+          syncListVisibility(latestProgressDistance);
+          const move = gsap.timeline({ defaults: { overwrite: 'auto' } });
+          move.to(copy, {
+            '--feature-copy-scroll-x': '0px',
+            duration: copyMoveDuration,
+            ease: 'power2.inOut',
+          }, 0);
+          move.eventCallback('onComplete', () => {
+            gsap.set(copy, { '--feature-copy-scroll-x': '0px', '--feature-copy-align': 'center' });
+            copyMoveComplete[index] = true;
+            // Use the current scroll position as the rail's origin. The
+            // first visible row therefore stays put until the title motion
+            // ends, even if scrolling continued while that motion played.
+            listStartProgress[index] = latestProgressDistance;
+            listScrollOffsets[index] = 0;
+            syncListRail(index, latestProgressDistance);
+            syncListVisibility(latestProgressDistance);
+          });
+          copyMoveTweens[index] = move;
+          copyMotionStates[index] = 'left';
+        }
+
+        const placeCopyAtLeft = (index: number) => {
+          const copy = copyContents[index];
+          const nodes = copyNodes[index];
+          if (!copy || !nodes) return;
+          killCopyTweens(index);
+          gsap.set(copy, {
+            autoAlpha: 1,
+            '--feature-copy-scroll-x': '0px',
+            '--feature-copy-scroll-y': '0px',
+            '--feature-copy-align': 'center',
+          });
+          gsap.set(copyWordGroups[index] ?? [], { yPercent: 0, opacity: 1 });
+          gsap.set(nodes, { filter: 'blur(0px)', opacity: 1, willChange: 'transform,filter,opacity' });
+          copyMotionStates[index] = 'left';
+          copyMoveComplete[index] = true;
+          listStartProgress[index] = railStarts[index] ?? latestProgressDistance;
+          copyReverseComplete[index] = false;
+          copyReverseCentered[index] = false;
+          copyReverseCenterProgress[index] = 0;
+        };
+
+        function returnCopyToCenter(index: number) {
+          const copy = copyContents[index];
+          const nodes = copyNodes[index];
+          if (!copy || !nodes || copyMotionStates[index] === 'returning' || copyMotionStates[index] === 'hidden') return;
+          killCopyTweens(index);
+          gsap.set(copy, { autoAlpha: 1, '--feature-copy-align': 'center' });
+          gsap.set(nodes, { filter: 'blur(0px)', opacity: 1, willChange: 'transform,filter' });
+          copyMoveComplete[index] = false;
+          syncListVisibility(latestProgressDistance);
+          const returning = gsap.timeline({ defaults: { overwrite: 'auto' } });
+          returning.to(copy, {
+            '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
+            duration: copyReturnDuration,
+            ease: 'power2.inOut',
+          }, 0);
+          returning.eventCallback('onComplete', () => {
+            gsap.set(copy, {
+              '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
+              '--feature-copy-scroll-y': '0px',
+              '--feature-copy-align': 'center',
+            });
+            copyMotionStates[index] = 'center';
+            copyReverseCentered[index] = true;
+            copyReverseCenterProgress[index] = latestProgressDistance;
+            // If the user changes direction while this copy is centered,
+            // allow the normal forward left/list sequence to resume.
+            copyHoldReady[index] = true;
+            // Do not immediately hide when a fast reverse scroll has already
+            // crossed the next threshold. Center must remain readable until
+            // the user makes one more reverse scroll update.
+          });
+          copyMoveTweens[index] = returning;
+          copyMotionStates[index] = 'returning';
+        }
+
+        function hideCopyFromCenter(index: number) {
+          const copy = copyContents[index];
+          const nodes = copyNodes[index];
+          if (!copy || !nodes || copyMotionStates[index] === 'hidden' || copyMotionStates[index] === 'returning') return;
+          killCopyTweens(index);
+          gsap.set(copy, {
+            autoAlpha: 1,
+            '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
+            '--feature-copy-scroll-y': '0px',
+            '--feature-copy-align': 'center',
+          });
+          gsap.set(nodes, { filter: 'blur(0px)', opacity: 1, willChange: 'transform,filter,opacity' });
+          const hiding = gsap.timeline({ defaults: { overwrite: 'auto' } });
+          hiding.to(nodes, {
+            filter: 'blur(18px)',
+            opacity: 0,
+            duration: copyHideDuration,
+            ease: 'power2.inOut',
+          }, 0);
+          hiding.set(copy, { autoAlpha: 0 }, copyHideDuration);
+          hiding.eventCallback('onComplete', () => {
+            copyMotionStates[index] = 'hidden';
+            copyReverseComplete[index] = true;
+            copyReverseCentered[index] = false;
+            copyReverseCenterProgress[index] = 0;
+            // The user can stop exactly while the blur-out finishes. Resume
+            // the reverse state machine here instead of waiting for another
+            // browser scroll event, otherwise the outgoing panel may remain
+            // pinned even though it is ready to hand off to the prior phase.
+            if (latestDirection < 0) {
+              syncCopyMotion(latestProgressDistance, -1);
+              syncTrackHandoff(latestProgressDistance, -1);
+            }
+          });
+          copyMoveTweens[index] = hiding;
+          copyMotionStates[index] = 'returning';
+        }
+
+        const hideCopy = (index: number) => {
+          const copy = copyContents[index];
+          if (!copy || copyMotionStates[index] === 'hidden') return;
+          killCopyTweens(index);
+          gsap.set(copy, { autoAlpha: 0, '--feature-copy-scroll-y': '0px', '--feature-copy-align': 'center' });
+          copyMotionStates[index] = 'hidden';
+          copyMoveComplete[index] = false;
+          listStartProgress[index] = Number.NaN;
+          syncListRail(index, latestProgressDistance);
+          copyReverseCentered[index] = false;
+          copyReverseCenterProgress[index] = 0;
+          syncListVisibility(latestProgressDistance);
+        };
+
+        const syncCopyMotion = (progressDistance: number, direction: number) => {
+          latestProgressDistance = progressDistance;
+          latestDirection = direction;
+          if (trackMoving) return;
+          const index = trackHandoffIndex;
+          if (index < 0) return;
+          const state = copyMotionStates[index];
+          const reverseCopyStart = (Number.isFinite(listStartProgress[index])
+            ? listStartProgress[index] : railStarts[index]) - listScrollOffsets[index];
+          if (direction < 0 && progressDistance < reverseCopyStart) {
+            if (state === 'left') {
+              returnCopyToCenter(index);
+              return;
+            }
+            if (state === 'center' && copyHoldReady[index]
+              && progressDistance <= (copyReverseCentered[index]
+                ? copyReverseCenterProgress[index] : copyRevealProgress[index]) - copyReverseHideDistance) {
+              hideCopyFromCenter(index);
+              return;
+            }
+            if (state === 'returning' || copyReverseComplete[index]) {
+              syncListVisibility(progressDistance);
+              return;
+            }
+          }
+          // If the user reverses while a newly arrived panel is still empty,
+          // do not start a fresh reveal only to remove it a moment later.
+          if (direction < 0 && state === 'hidden' && progressDistance < reverseCopyStart) {
+            syncListVisibility(progressDistance);
+            return;
+          }
+          if (!phaseReady[index]) {
+            syncListVisibility(progressDistance);
+            return;
+          }
+          if (state === 'hidden') {
+            revealCopyAtCenter(index);
+            return;
+          }
+          if (direction >= 0 && state === 'center' && progressDistance >= copyMoveThreshold(index) && copyHoldReady[index]) {
+            moveCopyToLeft(index);
+          }
+          syncListVisibility(progressDistance);
+        };
+
+        const trackHandoffTweens: Array<TrackTween | undefined> = [];
+        const syncTrackHandoff = (progressDistance: number, direction: number) => {
+          if (trackMoving) return;
+          const scrollTargetIndex = progressDistance < firstSlideStart ? 0 : progressDistance < secondSlideStart ? 1 : 2;
+          // A scroll boundary alone cannot advance the panel: the outgoing
+          // rail must actually have rendered its final position first.
+          if (direction >= 0 && scrollTargetIndex > trackHandoffIndex
+            && (!copyMoveComplete[trackHandoffIndex]
+              || listRenderedProgress[trackHandoffIndex] < 1)) return;
+          // Once the outgoing copy has completed its center blur-out, hand
+          // off immediately to the prior panel. Waiting for the old numeric
+          // phase boundary here leaves the user in an empty, stuck panel.
+          const targetIndex = direction < 0
+            && trackHandoffIndex > 0
+            && copyMotionStates[trackHandoffIndex] === 'hidden'
+            ? trackHandoffIndex - 1
+            : direction < 0 ? trackHandoffIndex : Math.min(trackHandoffIndex + 1, scrollTargetIndex);
+          // On reverse, let the outgoing title return from the top and blur
+          // away before the phase track itself starts moving back.
+          if (direction < 0 && targetIndex < trackHandoffIndex
+            && copyMotionStates[trackHandoffIndex] !== 'hidden') return;
+          if (targetIndex === trackHandoffIndex) return;
+          trackHandoffTweens[trackHandoffIndex]?.kill();
+          trackMoving = true;
+          trackHandoffIndex = targetIndex;
+          trackHandoffTweens[targetIndex]?.kill();
+          if (direction >= 0 && targetIndex > 0) phaseReady[targetIndex] = false;
+          trackHandoffTweens[targetIndex] = gsap.to(track, {
+            x: () => -(slideDistance() * targetIndex),
+            duration: phaseHandoffDuration,
+            ease: 'power2.inOut',
+            overwrite: 'auto',
+          });
+          trackHandoffTweens[targetIndex].eventCallback('onComplete', () => {
+            if (trackHandoffIndex !== targetIndex) return;
+            trackMoving = false;
+            phaseReady[targetIndex] = true;
+            if (direction < 0) {
+              const retainedProgress = listRenderedProgress[targetIndex];
+              placeCopyAtLeft(targetIndex);
+              const start = listStartProgress[targetIndex];
+              const end = start + Math.max(listTravelDistance(listTracks[targetIndex], listViewports[targetIndex]), 1);
+              // Resume from the exact rendered row after landing. Scrolling
+              // during the horizontal handoff must not consume this rail.
+              listScrollOffsets[targetIndex] = start + retainedProgress * (end - start) - latestProgressDistance;
+            }
+            syncCopyMotion(latestProgressDistance, latestDirection);
+            syncListRails(latestProgressDistance);
+          });
+        };
+        motionCleanups.push(() => {
+          copyContents.forEach((_copy, index) => {
+            killCopyTweens(index);
+          });
+          trackHandoffTweens.forEach((tween) => tween?.kill());
+        });
         updateCardScale();
         updateImageCardScale();
         updateStickerCardScale();
@@ -719,7 +1266,9 @@ const FeatureClipboard: React.FC = () => {
           // ScrollTrigger's onUpdate fires when the scroll target changes,
           // before the scrub tween has rendered its next frame; reading Y
           // there caused a one-frame kick to the left exactly as pinning began.
-          onUpdate: () => updateRail(displayedIndex),
+          onUpdate: () => {
+            updateRail(displayedIndex);
+          },
           scrollTrigger: {
             trigger: pin,
             start: () => `top ${headerOffset()}px`,
@@ -730,56 +1279,82 @@ const FeatureClipboard: React.FC = () => {
             invalidateOnRefresh: true,
             onRefresh: () => {
               refreshMeasurements();
-              updateScrollWarp();
+              syncListRails(latestProgressDistance);
               updateCardScale();
               updateImageCardScale();
               updateStickerCardScale();
             },
+            // Do not reveal the first copy while the page is loading above
+            // this section. It must begin its blur-in only when the pinned
+            // scene actually enters the viewport.
+            onEnter: (self) => {
+              phaseReady[0] = true;
+              syncCopyMotion(self.progress * totalDistance, 1);
+              syncTrackHandoff(self.progress * totalDistance, 1);
+            },
+            onEnterBack: (self) => {
+              const progressDistance = self.progress * totalDistance;
+              // A page can enter this pinned scene from its lower edge (for
+              // example after a reload). Rehydrate the current phase in its
+              // completed left/list state, then let the normal reverse path
+              // bring the list down before returning copy to center.
+              const resumeIndex = progressDistance >= stickerRailStart ? 2
+                : progressDistance >= imageRailStart ? 1
+                  : 0;
+              gsap.set(track, { x: -(slideDistance() * resumeIndex) });
+              trackHandoffIndex = resumeIndex;
+              // Restore every already-passed phase as a completed left/list
+              // state. This also makes a reload or entry from below reverse
+              // through phase 2 → phase 1 without replaying a center reveal.
+              for (let index = 0; index <= resumeIndex; index += 1) {
+                phaseReady[index] = true;
+                if (copyMotionStates[index] === 'hidden') placeCopyAtLeft(index);
+              }
+              syncCopyMotion(progressDistance, -1);
+              syncTrackHandoff(progressDistance, -1);
+            },
+            onLeaveBack: () => {
+              trackHandoffTweens.forEach((tween) => tween?.kill());
+              trackMoving = false;
+              copyContents.forEach((_copy, index) => hideCopy(index));
+              phaseReady.forEach((_ready, index) => {
+                phaseReady[index] = index === 0;
+              });
+              gsap.set(track, { x: 0 });
+              syncListRails(0);
+              trackHandoffIndex = 0;
+              displayedIndex = 0;
+              setActiveIndex(0);
+            },
             onUpdate: (self) => {
               const progressDistance = self.progress * totalDistance;
-              const firstBoundary = firstSlideStart + horizontalTriggerDistance;
-              const secondBoundary = secondSlideStart + horizontalTriggerDistance;
-              const nextIndex = progressDistance < firstBoundary ? 0 : progressDistance < secondBoundary ? 1 : 2;
-              // ScrollTrigger can report a one-frame velocity spike while it
-              // swaps the scene into fixed pinning. Do not feed that spike to
-              // the 3D warp or the text rail visibly kicks sideways.
-              const edgeDistance = Math.min(self.progress, 1 - self.progress);
-              updateScrollWarp(edgeDistance < .008 ? 0 : self.getVelocity(), nextIndex);
+              syncCopyMotion(progressDistance, self.direction);
+              syncListRails(progressDistance);
+              syncTrackHandoff(progressDistance, self.direction);
+              // Keep the active phase on the previous panel while the
+              // horizontal handoff is in progress.
+              const nextIndex = progressDistance < firstSlideStart ? 0 : progressDistance < secondSlideStart ? 1 : 2;
               if (nextIndex === displayedIndex) return;
               displayedIndex = nextIndex;
               setActiveIndex(nextIndex);
-              moveTrackToIndex(nextIndex);
-            },
-            onScrubComplete: () => {
-              const stage = listStages[displayedIndex];
-              if (!stage) return;
-              gsap.to(stage, {
-                '--feature-list-pitch': '5deg',
-                '--feature-list-shear': '0deg',
-                duration: .4,
-                ease: 'power3.out',
-                overwrite: true,
-              });
             },
           },
         });
-        timeline
-          .to(textListTrack, { y: () => listEndOffset(textListTrack, textListViewport), force3D: true, duration: textVerticalDistance, ease: 'none' }, 0)
-          .to(imageListTrack, { y: () => listEndOffset(imageListTrack, imageListViewport), force3D: true, duration: imageVerticalDistance, ease: 'none' }, imageRailStart)
-          .to(stickerListTrack, { y: () => listEndOffset(stickerListTrack, stickerListViewport), force3D: true, duration: stickerVerticalDistance, ease: 'none' }, stickerRailStart);
+        // ScrollTrigger remains the pin/timing source. Rails are positioned
+        // by syncListRail so a list cannot progress behind title movement.
+        timeline.to({}, { duration: totalDistance, ease: 'none' }, 0);
       });
 
       cleanup = () => {
-        trackTween?.kill();
+        motionCleanups.forEach((teardown) => teardown());
         context.revert();
+        prehiddenCopyContents.forEach((copy) => {
+          copy.style.removeProperty('opacity');
+          copy.style.removeProperty('visibility');
+        });
         section.querySelectorAll<HTMLElement>('.feature-text-list-item, .feature-image-list-item, .feature-sticker-list-item').forEach((item) => {
           item.style.removeProperty('transform');
           item.style.removeProperty('will-change');
-        });
-        section.querySelectorAll<HTMLElement>('.feature-text-list-3d, .feature-image-list-3d, .feature-sticker-list-3d').forEach((stage) => {
-          stage.style.removeProperty('transform');
-          stage.style.removeProperty('--feature-list-pitch');
-          stage.style.removeProperty('--feature-list-shear');
         });
       };
       ScrollTrigger.refresh();
@@ -789,6 +1364,14 @@ const FeatureClipboard: React.FC = () => {
     return () => {
       active = false;
       cleanup?.();
+      // The dynamic import may still be pending when the layout changes.
+      // In that case no GSAP context exists to restore these inline values.
+      if (!cleanup) {
+        prehiddenCopyContents.forEach((copy) => {
+          copy.style.removeProperty('opacity');
+          copy.style.removeProperty('visibility');
+        });
+      }
     };
   }, [compactLayout]);
 
@@ -808,12 +1391,12 @@ const FeatureClipboard: React.FC = () => {
               >
                 <div className={`feature-clipboard-content${itemKey === 'text' ? ' is-text-feature' : itemKey === 'image' ? ' is-image-feature' : ' is-sticker-feature'}`}>
                   <div className="feature-clipboard-copy-content">
-                    <h2>{item.title}</h2>
-                    <p className="feature-clipboard-description">{item.description}</p>
+                    <h2 aria-label={item.title}><SplitText text={item.title} lang={lang} /></h2>
+                    <p className="feature-clipboard-description" aria-label={item.description}><SplitText text={item.description} lang={lang} /></p>
                   </div>
                   {itemKey === 'text' && (
                     <div ref={textListViewportRef} className="feature-text-list-viewport" aria-label="Text clipboard examples">
-                      <div className="feature-text-list-3d">
+                      <div className="feature-text-list-stage">
                         <div ref={textListTrackRef} className="feature-text-list-track">
                           {textClipboardItems.map((textItem) => (
                             <article
@@ -832,7 +1415,7 @@ const FeatureClipboard: React.FC = () => {
                   )}
                   {itemKey === 'image' && (
                     <div ref={imageListViewportRef} className="feature-image-list-viewport" aria-label="Image clipboard examples">
-                      <div className="feature-image-list-3d">
+                      <div className="feature-image-list-stage">
                         <div ref={imageListTrackRef} className="feature-image-list-track">
                           {imageItems.map((imageItem) => (
                             <figure className="feature-image-list-item" key={imageItem.id}>
@@ -845,7 +1428,7 @@ const FeatureClipboard: React.FC = () => {
                   )}
                   {itemKey === 'sticker' && (
                     <div ref={stickerListViewportRef} className="feature-sticker-list-viewport" aria-label="Sticker clipboard examples">
-                      <div className="feature-sticker-list-3d">
+                      <div className="feature-sticker-list-stage">
                         <div ref={stickerListTrackRef} className="feature-sticker-list-track">
                           {stickerItems.map((stickerItem) => (
                             <figure className="feature-sticker-list-item" key={stickerItem.id}>

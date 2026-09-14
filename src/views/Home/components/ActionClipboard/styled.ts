@@ -1,794 +1,1559 @@
 import styled from 'styled-components';
 
 export const ActionClipboardSection = styled.section`
-  --action-header-height: 75px;
-  --action-pin-gap: clamp(30px, 3.6dvh, 42px);
-  --action-pin-top: calc(var(--action-header-height) + var(--action-pin-gap));
-  --action-wrap-height: calc(100dvh - var(--action-header-height) - (var(--action-pin-gap) * 2));
-  --action-mockup-edge: clamp(28px, 5vw, 88px);
-  --action-mockup-gap: clamp(12px, 1.6vw, 24px);
-  --action-standard-mockup-size: clamp(118px, 13vw, 176px);
-  --action-standard-mockup-width: var(--action-standard-mockup-size);
-  --action-standard-mockup-height: var(--action-standard-mockup-size);
-  --action-share-edge: 18px;
-  --action-share-plane-edge: 32px;
-  --action-share-expanded-width: 400px;
-  --action-share-plane-size: 35px;
-  --action-share-social-size: 42px;
-  --action-share-social-gap: 16px;
-  --action-export-pill-gap: clamp(18px, 2vw, 28px);
-  position: relative;
-  min-height: calc(var(--action-pin-top) + var(--action-wrap-height));
-  padding-top: var(--action-pin-top);
+  --action-clipboard-island-width: 190px;
+  padding: clamp(160px, 17vw, 248px) 0;
+  overflow: clip;
   background: #fff;
   color: #151515;
 
-  .action-clipboard-pin {
+  .container { padding-inline: var(--page-gutter); }
+
+  .action-clipboard-heading {
+    max-width: 720px;
+    margin: 0 auto clamp(36px, 5vw, 64px);
+    text-align: center;
+  }
+  .action-clipboard-heading h2 {
+    margin: 0;
+    font-size: clamp(36px, 5vw, 72px);
+    font-weight: 800;
+    letter-spacing: -.055em;
+    line-height: .98;
+  }
+  .action-clipboard-heading p {
+    margin: clamp(12px, 1.5vw, 18px) 0 0;
+    color: rgba(21, 21, 21, .58);
+    font-size: clamp(16px, 1.7vw, 22px);
+    line-height: 1.4;
+  }
+
+  .action-clipboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: hidden;
+    border: 1px solid rgba(21, 21, 21, .14);
+    border-radius: clamp(28px, 4vw, 48px);
+    background: #fff;
+  }
+
+  .action-clipboard-panel {
+    display: flex;
+    min-width: 0;
+    min-height: clamp(260px, 31vw, 446px);
+    padding: clamp(14px, 1.6vw, 22px);
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid rgba(21, 21, 21, .14);
+    background: #fff;
+  }
+  .action-clipboard-panel:nth-child(odd) { border-right: 1px solid rgba(21, 21, 21, .14); }
+
+  .action-clipboard-panel-bar-shell {
+    --action-clipboard-island-height: clamp(34px, 3.8vw, 44px);
+    --action-clipboard-island-inline-padding: 7px;
+    --action-clipboard-island-start-padding: 10px;
     position: relative;
+    z-index: 3;
+    width: var(--action-clipboard-island-width);
+    max-width: 100%;
+    min-height: var(--action-clipboard-island-height);
+    flex: 0 0 auto;
+    transition: width .72s cubic-bezier(.22, .8, .28, 1), min-height .72s cubic-bezier(.22, .8, .28, 1);
+  }
+  .action-clipboard-panel-bar-shell--share-expanded,
+  .action-clipboard-panel-bar-shell--export-expanded {
+    --action-clipboard-island-inline-padding: clamp(9px, 1vw, 12px);
+    --action-clipboard-island-start-padding: clamp(12px, 1.3vw, 15px);
+    --action-clipboard-share-expanded-padding: clamp(14px, 1.6vw, 20px);
+    width: min(100%, clamp(292px, 34.5vw, 402px));
+    min-height: clamp(82px, 7.2vw, 96px);
+  }
+  .action-clipboard-panel-bar-motion {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: visible;
+    border-radius: calc(var(--action-clipboard-island-height) / 2);
+    transform-origin: center;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: border-radius .72s cubic-bezier(.22, .8, .28, 1);
+  }
+  .action-clipboard-panel-bar {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    min-height: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 var(--action-clipboard-island-inline-padding) 0 var(--action-clipboard-island-start-padding);
+    border-radius: calc(var(--action-clipboard-island-height) / 2);
+    box-sizing: border-box;
+    background: #151515;
+    box-shadow: 0 9px 18px rgba(21, 21, 21, .13);
+    color: #fff;
+    transition: border-radius .72s cubic-bezier(.22, .8, .28, 1);
+  }
+  .action-clipboard-panel-bar-foreground {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    border-radius: calc(var(--action-clipboard-island-height) / 2);
+    pointer-events: none;
+    transition: border-radius .72s cubic-bezier(.22, .8, .28, 1);
+  }
+  .action-clipboard-panel-bar-motion--share-expanded,
+  .action-clipboard-panel-bar-motion--share-expanded .action-clipboard-panel-bar,
+  .action-clipboard-panel-bar-foreground--share-expanded,
+  .action-clipboard-panel-bar-motion--export-expanded,
+  .action-clipboard-panel-bar-motion--export-expanded .action-clipboard-panel-bar,
+  .action-clipboard-panel-bar-foreground--export-expanded {
+    border-radius: clamp(22px, 2.4vw, 28px);
+  }
+  .action-clipboard-panel-bar-foreground > .action-clipboard-panel-folder-wrap {
+    position: absolute;
+    top: calc(var(--action-clipboard-island-height) / 2);
+    left: var(--action-clipboard-island-start-padding);
+    transform: translateY(-50%);
+  }
+  @keyframes action-clipboard-island-fly {
+    0%, 100% { transform: translate3d(0, 0, 0) scaleX(1); }
+    14% { transform: translate3d(0, calc(var(--action-clipboard-shake-offset) * -1), 0) scaleX(calc(1 + var(--action-clipboard-shake-scale))); }
+    28% { transform: translate3d(0, var(--action-clipboard-shake-offset), 0) scaleX(calc(1 - var(--action-clipboard-shake-scale) * .45)); }
+    42% { transform: translate3d(0, calc(var(--action-clipboard-shake-offset) * -.75), 0) scaleX(calc(1 + var(--action-clipboard-shake-scale) * .8)); }
+    56% { transform: translate3d(0, calc(var(--action-clipboard-shake-offset) * .65), 0) scaleX(calc(1 - var(--action-clipboard-shake-scale) * .3)); }
+    70% { transform: translate3d(0, 0, 0) scaleX(calc(1 + var(--action-clipboard-shake-scale) * .4)); }
+  }
+  @keyframes action-clipboard-island-return {
+    0%, 100% { transform: translate3d(0, 0, 0) scaleX(1); }
+    14% { transform: translate3d(0, calc(var(--action-clipboard-shake-offset) * -1), 0) scaleX(calc(1 + var(--action-clipboard-shake-scale))); }
+    28% { transform: translate3d(0, var(--action-clipboard-shake-offset), 0) scaleX(calc(1 - var(--action-clipboard-shake-scale) * .45)); }
+    42% { transform: translate3d(0, calc(var(--action-clipboard-shake-offset) * -.75), 0) scaleX(calc(1 + var(--action-clipboard-shake-scale) * .8)); }
+    56% { transform: translate3d(0, calc(var(--action-clipboard-shake-offset) * .65), 0) scaleX(calc(1 - var(--action-clipboard-shake-scale) * .3)); }
+    70% { transform: translate3d(0, 0, 0) scaleX(calc(1 + var(--action-clipboard-shake-scale) * .4)); }
+  }
+  @keyframes action-clipboard-item-collect {
+    0% { opacity: 0; filter: blur(8px); transform: translateY(28px) scale(.92); }
+    14%, 100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+  }
+  @keyframes action-clipboard-check-pop {
+    0%, 4% { opacity: 0; transform: scale(.45); }
+    8% { opacity: 1; transform: scale(1.12); }
+    11%, 100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes action-clipboard-item-fly {
+    0% { opacity: 1; filter: blur(0); transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; filter: blur(8px); transform: translate(var(--action-clipboard-fly-x), var(--action-clipboard-fly-y)) scale(.16); }
+  }
+  @keyframes action-clipboard-item-return {
+    0% { opacity: 0; filter: blur(8px); transform: translate(var(--action-clipboard-fly-x), var(--action-clipboard-fly-y)) scale(.16); }
+    16% { opacity: 1; filter: blur(3px); }
+    100% { opacity: 1; filter: blur(0); transform: translate(0, 0) scale(1); }
+  }
+  @keyframes action-clipboard-icloud-item-return {
+    0% { opacity: 1; filter: blur(7px); transform: translate(var(--action-clipboard-fly-x), var(--action-clipboard-fly-y)) scale(.16); }
+    18% { opacity: 1; filter: blur(3px); }
+    100% { opacity: 1; filter: blur(0); transform: translate(0, 0) scale(1); }
+  }
+  @keyframes action-clipboard-pin-shift {
+    0% { transform: translate3d(var(--action-clipboard-pin-from-x), 0, 0); }
+    100% { transform: translate3d(var(--action-clipboard-pin-to-x), 0, 0); }
+  }
+  .action-clipboard-panel-bar-motion--flying {
+    animation: action-clipboard-island-fly var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--returning {
+    animation: action-clipboard-island-return var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--pin-shaking-even {
+    animation: action-clipboard-island-fly var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--pin-shaking-odd {
+    animation: action-clipboard-island-return var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--share-shaking-even {
+    animation: action-clipboard-island-fly var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--share-shaking-odd {
+    animation: action-clipboard-island-return var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--export-shaking-even {
+    animation: action-clipboard-island-fly var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--export-shaking-odd {
+    animation: action-clipboard-island-return var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--clipboard-shaking-even {
+    animation: action-clipboard-island-fly var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--clipboard-shaking-odd {
+    animation: action-clipboard-island-return var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--icloud-shaking-even {
+    animation: action-clipboard-island-fly var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-panel-bar-motion--icloud-shaking-odd {
+    animation: action-clipboard-island-return var(--action-clipboard-shake-duration) cubic-bezier(.22, .8, .28, 1) both;
+  }
+  .action-clipboard-progress { transition: color .28s ease; }
+  .action-clipboard-progress.action-clipboard-progress--active { color: #fff; }
+  .action-clipboard-panel-bar-foreground > .action-clipboard-progress {
+    position: absolute;
+    top: calc(var(--action-clipboard-island-height) / 2);
+    right: var(--action-clipboard-island-inline-padding);
+    z-index: 4;
+    transform: translateY(-50%);
+  }
+  .action-clipboard-panel-bar-foreground--share-expanded > .action-clipboard-panel-folder-wrap,
+  .action-clipboard-panel-bar-foreground--share-expanded > .action-clipboard-progress,
+  .action-clipboard-panel-bar-foreground--export-expanded > .action-clipboard-panel-folder-wrap,
+  .action-clipboard-panel-bar-foreground--export-expanded > .action-clipboard-progress {
+    top: calc(var(--action-clipboard-island-height) / 2);
+  }
+  .action-clipboard-panel-folder-wrap,
+  .action-clipboard-progress {
+    display: grid;
+    width: clamp(24px, 2.4vw, 31px);
+    aspect-ratio: 1;
+    place-items: center;
+  }
+  .action-clipboard-panel-folder-wrap { border: 0; }
+  .action-clipboard-panel-folder,
+  .action-clipboard-panel-pin,
+  .action-clipboard-panel-share,
+  .action-clipboard-panel-voice,
+  .action-clipboard-panel-scan,
+  .action-clipboard-panel-scan-view,
+  .action-clipboard-panel-clipboard,
+  .action-clipboard-panel-icloud,
+  .action-clipboard-panel-export { width: clamp(18px, 1.9vw, 24px); height: clamp(18px, 1.9vw, 24px); }
+  .action-clipboard-panel-export { width: clamp(16px, 1.55vw, 20px); height: clamp(16px, 1.55vw, 20px); }
+  .action-clipboard-voice-audio {
+    position: absolute;
+    top: calc(var(--action-clipboard-island-height) / 2);
+    right: var(--action-clipboard-island-inline-padding);
+    display: grid;
+    width: clamp(24px, 2.4vw, 31px);
+    aspect-ratio: 1;
+    place-items: center;
+    transform: translateY(-50%);
+    color: #737373;
+  }
+  .action-clipboard-voice-waveform {
+    display: flex;
+    width: clamp(18px, 1.9vw, 24px);
+    height: clamp(18px, 1.9vw, 24px);
+    align-items: center;
+    justify-content: space-between;
+  }
+  .action-clipboard-voice-waveform i {
+    display: block;
+    width: 2px;
+    flex: 0 0 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform-origin: center;
+  }
+  .action-clipboard-scan-view {
+    position: absolute;
+    top: calc(var(--action-clipboard-island-height) / 2);
+    right: var(--action-clipboard-island-inline-padding);
+    display: grid;
+    width: clamp(24px, 2.4vw, 31px);
+    aspect-ratio: 1;
+    place-items: center;
+    color: #737373;
+    transform: translateY(-50%);
+  }
+  .action-clipboard-scan-view svg { display: block; }
+  .action-clipboard-clipboard-chevron {
+    position: absolute;
+    top: 0;
+    right: calc(var(--action-clipboard-island-inline-padding) + clamp(3px, .45vw, 6px));
+    bottom: 0;
+    display: grid;
+    width: clamp(17px, 1.7vw, 22px);
+    height: auto;
+    place-items: center;
+    color: #737373;
+    transition: color .3s ease;
+  }
+  .action-clipboard-clipboard-chevron-track {
+    position: absolute;
+    inset: 0;
     display: flex;
     width: 100%;
-    height: var(--action-wrap-height);
-    margin: 0 auto;
-    flex-direction: column;
-    gap: clamp(12px, 1.8dvh, 18px);
-    padding: 0 var(--page-inline-padding);
-  }
-
-  .action-clipboard-content-frame {
-    position: relative;
-    display: grid;
-    min-height: 0;
-    flex: 1 1 80%;
-  }
-
-  .action-clipboard-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: grid;
-    width: 32px;
-    height: 32px;
-    overflow: hidden;
-    border-radius: 16px;
-    background: #151515 url('/assets/action-clipboard-noise.png') center / cover no-repeat;
-    filter: blur(18px);
-    opacity: 0;
-    transform: translate(-50%, -50%);
-    will-change: width, height, border-radius, filter, opacity;
-  }
-
-  .action-clipboard-scene {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .action-clipboard-scene-title-anchor {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: flex;
-    transform: translate(-50%, -50%);
-  }
-
-  .action-clipboard-scene-title {
-    position: relative;
-    display: flex;
-    width: max-content;
     align-items: center;
-    gap: clamp(12px, 1.4vw, 20px);
-    padding: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: #fff;
-    transform-origin: center;
-    z-index: 2;
-    white-space: nowrap;
-    will-change: transform, width, background-color, color, filter, opacity;
-  }
-
-  .action-clipboard-scene-icon {
-    display: grid;
-    width: clamp(48px, 5.2vw, 76px);
-    height: clamp(48px, 5.2vw, 76px);
-    flex: 0 0 auto;
+    justify-content: center;
     overflow: hidden;
-    place-items: center;
+    line-height: 0;
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 30%, #000 68%, transparent 100%);
+    mask-image: linear-gradient(to top, transparent 0%, #000 30%, #000 68%, transparent 100%);
   }
-  .action-clipboard-scene-icon svg { width: 100%; height: 100%; stroke-width: 1.7; }
-
-  .action-clipboard-title-words {
+  .action-clipboard-clipboard-chevron-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 0;
+    transform: translateY(0);
+    animation: action-clipboard-clipboard-arrows-up 1.05s linear infinite;
+    animation-play-state: paused;
+  }
+  .action-clipboard-clipboard-chevron-arrow {
     display: block;
-    height: 1.08em;
-    padding-inline: 12px;
-    box-sizing: border-box;
-    overflow: hidden;
-    font-size: var(--action-title-font-size, clamp(44px, 5.4vw, 84px));
-    font-weight: 690;
-    letter-spacing: -.07em;
-    line-height: 1.08;
-    text-transform: capitalize;
+    width: 100%;
+    height: clamp(10px, 1vw, 13px);
+    flex: 0 0 clamp(10px, 1vw, 13px);
   }
-  .action-clipboard-title-word-track { display: flex; height: 1.08em; gap: .14em; }
-  .action-clipboard-title-word-track > span { display: block; flex: 0 0 auto; width: max-content; height: 1.08em; white-space: nowrap; }
-  .action-clipboard-scene--group-vi .action-clipboard-title-word-track { flex-direction: row-reverse; }
-  .action-clipboard-scene--cloud .action-clipboard-title-words { text-transform: none; }
-  /* Export changes its title width while the pinned timeline is scrubbed.
-     Keep the glyphs paintable while that width is being restored on reverse;
-     the title pill still provides the visual boundary. */
-  .action-clipboard-scene--export .action-clipboard-title-words { overflow: visible; }
-  .action-clipboard-scene--export .action-clipboard-scene-title { box-sizing: border-box; justify-content: center; }
-  .action-clipboard-scene--export .action-clipboard-title-word-track { position: relative; display: block; }
-  .action-clipboard-scene--export .action-clipboard-title-word-track > span { position: absolute; top: 0; left: 0; }
-
-  /* Keep the Scan Text label as one centered unit while the search glyph is
-     animated over it. The glyph is an overlay, not part of the title layout. */
-  .action-clipboard-scan-heading {
-    display: flex;
-    width: max-content;
-    align-items: center;
-    gap: inherit;
+  @keyframes action-clipboard-clipboard-arrows-up {
+    from { transform: translateY(0); }
+    to { transform: translateY(calc(clamp(10px, 1vw, 13px) * -1)); }
   }
-  .action-clipboard-scan-motion {
-    position: relative;
-    display: flex;
-    transform-origin: center;
-  }
-
-  .action-clipboard-mockups {
+  .action-clipboard-panel-bar-foreground--clipboard-active .action-clipboard-clipboard-chevron-stack { animation-play-state: running; }
+  .action-clipboard-panel-bar-foreground--clipboard-active .action-clipboard-clipboard-chevron { color: #fff; }
+  .action-clipboard-icloud-progress {
     position: absolute;
-    right: var(--action-mockup-edge);
-    bottom: clamp(26px, 5vh, 68px);
-    left: var(--action-mockup-edge);
+    top: calc(var(--action-clipboard-island-height) / 2);
+    right: var(--action-clipboard-island-inline-padding);
     display: grid;
-    grid-template-columns: repeat(4, var(--action-standard-mockup-width));
-    gap: var(--action-mockup-gap);
-    justify-content: center;
-    z-index: 1;
-  }
-  .action-clipboard-scene--export .action-clipboard-mockups {
-    right: 0;
-    left: 0;
-    grid-template-columns: repeat(3, var(--action-standard-mockup-width));
-    justify-content: center;
-  }
-  .action-clipboard-mockup {
-    --action-mockup-radius: 24px;
-    position: relative;
-    display: flex;
-    width: var(--action-standard-mockup-width);
-    height: var(--action-standard-mockup-height);
-    padding: clamp(16px, 1.7vw, 24px);
-    overflow: hidden;
-    box-sizing: border-box;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    justify-self: center;
-    aspect-ratio: 1;
-    border: 1px solid rgba(255, 255, 255, .07);
-    border-radius: var(--action-mockup-radius);
-    background: #2d2d2d;
-    box-shadow: 0 14px 32px rgba(0, 0, 0, .12);
-  }
-  .action-clipboard-pin-orb {
-    position: absolute;
-    top: clamp(10px, 1vw, 16px);
-    right: clamp(10px, 1vw, 16px);
-    display: grid;
-    width: clamp(26px, 2.35vw, 36px);
+    width: clamp(24px, 2.4vw, 31px);
     aspect-ratio: 1;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, .22);
-    border-radius: 50%;
-    background: #e78a42;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .28);
-    color: #fff;
-    z-index: 4;
+    transform: translateY(-50%);
+    transition: opacity .24s ease, transform .3s cubic-bezier(.22, 1, .36, 1);
   }
-  .action-clipboard-pin-orb svg { width: 52%; height: 52%; stroke-width: 2.3; }
-  .action-clipboard-share-orb {
+  .action-clipboard-icloud-refresh-wrap {
     position: absolute;
-    bottom: clamp(10px, 1vw, 16px);
-    right: clamp(10px, 1vw, 16px);
+    top: calc(var(--action-clipboard-island-height) / 2);
+    right: var(--action-clipboard-island-inline-padding);
     display: grid;
-    width: clamp(26px, 2.35vw, 36px);
+    width: clamp(24px, 2.4vw, 31px);
     aspect-ratio: 1;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, .2);
-    border-radius: 50%;
-    background: #4688ed;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .24);
-    color: #fff;
-    z-index: 4;
+    color: #737373;
+    opacity: 0;
+    transform: translateY(-50%) scale(.65);
+    transition: opacity .24s ease, color .24s ease, transform .32s cubic-bezier(.22, 1, .36, 1);
   }
-  .action-clipboard-share-orb svg { width: 46%; height: 46%; stroke-width: 3; }
-  .action-clipboard-share-action {
-    --share-action-size: clamp(62px, 5.3vw, 82px);
+  .action-clipboard-icloud-refresh-wrap svg { width: clamp(16px, 1.65vw, 21px); height: clamp(16px, 1.65vw, 21px); }
+  .action-clipboard-panel-bar-foreground--icloud-syncing .action-clipboard-icloud-progress {
+    opacity: 0;
+    transform: translateY(-50%) scale(.6);
+  }
+  .action-clipboard-panel-bar-foreground--icloud-syncing .action-clipboard-icloud-refresh-wrap {
+    opacity: 1;
+    color: #fff;
+    transform: translateY(-50%) scale(1);
+  }
+  .action-clipboard-panel-bar-foreground--icloud-syncing .action-clipboard-icloud-refresh-wrap svg {
+    animation: action-clipboard-icloud-refresh-spin 1.15s linear infinite;
+  }
+  @keyframes action-clipboard-icloud-refresh-spin {
+    to { transform: rotate(-360deg); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .action-clipboard-panel--voice .action-clipboard-mockup { visibility: hidden; }
+  }
+  .action-clipboard-panel-pin {
+    color: #f97316;
+    fill: none;
+    stroke: url(#action-clipboard-pin-gradient);
+  }
+  .action-clipboard-panel-pin path { stroke: url(#action-clipboard-pin-gradient); }
+  .action-clipboard-panel-pin path:last-child { fill: url(#action-clipboard-pin-gradient); }
+  .action-clipboard-progress {
+    position: relative;
+    border: 1px solid rgba(21, 21, 21, .1);
+    color: #a3a3a3;
+    font-size: clamp(15px, 1.8vw, 18px);
+    font-weight: 650;
+    line-height: 1;
+  }
+  .action-clipboard-progress-stack {
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: var(--action-clipboard-island-height);
+    overflow: visible;
+    transform: translateY(-50%);
+  }
+  .action-clipboard-progress-reel {
+    display: flex;
+    width: 100%;
+    height: 600%;
+    flex-direction: column;
+    transform: translate3d(0, calc(var(--action-clipboard-progress-index) * -16.6667%), 0);
+    transition: transform var(--action-clipboard-progress-duration, .32s) cubic-bezier(.22, .8, .28, 1);
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+  .action-clipboard-progress-value {
+    position: relative;
+    width: 100%;
+    flex: 0 0 16.6667%;
     display: grid;
-    width: var(--share-action-size);
-    height: var(--share-action-size);
     place-items: center;
-    overflow: hidden;
-    border-radius: 999px;
-    background: #fff;
-    box-shadow: 0 14px 30px rgba(0, 0, 0, .2);
-    transform: translate(-50%, -50%);
-    z-index: 4;
   }
-  .action-clipboard-share-plane {
-    position: absolute;
-    inset: 0;
-    width: var(--action-share-plane-size);
-    height: var(--action-share-plane-size);
-    margin: auto;
-    color: #151515;
-  }
-  .action-clipboard-share-plane { stroke-width: 2.1; }
   .action-clipboard-share-socials {
     position: absolute;
-    top: 50%;
-    right: var(--action-share-edge);
-    left: calc(var(--action-share-plane-edge) + var(--action-share-plane-size) + 16px);
+    right: var(--action-clipboard-share-expanded-padding, clamp(12px, 1.4vw, 18px));
+    bottom: clamp(8px, 1vw, 12px);
+    left: var(--action-clipboard-share-expanded-padding, clamp(12px, 1.4vw, 18px));
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: clamp(8px, .9vw, 14px);
-    transform: translateY(-50%);
+    justify-content: center;
+    gap: clamp(7px, .9vw, 12px);
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(8px);
+    transition: opacity .34s ease, filter .42s ease, transform .46s cubic-bezier(.22, 1, .36, 1);
+  }
+  .action-clipboard-panel-bar-foreground--share-expanded .action-clipboard-share-socials {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+    transition-delay: .24s;
   }
   .action-clipboard-share-socials > span {
     display: grid;
-    width: var(--action-share-social-size);
+    width: clamp(24px, 2.5vw, 34px);
     aspect-ratio: 1;
+    flex: 0 0 auto;
     place-items: center;
-    border: 0;
+    border: 1px solid rgba(255, 255, 255, .18);
     border-radius: 50%;
-    background: #ececec;
-    color: #151515;
-  }
-  .action-clipboard-share-socials svg { width: 48%; height: 48%; stroke-width: 2; }
-  .action-clipboard-share-socials .action-clipboard-social-instagram { transform: scale(1.15); }
-  .action-clipboard-share-socials .action-clipboard-social-mark,
-  .action-clipboard-share-socials .action-clipboard-social-mark path { fill: currentColor; stroke: none; }
-  .action-clipboard-social-x { font-size: clamp(17px, 1.5vw, 22px); font-weight: 700; line-height: 1; }
-  .action-clipboard-export-options {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: flex;
-    align-items: center;
-    gap: var(--action-export-pill-gap);
-    transform: translate(-50%, -50%);
-    z-index: 4;
-  }
-  .action-clipboard-export-options > span {
-    display: grid;
-    width: 100%;
-    min-width: 0;
-    padding: 28px 56px;
-    box-sizing: border-box;
-    place-items: center;
-    border-radius: 999px;
     background: #fff;
     color: #151515;
-    font-size: var(--action-title-font-size, clamp(44px, 5.4vw, 84px));
-    font-weight: 690;
-    letter-spacing: -.07em;
-    line-height: 1.08;
-    white-space: nowrap;
   }
-  .action-clipboard-export-previews {
+  .action-clipboard-share-socials svg {
+    width: 48%;
+    height: 48%;
+  }
+  .action-clipboard-share-socials .action-clipboard-share-social-mark,
+  .action-clipboard-share-socials .action-clipboard-share-social-mark path {
+    fill: currentColor;
+    stroke: none;
+  }
+  .action-clipboard-share-socials > span:nth-child(4) .action-clipboard-share-social-mark { transform: scale(1.15); }
+
+  .action-clipboard-export-formats {
     position: absolute;
-    right: 0;
-    bottom: clamp(26px, 5vh, 68px);
-    left: 0;
-    display: grid;
-    top: auto;
-    grid-template-columns: repeat(2, var(--action-standard-mockup-width));
+    right: clamp(9px, 1vw, 12px);
+    bottom: clamp(8px, 1vw, 12px);
+    left: clamp(9px, 1vw, 12px);
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: var(--action-export-pill-gap);
-    z-index: 2;
+    gap: clamp(7px, .9vw, 12px);
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(8px);
+    transition: opacity .34s ease, filter .42s ease, transform .46s cubic-bezier(.22, 1, .36, 1);
   }
-  .action-clipboard-export-previews > span {
-    display: grid;
+  .action-clipboard-panel-bar-foreground--export-expanded .action-clipboard-export-formats {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+    transition-delay: .24s;
+  }
+  .action-clipboard-panel-bar-foreground--export-expanded > .action-clipboard-progress .action-clipboard-progress-stack {
+    overflow: hidden;
+  }
+  .action-clipboard-export-formats > span {
+    display: flex;
+    width: clamp(94px, 10.5vw, 144px);
+    height: clamp(25px, 2.5vw, 34px);
+    flex: 1 1 0;
     min-width: 0;
-    height: var(--action-standard-mockup-height);
-    padding: clamp(18px, 2vw, 30px);
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, .7vw, 9px);
+    border: 1px solid rgba(21, 21, 21, .08);
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(21, 21, 21, .12);
+    color: #151515;
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(8px) scale(.86);
+    transition: opacity .28s ease, filter .36s ease, transform .42s cubic-bezier(.22, 1, .36, 1);
+  }
+  .action-clipboard-export-formats > span.action-clipboard-export-format--visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+  .action-clipboard-export-formats svg {
+    width: clamp(14px, 1.45vw, 19px);
+    height: clamp(14px, 1.45vw, 19px);
+    flex: 0 0 auto;
+  }
+  .action-clipboard-export-formats strong {
+    font-size: clamp(10px, 1vw, 13px);
+    font-weight: 720;
+    letter-spacing: .02em;
+    line-height: 1;
+  }
+
+  .action-clipboard-panel-content {
+    display: grid;
+    width: min(48%, 172px);
+    max-width: 100%;
+    height: auto;
+    flex: 0 0 auto;
+    min-height: 0;
+    aspect-ratio: 1;
+    margin-block: auto;
+    place-items: center;
+  }
+
+  .action-clipboard-mockup {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    padding: clamp(17px, 2.1vw, 28px);
     overflow: hidden;
     box-sizing: border-box;
-    align-content: stretch;
-    border: 1px solid rgba(255, 255, 255, .07);
-    border-radius: 24px;
-    background: #2d2d2d;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(8px, 1vw, 12px);
+    aspect-ratio: 1 / 1;
+    border: 1px solid rgba(21, 21, 21, .08);
+    border-radius: clamp(16px, 1.8vw, 24px);
+    background: #f4f4f4;
+    box-shadow: 0 16px 30px rgba(21, 21, 21, .1);
   }
-  .action-clipboard-export-previews i {
-    display: block;
-    height: clamp(7px, .65vw, 10px);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .19);
-  }
-  .action-clipboard-export-preview--json {
-    display: block !important;
-  }
-  .action-clipboard-json-skeleton {
-    display: grid;
-    min-width: 0;
-    height: 100%;
-    grid-template-rows: repeat(3, minmax(0, 1fr));
-    gap: clamp(4px, .45vw, 7px);
-  }
-  .action-clipboard-json-object {
-    display: grid;
-    min-width: 0;
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-    gap: clamp(2px, .24vw, 4px);
-    padding-left: 6%;
-  }
-  .action-clipboard-json-property {
-    display: grid;
-    min-width: 0;
-    grid-template-columns: minmax(24px, .34fr) 4px minmax(42px, .66fr);
-    align-items: center;
-    gap: clamp(5px, .55vw, 9px);
-    padding-left: 4%;
-  }
-  .action-clipboard-json-property i { width: 100%; }
-  .action-clipboard-json-property i:nth-child(2) { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, .38); }
-  .action-clipboard-json-property i:last-child { background: rgba(255, 255, 255, .28); }
-  .action-clipboard-export-preview--csv { grid-template-rows: auto repeat(4, minmax(0, 1fr)); gap: clamp(9px, 1vw, 15px); }
-  .action-clipboard-csv-row { display: grid; min-height: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: clamp(8px, .9vw, 14px); }
-  .action-clipboard-csv-row i { width: 100%; }
-  .action-clipboard-csv-row--header { margin-bottom: clamp(10px, 1.1vw, 18px); }
-  .action-clipboard-csv-row--header i { height: clamp(6px, .55vw, 8px); background: rgba(255, 255, 255, .12); }
-
-  .action-clipboard-voice-lines {
+  .action-clipboard-mockup-check {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    display: flex;
-    width: clamp(160px, 22vw, 300px);
-    height: clamp(54px, 6vw, 82px);
+    z-index: 2;
+    top: clamp(5px, .8vw, 9px);
+    right: clamp(5px, .8vw, 9px);
+    display: grid;
+    width: clamp(14px, 1.5vw, 20px);
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 50%;
+    background: #3478f6;
+    color: #fff;
+    opacity: 0;
+    transform: scale(.45);
+    box-shadow: 0 3px 8px rgba(52, 120, 246, .24);
+  }
+  .action-clipboard-mockup-check svg { width: 65%; height: 65%; }
+  .action-clipboard-voice-check {
+    background: #22c55e;
+    box-shadow: 0 3px 8px rgba(34, 197, 94, .28);
+  }
+  .action-clipboard-scan-check {
+    background: #22c55e;
+    box-shadow: 0 3px 8px rgba(34, 197, 94, .28);
+  }
+  .action-clipboard-mockup-pin {
+    --action-clipboard-pin-badge-height: clamp(14px, 1.5vw, 20px);
+    --action-clipboard-pin-badge-content-size: clamp(9px, .85vw, 12px);
+    position: absolute;
+    z-index: 2;
+    top: clamp(5px, .8vw, 9px);
+    right: clamp(5px, .8vw, 9px);
+    display: inline-flex;
+    width: calc(var(--action-clipboard-pin-badge-height) * 1.75);
+    height: var(--action-clipboard-pin-badge-height);
     align-items: center;
     justify-content: center;
-    gap: clamp(4px, .55vw, 8px);
-    transform: translate(-50%, -50%);
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: calc(var(--action-clipboard-pin-badge-height) / 2);
+    background: #f97316;
+    color: #fff;
+    font-size: var(--action-clipboard-pin-badge-content-size);
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0;
+    transform: scale(.45);
+    transition: opacity .16s ease, transform .22s cubic-bezier(.22, 1, .36, 1);
+    box-shadow: 0 3px 8px rgba(249, 115, 22, .28);
   }
-  .action-clipboard-voice-line {
+  .action-clipboard-mockup-pin--visible { opacity: 1; transform: scale(1); }
+  .action-clipboard-mockup-pin:not(.action-clipboard-mockup-pin--visible) {
+    transition-delay: .24s;
+  }
+  .action-clipboard-mockup-pin-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .action-clipboard-mockup-pin-icon {
+    width: var(--action-clipboard-pin-badge-content-size);
+    height: var(--action-clipboard-pin-badge-content-size);
+    flex: 0 0 auto;
+    color: #fff;
+    fill: #fff;
+    stroke: #fff;
+    stroke-width: 2.8;
+  }
+  .action-clipboard-mockup-pin-number {
     display: block;
-    width: clamp(5px, .52vw, 8px);
-    height: var(--voice-line-height);
-    border-radius: 999px;
-    background: #151515;
+    width: 0;
+    max-width: 0;
+    margin-left: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      width .24s cubic-bezier(.22, 1, .36, 1),
+      max-width .24s cubic-bezier(.22, 1, .36, 1),
+      margin-left .24s cubic-bezier(.22, 1, .36, 1),
+      opacity .16s ease,
+      transform .24s cubic-bezier(.22, 1, .36, 1);
   }
-  .action-clipboard-voice-line:nth-child(1), .action-clipboard-voice-line:nth-child(11) { --voice-line-height: 22%; }
-  .action-clipboard-voice-line:nth-child(2), .action-clipboard-voice-line:nth-child(10) { --voice-line-height: 48%; }
-  .action-clipboard-voice-line:nth-child(3), .action-clipboard-voice-line:nth-child(9) { --voice-line-height: 74%; }
-  .action-clipboard-voice-line:nth-child(4), .action-clipboard-voice-line:nth-child(8) { --voice-line-height: 56%; }
-  .action-clipboard-voice-line:nth-child(5), .action-clipboard-voice-line:nth-child(7) { --voice-line-height: 92%; }
-  .action-clipboard-voice-line:nth-child(6) { --voice-line-height: 68%; }
-  .action-clipboard-voice-transcript {
+  .action-clipboard-mockup-pin--visible .action-clipboard-mockup-pin-number {
+    width: 1ch;
+    max-width: 1ch;
+    margin-left: 3px;
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: .24s;
+  }
+  .action-clipboard-mockup--text { padding: clamp(12px, 1.5vw, 20px); }
+  .action-clipboard-mockup--text { background: #f4f4f4; }
+  .action-clipboard-mockup--link { --action-clipboard-link-content-padding: clamp(10px, .8vw, 14px); padding: 0; gap: 0; }
+
+  .action-clipboard-text-title,
+  .action-clipboard-text-lines i,
+  .action-clipboard-link-title,
+  .action-clipboard-link-url,
+  .action-clipboard-color-title,
+  .action-clipboard-color-name { display: block; border-radius: 999px; }
+  .action-clipboard-text-title { width: 66%; height: clamp(8px, .8vw, 12px); margin-bottom: 7%; background: #cfcfcf; }
+  .action-clipboard-text-lines { display: grid; width: 100%; gap: 13%; }
+  .action-clipboard-text-lines i { width: 100%; height: clamp(5px, .6vw, 8px); background: #e0e0e0; }
+  .action-clipboard-text-lines i:nth-child(2) { width: 82%; }
+  .action-clipboard-text-lines i:nth-child(3) { width: 91%; }
+  .action-clipboard-text-lines i:nth-child(4) { width: 70%; }
+  .action-clipboard-text-lines i:nth-child(5) { width: 58%; }
+  .action-clipboard-text-lines i:nth-child(6) { width: 76%; }
+
+  .action-clipboard-link-image,
+  .action-clipboard-image-placeholder {
+    position: relative;
+    display: grid;
+    width: 100%;
+    height: 51%;
+    place-items: center;
+    overflow: hidden;
+    border-radius: clamp(11px, 1.3vw, 16px);
+    background: #ebebeb;
+  }
+  .action-clipboard-link-image { width: calc(100% + 2px); height: 70%; flex: 0 0 70%; margin: 0 0 0 -1px; border-radius: clamp(16px, 1.8vw, 24px) clamp(16px, 1.8vw, 24px) 0 0; background: #ebebeb; }
+  .action-clipboard-link-image-icon { display: block; width: 100%; height: 100%; }
+  .action-clipboard-link-meta {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(8px, .75vw, 12px);
+    padding: var(--action-clipboard-link-content-padding) clamp(12px, 1.25vw, 18px) var(--action-clipboard-link-content-padding);
+    box-sizing: border-box;
+  }
+  .action-clipboard-link-title { width: 66%; height: clamp(8px, .8vw, 12px); flex: 0 0 auto; background: #cfcfcf; }
+  .action-clipboard-link-url { width: 45%; height: 6%; flex: 0 0 auto; background: #e0e0e0; }
+
+  .action-clipboard-mockup--color { align-items: center; justify-content: center; background: #f4f4f4; }
+  .action-clipboard-color-title { width: 44%; height: clamp(5px, .6vw, 8px); background: #e0e0e0; }
+  .action-clipboard-color-name { width: 66%; height: clamp(8px, .8vw, 12px); background: #cfcfcf; }
+  .action-clipboard-mockup--image { padding: 0; background: #ebebeb; }
+  .action-clipboard-mockup--image .action-clipboard-image-placeholder {
+    position: relative;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    place-items: center;
+    border-radius: inherit;
+    background: #ebebeb;
+  }
+  .action-clipboard-mockup--image .action-clipboard-image-icon {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    /* Keep the icon inside its square while filling the lower-right edge. */
+    transform: scale(1.36);
+  }
+  .action-clipboard-mockup--image .action-clipboard-image-placeholder i {
     position: absolute;
+    display: block;
+    border-radius: 999px;
+    background: #a9a9a9;
+  }
+  .action-clipboard-mockup--image .action-clipboard-image-placeholder i:first-child {
+    top: 24%;
+    left: 24%;
+    width: 18%;
+    aspect-ratio: 1;
+    transform: none;
+  }
+  .action-clipboard-mockup--image .action-clipboard-image-placeholder i:last-child {
+    right: 24px;
+    bottom: 0;
+    left: auto;
+    width: 100%;
+    height: 48%;
+    border-radius: 0 0 clamp(20px, 2.4vw, 30px) 0;
+    clip-path: polygon(0 100%, 78% 21%, 80% 19%, 82% 17%, 84% 15%, 86% 14%, 88% 14%, 90% 15%, 92% 17%, 94% 19%, 100% 56%, 100% 100%);
+    background: #a9a9a9;
+  }
+
+  .action-clipboard-mockup--sticker {
+    display: grid;
+    place-items: center;
+    background: #f4f4f4;
+  }
+  .action-clipboard-sticker-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .action-clipboard-panel-content--group {
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto;
+  }
+  .action-clipboard-panel-content--scan {
+    width: min(100%, 190px);
+    height: clamp(164px, 19vw, 220px);
+    aspect-ratio: auto;
+  }
+  .action-clipboard-scan-stage {
+    position: relative;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+  }
+  .action-clipboard-scan-phone {
+    position: relative;
+    width: clamp(74px, 8.8vw, 104px);
+    height: clamp(128px, 15.2vw, 174px);
+    overflow: hidden;
+    border: 3px solid #151515;
+    border-radius: clamp(16px, 2vw, 23px);
+    background: #151515;
+    box-shadow: 0 14px 24px rgba(21, 21, 21, .2);
+  }
+  .action-clipboard-scan-screen {
+    position: absolute;
+    inset: 4px;
+    border-radius: clamp(12px, 1.6vw, 18px);
+    background: linear-gradient(145deg, #505050 0%, #2a2a2a 48%, #171717 100%);
+  }
+  .action-clipboard-scan-speaker {
+    position: absolute;
+    top: 7px;
     left: 50%;
-    bottom: clamp(28px, 5vh, 68px);
+    width: 28%;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .36);
     transform: translateX(-50%);
   }
   .action-clipboard-scan-search {
     position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    width: clamp(29px, 3.6vw, 43px);
+    aspect-ratio: 1;
+    margin: calc(clamp(29px, 3.6vw, 43px) / -2);
+    place-items: center;
+    border-radius: 34%;
+    background: #e4e4e4;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .22);
+    color: #6b7280;
+  }
+  .action-clipboard-scan-search-icon { width: 66%; height: 66%; }
+  .action-clipboard-scan-text-stage {
+    position: absolute;
     inset: 0;
     display: grid;
     place-items: center;
-    z-index: 3;
+    pointer-events: none;
   }
-  .action-clipboard-scan-search svg { width: 52%; height: 52%; stroke-width: 1.9; }
-  .action-clipboard-scan-phone {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: clamp(168px, 14vw, 220px);
-    height: clamp(286px, 28vw, 405px);
-    overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, .44);
-    border-radius: 28px;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07);
-    transform: translate(-50%, -50%);
-  }
-  .action-clipboard-scan-phone::before,
-  .action-clipboard-scan-phone::after {
-    position: absolute;
-    right: 16px;
-    left: 16px;
-    height: 1px;
-    background: rgba(255, 255, 255, .12);
-    content: '';
-  }
-  .action-clipboard-scan-phone::before { top: 22%; }
-  .action-clipboard-scan-phone::after { bottom: 22%; }
-  .action-clipboard-scan-phone > span { position: absolute; top: 14px; left: 50%; width: 28%; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, .32); transform: translateX(-50%); }
-  .action-clipboard-scan-result {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: var(--action-standard-mockup-width);
-    height: var(--action-standard-mockup-height);
-    padding: clamp(16px, 1.7vw, 24px);
-    box-sizing: border-box;
-    border: 1px solid rgba(255, 255, 255, .07);
-    border-radius: 24px;
-    background: #2d2d2d;
-    overflow: hidden;
-    transform: translate(-50%, -50%);
-  }
-  .action-clipboard-scan-result-title { display: block; width: 48%; height: clamp(16px, 1.4vw, 22px); margin-bottom: clamp(10px, 1vw, 14px); border-radius: 999px; background: rgba(255, 255, 255, .3); }
-  .action-clipboard-scan-result-lines { display: grid; gap: clamp(5px, .45vw, 7px); }
-  .action-clipboard-scan-result-lines i { display: block; width: 100%; height: clamp(7px, .65vw, 10px); border-radius: 999px; background: rgba(255, 255, 255, .13); }
-  .action-clipboard-scan-result-lines i:nth-child(2) { width: 88%; }
-  .action-clipboard-scan-result-lines i:nth-child(3) { width: 74%; }
-  .action-clipboard-scan-result-lines i:nth-child(4) { width: 92%; }
-  .action-clipboard-scan-result-lines i:nth-child(5) { width: 66%; }
-  .action-clipboard-scan-result-lines i:nth-child(6) { width: 84%; }
-  .action-clipboard-scan-result-lines i:nth-child(7) { width: 53%; }
-  .action-clipboard-mockup-skeleton {
-    display: block;
+  .action-clipboard-scan-text-stage > .action-clipboard-mockup {
+    width: clamp(56px, 8vw, 96px);
+    height: auto;
     flex: 0 0 auto;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .22);
+    padding: clamp(4px, 1vw, 10px);
+    gap: clamp(3px, .8vw, 8px);
+    border-radius: clamp(8px, 1.3vw, 16px);
+    box-shadow: none;
   }
-  .action-clipboard-mockup-skeleton--title {
-    width: 72%;
-    height: clamp(14px, 1.3vw, 19px);
+  .action-clipboard-scan-text-stage .action-clipboard-text-title {
+    height: clamp(4px, .8vw, 8px);
+    margin-bottom: 5%;
   }
-  .action-clipboard-mockup-skeleton-lines {
-    display: grid;
+  .action-clipboard-scan-text-stage .action-clipboard-text-lines { gap: clamp(2px, .5vw, 5px); }
+  .action-clipboard-scan-text-stage .action-clipboard-text-lines i { height: clamp(2px, .45vw, 4px); }
+  .action-clipboard-scan-text-stage .action-clipboard-text-lines i:nth-child(2) { width: 82%; }
+  .action-clipboard-scan-text-stage .action-clipboard-text-lines i:nth-child(3) { width: 91%; }
+  .action-clipboard-scan-text-stage .action-clipboard-text-lines i:nth-child(4) { width: 70%; }
+  .action-clipboard-scan-text-stage .action-clipboard-text-lines i:nth-child(5) { width: 58%; }
+  .action-clipboard-scan-text-stage .action-clipboard-text-lines i:nth-child(6) { width: 76%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .action-clipboard-panel--scan .action-clipboard-mockup { visibility: hidden; }
+  }
+  .action-clipboard-panel-content--clipboard {
     width: 100%;
-    min-height: 0;
-    gap: 8px;
-    margin-top: 6px;
-    overflow: hidden;
+    height: clamp(72px, 9vw, 110px);
+    aspect-ratio: auto;
   }
-  .action-clipboard-mockup-skeleton-lines i {
-    display: block;
-    width: 100%;
-    height: clamp(7px, .65vw, 10px);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .11);
-  }
-  .action-clipboard-mockup-skeleton-lines i:nth-child(2) { width: 88%; }
-  .action-clipboard-mockup-skeleton-lines i:nth-child(3) { width: 62%; }
-  .action-clipboard-mockup-skeleton-lines i:nth-child(4) { width: 76%; }
-  .action-clipboard-mockup-skeleton-lines i:nth-child(5) { width: 48%; }
-  .action-clipboard-mockup-skeleton-lines i:nth-child(6) { width: 82%; }
-  .action-clipboard-mockup-skeleton-lines i:nth-child(7) { width: 55%; }
-  .action-clipboard-mockup-link-thumbnail {
+  .action-clipboard-clipboard-stage {
+    --action-clipboard-group-item-size: clamp(56px, 8vw, 96px);
+    --action-clipboard-group-item-gap: clamp(5px, 1vw, 10px);
     position: relative;
-    display: block;
-    width: 100%;
-    height: 66%;
-    flex: 0 0 66%;
-    overflow: hidden;
-    border-radius: 0;
-    background: #545454;
-  }
-  .action-clipboard-mockup-link-thumbnail::before {
-    position: absolute;
-    top: 18%;
-    right: 16%;
-    width: 12%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .55);
-    content: '';
-  }
-  .action-clipboard-mockup-link-thumbnail::after {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 56%;
-    background: rgba(255, 255, 255, .2);
-    clip-path: polygon(0 100%, 34% 38%, 54% 66%, 72% 25%, 100% 100%);
-    content: '';
-  }
-  .action-clipboard-mockup-link-thumbnail i { display: none; }
-  .action-clipboard-mockup-link-title,
-  .action-clipboard-mockup-link-url { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .action-clipboard-mockup--link { padding: 0; gap: 0; overflow: hidden; }
-  .action-clipboard-mockup-link-title { width: 66%; height: clamp(10px, .9vw, 14px); margin: clamp(8px, .8vw, 12px) clamp(12px, 1.25vw, 18px) 0; border-radius: 999px; background: rgba(255, 255, 255, .24); }
-  .action-clipboard-mockup-link-url { width: 45%; height: clamp(7px, .65vw, 10px); margin: 6px clamp(12px, 1.25vw, 18px) 0; border-radius: 999px; background: rgba(255, 255, 255, .11); }
-  .action-clipboard-mockup--color { align-items: center; justify-content: center; }
-  .action-clipboard-mockup-color-title,
-  .action-clipboard-mockup-color-name { display: block; border-radius: 999px; background: rgba(255, 255, 255, .16); }
-  .action-clipboard-mockup-color-title { width: 42%; height: clamp(8px, .7vw, 11px); }
-  .action-clipboard-mockup-color-name { width: 76%; height: clamp(16px, 1.35vw, 22px); background: rgba(255, 255, 255, .28); }
-  .action-clipboard-mockup-image-placeholder {
-    position: absolute;
-    inset: 0;
-    display: block;
+    display: grid;
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    border-radius: inherit;
-    background: #545454;
-  }
-  .action-clipboard-mockup-image-placeholder::before {
-    position: absolute;
-    top: 16%;
-    right: 15%;
-    width: 12%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .55);
-    content: '';
-  }
-  .action-clipboard-mockup-image-placeholder::after {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 58%;
-    background: rgba(255, 255, 255, .2);
-    clip-path: polygon(0 100%, 32% 42%, 54% 68%, 73% 23%, 100% 100%);
-    content: '';
-  }
-  .action-clipboard-mockup-image-placeholder i { display: none; }
-  .action-clipboard-mockup--image { padding: 0; overflow: hidden; border: 0; }
-
-  .action-clipboard-content-state {
-    display: flex;
-    width: min(100%, 650px);
-    grid-area: 1 / 1;
-    align-self: center;
-    justify-self: center;
-    flex-direction: column;
-    align-items: center;
-    padding: clamp(28px, 5vw, 72px);
-    opacity: 0;
-    filter: blur(18px);
-    pointer-events: none;
-    text-align: center;
-    transform: translate3d(0, 62px, 0) scale(.98);
-    transition: opacity .3s ease, filter .42s ease, transform .6s cubic-bezier(.22, 1, .36, 1);
-  }
-
-  .action-clipboard-content-state.is-active {
-    opacity: 1;
-    filter: blur(0);
-    pointer-events: auto;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  .action-clipboard-content-state.is-before { transform: translate3d(0, -48px, 0) scale(.98); }
-  .action-clipboard-content-state h2 { margin: 0; color: #fff; font-size: clamp(50px, 8vw, 126px); font-weight: 690; letter-spacing: -.07em; line-height: .9; }
-
-  .action-clipboard-tab-viewport {
-    min-height: 56px;
-    overflow: visible;
-  }
-  .action-clipboard-tab-scroll {
-    padding-bottom: 60px;
-    margin-bottom: -60px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-  }
-  .action-clipboard-tab-scroll::-webkit-scrollbar { display: none; }
-  .action-clipboard-tabs { display: flex; width: max-content; min-width: 100%; justify-content: center; gap: 8px; }
-
-  .action-clipboard-tab {
-    --tab-progress: 0;
-    position: relative;
-    display: grid;
-    width: 56px;
-    height: 56px;
-    flex: 0 0 auto;
     place-items: center;
-    padding: 0;
-    overflow: hidden;
-    border-radius: 999px;
-    background: #e7e9f2;
-    color: #151515;
-    font-size: 16px;
-    font-weight: 680;
-    letter-spacing: -.02em;
-    line-height: 1;
-    isolation: isolate;
-    opacity: 0;
-    filter: blur(13px);
-    transform: translate3d(0, 28px, 0);
   }
-  .action-clipboard-tab::before {
+  .action-clipboard-clipboard-set {
+    display: flex;
     position: absolute;
     inset: 0;
-    border-radius: inherit;
-    background: #151515;
-    content: '';
-    transform: translateZ(0) scaleX(var(--tab-progress));
-    transform-origin: left center;
-    will-change: transform;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: var(--action-clipboard-group-item-gap);
+    pointer-events: none;
   }
-  .action-clipboard-tab-label {
+  .action-clipboard-clipboard-social-card,
+  .action-clipboard-clipboard-items > .action-clipboard-mockup {
+    position: relative;
+    width: clamp(56px, 8vw, 96px);
+    height: clamp(56px, 8vw, 96px);
+    min-width: 0;
+    min-height: 0;
+    flex: 0 0 clamp(56px, 8vw, 96px);
+    box-sizing: border-box;
+    border: 1px solid rgba(21, 21, 21, .08);
+    border-radius: clamp(8px, 1.3vw, 16px);
+    box-shadow: 0 8px 18px rgba(21, 21, 21, .08);
+  }
+  .action-clipboard-clipboard-social-card {
+    display: grid;
+    place-items: center;
+    background: #f4f4f4;
+    color: #151515;
+  }
+  .action-clipboard-clipboard-social-mark {
+    width: 30%;
+    height: 30%;
+  }
+  .action-clipboard-clipboard-social-mark path { fill: currentColor; stroke: none; }
+  .action-clipboard-clipboard-status {
+    position: absolute;
+    top: clamp(5px, .8vw, 9px);
+    right: clamp(5px, .8vw, 9px);
+    display: grid;
+    width: clamp(16px, 1.7vw, 22px);
+    aspect-ratio: 1;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: #3478f6;
+    color: #fff;
+    opacity: 0;
+    transform: scale(.45);
+    transition: opacity .2s ease, transform .28s cubic-bezier(.22, 1, .36, 1), background-color .24s ease;
+  }
+  .action-clipboard-clipboard-status--copy,
+  .action-clipboard-clipboard-status--check { opacity: 1; transform: scale(1); }
+  .action-clipboard-clipboard-status--check { background: #22c55e; }
+  .action-clipboard-clipboard-status > span {
+    position: absolute;
+    display: grid;
+    inset: 0;
+    place-items: center;
+    transition: opacity .18s ease, transform .24s cubic-bezier(.22, 1, .36, 1);
+  }
+  .action-clipboard-clipboard-status > span svg { width: 65%; height: 65%; }
+  .action-clipboard-panel--clipboard .action-clipboard-clipboard-copy-icon svg { width: 50%; height: 50%; fill: currentColor; }
+  .action-clipboard-clipboard-copy-icon { opacity: 0; transform: scale(.5); }
+  .action-clipboard-clipboard-status--copy .action-clipboard-clipboard-copy-icon { opacity: 1; transform: scale(1); }
+  .action-clipboard-clipboard-check-icon { opacity: 0; transform: scale(.5); }
+  .action-clipboard-clipboard-status--check .action-clipboard-clipboard-copy-icon { opacity: 0; transform: scale(.5); }
+  .action-clipboard-clipboard-status--check .action-clipboard-clipboard-check-icon { opacity: 1; transform: scale(1.08); }
+  .action-clipboard-clipboard-set:not(.action-clipboard-clipboard-set--visible) { visibility: hidden; }
+  .action-clipboard-clipboard-stage--social .action-clipboard-clipboard-socials,
+  .action-clipboard-clipboard-stage--social-returning .action-clipboard-clipboard-socials,
+  .action-clipboard-clipboard-stage--content .action-clipboard-clipboard-items,
+  .action-clipboard-clipboard-stage--content-returning .action-clipboard-clipboard-items { visibility: visible; }
+  .action-clipboard-clipboard-stage--social .action-clipboard-clipboard-social-card,
+  .action-clipboard-clipboard-stage--content .action-clipboard-clipboard-items > .action-clipboard-mockup {
+    --action-clipboard-fly-y: clamp(-175px, -12vw, -63px);
+    --action-clipboard-fly-delay: 0s;
+    animation: action-clipboard-item-return 620ms cubic-bezier(.12, .8, .25, 1) var(--action-clipboard-fly-delay) both;
+  }
+  .action-clipboard-clipboard-stage--social-returning .action-clipboard-clipboard-social-card,
+  .action-clipboard-clipboard-stage--content-returning .action-clipboard-clipboard-items > .action-clipboard-mockup {
+    --action-clipboard-fly-y: clamp(-175px, -12vw, -63px);
+    --action-clipboard-fly-delay: 0s;
+    animation: action-clipboard-item-fly 600ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-fly-delay) both;
+    pointer-events: none;
+  }
+  .action-clipboard-clipboard-social-card:nth-child(1),
+  .action-clipboard-clipboard-items > .action-clipboard-mockup:nth-child(1) { --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * 2); --action-clipboard-fly-delay: .16s; --action-clipboard-return-delay: 0s; }
+  .action-clipboard-clipboard-social-card:nth-child(2),
+  .action-clipboard-clipboard-items > .action-clipboard-mockup:nth-child(2) { --action-clipboard-fly-x: calc(var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)); --action-clipboard-fly-delay: .08s; --action-clipboard-return-delay: .1s; }
+  .action-clipboard-clipboard-social-card:nth-child(3),
+  .action-clipboard-clipboard-items > .action-clipboard-mockup:nth-child(3) { --action-clipboard-fly-x: 0px; --action-clipboard-fly-delay: .2s; --action-clipboard-return-delay: .2s; }
+  .action-clipboard-clipboard-social-card:nth-child(4),
+  .action-clipboard-clipboard-items > .action-clipboard-mockup:nth-child(4) { --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -1); --action-clipboard-fly-delay: 0s; --action-clipboard-return-delay: .3s; }
+  .action-clipboard-clipboard-social-card:nth-child(5),
+  .action-clipboard-clipboard-items > .action-clipboard-mockup:nth-child(5) { --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -2); --action-clipboard-fly-delay: .12s; --action-clipboard-return-delay: .4s; }
+  .action-clipboard-clipboard-stage--social-returning .action-clipboard-clipboard-social-card,
+  .action-clipboard-clipboard-stage--content-returning .action-clipboard-clipboard-items > .action-clipboard-mockup {
+    animation-delay: var(--action-clipboard-return-delay);
+  }
+  .action-clipboard-clipboard-items > .action-clipboard-mockup {
+    padding: clamp(4px, 1vw, 10px);
+    gap: clamp(3px, .8vw, 8px);
+    border-radius: clamp(8px, 1.3vw, 16px);
+    box-shadow: none;
+  }
+  .action-clipboard-clipboard-items > .action-clipboard-mockup--link { --action-clipboard-link-content-padding: clamp(1px, .2vw, 2px); display: flex; gap: 0; padding: 0; }
+  .action-clipboard-clipboard-items > .action-clipboard-mockup--image { padding: 0; }
+  .action-clipboard-clipboard-items > .action-clipboard-mockup--text { padding: clamp(4px, 1vw, 10px); }
+  .action-clipboard-clipboard-items .action-clipboard-text-title { height: clamp(4px, .8vw, 8px); margin-bottom: 5%; }
+  .action-clipboard-clipboard-items .action-clipboard-text-lines { gap: clamp(2px, .5vw, 5px); }
+  .action-clipboard-clipboard-items .action-clipboard-text-lines i { height: clamp(2px, .45vw, 4px); }
+  .action-clipboard-clipboard-items .action-clipboard-link-image { height: 65%; flex: 0 0 65%; margin: 0 0 0 -1px; border-radius: clamp(8px, 1.2vw, 14px) clamp(8px, 1.2vw, 14px) 0 0; }
+  .action-clipboard-clipboard-items .action-clipboard-link-meta { align-items: flex-start; justify-content: center; gap: clamp(3px, .45vw, 5px); padding: var(--action-clipboard-link-content-padding) clamp(5px, .8vw, 8px) var(--action-clipboard-link-content-padding); }
+  .action-clipboard-clipboard-items .action-clipboard-link-title { width: 76%; height: clamp(3px, .6vw, 6px); margin: 0; }
+  .action-clipboard-clipboard-items .action-clipboard-link-url { width: 58%; height: clamp(2px, .45vw, 4px); margin: 0; }
+  .action-clipboard-clipboard-social-badge {
+    position: absolute;
+    z-index: 2;
+    top: clamp(5px, .8vw, 9px);
+    right: clamp(5px, .8vw, 9px);
+    display: grid;
+    width: clamp(16px, 1.7vw, 22px);
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 50%;
+    background: #151515;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(21, 21, 21, .22);
+  }
+  .action-clipboard-clipboard-social-badge svg { width: 62%; height: 62%; }
+  .action-clipboard-clipboard-social-badge path { fill: currentColor; stroke: none; }
+  .action-clipboard-panel-title {
+    width: 100%;
+    margin-top: clamp(12px, 1.5vw, 20px);
+    text-align: center;
+    font-size: clamp(20px, 2.2vw, 32px);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .action-clipboard-panel-description {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: clamp(7px, .8vw, 11px);
+    color: rgba(21, 21, 21, .58);
+    text-align: center;
+    font-size: clamp(12px, 1.1vw, 16px);
+    line-height: 1.35;
+  }
+  @media (min-width: 1200px) {
+    .action-clipboard-panel:nth-last-child(2):nth-child(odd),
+    .action-clipboard-panel:last-child { border-bottom: 0; }
+  }
+  @media (max-width: 1199px) {
+    padding-block: clamp(256px, 30vw, 360px);
+  }
+  .action-clipboard-group-mockups {
+    --action-clipboard-group-item-size: clamp(56px, 8vw, 96px);
+    --action-clipboard-group-item-gap: clamp(5px, 1vw, 10px);
+    --action-clipboard-pin-step: calc(var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap));
+    --action-clipboard-fly-y: clamp(-175px, -12vw, -63px);
+    display: flex;
     position: relative;
     z-index: 1;
-    display: grid;
-    width: 24px;
-    height: 24px;
-    place-items: center;
-    color: #fff;
-    mix-blend-mode: difference;
+    width: 100%;
+    max-width: 100%;
+    gap: var(--action-clipboard-group-item-gap);
+    justify-content: center;
+    overflow: visible;
+    padding: 2px;
+    box-sizing: border-box;
+    scrollbar-width: none;
   }
-  .action-clipboard-tab-label svg { width: 100%; height: 100%; stroke-width: 1.9; }
-
-  .action-clipboard-pin:not(.is-content-revealed) .action-clipboard-content-state {
+  .action-clipboard-group-mockups::-webkit-scrollbar { display: none; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup {
+    --action-clipboard-item-delay: 0s;
+    --action-clipboard-fly-x: 0px;
+    --action-clipboard-fly-y: clamp(-175px, -12vw, -63px);
+    --action-clipboard-fly-delay: 0s;
+    --action-clipboard-return-delay: 0s;
+    animation: action-clipboard-item-collect 1800ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-item-delay) both;
+  }
+  .action-clipboard-group-mockups--repeat > .action-clipboard-mockup {
+    animation: none;
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0) scale(1);
+  }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup .action-clipboard-mockup-check {
+    animation: action-clipboard-check-pop 1800ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-check-delay) both;
+  }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup .action-clipboard-mockup-check {
+    --action-clipboard-check-delay: .9s;
+  }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(2) { --action-clipboard-item-delay: .28s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(3) { --action-clipboard-item-delay: .56s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(4) { --action-clipboard-item-delay: .84s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(5) { --action-clipboard-item-delay: 1.12s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(1) { --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * 2); --action-clipboard-fly-delay: .16s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(2) { --action-clipboard-fly-x: calc(var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)); --action-clipboard-fly-delay: .08s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(3) { --action-clipboard-fly-x: 0px; --action-clipboard-fly-delay: .2s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(4) { --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -1); --action-clipboard-fly-delay: 0s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(5) { --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -2); --action-clipboard-fly-delay: .12s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(1) { --action-clipboard-return-delay: 0s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(2) { --action-clipboard-return-delay: .1s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(3) { --action-clipboard-return-delay: .2s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(4) { --action-clipboard-return-delay: .3s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(5) { --action-clipboard-return-delay: .4s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(2) .action-clipboard-mockup-check { --action-clipboard-check-delay: 1.02s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(3) .action-clipboard-mockup-check { --action-clipboard-check-delay: 1.14s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(4) .action-clipboard-mockup-check { --action-clipboard-check-delay: 1.26s; }
+  .action-clipboard-group-mockups--collecting > .action-clipboard-mockup:nth-child(5) .action-clipboard-mockup-check { --action-clipboard-check-delay: 1.38s; }
+  .action-clipboard-group-mockups--repeat > .action-clipboard-mockup .action-clipboard-mockup-check { --action-clipboard-check-delay: .55s; }
+  .action-clipboard-group-mockups--repeat > .action-clipboard-mockup:nth-child(2) .action-clipboard-mockup-check { --action-clipboard-check-delay: .67s; }
+  .action-clipboard-group-mockups--repeat > .action-clipboard-mockup:nth-child(3) .action-clipboard-mockup-check { --action-clipboard-check-delay: .79s; }
+  .action-clipboard-group-mockups--repeat > .action-clipboard-mockup:nth-child(4) .action-clipboard-mockup-check { --action-clipboard-check-delay: .91s; }
+  .action-clipboard-group-mockups--repeat > .action-clipboard-mockup:nth-child(5) .action-clipboard-mockup-check { --action-clipboard-check-delay: 1.03s; }
+  .action-clipboard-group-mockups--flying > .action-clipboard-mockup {
+    animation: action-clipboard-item-fly 420ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-fly-delay) both;
+    pointer-events: none;
+  }
+  .action-clipboard-group-mockups--returning > .action-clipboard-mockup {
+    animation: action-clipboard-item-return 400ms cubic-bezier(.12, .8, .25, 1) var(--action-clipboard-return-delay) both;
+    pointer-events: none;
+  }
+  .action-clipboard-group-mockups--returning > .action-clipboard-mockup .action-clipboard-mockup-check {
+    animation: none;
     opacity: 0;
-    filter: blur(18px);
-    transform: translate3d(0, 62px, 0) scale(.98);
+    transform: scale(.45);
+  }
+  .action-clipboard-group-mockups--flying > .action-clipboard-mockup .action-clipboard-mockup-check {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+  }
+  .action-clipboard-group-mockups--share-selecting > .action-clipboard-mockup {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0) scale(1);
+  }
+  .action-clipboard-share-check {
+    transition: opacity .18s ease, transform .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  .action-clipboard-share-check--visible {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup {
+    --action-clipboard-fly-y: clamp(-175px, -12vw, -63px);
+    --action-clipboard-fly-x: 0px;
+    --action-clipboard-fly-delay: 0s;
+    --action-clipboard-return-delay: 0s;
+    pointer-events: none;
+  }
+  .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup {
+    animation: action-clipboard-item-fly 720ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-fly-delay) both;
+  }
+  .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup {
+    animation: action-clipboard-item-return var(--action-clipboard-share-return-duration) cubic-bezier(.12, .8, .25, 1) var(--action-clipboard-return-delay) both;
+  }
+  .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup:nth-child(1) {
+    --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * 2);
+    --action-clipboard-fly-delay: .16s;
+    --action-clipboard-return-delay: 0s;
+  }
+  .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup:nth-child(2),
+  .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-fly-x: calc(var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap));
+    --action-clipboard-fly-delay: .08s;
+    --action-clipboard-return-delay: var(--action-clipboard-share-return-step);
+  }
+  .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup:nth-child(3),
+  .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-fly-x: 0px;
+    --action-clipboard-fly-delay: .2s;
+    --action-clipboard-return-delay: calc(var(--action-clipboard-share-return-step) * 2);
+  }
+  .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup:nth-child(4),
+  .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup:nth-child(4) {
+    --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -1);
+    --action-clipboard-fly-delay: 0s;
+    --action-clipboard-return-delay: calc(var(--action-clipboard-share-return-step) * 3);
+  }
+  .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup:nth-child(5),
+  .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup:nth-child(5) {
+    --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -2);
+    --action-clipboard-fly-delay: .12s;
+    --action-clipboard-return-delay: calc(var(--action-clipboard-share-return-step) * 4);
+  }
+  .action-clipboard-group-mockups--export-selecting > .action-clipboard-mockup {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0) scale(1);
+  }
+  .action-clipboard-export-check {
+    transition: opacity .18s ease, transform .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  .action-clipboard-export-check--visible {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  .action-clipboard-group-mockups--export-flying > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--export-returning > .action-clipboard-mockup {
+    --action-clipboard-fly-y: clamp(-175px, -12vw, -63px);
+    --action-clipboard-fly-x: 0px;
+    --action-clipboard-fly-delay: 0s;
+    --action-clipboard-return-delay: 0s;
+    pointer-events: none;
+  }
+  .action-clipboard-group-mockups--export-flying > .action-clipboard-mockup {
+    animation: action-clipboard-item-fly 420ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-fly-delay) both;
+  }
+  .action-clipboard-group-mockups--export-returning > .action-clipboard-mockup {
+    animation: action-clipboard-item-return 400ms cubic-bezier(.12, .8, .25, 1) var(--action-clipboard-return-delay) both;
+  }
+  .action-clipboard-group-mockups--export-flying > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--export-returning > .action-clipboard-mockup:nth-child(1) {
+    --action-clipboard-fly-x: calc(var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap));
+    --action-clipboard-fly-delay: .08s;
+    --action-clipboard-return-delay: 0s;
+  }
+  .action-clipboard-group-mockups--export-flying > .action-clipboard-mockup:nth-child(2),
+  .action-clipboard-group-mockups--export-returning > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-fly-x: 0px;
+    --action-clipboard-fly-delay: .2s;
+    --action-clipboard-return-delay: .1s;
+  }
+  .action-clipboard-group-mockups--export-flying > .action-clipboard-mockup:nth-child(3),
+  .action-clipboard-group-mockups--export-returning > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -1);
+    --action-clipboard-fly-delay: .12s;
+    --action-clipboard-return-delay: .2s;
+  }
+  .action-clipboard-icloud-mockups--idle > .action-clipboard-mockup {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate(var(--action-clipboard-fly-x), var(--action-clipboard-fly-y)) scale(.16);
+  }
+  .action-clipboard-icloud-mockups--hidden { visibility: hidden; }
+  .action-clipboard-icloud-mockups--hidden > .action-clipboard-mockup {
+    animation: none;
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate(var(--action-clipboard-fly-x), var(--action-clipboard-fly-y)) scale(.16);
+  }
+  .action-clipboard-icloud-mockups--collecting > .action-clipboard-mockup {
+    --action-clipboard-item-delay: 0s;
+    animation: action-clipboard-item-collect 900ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-item-delay) both;
+  }
+  .action-clipboard-icloud-mockups--collecting > .action-clipboard-mockup:nth-child(2) { --action-clipboard-item-delay: .18s; }
+  .action-clipboard-icloud-mockups--collecting > .action-clipboard-mockup:nth-child(3) { --action-clipboard-item-delay: .36s; }
+  .action-clipboard-icloud-mockups--collecting > .action-clipboard-mockup:nth-child(4) { --action-clipboard-item-delay: .54s; }
+  .action-clipboard-icloud-mockups--collecting > .action-clipboard-mockup:nth-child(5) { --action-clipboard-item-delay: .72s; }
+  .action-clipboard-icloud-mockups--repeat:where(.action-clipboard-icloud-mockups--idle, .action-clipboard-icloud-mockups--collecting) > .action-clipboard-mockup {
+    animation: none;
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0) scale(1);
+  }
+  .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup,
+  .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup {
+    --action-clipboard-fly-y: clamp(-175px, -12vw, -63px);
+    --action-clipboard-fly-delay: 0s;
+    --action-clipboard-return-delay: 0s;
+    pointer-events: none;
+  }
+  .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup {
+    animation: action-clipboard-item-fly 560ms cubic-bezier(.22, .8, .28, 1) var(--action-clipboard-fly-delay) both;
+  }
+  .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup {
+    animation: action-clipboard-icloud-item-return 520ms cubic-bezier(.12, .8, .25, 1) var(--action-clipboard-return-delay) both;
+  }
+  .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup:nth-child(1) {
+    --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * 2);
+    --action-clipboard-fly-delay: .16s;
+    --action-clipboard-return-delay: 0s;
+  }
+  .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup:nth-child(2),
+  .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-fly-x: calc(var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap));
+    --action-clipboard-fly-delay: .08s;
+    --action-clipboard-return-delay: .1s;
+  }
+  .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup:nth-child(3),
+  .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-fly-x: 0px;
+    --action-clipboard-fly-delay: .2s;
+    --action-clipboard-return-delay: .2s;
+  }
+  .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup:nth-child(4),
+  .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup:nth-child(4) {
+    --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -1);
+    --action-clipboard-fly-delay: 0s;
+    --action-clipboard-return-delay: .3s;
+  }
+  .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup:nth-child(5),
+  .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup:nth-child(5) {
+    --action-clipboard-fly-x: calc((var(--action-clipboard-group-item-size) + var(--action-clipboard-group-item-gap)) * -2);
+    --action-clipboard-fly-delay: .12s;
+    --action-clipboard-return-delay: .4s;
+  }
+  .action-clipboard-icloud-check {
+    transition: opacity .18s ease, transform .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  .action-clipboard-icloud-check--visible {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  .action-clipboard-share-socials > span {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(8px) scale(.76);
+    transition: opacity .28s ease, filter .36s ease, transform .42s cubic-bezier(.22, 1, .36, 1);
+  }
+  .action-clipboard-share-socials > span.action-clipboard-share-social--visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+  .action-clipboard-share-socials > span:nth-child(4).action-clipboard-share-social--visible .action-clipboard-share-social-mark {
+    transform: scale(1.15);
+  }
+  .action-clipboard-group-mockups--pin-pinning-one > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-pinning-one-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup {
+    pointer-events: none;
+  }
+  .action-clipboard-group-mockups--pin-pinning-one-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup {
+    animation: action-clipboard-pin-shift 400ms cubic-bezier(.24, .8, .28, 1) both;
+  }
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup {
+    animation-timing-function: cubic-bezier(.12, .8, .25, 1);
+  }
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup {
+    animation-duration: 400ms;
   }
 
-  @media (max-width: 1199px), (any-pointer: coarse) {
-    --action-header-height: 72px;
-    --action-pin-gap: 0px;
-    --action-pin-top: var(--action-header-height);
-    --action-wrap-height: calc(100dvh - var(--action-header-height));
-    --action-wrap-height: calc(100svh - var(--action-header-height));
-    --action-tablet-frame-height: clamp(480px, 52dvh, 610px);
-    --action-tablet-frame-height: clamp(480px, 52svh, 610px);
-    min-height: 100dvh;
-    min-height: 100svh;
-    padding-top: var(--action-pin-top);
-
-    .action-clipboard-pin {
-      height: var(--action-wrap-height);
-      justify-content: center;
-      gap: 12px;
-      padding: 20px var(--page-inline-padding);
-    }
-    .action-clipboard-content-frame {
-      width: 100%;
-      height: var(--action-tablet-frame-height);
-      max-height: calc(100% - 56px);
-      flex: 0 1 var(--action-tablet-frame-height);
-    }
-    .action-clipboard-tab-viewport { display: block; min-height: 48px; flex: 0 0 48px; }
-    .action-clipboard-tab { width: 48px; height: 48px; }
-    .action-clipboard-tab-label { width: 20px; height: 20px; }
-    .action-clipboard-mockup-skeleton-lines {
-      flex: 1 1 auto;
-      grid-auto-rows: min-content;
-      align-content: start;
-      gap: 4px;
-      margin-top: 0;
-    }
-    .action-clipboard-mockup-skeleton-lines i { height: clamp(4px, .65vw, 7px); }
-    .action-clipboard-mockup--text .action-clipboard-mockup-skeleton-lines i:nth-child(n + 5) { display: none; }
+  .action-clipboard-group-mockups--pin-pinning-one > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-pinning-one-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup {
+    --action-clipboard-pin-from-x: 0px;
+    --action-clipboard-pin-to-x: 0px;
+  }
+  .action-clipboard-group-mockups--pin-pinning-one > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-pinning-one > .action-clipboard-mockup:nth-child(2),
+  .action-clipboard-group-mockups--pin-pinning-one-shifting > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-pinning-one-shifting > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-pin-to-x: var(--action-clipboard-pin-step);
+  }
+  .action-clipboard-group-mockups--pin-pinning-one > .action-clipboard-mockup:nth-child(3),
+  .action-clipboard-group-mockups--pin-pinning-one-shifting > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-pin-to-x: calc(var(--action-clipboard-pin-step) * -2);
   }
 
-  /* Keep tablet/iPad mockups at a stable width instead of stretching them
-     across the whole content frame. Mobile overrides this below. */
-  @media (min-width: 761px) and (max-width: 1199px), (min-width: 761px) and (any-pointer: coarse) {
-    --action-standard-mockup-size: 160px;
-    --action-mockup-gap: 12px;
-
-    .action-clipboard-mockups {
-      grid-template-columns: repeat(4, var(--action-standard-mockup-width));
-      justify-content: center;
-    }
-    .action-clipboard-scene--export .action-clipboard-mockups {
-      grid-template-columns: repeat(3, var(--action-standard-mockup-width));
-    }
-    .action-clipboard-export-previews {
-      grid-template-columns: repeat(2, var(--action-standard-mockup-width));
-    }
+  .action-clipboard-group-mockups--pin-pinning-two > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup {
+    --action-clipboard-pin-hold-x: 0px;
+    animation: none;
+    transform: translate3d(var(--action-clipboard-pin-hold-x), 0, 0);
+  }
+  .action-clipboard-group-mockups--pin-pinning-two > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-pinning-two > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-pin-hold-x: var(--action-clipboard-pin-step);
+  }
+  .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-pin-hold-x: calc(var(--action-clipboard-pin-step) * 2);
+  }
+  .action-clipboard-group-mockups--pin-pinning-two > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-pin-hold-x: calc(var(--action-clipboard-pin-step) * -2);
+  }
+  .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-pin-hold-x: calc(var(--action-clipboard-pin-step) * -2);
+  }
+  .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup:nth-child(4) {
+    --action-clipboard-pin-hold-x: var(--action-clipboard-pin-step);
+  }
+  .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup:nth-child(5) {
+    --action-clipboard-pin-hold-x: calc(var(--action-clipboard-pin-step) * -3);
+  }
+  .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup {
+    --action-clipboard-pin-hold-x: 0px;
+    animation: none;
+    transform: translate3d(var(--action-clipboard-pin-hold-x), 0, 0);
+  }
+  .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-pin-hold-x: var(--action-clipboard-pin-step);
+  }
+  .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-pin-hold-x: calc(var(--action-clipboard-pin-step) * -2);
   }
 
-  @media (max-width: 760px) {
-    --action-mobile-viewport-height: 100svh;
-    --action-mobile-safe-bottom: max(12px, env(safe-area-inset-bottom));
-    --action-mobile-frame-height: clamp(380px, 105vw, 455px);
-    --action-mockup-edge: 16px;
-    --action-mockup-gap: 6px;
-    --action-standard-mockup-size: 76px;
-    --action-share-edge: 12px;
-    --action-share-plane-edge: 18px;
-    --action-share-expanded-width: 300px;
-    --action-share-plane-size: 26px;
-    --action-share-social-size: 30px;
-    --action-share-social-gap: 8px;
-    --action-export-pill-gap: 10px;
-    --action-pin-top: var(--action-header-height);
-    --action-wrap-height: calc(100vh - var(--action-header-height));
-    --action-wrap-height: calc(var(--action-mobile-viewport-height) - var(--action-header-height));
-    min-height: 100vh;
-    min-height: var(--action-mobile-viewport-height);
-    padding-top: var(--action-pin-top);
-
-    .action-clipboard-pin {
-      justify-content: center;
-      gap: 10px;
-      padding: 24px var(--page-gutter) calc(24px + var(--action-mobile-safe-bottom));
-    }
-    .action-clipboard-content-frame {
-      width: 100%;
-      height: var(--action-mobile-frame-height);
-      max-height: 100%;
-      flex: 0 1 var(--action-mobile-frame-height);
-      overflow: hidden;
-      border-radius: 24px;
-      contain: paint;
-      isolation: isolate;
-    }
-    .action-clipboard-content { border-radius: 24px; }
-    .action-clipboard-pin.is-content-revealed .action-clipboard-content {
-      width: 100% !important;
-      height: 100% !important;
-    }
-    .action-clipboard-content-state { padding: 28px 22px; }
-    .action-clipboard-content-state h2 { font-size: clamp(46px, 14vw, 74px); }
-    .action-clipboard-scene-title { gap: 3px; }
-    .action-clipboard-scene-icon { width: 22px; height: 22px; }
-    .action-clipboard-title-words { font-size: var(--action-title-font-size, clamp(18px, 5vw, 21px)); letter-spacing: -.055em; }
-    /* Hidden title text still has horizontal padding. Cancel that reserved
-       width while only the icon is visible so every title icon is centered. */
-    .action-clipboard-title-words { margin-left: -24px; }
-    .action-clipboard-mockups { right: 16px; bottom: 18px; left: 16px; gap: 8px; }
-    .action-clipboard-mockup { --action-mockup-radius: 12px; height: var(--action-standard-mockup-height); padding: 6px; }
-    .action-clipboard-mockups { grid-template-columns: repeat(4, var(--action-standard-mockup-width)); gap: 6px; justify-content: center; }
-    .action-clipboard-scene--export .action-clipboard-mockups {
-      right: 0;
-      left: 0;
-      width: auto;
-      grid-template-columns: repeat(3, var(--action-standard-mockup-width));
-    }
-    .action-clipboard-mockup { gap: 5px; }
-    .action-clipboard-mockup--image { padding: 0; border: 0; }
-    .action-clipboard-mockup--link { padding: 0; gap: 0; }
-    .action-clipboard-mockup-link-thumbnail { height: 58%; flex-basis: 58%; }
-    .action-clipboard-mockup-link-title { height: 6px; margin: 6px 7px 0; }
-    .action-clipboard-mockup-link-url { height: 4px; margin: 4px 7px 0; }
-    .action-clipboard-mockup-skeleton--title { height: 8px; }
-    .action-clipboard-mockup-skeleton-lines { gap: 4px; margin-top: 2px; }
-    .action-clipboard-mockup-skeleton-lines i { height: 4px; }
-    .action-clipboard-mockup--text .action-clipboard-mockup-skeleton-lines i:nth-child(n + 4) { display: none; }
-    .action-clipboard-pin-orb { top: 6px; right: 6px; width: 20px; }
-    .action-clipboard-share-orb { right: 6px; bottom: 6px; width: 20px; }
-    .action-clipboard-export-options { gap: var(--action-export-pill-gap); }
-    .action-clipboard-export-options > span { min-width: 0; padding: 16px 18px; font-size: var(--action-title-font-size, clamp(18px, 5vw, 21px)); }
-    .action-clipboard-export-previews { top: auto; right: 0; bottom: 18px; left: 0; gap: var(--action-export-pill-gap); }
-    .action-clipboard-export-previews > span { height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
-    .action-clipboard-export-previews i { height: 5px; }
-    .action-clipboard-json-property { grid-template-columns: minmax(0, .34fr) 3px minmax(0, .66fr); gap: 3px; padding-left: 4%; }
-    .action-clipboard-json-property i:nth-child(2) { width: 3px; height: 3px; }
-    .action-clipboard-export-preview--csv { gap: 4px; }
-    .action-clipboard-csv-row { gap: 4px; }
-    .action-clipboard-csv-row--header { margin-bottom: 4px; }
-    .action-clipboard-csv-row--header i { height: 4px; }
-    .action-clipboard-voice-lines { width: 104px; height: 38px; gap: 3px; }
-    .action-clipboard-voice-line { width: 4px; }
-    .action-clipboard-voice-transcript { right: auto; bottom: 18px; left: 50%; transform: translateX(-50%); }
-    .action-clipboard-scan-phone { width: 176px; height: 278px; border-radius: 22px; }
-    .action-clipboard-scan-result { width: var(--action-standard-mockup-width); height: var(--action-standard-mockup-height); padding: 6px; border-radius: 12px; }
-    .action-clipboard-scan-result-title { height: 8px; margin-bottom: 6px; }
-    .action-clipboard-scan-result-lines { gap: 4px; }
-    .action-clipboard-scan-result-lines i { height: 4px; max-width: 100%; }
-    .action-clipboard-scan-result-lines i:nth-child(n + 4) { display: none; }
-    .action-clipboard-tab-viewport { min-height: 32px; flex-basis: 32px; }
-    .action-clipboard-tabs { justify-content: center; gap: 4px; padding: 0; }
-    .action-clipboard-tab { width: 32px; height: 32px; padding: 0; }
-    .action-clipboard-tab-label { width: 14px; height: 14px; }
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup,
+  .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup {
+    --action-clipboard-pin-from-x: 0px;
+    --action-clipboard-pin-to-x: 0px;
+  }
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-pin-from-x: var(--action-clipboard-pin-step);
+    --action-clipboard-pin-to-x: calc(var(--action-clipboard-pin-step) * 2);
+  }
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-pin-from-x: calc(var(--action-clipboard-pin-step) * -2);
+    --action-clipboard-pin-to-x: calc(var(--action-clipboard-pin-step) * -2);
+  }
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup:nth-child(4) {
+    --action-clipboard-pin-to-x: var(--action-clipboard-pin-step);
+  }
+  .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup:nth-child(5) {
+    --action-clipboard-pin-to-x: calc(var(--action-clipboard-pin-step) * -3);
   }
 
-  @media (max-width: 360px) {
-    --action-share-edge: 10px;
-    --action-share-plane-edge: 14px;
-    --action-share-plane-size: 24px;
-    --action-share-social-size: 28px;
-    --action-share-social-gap: 7px;
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-pin-from-x: calc(var(--action-clipboard-pin-step) * 2);
+    --action-clipboard-pin-to-x: var(--action-clipboard-pin-step);
+  }
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-pin-from-x: calc(var(--action-clipboard-pin-step) * -2);
+    --action-clipboard-pin-to-x: calc(var(--action-clipboard-pin-step) * -2);
+  }
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup:nth-child(4) {
+    --action-clipboard-pin-from-x: var(--action-clipboard-pin-step);
+    --action-clipboard-pin-to-x: 0px;
+  }
+  .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup:nth-child(5) {
+    --action-clipboard-pin-from-x: calc(var(--action-clipboard-pin-step) * -3);
+    --action-clipboard-pin-to-x: 0px;
+    animation-duration: 400ms;
+    animation-timing-function: cubic-bezier(.45, 0, .55, 1);
   }
 
+  .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup:nth-child(1),
+  .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup:nth-child(2) {
+    --action-clipboard-pin-from-x: var(--action-clipboard-pin-step);
+    --action-clipboard-pin-to-x: 0px;
+  }
+  .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup:nth-child(3) {
+    --action-clipboard-pin-from-x: calc(var(--action-clipboard-pin-step) * -2);
+    --action-clipboard-pin-to-x: 0px;
+  }
+  .action-clipboard-group-mockups > .action-clipboard-mockup {
+    width: clamp(56px, 8vw, 96px);
+    height: clamp(56px, 8vw, 96px);
+    min-width: 0;
+    min-height: 0;
+    flex: 0 0 clamp(56px, 8vw, 96px);
+    aspect-ratio: 1 / 1;
+    padding: clamp(4px, 1vw, 10px);
+    gap: clamp(3px, .8vw, 8px);
+    border-radius: clamp(8px, 1.3vw, 16px);
+    box-shadow: none;
+  }
+  .action-clipboard-group-mockups > .action-clipboard-mockup--link {
+    /* Leave balanced room for the compact title and URL rows. */
+    --action-clipboard-link-content-padding: clamp(1px, .2vw, 2px);
+    display: flex;
+    gap: 0;
+    padding: 0;
+  }
+  .action-clipboard-group-mockups > .action-clipboard-mockup--image { padding: 0; }
+  .action-clipboard-group-mockups > .action-clipboard-mockup--text { padding: clamp(4px, 1vw, 10px); }
+  .action-clipboard-group-mockups .action-clipboard-text-title {
+    height: clamp(4px, .8vw, 8px);
+    margin-bottom: 5%;
+  }
+  .action-clipboard-group-mockups .action-clipboard-text-lines { gap: clamp(2px, .5vw, 5px); }
+  .action-clipboard-group-mockups .action-clipboard-text-lines i { height: clamp(2px, .45vw, 4px); }
+  .action-clipboard-group-mockups .action-clipboard-link-image {
+    height: 65%;
+    flex: 0 0 65%;
+    margin: 0 0 0 -1px;
+    border-radius: clamp(8px, 1.2vw, 14px) clamp(8px, 1.2vw, 14px) 0 0;
+  }
+  .action-clipboard-group-mockups .action-clipboard-link-meta {
+    align-items: flex-start;
+    justify-content: center;
+    gap: clamp(3px, .45vw, 5px);
+    padding: var(--action-clipboard-link-content-padding) clamp(5px, .8vw, 8px) var(--action-clipboard-link-content-padding);
+  }
+  .action-clipboard-group-mockups .action-clipboard-link-title {
+    width: 76%;
+    height: clamp(3px, .6vw, 6px);
+    margin: 0;
+  }
+  .action-clipboard-group-mockups .action-clipboard-link-url {
+    width: 58%;
+    height: clamp(2px, .45vw, 4px);
+    margin: 0;
+  }
+  .action-clipboard-group-mockups .action-clipboard-color-title { height: clamp(3px, .6vw, 6px); }
+  .action-clipboard-group-mockups .action-clipboard-color-name { height: clamp(5px, .8vw, 8px); }
   @media (prefers-reduced-motion: reduce) {
-    .action-clipboard-content-state { filter: none; transition: none; }
-    .action-clipboard-content { filter: none; }
+    .action-clipboard-panel-bar-motion--flying,
+    .action-clipboard-panel-bar-motion--returning,
+    .action-clipboard-panel-bar-motion--pin-shaking-even,
+    .action-clipboard-panel-bar-motion--pin-shaking-odd,
+    .action-clipboard-panel-bar-motion--share-shaking-even,
+    .action-clipboard-panel-bar-motion--share-shaking-odd,
+    .action-clipboard-panel-bar-motion--export-shaking-even,
+    .action-clipboard-panel-bar-motion--export-shaking-odd,
+    .action-clipboard-panel-bar-motion--clipboard-shaking-even,
+    .action-clipboard-panel-bar-motion--clipboard-shaking-odd,
+    .action-clipboard-panel-bar-motion--icloud-shaking-even,
+    .action-clipboard-panel-bar-motion--icloud-shaking-odd,
+    .action-clipboard-group-mockups--collecting > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--collecting > .action-clipboard-mockup .action-clipboard-mockup-check,
+    .action-clipboard-group-mockups--share-flying > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--share-returning > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--export-flying > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--export-returning > .action-clipboard-mockup,
+    .action-clipboard-clipboard-stage--social .action-clipboard-clipboard-social-card,
+    .action-clipboard-clipboard-stage--social-returning .action-clipboard-clipboard-social-card,
+    .action-clipboard-clipboard-stage--content .action-clipboard-clipboard-items > .action-clipboard-mockup,
+    .action-clipboard-clipboard-stage--content-returning .action-clipboard-clipboard-items > .action-clipboard-mockup,
+    .action-clipboard-icloud-mockups--collecting > .action-clipboard-mockup,
+    .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup,
+    .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup {
+      animation: none;
+    }
+    .action-clipboard-group-mockups--collecting > .action-clipboard-mockup {
+      opacity: 1;
+      filter: none;
+      transform: none;
+    }
+    .action-clipboard-group-mockups--collecting > .action-clipboard-mockup .action-clipboard-mockup-check {
+      opacity: 1;
+      transform: none;
+    }
+    .action-clipboard-clipboard-stage--social .action-clipboard-clipboard-social-card,
+    .action-clipboard-clipboard-stage--social-returning .action-clipboard-clipboard-social-card,
+    .action-clipboard-clipboard-stage--content .action-clipboard-clipboard-items > .action-clipboard-mockup,
+    .action-clipboard-clipboard-stage--content-returning .action-clipboard-clipboard-items > .action-clipboard-mockup,
+    .action-clipboard-icloud-mockups--collecting > .action-clipboard-mockup,
+    .action-clipboard-icloud-mockups--flying > .action-clipboard-mockup,
+    .action-clipboard-icloud-mockups--returning > .action-clipboard-mockup {
+      opacity: 1;
+      filter: none;
+      transform: none;
+    }
+    .action-clipboard-panel-bar-shell,
+    .action-clipboard-panel-bar-foreground,
+    .action-clipboard-progress-reel,
+    .action-clipboard-clipboard-chevron-track,
+    .action-clipboard-share-socials,
+    .action-clipboard-share-socials > span,
+    .action-clipboard-export-formats,
+    .action-clipboard-export-formats > span { transition: none; }
+    .action-clipboard-clipboard-chevron-track,
+    .action-clipboard-clipboard-chevron-stack {
+      animation: none;
+      transform: none;
+    }
+    .action-clipboard-mockup-pin,
+    .action-clipboard-mockup-pin-number {
+      transition: none;
+      transition-delay: 0s;
+    }
+    .action-clipboard-group-mockups--pin-pinning-one > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-pinning-two > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup {
+      animation: none;
+    }
+    .action-clipboard-group-mockups--pin-pinning-one > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-pinning-two > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-pinning-two-shifting > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-two-shifting > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-one-shifting > .action-clipboard-mockup {
+      transform: translate3d(var(--action-clipboard-pin-to-x), 0, 0);
+    }
+    .action-clipboard-group-mockups--pin-pinning-two > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-two > .action-clipboard-mockup,
+    .action-clipboard-group-mockups--pin-returning-one > .action-clipboard-mockup {
+      transform: translate3d(var(--action-clipboard-pin-hold-x), 0, 0);
+    }
+  }
+
+  @media (max-width: 1199px) {
+    .action-clipboard-grid { grid-template-columns: minmax(0, 1fr); }
+    .action-clipboard-panel { border-right: 0; }
+    .action-clipboard-panel:last-child { border-bottom: 0; }
+    .action-clipboard-panel {
+      padding-block: clamp(28px, 3.2vw, 36px);
+      min-height: calc(clamp(260px, 31vw, 446px) + 2 * (clamp(28px, 3.2vw, 36px) - clamp(14px, 1.6vw, 22px)));
+    }
+  }
+
+  @media (max-width: 700px) {
+    --action-clipboard-island-width: clamp(168px, 48vw, 180px);
+    padding: clamp(96px, 20vw, 144px) 0;
+    .container { padding-inline: 16px; }
+    .action-clipboard-panel {
+      min-height: calc(clamp(185px, 48vw, 280px) + 2 * (clamp(28px, 4vw, 36px) - 12px));
+      padding: clamp(28px, 4vw, 36px) 12px;
+    }
+    .action-clipboard-panel { border-right: 0; }
+    .action-clipboard-panel-content { width: min(100%, 150px); }
+    .action-clipboard-panel-content--group { width: 100%; }
+    .action-clipboard-group-mockups { justify-content: center; }
+  }
+
+  @media (min-width: 701px) and (max-width: 1024px) {
+    .action-clipboard-panel-content { width: min(60%, 180px); }
+    .action-clipboard-panel-content--group { width: 100%; }
   }
 `;

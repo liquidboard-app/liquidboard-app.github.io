@@ -1,40 +1,394 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
-import { Check, ClipboardPenLine, Cloud, Download, Folder, Mic, Pin as PinIcon, ScanSearch, ScanText, Send, Share2 } from 'lucide-react';
-import SocialMark from '../SocialMark';
+import React from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Pin as PinIcon } from 'lucide-react';
+import { useTranslation } from '../../../../contexts/LanguageContext';
+import SocialMark, { type SocialName } from '../SocialMark';
 import { ActionClipboardSection } from './styled';
-import { useTranslation } from '@/contexts/LanguageContext';
 
-const actionFeatureDefinitions = [
-  { key: 'group', icon: Folder },
-  { key: 'pin', icon: PinIcon },
-  { key: 'share', icon: Share2 },
-  { key: 'export', icon: Download },
-  { key: 'voice', icon: Mic },
-  { key: 'scanText', icon: ScanText },
-  { key: 'systemPasteboard', icon: ClipboardPenLine },
-  { key: 'iCloud', icon: Cloud },
-] as const;
+type MockupType = 'text' | 'link' | 'image' | 'color' | 'sticker';
 
-const mockupTypes = ['text', 'link', 'color', 'image'] as const;
-const exportMockupTypes = mockupTypes.slice(0, 3);
+const GroupFolderIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-folder" viewBox="0 0 24 24" role="img" aria-label="Group folder">
+    <defs>
+      <linearGradient id="action-clipboard-folder-gradient" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#60a5fa" />
+        <stop offset="1" stopColor="#2563eb" />
+      </linearGradient>
+    </defs>
+    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" fill="url(#action-clipboard-folder-gradient)" />
+  </svg>
+);
 
-type MockupType = (typeof mockupTypes)[number];
+const createGroupLabels: Record<string, string> = {
+  vi: 'Nhóm',
+  en: 'Group',
+  ja: 'グループ',
+  es: 'Grupo',
+  'zh-TW': '群組',
+  'zh-CN': '分组',
+  'pt-BR': 'Grupo',
+  fr: 'Groupe',
+  de: 'Gruppe',
+  ru: 'Группа',
+  ko: '그룹',
+  hi: 'समूह',
+  bn: 'গ্রুপ',
+  id: 'Grup',
+  it: 'Gruppo',
+  th: 'กลุ่ม',
+  tl: 'Grupo',
+  pl: 'Grupa',
+  tr: 'Grup',
+};
 
-const TextMockup: React.FC<{ marker?: React.ReactNode; className?: string }> = ({ marker, className }) => (
-  <div className={['action-clipboard-mockup', 'action-clipboard-mockup--text', className].filter(Boolean).join(' ')} aria-hidden="true">
-    <span className="action-clipboard-mockup-skeleton action-clipboard-mockup-skeleton--title" />
-    <span className="action-clipboard-mockup-skeleton-lines"><i /><i /><i /><i /><i /></span>
-    {marker}
+const panels: Array<{ id: string; type: MockupType }> = [
+  { id: 'text', type: 'text' },
+  { id: 'link', type: 'link' },
+  { id: 'color', type: 'color' },
+  { id: 'image', type: 'image' },
+  { id: 'sticker', type: 'sticker' },
+];
+const exportPanels = panels.slice(0, 3);
+const actionClipboardProgressValues = [0, 1, 2, 3, 4, 5];
+const actionClipboardFlyStart = 1500;
+const actionClipboardGroupCountStep = 180;
+const actionClipboardReturnStart = actionClipboardFlyStart + (panels.length - 1) * actionClipboardGroupCountStep + 180;
+const actionClipboardAnimationCycle = actionClipboardReturnStart + (panels.length - 1) * actionClipboardGroupCountStep + 500;
+const actionClipboardPinCycle = 5200;
+const actionClipboardPinStart = 650;
+const actionClipboardPinReorderDuration = 400;
+const actionClipboardPinBetweenDelay = 100;
+const actionClipboardPinRevealDelay = 520;
+const actionClipboardPinFirstShiftStart = actionClipboardPinStart + actionClipboardPinRevealDelay;
+const actionClipboardPinSecondStart = actionClipboardPinFirstShiftStart + actionClipboardPinReorderDuration + actionClipboardPinBetweenDelay;
+const actionClipboardPinSecondShiftStart = actionClipboardPinSecondStart + actionClipboardPinRevealDelay;
+const actionClipboardPinReturnStart = actionClipboardPinSecondShiftStart + actionClipboardPinReorderDuration + 240;
+const actionClipboardPinReturnDuration = 400;
+const actionClipboardPinReturnStickerDuration = actionClipboardPinReorderDuration;
+const actionClipboardPinReturnSecondShiftStart = actionClipboardPinReturnStart + actionClipboardPinRevealDelay;
+const actionClipboardPinReturnFirstStart = actionClipboardPinReturnSecondShiftStart + actionClipboardPinReturnStickerDuration + actionClipboardPinBetweenDelay;
+const actionClipboardPinReturnFirstShiftStart = actionClipboardPinReturnFirstStart + actionClipboardPinRevealDelay;
+const actionClipboardShareStart = 650;
+const actionClipboardShareCheckStep = 130;
+const actionClipboardShareCollectStart = actionClipboardShareStart + panels.length * actionClipboardShareCheckStep + 130;
+const actionClipboardShareExpandStart = actionClipboardShareCollectStart + 1050;
+const actionClipboardShareSocialStep = 150;
+const actionClipboardShareSocialHold = 950;
+const actionClipboardShareSocialHideStart = actionClipboardShareExpandStart + panels.length * actionClipboardShareSocialStep + actionClipboardShareSocialHold;
+const actionClipboardShareCollapseStart = actionClipboardShareSocialHideStart + panels.length * actionClipboardShareSocialStep + 180;
+const actionClipboardShareReturnStart = actionClipboardShareCollapseStart + 760;
+const actionClipboardShareReturnDuration = 520;
+const actionClipboardShareReturnStep = 100;
+const actionClipboardShareReturnTotal = actionClipboardShareReturnDuration + (panels.length - 1) * actionClipboardShareReturnStep;
+const actionClipboardShareCycle = actionClipboardShareReturnStart + actionClipboardShareReturnTotal + 200;
+const shareMockupsStyle = {
+  '--action-clipboard-share-return-duration': `${actionClipboardShareReturnDuration}ms`,
+  '--action-clipboard-share-return-step': `${actionClipboardShareReturnStep}ms`,
+} as React.CSSProperties;
+const actionClipboardExportStart = 1500;
+const actionClipboardExportCheckStep = 130;
+const actionClipboardExportCollectStart = actionClipboardExportStart + exportPanels.length * actionClipboardExportCheckStep + 130;
+const actionClipboardExportExpandStart = actionClipboardExportCollectStart + 1050;
+const actionClipboardExportFormatStep = 180;
+const actionClipboardExportFormatHold = 950;
+const actionClipboardExportFormatHideStart = actionClipboardExportExpandStart + 2 * actionClipboardExportFormatStep + actionClipboardExportFormatHold;
+const actionClipboardExportCollapseStart = actionClipboardExportFormatHideStart + 2 * actionClipboardExportFormatStep + 180;
+const actionClipboardExportReturnStart = actionClipboardExportCollapseStart + 760;
+const actionClipboardExportCycle = actionClipboardExportReturnStart + 900;
+const actionClipboardClipboardStart = 650;
+const actionClipboardClipboardCopyStart = actionClipboardClipboardStart + 1450;
+const actionClipboardClipboardCopyStep = 680;
+const actionClipboardClipboardCheckDelay = 560;
+const actionClipboardClipboardSocialReturnStart = actionClipboardClipboardCopyStart + (panels.length - 1) * actionClipboardClipboardCopyStep + actionClipboardClipboardCheckDelay + 980;
+const actionClipboardClipboardReturnDuration = 600;
+const actionClipboardClipboardReturnStep = 100;
+const actionClipboardClipboardReturnTotal = actionClipboardClipboardReturnDuration + (panels.length - 1) * actionClipboardClipboardReturnStep;
+const actionClipboardClipboardContentStart = actionClipboardClipboardSocialReturnStart + actionClipboardClipboardReturnTotal + 180;
+const actionClipboardClipboardContentReturnStart = actionClipboardClipboardContentStart + 1650;
+const actionClipboardClipboardCycle = actionClipboardClipboardContentReturnStart + actionClipboardClipboardReturnTotal + 250;
+const actionClipboardICloudStart = 850;
+const actionClipboardICloudCheckStep = 130;
+const actionClipboardICloudCollectStart = actionClipboardICloudStart + panels.length * actionClipboardICloudCheckStep + 1050;
+const actionClipboardICloudSyncStart = actionClipboardICloudCollectStart + 760;
+const actionClipboardICloudSyncDuration = 1250;
+const actionClipboardICloudNumbersStart = actionClipboardICloudSyncStart + actionClipboardICloudSyncDuration + 260;
+const actionClipboardICloudReturnStart = actionClipboardICloudNumbersStart + 850;
+const actionClipboardICloudReturnDuration = 520;
+const actionClipboardICloudReturnStep = 100;
+const actionClipboardICloudReturnTotal = actionClipboardICloudReturnDuration + (panels.length - 1) * actionClipboardICloudReturnStep;
+const actionClipboardICloudCycle = actionClipboardICloudReturnStart + actionClipboardICloudReturnTotal + 450;
+
+const actionClipboardShareSocials: Array<{ name: SocialName; label: string }> = [
+  { name: 'threads', label: 'Threads' },
+  { name: 'facebook', label: 'Facebook' },
+  { name: 'x', label: 'X' },
+  { name: 'instagram', label: 'Instagram' },
+  { name: 'tiktok', label: 'TikTok' },
+];
+
+const clipboardContentPanels: Array<{ type: MockupType; social: SocialName }> = [
+  { type: 'text', social: 'threads' },
+  { type: 'link', social: 'facebook' },
+  { type: 'image', social: 'x' },
+  { type: 'text', social: 'instagram' },
+  { type: 'link', social: 'tiktok' },
+];
+
+const MockupCheck: React.FC<{ className?: string }> = ({ className }) => (
+  <span className={['action-clipboard-mockup-check', className].filter(Boolean).join(' ')} aria-hidden="true">
+    <svg viewBox="0 0 16 16">
+      <path d="m3 8.5 3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </span>
+);
+
+const MockupPin: React.FC<{ order: number; visible: boolean }> = ({ order, visible }) => (
+  <span className={`action-clipboard-mockup-pin${visible ? ' action-clipboard-mockup-pin--visible' : ''}`} aria-hidden="true">
+    <span className="action-clipboard-mockup-pin-content">
+      <PinIcon className="action-clipboard-mockup-pin-icon" />
+      <span className="action-clipboard-mockup-pin-number">{order}</span>
+    </span>
+  </span>
+);
+
+const AnimatedProgress: React.FC<{ value: number; active: boolean; label: string }> = ({ value, active, label }) => {
+  const previousValueRef = React.useRef(value);
+  const distance = Math.abs(value - previousValueRef.current);
+  const progressDuration = distance === 0 ? 0 : Math.min(900, 220 + distance * 130);
+
+  React.useEffect(() => {
+    previousValueRef.current = value;
+  }, [value]);
+
+  return (
+    <span className={`action-clipboard-progress${active ? ' action-clipboard-progress--active' : ''}`} aria-label={label}>
+      <span className="action-clipboard-progress-stack">
+        <span
+          className="action-clipboard-progress-reel"
+          style={{
+            '--action-clipboard-progress-index': value,
+            '--action-clipboard-progress-duration': `${progressDuration}ms`,
+          } as React.CSSProperties}
+          aria-hidden="true"
+        >
+          {actionClipboardProgressValues.map((progressValue) => (
+            <span className="action-clipboard-progress-value" key={progressValue}>{progressValue}</span>
+          ))}
+        </span>
+      </span>
+    </span>
+  );
+};
+
+const DynamicPinIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-pin" viewBox="0 0 24 24" aria-hidden="true">
+    <defs>
+      <linearGradient id="action-clipboard-pin-gradient" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#fdba74" />
+        <stop offset="100%" stopColor="#f97316" />
+      </linearGradient>
+    </defs>
+    <path d="M12 17v5" fill="none" stroke="url(#action-clipboard-pin-gradient)" strokeWidth="2" strokeLinecap="round" />
+    <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" fill="url(#action-clipboard-pin-gradient)" stroke="url(#action-clipboard-pin-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const DynamicShareIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-share" viewBox="0 0 24 24" aria-hidden="true">
+    <defs>
+      <linearGradient id="action-clipboard-share-gradient" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#fff" />
+        <stop offset="100%" stopColor="#a3a3a3" />
+      </linearGradient>
+    </defs>
+    <path d="m10.586 5.414-5.172 5.172" fill="none" stroke="url(#action-clipboard-share-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="m18.586 13.414-5.172 5.172" fill="none" stroke="url(#action-clipboard-share-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M6 12h12" fill="none" stroke="url(#action-clipboard-share-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="12" cy="20" r="2" fill="url(#action-clipboard-share-gradient)" stroke="url(#action-clipboard-share-gradient)" strokeWidth="2" />
+    <circle cx="12" cy="4" r="2" fill="url(#action-clipboard-share-gradient)" stroke="url(#action-clipboard-share-gradient)" strokeWidth="2" />
+    <circle cx="20" cy="12" r="2" fill="url(#action-clipboard-share-gradient)" stroke="url(#action-clipboard-share-gradient)" strokeWidth="2" />
+    <circle cx="4" cy="12" r="2" fill="url(#action-clipboard-share-gradient)" stroke="url(#action-clipboard-share-gradient)" strokeWidth="2" />
+  </svg>
+);
+
+const DynamicExportIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-export" viewBox="0 0 24 24" aria-hidden="true">
+    <defs>
+      <linearGradient id="action-clipboard-export-gradient" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#fda4af" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+    </defs>
+    <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" fill="url(#action-clipboard-export-gradient)" stroke="url(#action-clipboard-export-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M14 2v5a1 1 0 0 0 1 1h5" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M12 12v6" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="m15 15-3-3-3 3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const DynamicVoiceIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-voice" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#action-clipboard-voice-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <defs>
+      <linearGradient id="action-clipboard-voice-gradient" x1="5" y1="2" x2="19" y2="22" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#c084fc" />
+        <stop offset="100%" stopColor="#9333ea" />
+      </linearGradient>
+    </defs>
+    <path d="M12 19v3" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <rect x="9" y="2" width="6" height="13" rx="3" fill="url(#action-clipboard-voice-gradient)" />
+  </svg>
+);
+
+const DynamicScanIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-scan" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#action-clipboard-scan-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <defs>
+      <linearGradient id="action-clipboard-scan-gradient" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#86efac" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+    </defs>
+    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+    <rect width="8" height="8" x="8" y="8" rx="1" fill="url(#action-clipboard-scan-gradient)" />
+  </svg>
+);
+
+const DynamicScanViewIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-scan-view" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+  </svg>
+);
+
+const DynamicClipboardIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-clipboard" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#action-clipboard-clipboard-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <defs>
+      <linearGradient id="action-clipboard-clipboard-gradient" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#fde68a" />
+        <stop offset="100%" stopColor="#f97316" />
+      </linearGradient>
+    </defs>
+    <rect x="4" y="4" width="16" height="18" rx="2" fill="url(#action-clipboard-clipboard-gradient)" stroke="url(#action-clipboard-clipboard-gradient)" />
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1" fill="url(#action-clipboard-clipboard-gradient)" stroke="url(#action-clipboard-clipboard-gradient)" />
+    <path d="M8 10h8M8 14h6" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity=".78" />
+  </svg>
+);
+
+const DynamicClipboardChevronIcon: React.FC = () => (
+  <span className="action-clipboard-clipboard-chevron-track" aria-hidden="true">
+    <span className="action-clipboard-clipboard-chevron-stack">
+      {[0, 1, 2, 3, 0].map((arrow, index) => (
+        <svg className="action-clipboard-clipboard-chevron-arrow" key={`${arrow}-${index}`} xmlns="http://www.w3.org/2000/svg" width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m17 9-5-5-5 5" />
+        </svg>
+      ))}
+    </span>
+  </span>
+);
+
+const DynamicICloudIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-icloud" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#action-clipboard-icloud-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <defs>
+      <linearGradient id="action-clipboard-icloud-gradient" x1="4" y1="4" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#bfdbfe" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+    </defs>
+    <path d="M17.5 12a1 1 0 1 1 0 9H9.006a7 7 0 1 1 6.702-9z" fill="url(#action-clipboard-icloud-gradient)" />
+    <path d="M21.832 9A3 3 0 0 0 19 7h-2.207a5.5 5.5 0 0 0-10.72.61" />
+  </svg>
+);
+
+const DynamicICloudRefreshIcon: React.FC = () => (
+  <svg className="action-clipboard-panel-icloud-refresh" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+    <path d="M16 16h5v5" />
+    <circle cx="12" cy="12" r="1" />
+  </svg>
+);
+
+const ScanSearchCodeIcon: React.FC = () => (
+  <svg className="action-clipboard-scan-search-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="m13 13.5 2-2.5-2-2.5" />
+    <path d="m21 21-4.3-4.3" />
+    <path d="M9 8.5 7 11l2 2.5" />
+    <circle cx="11" cy="11" r="8" />
+  </svg>
+);
+
+const ClipboardCopyIcon: React.FC = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M9 7h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3Z" fill="currentColor" />
+    <path d="M16 5V4a2 2 0 0 0-2-2H5a3 3 0 0 0-3 3v9a2 2 0 0 0 2 2h1v-2H4V5a1 1 0 0 1 1-1h9v1Z" fill="currentColor" />
+  </svg>
+);
+
+const ClipboardCheckIcon: React.FC = () => (
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <path d="m3 8.5 3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const ClipboardStatus: React.FC<{ copyVisible: boolean; checkVisible: boolean }> = ({ copyVisible, checkVisible }) => (
+  <span className={`action-clipboard-clipboard-status${copyVisible ? ' action-clipboard-clipboard-status--copy' : ''}${checkVisible ? ' action-clipboard-clipboard-status--check' : ''}`} aria-hidden="true">
+    <span className="action-clipboard-clipboard-copy-icon"><ClipboardCopyIcon /></span>
+    <span className="action-clipboard-clipboard-check-icon"><ClipboardCheckIcon /></span>
+  </span>
+);
+
+const ClipboardSocialCard: React.FC<{ social: { name: SocialName; label: string }; index: number; copyCount: number; checkCount: number; cycle: number }> = ({ social, index, copyCount, checkCount, cycle }) => (
+  <div className="action-clipboard-clipboard-social-card" key={`${social.name}-${cycle}`} aria-label={social.label}>
+    <SocialMark className="action-clipboard-clipboard-social-mark" name={social.name} />
+    <ClipboardStatus copyVisible={copyCount > index} checkVisible={checkCount > index} />
   </div>
 );
 
-const MockupCard: React.FC<{ type: MockupType; marker?: React.ReactNode }> = ({ type, marker }) => {
+const ClipboardSocialBadge: React.FC<{ social: SocialName }> = ({ social }) => (
+  <span className="action-clipboard-clipboard-social-badge" aria-hidden="true">
+    <SocialMark name={social} />
+  </span>
+);
+
+const DynamicJsonIcon: React.FC = () => (
+  <svg className="action-clipboard-export-format-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M14 22h4a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M14 2v5a1 1 0 0 0 1 1h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M5 14a1 1 0 0 0-1 1v2a1 1 0 0 1-1 1 1 1 0 0 1 1 1v2a1 1 0 0 0 1 1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M9 22a1 1 0 0 0 1-1v-2a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-2a1 1 0 0 0-1-1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const DynamicCsvIcon: React.FC = () => (
+  <svg className="action-clipboard-export-format-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 3v18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <rect width="18" height="18" x="3" y="3" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+    <path d="M3 9h18M3 15h18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const MiniMockup: React.FC<{ type: MockupType; marker?: React.ReactNode }> = ({ type, marker }) => {
   if (type === 'link') {
     return (
       <div className="action-clipboard-mockup action-clipboard-mockup--link">
-        <span className="action-clipboard-mockup-link-thumbnail" aria-hidden="true"><i /><i /></span>
-        <span className="action-clipboard-mockup-link-title" aria-hidden="true" />
-        <span className="action-clipboard-mockup-link-url" aria-hidden="true" />
+        <span className="action-clipboard-link-image">
+          <svg className="action-clipboard-link-image-icon" viewBox="0 0 36 20" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="36" height="20" rx="2" fill="#ebebeb" />
+            <circle cx="10" cy="7" r="2.5" fill="#cfcfcf" />
+            <path d="m36 12.2-4.8-4.8a2 2 0 0 0-2.8 0L10 20h26Z" fill="#cfcfcf" />
+          </svg>
+        </span>
+        <span className="action-clipboard-link-meta">
+          <span className="action-clipboard-link-title" />
+          <span className="action-clipboard-link-url" />
+        </span>
         {marker}
       </div>
     );
@@ -42,9 +396,9 @@ const MockupCard: React.FC<{ type: MockupType; marker?: React.ReactNode }> = ({ 
 
   if (type === 'color') {
     return (
-      <div className="action-clipboard-mockup action-clipboard-mockup--color" aria-hidden="true">
-        <span className="action-clipboard-mockup-color-title" />
-        <span className="action-clipboard-mockup-color-name" />
+      <div className="action-clipboard-mockup action-clipboard-mockup--color">
+        <span className="action-clipboard-color-title" />
+        <span className="action-clipboard-color-name" />
         {marker}
       </div>
     );
@@ -52,1148 +406,857 @@ const MockupCard: React.FC<{ type: MockupType; marker?: React.ReactNode }> = ({ 
 
   if (type === 'image') {
     return (
-      <div className="action-clipboard-mockup action-clipboard-mockup--image" aria-hidden="true">
-        <span className="action-clipboard-mockup-image-placeholder"><i /><i /></span>
+      <div className="action-clipboard-mockup action-clipboard-mockup--image">
+        <span className="action-clipboard-image-placeholder">
+          <svg className="action-clipboard-image-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect width="18" height="18" x="3" y="3" rx="2" fill="#ebebeb" />
+            <circle cx="9" cy="9" r="2" fill="#cfcfcf" />
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L4 24h20Z" fill="#cfcfcf" />
+          </svg>
+        </span>
         {marker}
       </div>
     );
   }
 
-  return <TextMockup marker={marker} />;
-};
-
-const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-const PHASE_LABEL_PREFIX = 'action-phase-';
-const SCROLL_TUNING = {
-  pixelsPerPhase: 270,
-  scrub: .46,
-  snapDelay: .12,
-  snapDuration: { min: .38, max: 1.05 },
-} as const;
-
-const ActionClipboard: React.FC = () => {
-  const { dict, lang } = useTranslation();
-  const sectionRef = useRef<HTMLElement>(null);
-  const pinRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [introComplete, setIntroComplete] = useState(false);
-
-  useLayoutEffect(() => {
-    const section = sectionRef.current;
-    const pin = pinRef.current;
-    if (!section || !pin) return undefined;
-
-    let active = true;
-    let cleanup: (() => void) | undefined;
-
-    const initialize = async () => {
-      const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
-        import('gsap'),
-        import('gsap/ScrollTrigger'),
-      ]);
-      if (!active) return;
-
-      // Locale-specific glyphs can change the measured title width after
-      // their font finishes loading. Build the timeline from final metrics.
-      await document.fonts.ready;
-      if (!active) return;
-
-      gsap.registerPlugin(ScrollTrigger);
-      if (window.matchMedia('(pointer: coarse)').matches) {
-        ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
-      }
-      const contentFrame = pin.querySelector<HTMLElement>('.action-clipboard-content-frame');
-      const content = pin.querySelector<HTMLElement>('.action-clipboard-content');
-      const tabScroll = pin.querySelector<HTMLElement>('.action-clipboard-tab-scroll');
-      const tabs = Array.from(pin.querySelectorAll<HTMLElement>('.action-clipboard-tab'));
-      if (!content || !contentFrame || !tabScroll) return;
-
-      const reduceViewportMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      const groupScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--group');
-      const pinScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--pin');
-      const shareScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--share');
-      const exportScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--export');
-      const voiceScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--voice');
-      const scanScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--scan');
-      const systemScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--system');
-      const cloudScene = pin.querySelector<HTMLElement>('.action-clipboard-scene--cloud');
-      const groupTitle = groupScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const pinTitle = pinScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const shareTitle = shareScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const exportTitle = exportScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const voiceTitle = voiceScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const scanTitle = scanScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const scanMotion = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-motion');
-      const systemTitle = systemScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const cloudTitle = cloudScene?.querySelector<HTMLElement>('.action-clipboard-scene-title');
-      const groupIcon = groupScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const pinIcon = pinScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const shareIcon = shareScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const exportIcon = exportScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const voiceIcon = voiceScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const scanIcon = scanScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const systemIcon = systemScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const cloudIcon = cloudScene?.querySelector<HTMLElement>('.action-clipboard-scene-icon');
-      const groupWords = groupScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const pinWords = pinScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const shareWords = shareScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const exportWords = exportScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const voiceWords = voiceScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const scanWords = scanScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const systemWords = systemScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const cloudWords = cloudScene?.querySelector<HTMLElement>('.action-clipboard-title-words');
-      const groupWordItems = Array.from(groupScene?.querySelectorAll<HTMLElement>('.action-clipboard-title-word-track > span') ?? []);
-      const exportWordItems = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-title-word-track > span') ?? []);
-      const groupMockups = Array.from(groupScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
-      const pinMockups = Array.from(pinScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
-      const shareMockups = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
-      const exportMockups = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
-      const pinOrb = pinScene?.querySelector<HTMLElement>('.action-clipboard-pin-orb');
-      const groupChecks = Array.from(groupScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
-      const exportChecks = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
-      const shareChecks = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-orb') ?? []);
-      const shareAction = shareScene?.querySelector<HTMLElement>('.action-clipboard-share-action');
-      const sharePlane = shareScene?.querySelector<SVGSVGElement>('.action-clipboard-share-plane');
-      const shareSocialList = shareScene?.querySelector<HTMLElement>('.action-clipboard-share-socials');
-      const shareSocials = Array.from(shareScene?.querySelectorAll<HTMLElement>('.action-clipboard-share-socials > span') ?? []);
-      const shareSocialMarks = shareSocials.map(social => social.querySelector<SVGSVGElement>('.action-clipboard-social-mark'));
-      const exportOptions = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-options > span') ?? []);
-      const exportOptionLabels = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-option-label') ?? []);
-      const exportPreviews = Array.from(exportScene?.querySelectorAll<HTMLElement>('.action-clipboard-export-previews > span') ?? []);
-      const voiceLines = Array.from(voiceScene?.querySelectorAll<HTMLElement>('.action-clipboard-voice-line') ?? []);
-      const voiceTranscript = voiceScene?.querySelector<HTMLElement>('.action-clipboard-voice-transcript');
-      const voiceTranscriptTitle = voiceScene?.querySelector<HTMLElement>('.action-clipboard-voice-transcript .action-clipboard-mockup-skeleton--title');
-      const voiceTranscriptLines = Array.from(voiceScene?.querySelectorAll<HTMLElement>('.action-clipboard-voice-transcript .action-clipboard-mockup-skeleton-lines i') ?? []);
-      const scanSearch = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-search');
-      const scanPhone = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-phone');
-      const scanResult = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-result');
-      const scanResultTitle = scanScene?.querySelector<HTMLElement>('.action-clipboard-scan-result-title');
-      const scanResultLines = Array.from(scanScene?.querySelectorAll<HTMLElement>('.action-clipboard-scan-result-lines i') ?? []);
-      const systemMockups = Array.from(systemScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
-      const cloudMockups = Array.from(cloudScene?.querySelectorAll<HTMLElement>('.action-clipboard-mockup') ?? []);
-      if (!groupScene || !pinScene || !shareScene || !exportScene || !voiceScene || !scanScene || !systemScene || !cloudScene || !groupTitle || !pinTitle || !shareTitle || !exportTitle || !voiceTitle || !scanTitle || !scanMotion || !systemTitle || !cloudTitle || !groupIcon || !pinIcon || !shareIcon || !exportIcon || !voiceIcon || !scanIcon || !systemIcon || !cloudIcon || !groupWords || !pinWords || !shareWords || !exportWords || !voiceWords || !scanWords || !systemWords || !cloudWords || !pinOrb || !shareAction || !sharePlane || !shareSocialList || !voiceTranscript || !voiceTranscriptTitle || !scanSearch || !scanPhone || !scanResult || !scanResultTitle || groupWordItems.length < 2 || exportWordItems.length < 2 || pinMockups.length < 4 || shareMockups.length < 4 || shareSocials.length < 4 || exportMockups.length < 3 || systemMockups.length < 4 || cloudMockups.length < 4 || exportOptions.length < 1 || exportOptionLabels.length < 1 || exportPreviews.length < 2 || voiceLines.length < 10 || voiceTranscriptLines.length < 5 || scanResultLines.length < 5) return;
-
-      const titleWords = [groupWords, pinWords, shareWords, exportWords, voiceWords, scanWords, systemWords, cloudWords];
-      const fitMobileTitleWords = () => {
-        titleWords.forEach((words) => words.style.removeProperty('--action-title-font-size'));
-        exportScene.style.removeProperty('--action-title-font-size');
-        if (window.innerWidth > 760) return;
-
-        const availableWidth = Math.max(120, contentFrame.clientWidth - 48);
-        titleWords.forEach((words) => {
-          const track = words.querySelector<HTMLElement>('.action-clipboard-title-word-track');
-          const items = (Array.from(track?.children ?? []) as HTMLElement[])
-            .slice(0, words === exportWords ? 1 : undefined);
-          const style = getComputedStyle(words);
-          const gap = Number.parseFloat(track ? getComputedStyle(track).columnGap : '0') || 0;
-          const contentWidth = items.reduce((width, item) => width + Math.max(item.scrollWidth, item.offsetWidth), 0)
-            + (gap * Math.max(items.length - 1, 0));
-          const paddedWidth = contentWidth
-            + Number.parseFloat(style.paddingLeft)
-            + Number.parseFloat(style.paddingRight);
-          if (paddedWidth <= availableWidth) return;
-
-          const baseFontSize = Number.parseFloat(style.fontSize);
-          const fittedFontSize = Math.max(14, baseFontSize * (availableWidth / paddedWidth));
-          const titleFontTarget = words === exportWords ? exportScene : words;
-          titleFontTarget.style.setProperty('--action-title-font-size', `${fittedFontSize}px`);
-        });
-      };
-      fitMobileTitleWords();
-
-      let introProgress = 0;
-
-      const updateFeatureProgress = (progress: number) => {
-        const nextProgress = clamp01(progress);
-        const nextIndex = Math.min(actionFeatureDefinitions.length - 1, Math.floor(nextProgress * actionFeatureDefinitions.length));
-        // This runs on every scrub frame. Updating the custom properties
-        // directly avoids rerendering the entire scene tree and guarantees
-        // that completed tabs are cleared immediately while scrolling back.
-        tabs.forEach((tab, index) => {
-          const tabProgress = clamp01((nextProgress * actionFeatureDefinitions.length) - index);
-          tab.style.setProperty('--tab-progress', String(tabProgress));
-        });
-        setActiveIndex((currentIndex) => currentIndex === nextIndex ? currentIndex : nextIndex);
-      };
-
-      const context = gsap.context(() => {
-        const isMobile = () => window.innerWidth <= 760;
-        const expandedTitleGap = () => isMobile() ? 3 : 18;
-        // Title words retain 12px of right-side overflow room so animated
-        // glyphs are never clipped. Compensate for it in the pill padding:
-        // this keeps the visible edge-to-icon and edge-to-text in balance.
-        const expandedTitlePadding = () => isMobile()
-          ? '16px 12px 16px 24px'
-          : '28px 44px 28px 56px';
-        const exportFormatPadding = () => isMobile() ? '16px 18px' : '28px 56px';
-        const initialTitleScale = () => isMobile() ? 1 : .84;
-        const clampValue = (minimum: number, preferred: number, maximum: number) => (
-          Math.min(maximum, Math.max(minimum, preferred))
-        );
-        const liftedTitleScale = () => {
-          if (isMobile()) return .72;
-          const initialFontSize = Number.parseFloat(getComputedStyle(groupWords).fontSize);
-          const previousFontSize = clampValue(48, window.innerWidth * .06, 92);
-          const previousLiftedSize = previousFontSize * .4;
-          return initialFontSize > 0 ? previousLiftedSize / initialFontSize : .4;
-        };
-        const backgroundTitleScale = () => isMobile() ? .62 : liftedTitleScale();
-        const liftedScanScale = () => isMobile() ? .7 : .5;
-        // Group is the reference: every single result card uses its card width.
-        const standardMockupWidth = () => groupMockups[0]?.offsetWidth ?? 0;
-        const standardMockupHeight = () => groupMockups[0]?.offsetHeight ?? 0;
-        const mobileMockupScale = () => isMobile() ? 1.3 : 1;
-        const mobileMockupWidth = () => standardMockupWidth() * mobileMockupScale();
-        const mobileMockupHeight = () => standardMockupHeight() * mobileMockupScale();
-        const scanTravelSize = () => isMobile() ? 78 : 100;
-        const sectionPixelValue = (property: string, fallback: number) => {
-          const value = Number.parseFloat(getComputedStyle(section).getPropertyValue(property));
-          return Number.isFinite(value) ? value : fallback;
-        };
-        const expandedShareWidth = () => Math.min(
-          sectionPixelValue('--action-share-expanded-width', 340),
-          contentFrame.clientWidth,
-        );
-        const expandedSharePlaneX = () => -(
-          (expandedShareWidth() - sectionPixelValue('--action-share-plane-size', 35)) / 2
-          - sectionPixelValue('--action-share-plane-edge', 32)
-        );
-        const compactShareWidth = () => Math.min(
-          (sectionPixelValue('--action-share-social-size', 42) * shareSocials.length)
-          + (sectionPixelValue('--action-share-social-gap', 16) * (shareSocials.length - 1))
-          + (sectionPixelValue('--action-share-edge', 18) * 2),
-          contentFrame.clientWidth,
-        );
-        const sharePlaneItemX = (index: number) => {
-          const socialSize = sectionPixelValue('--action-share-social-size', 42);
-          const socialGap = sectionPixelValue('--action-share-social-gap', 16);
-          const edge = sectionPixelValue('--action-share-edge', 18);
-          return -(compactShareWidth() / 2)
-            + edge
-            + (socialSize / 2)
-            + (index * (socialSize + socialGap));
-        };
-        const sharePlaneExitX = () => (
-          (shareAction.clientWidth / 2) + sectionPixelValue('--action-share-plane-size', 35)
-        );
-        gsap.set(content, {
-          autoAlpha: 0,
-          filter: 'blur(18px)',
-          width: 32,
-          height: 32,
-          borderRadius: 16,
-        });
-        gsap.set(tabs, { autoAlpha: 0, filter: 'blur(13px)', y: 28 });
-        gsap.set([groupScene, pinScene, shareScene, exportScene, voiceScene, scanScene, systemScene, cloudScene], { autoAlpha: 0 });
-        gsap.set([groupTitle, pinTitle, shareTitle, exportTitle, voiceTitle, scanTitle, systemTitle, cloudTitle], { gap: 0 });
-        gsap.set([groupIcon, pinIcon, shareIcon, exportIcon, voiceIcon, scanIcon, systemIcon, cloudIcon], { autoAlpha: 0, scale: .72, filter: 'blur(12px)' });
-        gsap.set([groupWords, pinWords, shareWords, exportWords, voiceWords, scanWords, systemWords, cloudWords], { autoAlpha: 0, width: 0, x: 42, filter: 'blur(12px)' });
-        gsap.set(groupWordItems, { autoAlpha: 0, x: 26, filter: 'blur(12px)' });
-        gsap.set(groupWordItems[0], { autoAlpha: 1, x: 0, filter: 'blur(0px)' });
-        gsap.set(exportWordItems, { autoAlpha: 0, y: 16, filter: 'blur(10px)' });
-        gsap.set(exportWordItems[0], { autoAlpha: 1, y: 0, filter: 'blur(0px)' });
-        gsap.set([...groupMockups, ...pinMockups, ...shareMockups, ...exportMockups, ...systemMockups, ...cloudMockups], { autoAlpha: 0, y: 56, filter: 'blur(18px)', scale: .94 });
-        gsap.set(pinOrb, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
-        gsap.set(groupChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
-        gsap.set(exportChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
-        gsap.set(shareChecks, { autoAlpha: 0, scale: .5, filter: 'blur(10px)' });
-        // Clear a value left by hot reload before the reversible timeline owns
-        // the action width again.
-        gsap.set(shareAction, { clearProps: 'width' });
-        gsap.set(shareAction, { autoAlpha: 0, scale: .76, filter: 'blur(12px)' });
-        gsap.set(sharePlane, { autoAlpha: 0, x: -28, filter: 'blur(10px)' });
-        gsap.set(shareSocials, { autoAlpha: 0, x: 52, filter: 'blur(10px)' });
-        gsap.set(exportOptions, {
-          autoAlpha: 0,
-          scale: liftedTitleScale,
-          x: 0,
-          y: () => -contentFrame.clientHeight * .34,
-          filter: 'blur(12px)',
-        });
-        gsap.set(exportPreviews, { autoAlpha: 0, y: 28, filter: 'blur(14px)' });
-        gsap.set(exportOptionLabels, { autoAlpha: 0, y: 10, filter: 'blur(10px)' });
-        gsap.set(voiceLines, { autoAlpha: 0, scaleY: .18, filter: 'blur(10px)', transformOrigin: 'center' });
-        gsap.set(voiceTranscript, { autoAlpha: 0, y: 52, filter: 'blur(16px)' });
-        gsap.set(voiceTranscriptTitle, { scaleX: 0, transformOrigin: 'left center' });
-        gsap.set(voiceTranscriptLines, { scaleX: 0, transformOrigin: 'left center' });
-        gsap.set(scanSearch, { autoAlpha: 0, scale: .65, filter: 'blur(12px)' });
-        gsap.set(scanPhone, { autoAlpha: 0, scale: .92, filter: 'blur(14px)' });
-        gsap.set(scanResult, { autoAlpha: 0, y: -64, filter: 'blur(16px)' });
-        gsap.set(scanResultTitle, { scaleX: 0, transformOrigin: 'left center' });
-        gsap.set(scanResultLines, { scaleX: 0, transformOrigin: 'left center' });
-
-        let phaseIndex = 0;
-        // Every phase must remain available when scrubbing backwards.
-        const reveal = gsap.timeline({ paused: true, defaults: { overwrite: false } });
-        const phase = (name: string) => {
-          reveal.addLabel(`${PHASE_LABEL_PREFIX}${String(phaseIndex).padStart(2, '0')}-${name}`);
-          phaseIndex += 1;
-          return reveal;
-        };
-
-        phase('intro-dot')
-          .to(content, { autoAlpha: 1, filter: 'blur(0px)', duration: .42, ease: 'power2.out' });
-        phase('intro-height')
-          .to(content, { height: () => contentFrame.clientHeight, borderRadius: 16, duration: .7, ease: 'power2.inOut' });
-        phase('intro-width')
-          .to(content, { width: () => contentFrame.clientWidth, borderRadius: 40, duration: .78, ease: 'power3.inOut' });
-        phase('intro-tabs')
-          .to(tabs, { autoAlpha: 1, filter: 'blur(0px)', y: 0, duration: .42, stagger: .08, ease: 'power3.out' });
-        const revealDuration = reveal.duration();
-
-        const titleWordsWidth = (words: HTMLElement, indexes: number[] = [0]) => {
-          const track = words.querySelector<HTMLElement>('.action-clipboard-title-word-track');
-          const items = Array.from(track?.children ?? []) as HTMLElement[];
-          const selectedItems = indexes.map(index => items[index]).filter(Boolean);
-          const wordsStyle = getComputedStyle(words);
-          const trackStyle = track ? getComputedStyle(track) : null;
-          const horizontalPadding = Number.parseFloat(wordsStyle.paddingLeft)
-            + Number.parseFloat(wordsStyle.paddingRight);
-          const gap = Number.parseFloat(trackStyle?.columnGap ?? '0') || 0;
-          const contentWidth = selectedItems.reduce(
-            // BoundingClientRect includes the title's animated scale and
-            // would turn that visual width into a much smaller layout width.
-            (width, item) => width + Math.max(item.scrollWidth, item.offsetWidth),
-            0,
-          ) + (gap * Math.max(selectedItems.length - 1, 0));
-
-          return Math.ceil(contentWidth + horizontalPadding);
-        };
-        const titleWordsWidthWithoutLeftBuffer = (words: HTMLElement, indexes: number[] = [0]) => {
-          const leftBuffer = Number.parseFloat(getComputedStyle(words).paddingLeft) || 0;
-          return Math.max(0, titleWordsWidth(words, indexes) - leftBuffer);
-        };
-        const groupWordWidth = (index: number) => titleWordsWidth(groupWords, [index]);
-        const groupNameWidth = () => {
-          const wordsStyle = getComputedStyle(groupWords);
-          const trackStyle = getComputedStyle(groupWordItems[0]!.parentElement!);
-          const horizontalPadding = Number.parseFloat(wordsStyle.paddingLeft)
-            + Number.parseFloat(wordsStyle.paddingRight);
-          const gap = Number.parseFloat(trackStyle.columnGap) || 0;
-          const wordsWidth = groupWordItems.reduce(
-            (width, item) => width + Math.max(item.scrollWidth, item.offsetWidth),
-            0,
-          );
-
-          return Math.ceil(wordsWidth + gap + horizontalPadding);
-        };
-        const scanInitialTitleWidth = () => scanIcon.offsetWidth;
-        const pullMockupX = (_: number, mockup: HTMLElement) => {
-          const itemBounds = mockup.getBoundingClientRect();
-          const titleBounds = groupTitle.getBoundingClientRect();
-          return titleBounds.left + (titleBounds.width / 2) - (itemBounds.left + (itemBounds.width / 2));
-        };
-        const pullMockupY = (_: number, mockup: HTMLElement) => {
-          const itemBounds = mockup.getBoundingClientRect();
-          const titleBounds = groupTitle.getBoundingClientRect();
-          return titleBounds.top + (titleBounds.height / 2) - (itemBounds.top + (itemBounds.height / 2));
-        };
-        const pullShareMockupX = (_: number, mockup: HTMLElement) => {
-          const itemBounds = mockup.getBoundingClientRect();
-          const titleBounds = shareTitle.getBoundingClientRect();
-          return titleBounds.left + (titleBounds.width / 2) - (itemBounds.left + (itemBounds.width / 2));
-        };
-        const pullShareMockupY = (_: number, mockup: HTMLElement) => {
-          const itemBounds = mockup.getBoundingClientRect();
-          const titleBounds = shareTitle.getBoundingClientRect();
-          return titleBounds.top + (titleBounds.height / 2) - (itemBounds.top + (itemBounds.height / 2));
-        };
-        const pullExportMockupX = (_: number, mockup: HTMLElement) => {
-          const itemBounds = mockup.getBoundingClientRect();
-          const titleBounds = exportTitle.getBoundingClientRect();
-          return titleBounds.left + (titleBounds.width / 2) - (itemBounds.left + (itemBounds.width / 2));
-        };
-        const pullExportMockupY = (_: number, mockup: HTMLElement) => {
-          const itemBounds = mockup.getBoundingClientRect();
-          const titleBounds = exportTitle.getBoundingClientRect();
-          return titleBounds.top + (titleBounds.height / 2) - (itemBounds.top + (itemBounds.height / 2));
-        };
-        const exportPillGap = () => sectionPixelValue('--action-export-pill-gap', 20);
-        const exportLeftPillX = () => {
-          return -((exportPillWidth() + exportPillGap()) / 2);
-        };
-        const exportRightPillX = () => {
-          return (exportPillWidth() + exportPillGap()) / 2;
-        };
-        const exportPillWidth = () => {
-          const optionStyle = getComputedStyle(exportOptions[0]!);
-          const optionPadding = Number.parseFloat(optionStyle.paddingLeft)
-            + Number.parseFloat(optionStyle.paddingRight);
-          const jsonWidth = titleWordsWidth(exportWords, [1]) + optionPadding;
-          const csvWidth = (exportOptionLabels[0]?.scrollWidth ?? 0) + optionPadding;
-
-          // The two format controls represent the same choice level, so their
-          // outer pills deliberately share one measured width at every size.
-          return Math.ceil(Math.max(standardMockupWidth(), jsonWidth, csvWidth));
-        };
-        const exportPreviewX = (index: number, preview: HTMLElement) => {
-          const previewBounds = preview.getBoundingClientRect();
-          const targetBounds = (index === 0 ? exportTitle : exportOptions[0]!).getBoundingClientRect();
-
-          // The preview cards should use the format pills as their horizontal
-          // anchors: JSON meets the right edge of the JSON pill, while CSV
-          // meets the left edge of the CSV pill. This keeps the larger visual
-          // gap between the pills instead of re-centering the cards together.
-          return index === 0
-            ? targetBounds.right - previewBounds.right
-            : targetBounds.left - previewBounds.left;
-        };
-        const pinSlotOffset = (fromIndex: number, toIndex: number) => {
-          const fromBounds = pinMockups[fromIndex]?.getBoundingClientRect();
-          const toBounds = pinMockups[toIndex]?.getBoundingClientRect();
-          if (!fromBounds || !toBounds) return 0;
-          return toBounds.left - fromBounds.left;
-        };
-        const pinShiftRight = (_: number, mockup: HTMLElement) => {
-          const index = pinMockups.indexOf(mockup);
-          if (index < 0) return 0;
-          if (index < pinMockups.length - 1) return pinSlotOffset(index, index + 1);
-          const bounds = mockup.getBoundingClientRect();
-          const previousBounds = pinMockups[index - 1]?.getBoundingClientRect();
-          return bounds.width + (bounds.left - (previousBounds?.left ?? bounds.left) - bounds.width);
-        };
-        const pinBetweenSecondAndThirdX = () => {
-          const baseCenterX = (mockup: HTMLElement) => {
-            const bounds = mockup.getBoundingClientRect();
-            return bounds.left + (bounds.width / 2) - Number(gsap.getProperty(mockup, 'x'));
-          };
-          const pinnedBaseCenter = baseCenterX(pinMockups[2]!);
-          const targetCenter = (baseCenterX(pinMockups[1]!) + pinnedBaseCenter) / 2;
-          return targetCenter - pinnedBaseCenter;
-        };
-        gsap.set(scanTitle, { width: scanInitialTitleWidth });
-        const pinnedMockup = pinMockups[2]!;
-        const remainingPinMockups = pinMockups.filter((_, index) => index !== 2);
-        const shiftedPinMockups = pinMockups.slice(0, 2);
-        phase('group-icon')
-          .to(groupScene, { autoAlpha: 1, duration: .01 })
-          .to(groupIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(groupTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<');
-        phase('group-title')
-          .to(groupWords, { autoAlpha: 1, width: () => groupWordWidth(0), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(groupTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('group-background')
-          .to(groupTitle, {
-            backgroundColor: '#fff',
-            color: '#151515',
-            padding: expandedTitlePadding,
-            duration: .78,
-            ease: 'power3.inOut',
-          });
-        phase('group-lift')
-          .to(groupTitle, { scale: backgroundTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
-        phase('group-hide-icon')
-          .to(groupIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(groupTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
-          // The words wrapper reserves left overflow room while an icon is
-          // present. Collapse that room with the icon so text-only pills stay
-          // visually centered; a reversed scrub restores it automatically.
-          .to(groupWords, {
-            paddingLeft: 0,
-            width: () => titleWordsWidthWithoutLeftBuffer(groupWords),
-            duration: .46,
-            ease: 'power2.inOut',
-          }, '<');
-        phase('group-items')
-          .to(groupMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
-        phase('group-name')
-          .to(groupWords, { width: groupNameWidth, duration: .9, ease: 'power3.inOut' })
-          .to(groupWordItems[1], { autoAlpha: 1, visibility: 'visible', x: 0, filter: 'blur(0px)', duration: .9, ease: 'power3.out' }, '<.08');
-        phase('group-select')
-          .to(groupChecks, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, stagger: .14, ease: 'back.out(1.8)' });
-        phase('group-collapse')
-          .to(groupMockups, { x: pullMockupX, y: pullMockupY, scale: .1, autoAlpha: 0, filter: 'blur(12px)', duration: 1.05, stagger: .12, ease: 'power4.in' });
-        phase('group-exit')
-          .to(groupTitle, { autoAlpha: 0, y: () => -contentFrame.clientHeight * .78, filter: 'blur(12px)', duration: .54, ease: 'power2.in' })
-          .to(groupScene, { autoAlpha: 0, duration: .01 });
-        phase('pin-icon')
-          .to(pinScene, { autoAlpha: 1, duration: .01 })
-          .to(pinIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(pinTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<');
-        phase('pin-title')
-          .to(pinWords, { autoAlpha: 1, width: () => titleWordsWidth(pinWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(pinTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('pin-background')
-          .to(pinTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
-        phase('pin-lift')
-          .to(pinTitle, { scale: backgroundTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
-        phase('pin-hide-icon')
-          .to(pinIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(pinTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
-          .to(pinWords, {
-            paddingLeft: 0,
-            width: () => titleWordsWidthWithoutLeftBuffer(pinWords),
-            duration: .46,
-            ease: 'power2.inOut',
-          }, '<');
-        phase('pin-items')
-          .to(pinMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
-        phase('pin-mark')
-          .to(pinOrb, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'back.out(1.8)' });
-        phase('pin-reorder')
-          .to(pinnedMockup, { x: () => pinSlotOffset(2, 0), duration: .82, ease: 'power3.inOut' })
-          .to(shiftedPinMockups, { x: pinShiftRight, duration: .82, ease: 'power3.inOut' }, '<');
-        phase('pin-filter')
-          .to(remainingPinMockups, { y: () => contentFrame.clientHeight * .58, autoAlpha: 0, filter: 'blur(14px)', duration: .76, stagger: .12, ease: 'power3.in' });
-        phase('pin-center')
-          .to(pinnedMockup, { x: pinBetweenSecondAndThirdX, y: 0, duration: .82, ease: 'power3.inOut' });
-        phase('pin-exit')
-          .to(pinnedMockup, { y: () => Number(gsap.getProperty(pinnedMockup, 'y')) + contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .64, ease: 'power3.in' })
-          .to(pinTitle, { y: () => -contentFrame.clientHeight * .82, autoAlpha: 0, filter: 'blur(12px)', duration: .64, ease: 'power3.in' }, '<')
-          .to(pinScene, { autoAlpha: 0, duration: .01 });
-        phase('share-icon')
-          .to(shareScene, { autoAlpha: 1, duration: .01 })
-          .to(shareIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(shareTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<');
-        phase('share-title')
-          .to(shareWords, { autoAlpha: 1, width: () => titleWordsWidth(shareWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(shareTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('share-background')
-          .to(shareTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
-        phase('share-lift')
-          .to(shareTitle, { scale: backgroundTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
-        phase('share-hide-icon')
-          .to(shareIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(shareTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
-          .to(shareWords, {
-            paddingLeft: 0,
-            width: () => titleWordsWidthWithoutLeftBuffer(shareWords),
-            duration: .46,
-            ease: 'power2.inOut',
-          }, '<');
-        phase('share-items')
-          .to(shareMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
-        phase('share-select')
-          .to(shareChecks, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, stagger: .14, ease: 'back.out(1.8)' });
-        phase('share-collapse')
-          .to(shareMockups, { x: pullShareMockupX, y: pullShareMockupY, scale: .1, autoAlpha: 0, filter: 'blur(12px)', duration: .82, stagger: .1, ease: 'power4.in' });
-        phase('share-action')
-          .to(shareTitle, { scale: 1, y: 0, duration: .52, ease: 'power3.inOut' })
-          .to(shareWords, { autoAlpha: 0, width: 0, filter: 'blur(10px)', duration: .28, ease: 'power2.inOut' }, '<.04')
-          .to(shareTitle, { autoAlpha: 0, filter: 'blur(10px)', duration: .22, ease: 'power2.in' })
-          .to(shareAction, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, ease: 'power3.out' }, '<')
-          .to(sharePlane, { autoAlpha: 1, x: 0, filter: 'blur(0px)', duration: .42, ease: 'power3.out' }, '<.06');
-        phase('share-socials')
-          .to(shareAction, { width: expandedShareWidth, duration: .56, ease: 'power3.inOut' })
-          .to(sharePlane, { x: expandedSharePlaneX, duration: .42, ease: 'power3.inOut' }, '<')
-          .to(shareSocials, {
-            autoAlpha: 1,
-            x: 0,
-            filter: 'blur(0px)',
-            duration: .42,
-            stagger: { each: .09, from: 'end' },
-            ease: 'power3.out',
-          }, '<.28');
-        phase('share-send')
-          .to(sharePlane, {
-            rotation: 45,
-            scale: .62,
-            y: 0,
-            transformOrigin: 'center',
-            duration: .34,
-            ease: 'power3.inOut',
-          })
-          .to(sharePlane, {
-            x: () => sharePlaneItemX(0),
-            y: 0,
-            duration: .62,
-            ease: 'power2.inOut',
-          })
-          .to(shareAction, { width: compactShareWidth, duration: .5, ease: 'power3.inOut' }, '<.12')
-          .to(shareSocialList, {
-            left: () => sectionPixelValue('--action-share-edge', 18),
-            gap: () => sectionPixelValue('--action-share-social-gap', 16),
-            duration: .5,
-            ease: 'power3.inOut',
-          }, '<')
-          .to(shareSocials[0], {
-            backgroundColor: '#151515',
-            duration: .18,
-            ease: 'power2.out',
-          })
-          .to(shareSocialMarks[0], {
-            color: '#fff',
-            duration: .18,
-            ease: 'power2.out',
-          }, '<');
-        shareSocials.slice(1).forEach((_, index) => {
-          reveal
-            .to(sharePlane, {
-              x: () => sharePlaneItemX(index + 1),
-              y: 0,
-              duration: .34,
-              ease: 'power2.inOut',
-            })
-            .to(shareSocials[index + 1], {
-              backgroundColor: '#151515',
-              duration: .18,
-              ease: 'power2.out',
-            }, '>-.1')
-            .to(shareSocialMarks[index + 1], {
-              color: '#fff',
-              duration: .18,
-              ease: 'power2.out',
-            }, '<');
-        });
-        reveal.to(sharePlane, {
-          x: sharePlaneExitX,
-          y: 0,
-          rotation: 45,
-          autoAlpha: 0,
-          duration: .48,
-          ease: 'power3.in',
-        });
-        phase('share-exit')
-          .to(shareAction, { y: () => -contentFrame.clientHeight * .68, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
-          .to(shareScene, { autoAlpha: 0, duration: .01 });
-
-        phase('export-icon')
-          .to(exportScene, { autoAlpha: 1, duration: .01 })
-          .to(exportIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(exportTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<');
-        phase('export-title')
-          .to(exportWords, { autoAlpha: 1, width: () => titleWordsWidth(exportWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(exportTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('export-background')
-          .to(exportTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
-        phase('export-lift')
-          .to(exportTitle, { scale: backgroundTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
-        phase('export-hide-icon')
-          .to(exportIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(exportTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
-          .to(exportWords, {
-            paddingLeft: 0,
-            width: () => titleWordsWidthWithoutLeftBuffer(exportWords),
-            duration: .46,
-            ease: 'power2.inOut',
-          }, '<');
-        phase('export-items')
-          .to(exportMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
-        phase('export-select')
-          .to(exportChecks, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .4, stagger: .14, ease: 'back.out(1.8)' });
-        phase('export-collapse')
-          .to(exportMockups, { x: pullExportMockupX, y: pullExportMockupY, scale: .1, autoAlpha: 0, filter: 'blur(12px)', duration: .82, stagger: .1, ease: 'power4.in' });
-        phase('export-formats')
-          // Turn the existing centered pill into the two format pills. Both
-          // sides start at the same center and move out together, so JSON
-          // and CSV keep the same centered padding and width.
-          .set(exportWords, { padding: 0 })
-          .set(exportOptions, { width: exportPillWidth, x: 0 })
-          .to(exportWordItems[0], { autoAlpha: 0, y: -16, filter: 'blur(10px)', duration: .28, ease: 'power2.inOut' })
-          .to(exportWords, { width: () => titleWordsWidth(exportWords, [1]), duration: .34, ease: 'power3.inOut' }, '<')
-          .to(exportTitle, { padding: exportFormatPadding, width: exportPillWidth, x: exportLeftPillX, duration: .5, ease: 'power3.inOut' }, '<')
-          .to(exportOptions, { autoAlpha: 1, x: exportRightPillX, filter: 'blur(0px)', duration: .5, ease: 'power3.inOut' }, '<')
-          .to(exportWordItems[1], { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .36, ease: 'power3.out' }, '<.06')
-          .to(exportOptionLabels, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .36, ease: 'power3.out' }, '<');
-        phase('export-previews')
-          .to(exportPreviews, {
-            autoAlpha: 1,
-            width: mobileMockupWidth,
-            height: mobileMockupHeight,
-            y: 0,
-            filter: 'blur(0px)',
-            duration: .52,
-            stagger: .14,
-            ease: 'power3.out',
-          })
-          // Recalculate after the cards grow so their anchors do not drift:
-          // JSON remains right-aligned to JSON and CSV remains left-aligned to CSV.
-          .to(exportPreviews, { x: exportPreviewX, duration: .24, stagger: .14, ease: 'power2.out' });
-        phase('export-exit')
-          .to([exportTitle, ...exportOptions], { y: () => -contentFrame.clientHeight * .78, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
-          .to(exportPreviews, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, stagger: .08, ease: 'power3.in' }, '<')
-          .to(exportScene, { autoAlpha: 0, duration: .01 });
-
-        phase('voice-icon')
-          .to(voiceScene, { autoAlpha: 1, duration: .01 })
-          .to(voiceIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(voiceTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<');
-        phase('voice-title')
-          .to(voiceWords, { autoAlpha: 1, width: () => titleWordsWidth(voiceWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(voiceTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('voice-background')
-          .to(voiceTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
-        phase('voice-waveform')
-          .to(voiceIcon, { autoAlpha: 0, x: -58, filter: 'blur(12px)', duration: .44, ease: 'power2.inOut' }, '>.42')
-          .to(voiceWords, { autoAlpha: 0, x: 58, filter: 'blur(12px)', duration: .44, ease: 'power2.inOut' }, '<')
-          .to(voiceLines, { autoAlpha: 1, scaleY: 1, filter: 'blur(0px)', duration: .36, stagger: .025, ease: 'power3.out' }, '>.1');
-        phase('voice-lift')
-          .to(voiceTitle, { scale: backgroundTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .9, ease: 'power3.inOut' })
-          .to(voiceTranscript, {
-            autoAlpha: 1,
-            width: mobileMockupWidth,
-            height: mobileMockupHeight,
-            y: 0,
-            filter: 'blur(0px)',
-            duration: .76,
-            ease: 'power3.out',
-          }, '<')
-          .to(voiceTranscriptTitle, { scaleX: 1, duration: .5, ease: 'power3.out' }, '<.12')
-          .to(voiceLines, { backgroundColor: '#d94c4c', duration: .28, ease: 'power2.out' }, '<');
-        phase('voice-transcript')
-          .to(voiceTranscriptLines, { scaleX: 1, duration: .24, stagger: .18, ease: 'power2.out' });
-        phase('voice-exit')
-          .to(voiceTitle, { y: () => -contentFrame.clientHeight * .78, autoAlpha: 0, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
-          .to(voiceTranscript, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, ease: 'power3.in' }, '<')
-          .to(voiceScene, { autoAlpha: 0, duration: .01 });
-
-        phase('scan-icon')
-          .to(scanScene, { autoAlpha: 1, duration: .01 })
-          .to(scanIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(scanTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<')
-          .set(scanTitle, { clearProps: 'width' });
-        phase('scan-title')
-          .to(scanWords, { autoAlpha: 1, width: () => titleWordsWidth(scanWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(scanTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('scan-background')
-          .to(scanTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
-        phase('scan-search')
-          .to(scanIcon, { autoAlpha: 0, x: -58, filter: 'blur(12px)', duration: .42, ease: 'power2.inOut' }, '>.42')
-          .to(scanWords, { autoAlpha: 0, x: 58, filter: 'blur(12px)', duration: .42, ease: 'power2.inOut' }, '<')
-          .to(scanTitle, { scale: 1, width: scanTravelSize, height: scanTravelSize, padding: 0, borderRadius: () => scanTravelSize() / 2, duration: .5, ease: 'power3.inOut' }, '>.06')
-          .to(scanSearch, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .38, ease: 'power3.out' }, '<.08');
-        phase('scan-phone')
-          .to(scanPhone, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .52, ease: 'power3.out' });
-        phase('scan-pass')
-          .to(scanMotion, { x: -56, y: -116, duration: .34, ease: 'sine.inOut' })
-          .to(scanMotion, { x: 58, y: -52, duration: .34, ease: 'sine.inOut' })
-          .to(scanMotion, { x: -62, y: 16, duration: .34, ease: 'sine.inOut' })
-          .to(scanMotion, { x: 56, y: 82, duration: .34, ease: 'sine.inOut' })
-          .to(scanMotion, { x: 0, y: 132, duration: .34, ease: 'sine.inOut' });
-        phase('scan-result')
-          .to(scanPhone, { autoAlpha: 0, scale: .94, filter: 'blur(14px)', duration: .46, ease: 'power2.in' }, '>.12')
-          .to(scanResult, {
-            autoAlpha: 1,
-            width: mobileMockupWidth,
-            height: mobileMockupHeight,
-            y: 0,
-            filter: 'blur(0px)',
-            duration: .46,
-            ease: 'power3.out',
-          }, '<.12')
-          .to(scanMotion, { x: 0, y: 0, duration: .46, ease: 'power3.inOut' }, '<');
-        phase('scan-extract')
-          .to(scanMotion, { scale: liftedScanScale, y: () => -contentFrame.clientHeight * .34, duration: .5, ease: 'power3.inOut' })
-          .to(scanResultTitle, { scaleX: 1, duration: .34, ease: 'power3.out' }, '<.08')
-          .to(scanResultLines, { scaleX: 1, duration: .22, stagger: .18, ease: 'power2.out' }, '>.08');
-        phase('scan-exit')
-          .to(scanMotion, { scale: 1.3, autoAlpha: 0, filter: 'blur(14px)', duration: .42, ease: 'power2.in' })
-          .to(scanResult, { autoAlpha: 0, filter: 'blur(14px)', duration: .42, ease: 'power2.in' }, '<')
-          .to(scanScene, { autoAlpha: 0, duration: .01 });
-
-        phase('system-icon')
-          .to(systemScene, { autoAlpha: 1, duration: .01 })
-          .to(systemIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(systemTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<');
-        phase('system-title')
-          .to(systemWords, { autoAlpha: 1, width: () => titleWordsWidth(systemWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(systemTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('system-background')
-          .to(systemTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
-        phase('system-lift')
-          .to(systemTitle, { scale: backgroundTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
-        phase('system-hide-icon')
-          .to(systemIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(systemTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
-          .to(systemWords, {
-            paddingLeft: 0,
-            width: () => titleWordsWidthWithoutLeftBuffer(systemWords),
-            duration: .46,
-            ease: 'power2.inOut',
-          }, '<');
-        phase('system-items')
-          .to(systemMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
-        phase('system-exit')
-          .to(systemTitle, { autoAlpha: 0, y: () => -contentFrame.clientHeight * .78, filter: 'blur(12px)', duration: .62, ease: 'power3.in' })
-          .to(systemMockups, { y: () => contentFrame.clientHeight * .72, autoAlpha: 0, filter: 'blur(14px)', duration: .58, stagger: .08, ease: 'power3.in' }, '<')
-          .to(systemScene, { autoAlpha: 0, duration: .01 });
-
-        phase('cloud-icon')
-          .to(cloudScene, { autoAlpha: 1, duration: .01 })
-          .to(cloudIcon, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .48, ease: 'power3.out' })
-          .to(cloudTitle, { scale: initialTitleScale, duration: .48, ease: 'power3.out' }, '<');
-        phase('cloud-title')
-          .to(cloudWords, { autoAlpha: 1, width: () => titleWordsWidth(cloudWords), x: 0, marginLeft: 0, filter: 'blur(0px)', duration: .58, ease: 'power3.out' })
-          .to(cloudTitle, { gap: expandedTitleGap, duration: .58, ease: 'power3.out' }, '<');
-        phase('cloud-background')
-          .to(cloudTitle, { backgroundColor: '#fff', color: '#151515', padding: expandedTitlePadding, duration: .78, ease: 'power3.inOut' });
-        phase('cloud-lift')
-          .to(cloudTitle, { scale: backgroundTitleScale, y: () => -contentFrame.clientHeight * .34, duration: .72, ease: 'power3.inOut' });
-        phase('cloud-hide-icon')
-          .to(cloudIcon, { autoAlpha: 0, width: 0, height: 0, filter: 'blur(12px)', duration: .46, ease: 'power2.inOut' })
-          .to(cloudTitle, { gap: 0, duration: .46, ease: 'power2.inOut' }, '<')
-          .to(cloudWords, {
-            paddingLeft: 0,
-            width: () => titleWordsWidthWithoutLeftBuffer(cloudWords),
-            duration: .46,
-            ease: 'power2.inOut',
-          }, '<');
-        phase('cloud-items')
-          .to(cloudMockups, { autoAlpha: 1, y: 0, filter: 'blur(0px)', scale: 1, duration: .7, stagger: .21, ease: 'power2.out' });
-        phase('complete');
-
-        const timelineDuration = reveal.duration();
-        const phaseTimes = Object.entries(reveal.labels)
-          .filter(([label]) => label.startsWith(PHASE_LABEL_PREFIX))
-          .map(([, time]) => time)
-          .sort((first, second) => first - second);
-        const phaseCount = phaseTimes.length;
-        const snapPoints = phaseTimes.map((_, index) => index / Math.max(phaseCount - 1, 1));
-        const snapToPhase = ScrollTrigger.snapDirectional(snapPoints);
-        const findPhaseProgress = (suffix: string) => {
-          const entry = Object.entries(reveal.labels).find(([label]) => label.endsWith(`-${suffix}`));
-          return entry ? entry[1] / timelineDuration : 1;
-        };
-        const findPhaseTime = (suffix: string) => {
-          const entry = Object.entries(reveal.labels).find(([label]) => label.endsWith(`-${suffix}`));
-          return entry?.[1] ?? timelineDuration;
-        };
-        const voiceLoopStartTime = findPhaseTime('voice-lift');
-        const voiceLoopEndTime = findPhaseTime('voice-exit');
-        const voiceWaveLoop = gsap.timeline({ paused: true, repeat: -1, yoyo: true })
-          .to(voiceLines, {
-            scaleY: (index) => .34 + ((index * 7) % 10) / 14,
-            duration: .32,
-            stagger: .02,
-            ease: 'sine.inOut',
-          });
-        let isVoiceWaveLooping = false;
-        const syncVoiceWaveLoop = () => {
-          const shouldLoop = !reduceViewportMotion
-            && reveal.time() >= voiceLoopStartTime
-            && reveal.time() < voiceLoopEndTime;
-          if (shouldLoop === isVoiceWaveLooping) return;
-          isVoiceWaveLooping = shouldLoop;
-          if (shouldLoop) {
-            voiceWaveLoop.play(0);
-            return;
-          }
-          voiceWaveLoop.pause(0);
-        };
-        const featureStarts = ['group-icon', 'pin-icon', 'share-icon', 'export-icon', 'voice-icon', 'scan-icon', 'system-icon', 'cloud-icon']
-          .map(findPhaseProgress);
-        introProgress = revealDuration / timelineDuration;
-        reveal.pause(0);
-        let visibleTabIndex = -1;
-
-        const focusTab = (index: number) => {
-          if (visibleTabIndex === index) return;
-          visibleTabIndex = index;
-          const tab = tabs[index];
-          if (!tab) return;
-          const targetScrollLeft = tab.offsetLeft - ((tabScroll.clientWidth - tab.offsetWidth) / 2);
-          gsap.to(tabScroll, {
-            scrollLeft: Math.max(0, targetScrollLeft),
-            duration: .52,
-            ease: 'power2.out',
-            overwrite: 'auto',
-          });
-        };
-
-        const syncUi = () => {
-          syncVoiceWaveLoop();
-          const timelineProgress = reveal.progress();
-          const isContentRevealed = timelineProgress >= introProgress;
-          setIntroComplete((current) => current === isContentRevealed ? current : isContentRevealed);
-          if (!isContentRevealed) {
-            updateFeatureProgress(0);
-            return;
-          }
-
-          let featureIndex = 0;
-          featureStarts.forEach((start, index) => {
-            if (timelineProgress >= start) featureIndex = index;
-          });
-          focusTab(featureIndex);
-          const currentStart = featureStarts[featureIndex] ?? introProgress;
-          const nextStart = featureStarts[featureIndex + 1] ?? 1;
-          const localProgress = clamp01((timelineProgress - currentStart) / Math.max(nextStart - currentStart, .001));
-          updateFeatureProgress((featureIndex + localProgress) / actionFeatureDefinitions.length);
-        };
-        reveal.eventCallback('onUpdate', syncUi);
-
-        // ScrollTrigger drives a normalized timeline so every logical phase
-        // receives the same physical scroll distance, regardless of its GSAP
-        // duration or stagger count.
-        const renderScrollProgress = (progress: number) => {
-          const scaledProgress = clamp01(progress) * (phaseCount - 1);
-          const segmentIndex = Math.min(Math.floor(scaledProgress), phaseCount - 2);
-          const segmentProgress = scaledProgress - segmentIndex;
-          reveal.time(gsap.utils.interpolate(
-            phaseTimes[segmentIndex] ?? 0,
-            phaseTimes[segmentIndex + 1] ?? timelineDuration,
-            segmentProgress,
-          ));
-        };
-        const scrollDriver = { progress: 0 };
-        const scrollTimeline = gsap.timeline({ paused: true })
-          .to(scrollDriver, {
-            progress: 1,
-            duration: 1,
-            ease: 'none',
-            onUpdate: () => {
-              renderScrollProgress(scrollDriver.progress);
-            },
-          });
-
-        ScrollTrigger.create({
-          id: 'action-clipboard',
-          // The section stays in document flow when GSAP wraps the pin.
-          // Its top reaches the viewport exactly when the padded pin should lock.
-          trigger: section,
-          start: 'top top',
-          end: () => `+=${Math.max((phaseCount - 1) * SCROLL_TUNING.pixelsPerPhase, window.innerHeight)}`,
-          pin,
-          pinSpacing: true,
-          anticipatePin: 0,
-          refreshPriority: -1,
-          animation: scrollTimeline,
-          scrub: SCROLL_TUNING.scrub,
-          snap: {
-            snapTo: (value, self) => snapToPhase(value, self?.direction ?? 0),
-            delay: SCROLL_TUNING.snapDelay,
-            duration: SCROLL_TUNING.snapDuration,
-            ease: 'power3.inOut',
-            inertia: false,
-          },
-          onRefresh: (self) => {
-            // Re-evaluate function-based widths after a breakpoint or browser
-            // viewport change, then render the real scroll position. This keeps
-            // Share's final action and the standard cards in the same scale.
-            fitMobileTitleWords();
-            reveal.invalidate();
-            renderScrollProgress(self.progress);
-            syncUi();
-          },
-        });
-      }, sectionRef);
-
-      cleanup = () => {
-        tabs.forEach(tab => {
-          tab.style.removeProperty('--tab-progress');
-        });
-        titleWords.forEach((words) => words.style.removeProperty('--action-title-font-size'));
-        exportScene.style.removeProperty('--action-title-font-size');
-        context.revert();
-      };
-      ScrollTrigger.refresh();
-    };
-
-    void initialize();
-    return () => {
-      active = false;
-      cleanup?.();
-    };
-  }, [dict.actionClipboard]);
+  if (type === 'sticker') {
+    return (
+      <div className="action-clipboard-mockup action-clipboard-mockup--sticker">
+        <svg className="action-clipboard-sticker-shape" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="7" cy="10.5" r="1.5" fill="#a9a9a9" />
+          <circle cx="17" cy="10.5" r="1.5" fill="#a9a9a9" />
+          <path d="M8.5 15.5s1.4 1.8 3.5 1.8c2.1 0 3.5-1.8 3.5-1.8" fill="none" stroke="#a9a9a9" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+        {marker}
+      </div>
+    );
+  }
 
   return (
-    <ActionClipboardSection ref={sectionRef} aria-label={dict.actionClipboard.sectionLabel}>
-      <div
-        ref={pinRef}
-        className={`action-clipboard-pin${introComplete ? ' is-content-revealed' : ''}`}
-      >
-        <div className="action-clipboard-content-frame">
-          <div className="action-clipboard-content">
-            <article className={`action-clipboard-scene action-clipboard-scene--group${lang === 'vi' ? ' action-clipboard-scene--group-vi' : ''}`} aria-hidden={activeIndex !== 0}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scene-title">
-                  <span className="action-clipboard-scene-icon"><Folder aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={lang === 'vi' ? 'Tên Nhóm' : `${dict.actionClipboard.groupTitle.primary} ${dict.actionClipboard.groupTitle.secondary}`}>
-                    <span className="action-clipboard-title-word-track">
-                      <span>{dict.actionClipboard.groupTitle.primary}</span>
-                      <span>{dict.actionClipboard.groupTitle.secondary}</span>
-                    </span>
-                  </span>
-                </div>
-              </div>
-              <div className="action-clipboard-mockups">
-                {mockupTypes.map((type) => (
-                  <MockupCard
-                    type={type}
-                    key={`group-${type}`}
-                    marker={<span className="action-clipboard-share-orb"><Check aria-hidden="true" /></span>}
-                  />
-                ))}
-              </div>
-            </article>
+    <div className="action-clipboard-mockup action-clipboard-mockup--text">
+      <span className="action-clipboard-text-title" />
+      <span className="action-clipboard-text-lines"><i /><i /><i /><i /><i /><i /></span>
+      {marker}
+    </div>
+  );
+};
 
-            <article className="action-clipboard-scene action-clipboard-scene--pin" aria-hidden={activeIndex !== 1}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scene-title">
-                  <span className="action-clipboard-scene-icon"><PinIcon aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.pin}>
-                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.pin}</span></span>
-                  </span>
-                </div>
-              </div>
-              <div className="action-clipboard-mockups">
-                {mockupTypes.map((type, index) => (
-                  <MockupCard
-                    type={type}
-                    key={`pin-${type}`}
-                    marker={index === 2 ? <span className="action-clipboard-pin-orb"><PinIcon aria-hidden="true" /></span> : undefined}
-                  />
-                ))}
-              </div>
-            </article>
+const VoicePreview: React.FC = () => {
+  const { dict } = useTranslation();
+  const panelRef = React.useRef<HTMLElement>(null);
 
-            <article className="action-clipboard-scene action-clipboard-scene--share" aria-hidden={activeIndex !== 2}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scene-title">
-                  <span className="action-clipboard-scene-icon"><Share2 aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.share}>
-                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.share}</span></span>
-                  </span>
-                </div>
-              </div>
-              <div className="action-clipboard-mockups">
-                {mockupTypes.map((type) => (
-                  <MockupCard
-                    type={type}
-                    key={`share-${type}`}
-                    marker={<span className="action-clipboard-share-orb"><Check aria-hidden="true" /></span>}
-                  />
-                ))}
-              </div>
-              <div className="action-clipboard-share-action" aria-hidden="true">
-                <Send className="action-clipboard-share-plane" aria-hidden="true" />
-                <span className="action-clipboard-share-socials">
-                  <span aria-label="Threads"><SocialMark className="action-clipboard-social-mark" name="threads" /></span>
-                  <span aria-label="Facebook"><SocialMark className="action-clipboard-social-mark" name="facebook" /></span>
-                  <span aria-label="X"><SocialMark className="action-clipboard-social-mark" name="x" /></span>
-                  <span aria-label="Instagram"><SocialMark className="action-clipboard-social-mark action-clipboard-social-instagram" name="instagram" /></span>
-                  <span aria-label="TikTok"><SocialMark className="action-clipboard-social-mark" name="tiktok" /></span>
-                </span>
-              </div>
-            </article>
+  React.useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
 
-            <article className="action-clipboard-scene action-clipboard-scene--export" aria-hidden={activeIndex !== 3}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scene-title">
-                  <span className="action-clipboard-scene-icon"><Download aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.export}>
-                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.export}</span><span>JSON</span></span>
-                  </span>
-                </div>
-              </div>
-              <div className="action-clipboard-mockups">
-                {exportMockupTypes.map((type) => (
-                  <MockupCard
-                    type={type}
-                    key={`export-${type}`}
-                    marker={<span className="action-clipboard-share-orb"><Check aria-hidden="true" /></span>}
-                  />
-                ))}
-              </div>
-              <div className="action-clipboard-export-options" aria-hidden="true">
-                <span><span className="action-clipboard-export-option-label">CSV</span></span>
-              </div>
-              <div className="action-clipboard-export-previews" aria-hidden="true">
-                <span className="action-clipboard-export-preview action-clipboard-export-preview--json">
-                  <span className="action-clipboard-json-skeleton">
-                    {Array.from({ length: 3 }, (_, objectIndex) => (
-                      <span className="action-clipboard-json-object" key={`json-object-${objectIndex}`}>
-                        <span className="action-clipboard-json-property"><i /><i /><i /></span>
-                        <span className="action-clipboard-json-property"><i /><i /><i /></span>
-                      </span>
-                    ))}
-                  </span>
-                </span>
-                <span className="action-clipboard-export-preview action-clipboard-export-preview--csv">
-                  <span className="action-clipboard-csv-row action-clipboard-csv-row--header"><i /><i /><i /></span>
-                  {Array.from({ length: 4 }, (_, index) => (
-                    <span className="action-clipboard-csv-row" key={`csv-${index}`}><i /><i /><i /></span>
-                  ))}
-                </span>
-              </div>
-            </article>
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const island = panel.querySelector<HTMLElement>('.action-clipboard-panel-bar-shell')!;
+      const mockups = panel.querySelector<HTMLElement>('.action-clipboard-group-mockups')!;
+      const mockup = panel.querySelector<HTMLElement>('.action-clipboard-mockup')!;
+      const voiceCheck = mockup.querySelector<HTMLElement>('.action-clipboard-voice-check')!;
+      const audio = panel.querySelector<HTMLElement>('.action-clipboard-voice-audio')!;
+      const bars = audio.querySelectorAll('i');
+      const skeletons = mockup.querySelectorAll('.action-clipboard-text-title, .action-clipboard-text-lines i');
+      // Measure the untransformed wrapper so the flight meets the island at
+      // every viewport size, including after a resize between cycles.
+      const islandY = () => {
+        const origin = island.getBoundingClientRect();
+        const destination = mockups.getBoundingClientRect();
+        return origin.top + origin.height / 2 - destination.top - destination.height / 2;
+      };
+      const wave = gsap.timeline({ paused: true });
+      const amplitudes = [2.4, .35, .4, 1.8, .35, 2.4];
+      bars.forEach((bar, index) => {
+        wave.to(bar, {
+          scaleY: amplitudes[index],
+          duration: .24 + index * .035,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+        }, 0);
+      });
 
-            <article className="action-clipboard-scene action-clipboard-scene--voice" aria-hidden={activeIndex !== 4}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scene-title">
-                  <span className="action-clipboard-scene-icon"><Mic aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.voice}>
-                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.voice}</span></span>
-                  </span>
-                  <span className="action-clipboard-voice-lines" aria-hidden="true">
-                    {Array.from({ length: 11 }, (_, index) => <i className="action-clipboard-voice-line" key={`voice-line-${index}`} />)}
-                  </span>
-                </div>
-              </div>
-              <TextMockup className="action-clipboard-voice-transcript" />
-            </article>
+      gsap.set(mockup, { autoAlpha: 0 });
+      gsap.set(voiceCheck, { autoAlpha: 0, scale: .45 });
+      gsap.set(skeletons, { scaleX: 0, transformOrigin: 'left center' });
+      gsap.timeline({ delay: .65, repeat: -1, repeatDelay: .9, repeatRefresh: true })
+        .call(() => { wave.restart(); })
+        .to(audio, { color: '#fff', duration: .2 }, 0)
+        .set(skeletons, { scaleX: 0 }, 0)
+        .set(voiceCheck, { autoAlpha: 0, scale: .45 }, 0)
+        .fromTo(mockup,
+          { y: islandY, scale: .16, autoAlpha: 0, filter: 'blur(8px)' },
+          { y: 0, scale: 1, autoAlpha: 1, filter: 'blur(0px)', duration: .52, ease: 'power3.out' }, .12)
+        .to(skeletons, { scaleX: 1, duration: .32, stagger: .36, ease: 'none' })
+        .to(voiceCheck, { autoAlpha: 1, scale: 1.08, duration: .2, ease: 'back.out(2)' }, '+=.12')
+        .to(voiceCheck, { scale: 1, duration: .16, ease: 'power2.out' })
+        .to(mockup, { y: islandY, scale: .16, autoAlpha: 0, filter: 'blur(8px)', duration: .5, ease: 'power3.in' }, '+=.85')
+        .call(() => { wave.pause(); })
+        .to(bars, { scaleY: 1, duration: .16, ease: 'sine.out' })
+        .to(audio, { color: '#737373', duration: .2 }, '<');
+    }, panel);
 
-            <article className="action-clipboard-scene action-clipboard-scene--scan" aria-hidden={activeIndex !== 5}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scan-motion">
-                  <div className="action-clipboard-scene-title">
-                    <span className="action-clipboard-scan-heading">
-                      <span className="action-clipboard-scene-icon"><ScanText aria-hidden="true" /></span>
-                      <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.scanText}>
-                        <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.scanText}</span></span>
-                      </span>
-                    </span>
-                  </div>
-                  <span className="action-clipboard-scan-search"><ScanSearch aria-hidden="true" /></span>
-                </div>
-              </div>
-              <div className="action-clipboard-scan-phone" aria-hidden="true"><span /></div>
-              <div className="action-clipboard-scan-result" aria-hidden="true">
-                <span className="action-clipboard-scan-result-title" />
-                <span className="action-clipboard-scan-result-lines"><i /><i /><i /><i /><i /></span>
-              </div>
-            </article>
+    return () => media.revert();
+  }, []);
 
-            <article className="action-clipboard-scene action-clipboard-scene--system" aria-hidden={activeIndex !== 6}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scene-title">
-                  <span className="action-clipboard-scene-icon"><ClipboardPenLine aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.systemPasteboard}>
-                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.systemPasteboard}</span></span>
-                  </span>
-                </div>
-              </div>
-              <div className="action-clipboard-mockups">
-                {mockupTypes.map((type) => <MockupCard type={type} key={`system-${type}`} />)}
-              </div>
-            </article>
+  return (
+    <article className="action-clipboard-panel action-clipboard-panel--voice" ref={panelRef}>
+      <div className="action-clipboard-panel-bar-shell">
+        <div className="action-clipboard-panel-bar-motion">
+          <div className="action-clipboard-panel-bar" />
+        </div>
+        <div className="action-clipboard-panel-bar-foreground">
+          <span className="action-clipboard-panel-folder-wrap"><DynamicVoiceIcon /></span>
+          <span className="action-clipboard-voice-audio" aria-hidden="true">
+            <span className="action-clipboard-voice-waveform">
+              {[3, 11, 18, 7, 13, 3].map((height, index) => (
+                <i key={index} style={{ height: `${height / 24 * 100}%` }} />
+              ))}
+            </span>
+          </span>
+        </div>
+      </div>
+      <div className="action-clipboard-panel-content action-clipboard-panel-content--group">
+        <div className="action-clipboard-group-mockups"><MiniMockup type="text" marker={<MockupCheck className="action-clipboard-voice-check" />} /></div>
+      </div>
+      <div className="action-clipboard-panel-title">{dict.actionClipboard.voiceTitle}</div>
+      <div className="action-clipboard-panel-description">{dict.actionClipboard.voiceDescription}</div>
+    </article>
+  );
+};
 
-            <article className="action-clipboard-scene action-clipboard-scene--cloud" aria-hidden={activeIndex !== 7}>
-              <div className="action-clipboard-scene-title-anchor">
-                <div className="action-clipboard-scene-title">
-                  <span className="action-clipboard-scene-icon"><Cloud aria-hidden="true" /></span>
-                  <span className="action-clipboard-title-words" aria-label={dict.actionClipboard.featureLabels.iCloud}>
-                    <span className="action-clipboard-title-word-track"><span>{dict.actionClipboard.featureLabels.iCloud}</span></span>
-                  </span>
-                </div>
-              </div>
-              <div className="action-clipboard-mockups">
-                {mockupTypes.map((type) => <MockupCard type={type} key={`cloud-${type}`} />)}
-              </div>
-            </article>
+const ScanPreview: React.FC = () => {
+  const { dict } = useTranslation();
+  const panelRef = React.useRef<HTMLElement>(null);
+
+  React.useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const island = panel.querySelector<HTMLElement>('.action-clipboard-panel-bar-shell')!;
+      const stage = panel.querySelector<HTMLElement>('.action-clipboard-scan-stage')!;
+      const phone = panel.querySelector<HTMLElement>('.action-clipboard-scan-phone')!;
+      const search = panel.querySelector<HTMLElement>('.action-clipboard-scan-search')!;
+      const view = panel.querySelector<HTMLElement>('.action-clipboard-scan-view')!;
+      const viewIcon = view.querySelector<SVGSVGElement>('svg')!;
+      const mockup = panel.querySelector<HTMLElement>('.action-clipboard-mockup')!;
+      const check = mockup.querySelector<HTMLElement>('.action-clipboard-scan-check')!;
+      const skeletons = mockup.querySelectorAll('.action-clipboard-text-title, .action-clipboard-text-lines i');
+      const flightY = () => {
+        const origin = island.getBoundingClientRect();
+        const destination = stage.getBoundingClientRect();
+        return origin.top + origin.height / 2 - destination.top - destination.height / 2;
+      };
+
+      gsap.set(phone, { autoAlpha: 0, scale: .84, filter: 'blur(12px)' });
+      gsap.set(search, { autoAlpha: 0, x: 0, y: 0, scale: .68, filter: 'blur(8px)' });
+      const scanViewIdleScale = .9;
+      const scanViewPulseMinScale = .9;
+      const scanViewPulseMaxScale = 1.1;
+      gsap.set(viewIcon, { scale: scanViewIdleScale });
+      gsap.set(mockup, { autoAlpha: 0 });
+      gsap.set(check, { autoAlpha: 0, scale: .45 });
+      gsap.set(skeletons, { scaleX: 0, transformOrigin: 'left center' });
+      const viewPulse = gsap.timeline({ paused: true });
+      viewPulse
+        .to(viewIcon, { scale: scanViewPulseMaxScale, duration: .52, repeat: -1, yoyo: true, ease: 'sine.inOut' }, 0)
+        .to(view, { color: '#fff', duration: .52, repeat: -1, yoyo: true, ease: 'sine.inOut' }, 0);
+
+      const timeline = gsap.timeline({ delay: .75, repeat: -1, repeatDelay: .95, repeatRefresh: true });
+      timeline
+        .set(view, { color: '#737373' }, 0)
+        .set(viewIcon, { scale: scanViewIdleScale }, 0)
+        .set(phone, { autoAlpha: 0, scale: .84, filter: 'blur(12px)' }, 0)
+        .set(search, { autoAlpha: 0, x: 0, y: 0, scale: .68, filter: 'blur(8px)' }, 0)
+        .set(mockup, { autoAlpha: 0, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }, 0)
+        .set(check, { autoAlpha: 0, scale: .45 }, 0)
+        .set(skeletons, { scaleX: 0 }, 0)
+        .to(phone, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .62, ease: 'power3.out' }, .16)
+        .call(() => {
+          gsap.set(viewIcon, { scale: scanViewPulseMinScale });
+          gsap.set(view, { color: '#737373' });
+          viewPulse.restart();
+        }, [], .16)
+        .to(search, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .32, ease: 'back.out(1.5)' }, .62)
+        .to(search, { x: -10, y: -23, duration: .28, ease: 'sine.inOut' }, '+=.08')
+        .to(search, { x: 11, y: -9, duration: .28, ease: 'sine.inOut' })
+        .to(search, { x: -12, y: 8, duration: .28, ease: 'sine.inOut' })
+        .to(search, { x: 10, y: 22, duration: .28, ease: 'sine.inOut' })
+        .to(search, { autoAlpha: 0, scale: .68, filter: 'blur(8px)', duration: .3, ease: 'power2.in' }, '+=.12')
+        .to(phone, { autoAlpha: 0, scale: .94, filter: 'blur(12px)', duration: .44, ease: 'power2.in' }, '+=.08')
+        .fromTo(mockup,
+          { y: flightY, scale: .16, autoAlpha: 0, filter: 'blur(8px)' },
+          { y: 0, scale: 1, autoAlpha: 1, filter: 'blur(0px)', duration: .52, ease: 'power3.out' }, '+=.08')
+        .to(skeletons, { scaleX: 1, duration: .32, stagger: .36, ease: 'none' })
+        .to(check, { autoAlpha: 1, scale: 1.08, duration: .2, ease: 'back.out(2)' }, '+=.12')
+        .to(check, { scale: 1, duration: .16, ease: 'power2.out' })
+        .to(mockup, { y: flightY, scale: .16, autoAlpha: 0, filter: 'blur(8px)', duration: .5, ease: 'power3.in' }, '+=.85')
+        .call(() => { viewPulse.pause(); })
+        .to(viewIcon, { scale: scanViewIdleScale, duration: .42, ease: 'sine.inOut' })
+        .to(view, { color: '#737373', duration: .42, ease: 'sine.inOut' }, '<');
+    }, panel);
+
+    return () => media.revert();
+  }, []);
+
+  return (
+    <article className="action-clipboard-panel action-clipboard-panel--scan" ref={panelRef}>
+      <div className="action-clipboard-panel-bar-shell">
+        <div className="action-clipboard-panel-bar-motion"><div className="action-clipboard-panel-bar" /></div>
+        <div className="action-clipboard-panel-bar-foreground">
+          <span className="action-clipboard-panel-folder-wrap"><DynamicScanIcon /></span>
+          <span className="action-clipboard-scan-view"><DynamicScanViewIcon /></span>
+        </div>
+      </div>
+      <div className="action-clipboard-panel-content action-clipboard-panel-content--scan">
+        <div className="action-clipboard-scan-stage">
+          <div className="action-clipboard-scan-phone">
+            <span className="action-clipboard-scan-screen" />
+            <span className="action-clipboard-scan-speaker" />
+            <span className="action-clipboard-scan-search"><ScanSearchCodeIcon /></span>
+          </div>
+          <div className="action-clipboard-scan-text-stage">
+            <MiniMockup type="text" marker={<MockupCheck className="action-clipboard-scan-check" />} />
           </div>
         </div>
+      </div>
+      <div className="action-clipboard-panel-title">{dict.actionClipboard.scanTitle}</div>
+      <div className="action-clipboard-panel-description">{dict.actionClipboard.scanDescription}</div>
+    </article>
+  );
+};
 
-        <div className="action-clipboard-tab-viewport" aria-label={dict.actionClipboard.progressLabel}>
-          <div className="action-clipboard-tab-scroll">
-            <div className="action-clipboard-tabs">
-              {actionFeatureDefinitions.map((feature, index) => {
-                const FeatureIcon = feature.icon;
-                const label = dict.actionClipboard.featureLabels[feature.key];
-                return (
-                  <div
-                    className="action-clipboard-tab"
-                    key={feature.key}
-                    aria-label={label}
-                    aria-current={activeIndex === index ? 'step' : undefined}
-                  >
-                    <span className="action-clipboard-tab-label" aria-hidden="true"><FeatureIcon /></span>
-                  </div>
-                );
-              })}
-            </div>
+type ClipboardPhase = 'idle' | 'social' | 'social-returning' | 'content' | 'content-returning';
+
+type ICloudPhase = 'idle' | 'collecting' | 'flying' | 'syncing' | 'numbers' | 'returning';
+
+const ICloudPreview: React.FC<{
+  phase: ICloudPhase;
+  count: number;
+  checkCount: number;
+  shakeCycle: number;
+  cycle: number;
+}> = ({ phase, count, checkCount, shakeCycle, cycle }) => {
+  const { dict } = useTranslation();
+  const shakeClass = shakeCycle > 0
+    ? ` action-clipboard-panel-bar-motion--icloud-shaking-${shakeCycle % 2 === 0 ? 'even' : 'odd'}`
+    : '';
+  const isSyncing = phase === 'syncing';
+  const mockupPhase = phase === 'collecting' || phase === 'flying' || phase === 'returning' ? phase : phase === 'idle' ? 'idle' : 'hidden';
+
+  return (
+    <article className={`action-clipboard-panel action-clipboard-panel--icloud action-clipboard-panel--icloud-${phase}`}>
+      <div className="action-clipboard-panel-bar-shell">
+        <div className={`action-clipboard-panel-bar-motion${shakeClass}`}>
+          <div className="action-clipboard-panel-bar" />
+        </div>
+        <div className={`action-clipboard-panel-bar-foreground${isSyncing ? ' action-clipboard-panel-bar-foreground--icloud-syncing' : ''}`}>
+          <span className="action-clipboard-panel-folder-wrap"><DynamicICloudIcon /></span>
+          <span className="action-clipboard-icloud-progress"><AnimatedProgress value={count} active={count > 0} label={`${count} iCloud items`} /></span>
+          <span className="action-clipboard-icloud-refresh-wrap"><DynamicICloudRefreshIcon /></span>
+        </div>
+      </div>
+      <div className="action-clipboard-panel-content action-clipboard-panel-content--group">
+        <div className={`action-clipboard-group-mockups action-clipboard-icloud-mockups action-clipboard-icloud-mockups--${mockupPhase}${cycle > 1 ? ' action-clipboard-icloud-mockups--repeat' : ''}`}>
+          {panels.map((panel, index) => (
+            <MiniMockup
+              type={panel.type}
+              key={`icloud-${panel.id}-${cycle}`}
+              marker={<MockupCheck className={`action-clipboard-icloud-check${checkCount > index ? ' action-clipboard-icloud-check--visible' : ''}`} />}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="action-clipboard-panel-title">{dict.actionClipboard.icloudTitle}</div>
+      <div className="action-clipboard-panel-description">{dict.actionClipboard.icloudDescription}</div>
+    </article>
+  );
+};
+
+const ClipboardPreview: React.FC<{
+  phase: ClipboardPhase;
+  copyCount: number;
+  checkCount: number;
+  shakeCycle: number;
+  cycle: number;
+}> = ({ phase, copyCount, checkCount, shakeCycle, cycle }) => {
+  const { dict } = useTranslation();
+  const active = phase !== 'idle';
+  const shakeClass = shakeCycle > 0
+    ? ` action-clipboard-panel-bar-motion--clipboard-shaking-${shakeCycle % 2 === 0 ? 'even' : 'odd'}`
+    : '';
+
+  return (
+    <article className={`action-clipboard-panel action-clipboard-panel--clipboard action-clipboard-panel--clipboard-${phase}`}>
+      <div className="action-clipboard-panel-bar-shell">
+        <div className={`action-clipboard-panel-bar-motion${shakeClass}`}>
+          <div className="action-clipboard-panel-bar" />
+        </div>
+        <div className={`action-clipboard-panel-bar-foreground${active ? ' action-clipboard-panel-bar-foreground--clipboard-active' : ''}`}>
+          <span className="action-clipboard-panel-folder-wrap"><DynamicClipboardIcon /></span>
+          <span className="action-clipboard-clipboard-chevron"><DynamicClipboardChevronIcon /></span>
+        </div>
+      </div>
+      <div className="action-clipboard-panel-content action-clipboard-panel-content--group action-clipboard-panel-content--clipboard">
+        <div className={`action-clipboard-clipboard-stage action-clipboard-clipboard-stage--${phase}`}>
+          <div className={`action-clipboard-clipboard-set action-clipboard-clipboard-socials${phase === 'social' || phase === 'social-returning' ? ' action-clipboard-clipboard-set--visible' : ''}`}>
+            {actionClipboardShareSocials.map((social, index) => (
+              <ClipboardSocialCard
+                key={`${social.name}-${cycle}`}
+                social={social}
+                index={index}
+                copyCount={copyCount}
+                checkCount={checkCount}
+                cycle={cycle}
+              />
+            ))}
           </div>
+          <div className={`action-clipboard-clipboard-set action-clipboard-clipboard-items${phase === 'content' || phase === 'content-returning' ? ' action-clipboard-clipboard-set--visible' : ''}`}>
+            {clipboardContentPanels.map((item) => (
+              <MiniMockup
+                type={item.type}
+                key={`${item.type}-${item.social}-${cycle}`}
+                marker={<ClipboardSocialBadge social={item.social} />}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="action-clipboard-panel-title">{dict.actionClipboard.clipboardTitle}</div>
+      <div className="action-clipboard-panel-description">{dict.actionClipboard.clipboardDescription}</div>
+    </article>
+  );
+};
+
+const ActionClipboard: React.FC = () => {
+  const sectionRef = React.useRef<HTMLElement>(null);
+
+  React.useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const heading = section.querySelector('.action-clipboard-heading');
+      const panels = section.querySelectorAll('.action-clipboard-panel');
+      const reveal = gsap.timeline({ paused: true });
+      const panelReveal = gsap.timeline({ paused: true });
+      gsap.set([heading, ...panels], { autoAlpha: 0, filter: 'blur(14px)' });
+      reveal
+        .to(heading, { autoAlpha: 1, filter: 'blur(0px)', duration: .7, ease: 'power2.out' }, .12)
+        .set(heading, { clearProps: 'filter' });
+      panelReveal
+        .to(panels, { autoAlpha: 1, filter: 'blur(0px)', duration: .8, stagger: .06, ease: 'power2.out' })
+        .set(panels, { clearProps: 'filter' });
+      ScrollTrigger.create({
+        trigger: section,
+        start: () => `top ${window.innerHeight * .24 - parseFloat(getComputedStyle(section).paddingTop)}px`,
+        end: () => `+=${Math.max(2600, window.innerHeight * 3.6)}`,
+        pin: section,
+        // FeatureClipboard loads its pin asynchronously. Measure this section
+        // after upstream pins have added their scroll spacing on every refresh.
+        refreshPriority: -10,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onEnter: () => { reveal.play(); },
+        onEnterBack: () => { reveal.play(); },
+        // The first three quarters of the pinned distance belong exclusively to
+        // the heading. Panels require further scrolling, not a timed delay.
+        onUpdate: (self) => {
+          if (self.progress >= .75) panelReveal.play();
+          else if (self.direction < 0) panelReveal.reverse();
+        },
+        onLeaveBack: () => {
+          reveal.pause(0);
+          panelReveal.pause(0);
+        },
+      });
+    }, section);
+    return () => media.revert();
+  }, []);
+  const { lang, dict } = useTranslation();
+  const [groupCount, setGroupCount] = React.useState(0);
+  const [animationCycle, setAnimationCycle] = React.useState(0);
+  const [isFlying, setIsFlying] = React.useState(false);
+  const [isReturning, setIsReturning] = React.useState(false);
+  const [pinCount, setPinCount] = React.useState(0);
+  const [pinShakeCycle, setPinShakeCycle] = React.useState(0);
+  const [pinPhase, setPinPhase] = React.useState<'idle' | 'pinning-one' | 'pinning-one-shifting' | 'pinning-two' | 'pinning-two-shifting' | 'returning-two' | 'returning-two-shifting' | 'returning-one' | 'returning-one-shifting'>('idle');
+  const [shareCount, setShareCount] = React.useState(0);
+  const [shareCheckCount, setShareCheckCount] = React.useState(0);
+  const [shareShakeCycle, setShareShakeCycle] = React.useState(0);
+  const [sharePhase, setSharePhase] = React.useState<'idle' | 'selecting' | 'flying' | 'expanded' | 'collapsing' | 'returning'>('idle');
+  const [shareExpanded, setShareExpanded] = React.useState(false);
+  const [shareSocialCount, setShareSocialCount] = React.useState(0);
+  const [exportCount, setExportCount] = React.useState(0);
+  const [exportCheckCount, setExportCheckCount] = React.useState(0);
+  const [exportShakeCycle, setExportShakeCycle] = React.useState(0);
+  const [exportPhase, setExportPhase] = React.useState<'idle' | 'selecting' | 'flying' | 'expanded' | 'collapsing' | 'returning'>('idle');
+  const [exportExpanded, setExportExpanded] = React.useState(false);
+  const [exportFormatCount, setExportFormatCount] = React.useState(0);
+  const [clipboardPhase, setClipboardPhase] = React.useState<ClipboardPhase>('idle');
+  const [clipboardCopyCount, setClipboardCopyCount] = React.useState(0);
+  const [clipboardCheckCount, setClipboardCheckCount] = React.useState(0);
+  const [clipboardShakeCycle, setClipboardShakeCycle] = React.useState(0);
+  const [clipboardCycle, setClipboardCycle] = React.useState(0);
+  const [icloudPhase, setICloudPhase] = React.useState<ICloudPhase>('idle');
+  const [icloudCount, setICloudCount] = React.useState(0);
+  const [icloudCheckCount, setICloudCheckCount] = React.useState(0);
+  const [icloudShakeCycle, setICloudShakeCycle] = React.useState(0);
+  const [icloudCycle, setICloudCycle] = React.useState(0);
+  const groupShakeCount = isReturning ? panels.length : groupCount;
+  const islandShakeStyle = {
+    '--action-clipboard-shake-scale': 0.02 + groupShakeCount * 0.006,
+    '--action-clipboard-shake-offset': `${0.9 + groupShakeCount * 0.35}px`,
+    '--action-clipboard-shake-duration': '640ms',
+  } as React.CSSProperties;
+  const pinIslandShakeStyle = {
+    '--action-clipboard-shake-scale': 0.025 + pinCount * 0.005,
+    '--action-clipboard-shake-offset': `${0.9 + pinCount * 0.3}px`,
+    '--action-clipboard-shake-duration': `${Math.max(500, 620 - pinCount * 30)}ms`,
+  } as React.CSSProperties;
+  const shareIslandShakeStyle = {
+    '--action-clipboard-shake-scale': 0.02 + shareCount * 0.006,
+    '--action-clipboard-shake-offset': `${0.9 + shareCount * 0.35}px`,
+    '--action-clipboard-shake-duration': '640ms',
+  } as React.CSSProperties;
+  const exportIslandShakeStyle = {
+    '--action-clipboard-shake-scale': 0.02 + exportCount * 0.006,
+    '--action-clipboard-shake-offset': `${0.9 + exportCount * 0.35}px`,
+    '--action-clipboard-shake-duration': '640ms',
+  } as React.CSSProperties;
+
+  React.useEffect(() => {
+    let timers: number[] = [];
+    let pinTimers: number[] = [];
+    let shareTimers: number[] = [];
+    let exportTimers: number[] = [];
+    let clipboardTimers: number[] = [];
+    let icloudTimers: number[] = [];
+    const scheduleCycle = () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      setGroupCount(0);
+      setIsFlying(false);
+      setIsReturning(false);
+      setAnimationCycle((cycle) => cycle + 1);
+      timers = [window.setTimeout(() => {
+        setIsFlying(true);
+      }, actionClipboardFlyStart)];
+      timers.push(window.setTimeout(() => {
+        setGroupCount(panels.length);
+      }, actionClipboardFlyStart));
+      timers.push(window.setTimeout(() => {
+        setIsReturning(true);
+        setGroupCount(0);
+      }, actionClipboardReturnStart));
+    };
+    const schedulePinCycle = () => {
+      pinTimers.forEach((timer) => window.clearTimeout(timer));
+      setPinCount(0);
+      setPinPhase('idle');
+      pinTimers = [window.setTimeout(() => {
+        setPinPhase('pinning-one');
+        setPinCount(1);
+        setPinShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardPinStart)];
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('pinning-one-shifting');
+      }, actionClipboardPinFirstShiftStart));
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('pinning-two');
+        setPinCount(2);
+        setPinShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardPinSecondStart));
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('pinning-two-shifting');
+      }, actionClipboardPinSecondShiftStart));
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('returning-two');
+        setPinCount(1);
+        setPinShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardPinReturnStart));
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('returning-two-shifting');
+      }, actionClipboardPinReturnSecondShiftStart));
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('returning-one');
+        setPinCount(0);
+        setPinShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardPinReturnFirstStart));
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('returning-one-shifting');
+      }, actionClipboardPinReturnFirstShiftStart));
+      pinTimers.push(window.setTimeout(() => {
+        setPinPhase('idle');
+      }, actionClipboardPinReturnFirstShiftStart + actionClipboardPinReturnDuration));
+    };
+    const scheduleShareCycle = () => {
+      shareTimers.forEach((timer) => window.clearTimeout(timer));
+      setShareCount(0);
+      setShareCheckCount(0);
+      setShareShakeCycle(0);
+      setSharePhase('idle');
+      setShareExpanded(false);
+      setShareSocialCount(0);
+      shareTimers = [window.setTimeout(() => {
+        setSharePhase('selecting');
+      }, actionClipboardShareStart)];
+      for (let index = 0; index < panels.length; index += 1) {
+        shareTimers.push(window.setTimeout(() => {
+          setShareCheckCount(index + 1);
+        }, actionClipboardShareStart + index * actionClipboardShareCheckStep));
+      }
+      shareTimers.push(window.setTimeout(() => {
+        setSharePhase('flying');
+        setShareCount(panels.length);
+        setShareShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardShareCollectStart));
+      shareTimers.push(window.setTimeout(() => {
+        setSharePhase('expanded');
+        setShareExpanded(true);
+        setShareSocialCount(0);
+      }, actionClipboardShareExpandStart));
+      for (let index = 0; index < panels.length; index += 1) {
+        shareTimers.push(window.setTimeout(() => {
+          setShareSocialCount(index + 1);
+        }, actionClipboardShareExpandStart + 180 + index * actionClipboardShareSocialStep));
+      }
+      for (let index = 0; index < panels.length; index += 1) {
+        shareTimers.push(window.setTimeout(() => {
+          setShareSocialCount(panels.length - index - 1);
+        }, actionClipboardShareSocialHideStart + index * actionClipboardShareSocialStep));
+      }
+      shareTimers.push(window.setTimeout(() => {
+        setSharePhase('collapsing');
+        setShareExpanded(false);
+        setShareCount(0);
+        setShareCheckCount(0);
+      }, actionClipboardShareCollapseStart));
+      shareTimers.push(window.setTimeout(() => {
+        setSharePhase('returning');
+      }, actionClipboardShareReturnStart));
+      // Keep the filled return animation until the next cycle so staggered items
+      // all finish before their animation class is removed.
+    };
+    const scheduleExportCycle = () => {
+      exportTimers.forEach((timer) => window.clearTimeout(timer));
+      setExportCount(0);
+      setExportCheckCount(0);
+      setExportShakeCycle(0);
+      setExportPhase('idle');
+      setExportExpanded(false);
+      setExportFormatCount(0);
+      exportTimers = [window.setTimeout(() => {
+        setExportPhase('selecting');
+      }, actionClipboardExportStart)];
+      for (let index = 0; index < exportPanels.length; index += 1) {
+        exportTimers.push(window.setTimeout(() => {
+          setExportCheckCount(index + 1);
+        }, actionClipboardExportStart + index * actionClipboardExportCheckStep));
+      }
+      exportTimers.push(window.setTimeout(() => {
+        setExportPhase('flying');
+        setExportCount(exportPanels.length);
+        setExportShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardExportCollectStart));
+      exportTimers.push(window.setTimeout(() => {
+        setExportPhase('expanded');
+        setExportExpanded(true);
+        setExportFormatCount(0);
+      }, actionClipboardExportExpandStart));
+      for (let index = 0; index < 2; index += 1) {
+        exportTimers.push(window.setTimeout(() => {
+          setExportFormatCount(index + 1);
+        }, actionClipboardExportExpandStart + 180 + index * actionClipboardExportFormatStep));
+      }
+      for (let index = 0; index < 2; index += 1) {
+        exportTimers.push(window.setTimeout(() => {
+          setExportFormatCount(2 - index - 1);
+        }, actionClipboardExportFormatHideStart + index * actionClipboardExportFormatStep));
+      }
+      exportTimers.push(window.setTimeout(() => {
+        setExportPhase('collapsing');
+        setExportExpanded(false);
+        setExportCount(0);
+        setExportCheckCount(0);
+      }, actionClipboardExportCollapseStart));
+      exportTimers.push(window.setTimeout(() => {
+        setExportPhase('returning');
+        setExportShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardExportReturnStart));
+      exportTimers.push(window.setTimeout(() => {
+        setExportPhase('idle');
+        setExportFormatCount(0);
+      }, actionClipboardExportReturnStart + 700));
+    };
+    const scheduleClipboardCycle = () => {
+      clipboardTimers.forEach((timer) => window.clearTimeout(timer));
+      setClipboardPhase('idle');
+      setClipboardCopyCount(0);
+      setClipboardCheckCount(0);
+      setClipboardShakeCycle(0);
+      setClipboardCycle((cycle) => cycle + 1);
+      clipboardTimers = [window.setTimeout(() => {
+        setClipboardPhase('social');
+      }, actionClipboardClipboardStart)];
+      for (let index = 0; index < panels.length; index += 1) {
+        clipboardTimers.push(window.setTimeout(() => {
+          setClipboardCopyCount(index + 1);
+        }, actionClipboardClipboardCopyStart + index * actionClipboardClipboardCopyStep));
+        clipboardTimers.push(window.setTimeout(() => {
+          setClipboardCheckCount(index + 1);
+        }, actionClipboardClipboardCopyStart + index * actionClipboardClipboardCopyStep + actionClipboardClipboardCheckDelay));
+      }
+      clipboardTimers.push(window.setTimeout(() => {
+        setClipboardPhase('social-returning');
+        setClipboardShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardClipboardSocialReturnStart));
+      clipboardTimers.push(window.setTimeout(() => {
+        setClipboardPhase('content');
+        setClipboardCopyCount(0);
+        setClipboardCheckCount(0);
+        setClipboardShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardClipboardContentStart));
+      clipboardTimers.push(window.setTimeout(() => {
+        setClipboardPhase('content-returning');
+        setClipboardShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardClipboardContentReturnStart));
+      clipboardTimers.push(window.setTimeout(() => {
+        setClipboardPhase('idle');
+      }, actionClipboardClipboardContentReturnStart + actionClipboardClipboardReturnTotal + 150));
+    };
+    const scheduleICloudCycle = () => {
+      icloudTimers.forEach((timer) => window.clearTimeout(timer));
+      setICloudPhase('idle');
+      setICloudCount(0);
+      setICloudCheckCount(0);
+      setICloudShakeCycle(0);
+      setICloudCycle((cycle) => cycle + 1);
+      icloudTimers = [window.setTimeout(() => {
+        setICloudPhase('collecting');
+      }, actionClipboardICloudStart)];
+      for (let index = 0; index < panels.length; index += 1) {
+        icloudTimers.push(window.setTimeout(() => {
+          setICloudCheckCount(index + 1);
+        }, actionClipboardICloudStart + 520 + index * actionClipboardICloudCheckStep));
+      }
+      icloudTimers.push(window.setTimeout(() => {
+        setICloudPhase('flying');
+        setICloudCount(panels.length);
+        setICloudShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardICloudCollectStart));
+      icloudTimers.push(window.setTimeout(() => {
+        setICloudPhase('syncing');
+        setICloudShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardICloudSyncStart));
+      icloudTimers.push(window.setTimeout(() => {
+        setICloudPhase('numbers');
+        setICloudCount(panels.length);
+      }, actionClipboardICloudNumbersStart));
+      icloudTimers.push(window.setTimeout(() => {
+        setICloudPhase('returning');
+        setICloudCount(0);
+        setICloudCheckCount(0);
+        setICloudShakeCycle((cycle) => cycle + 1);
+      }, actionClipboardICloudReturnStart));
+    };
+
+    scheduleCycle();
+    schedulePinCycle();
+    scheduleShareCycle();
+    scheduleExportCycle();
+    scheduleClipboardCycle();
+    scheduleICloudCycle();
+    const cycleTimer = window.setInterval(scheduleCycle, actionClipboardAnimationCycle);
+    const pinCycleTimer = window.setInterval(schedulePinCycle, actionClipboardPinCycle);
+    const shareCycleTimer = window.setInterval(scheduleShareCycle, actionClipboardShareCycle);
+    const exportCycleTimer = window.setInterval(scheduleExportCycle, actionClipboardExportCycle);
+    const clipboardCycleTimer = window.setInterval(scheduleClipboardCycle, actionClipboardClipboardCycle);
+    const icloudCycleTimer = window.setInterval(scheduleICloudCycle, actionClipboardICloudCycle);
+
+    return () => {
+      window.clearInterval(cycleTimer);
+      window.clearInterval(pinCycleTimer);
+      window.clearInterval(shareCycleTimer);
+      window.clearInterval(exportCycleTimer);
+      window.clearInterval(clipboardCycleTimer);
+      window.clearInterval(icloudCycleTimer);
+      timers.forEach((timer) => window.clearTimeout(timer));
+      pinTimers.forEach((timer) => window.clearTimeout(timer));
+      shareTimers.forEach((timer) => window.clearTimeout(timer));
+      exportTimers.forEach((timer) => window.clearTimeout(timer));
+      clipboardTimers.forEach((timer) => window.clearTimeout(timer));
+      icloudTimers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, []);
+
+  return (
+    <ActionClipboardSection ref={sectionRef} aria-label="Action clipboard previews">
+      <div className="container">
+        <header className="action-clipboard-heading">
+          <h2>Tuỳ chỉnh trọn vẹn</h2>
+          <p>Xây dựng mọi Clipboard theo ý thích</p>
+        </header>
+        <div className="action-clipboard-grid">
+          <article className="action-clipboard-panel" key="group">
+                  <div className="action-clipboard-panel-bar-shell">
+                    <div
+                      className={`action-clipboard-panel-bar-motion${isReturning ? ' action-clipboard-panel-bar-motion--returning' : isFlying ? ' action-clipboard-panel-bar-motion--flying' : ''}`}
+                      style={isFlying || isReturning ? islandShakeStyle : undefined}
+                    >
+                      <div key={animationCycle} className="action-clipboard-panel-bar" />
+                    </div>
+                    <div className="action-clipboard-panel-bar-foreground">
+                      <span className="action-clipboard-panel-folder-wrap">
+                        <GroupFolderIcon />
+                      </span>
+                      <AnimatedProgress value={groupCount} active={groupCount > 0} label={`${groupCount} items collected`} />
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-content action-clipboard-panel-content--group">
+                    <div className={`action-clipboard-group-mockups action-clipboard-group-mockups--collecting${animationCycle > 1 ? ' action-clipboard-group-mockups--repeat' : ''}${isReturning ? ' action-clipboard-group-mockups--returning' : isFlying ? ' action-clipboard-group-mockups--flying' : ''}`}>
+                      {panels.map((groupPanel) => (
+                        <MiniMockup
+                          type={groupPanel.type}
+                          key={`${groupPanel.id}-${animationCycle}`}
+                          marker={<MockupCheck />}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-title">{createGroupLabels[lang] ?? 'Group'}</div>
+                  <div className="action-clipboard-panel-description">{dict.actionClipboard.groupDescription}</div>
+          </article>
+
+          <article className="action-clipboard-panel" key="pin">
+                  <div className="action-clipboard-panel-bar-shell">
+                    <div
+                      className={`action-clipboard-panel-bar-motion${pinShakeCycle > 0 ? ` action-clipboard-panel-bar-motion--pin-shaking-${pinShakeCycle % 2 === 0 ? 'even' : 'odd'}` : ''}`}
+                      style={pinShakeCycle > 0 ? pinIslandShakeStyle : undefined}
+                    >
+                      <div className="action-clipboard-panel-bar" />
+                    </div>
+                    <div className="action-clipboard-panel-bar-foreground">
+                      <span className="action-clipboard-panel-folder-wrap">
+                        <DynamicPinIcon />
+                      </span>
+                      <AnimatedProgress value={pinCount} active={pinCount > 0} label={`${pinCount} pinned items`} />
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-content action-clipboard-panel-content--group">
+                    <div className={`action-clipboard-group-mockups action-clipboard-group-mockups--pin-${pinPhase}`}>
+                      {panels.map((pinPanel) => {
+                        const pinOrder = pinPanel.type === 'color' ? 1 : pinPanel.type === 'sticker' ? 2 : undefined;
+                        return (
+                          <MiniMockup
+                            type={pinPanel.type}
+                            key={`pin-${pinPanel.id}`}
+                            marker={pinOrder ? <MockupPin order={pinOrder} visible={pinCount >= pinOrder} /> : undefined}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-title">{dict.actionClipboard.featureLabels.pin}</div>
+                  <div className="action-clipboard-panel-description">{dict.actionClipboard.pinDescription}</div>
+          </article>
+
+          <article className="action-clipboard-panel" key="share">
+                  <div className={`action-clipboard-panel-bar-shell${shareExpanded ? ' action-clipboard-panel-bar-shell--share-expanded' : ''}`}>
+                    <div
+                      className={`action-clipboard-panel-bar-motion${shareExpanded ? ' action-clipboard-panel-bar-motion--share-expanded' : ''}${shareShakeCycle > 0 ? ` action-clipboard-panel-bar-motion--share-shaking-${shareShakeCycle % 2 === 0 ? 'even' : 'odd'}` : ''}`}
+                      style={shareShakeCycle > 0 ? shareIslandShakeStyle : undefined}
+                    >
+                      <div className="action-clipboard-panel-bar" />
+                    </div>
+                    <div className={`action-clipboard-panel-bar-foreground${shareExpanded ? ' action-clipboard-panel-bar-foreground--share-expanded' : ''}`}>
+                      <span className="action-clipboard-panel-folder-wrap">
+                        <DynamicShareIcon />
+                      </span>
+                      <AnimatedProgress value={shareCount} active={shareCount > 0} label={`${shareCount} items ready to share`} />
+                      <div className="action-clipboard-share-socials" aria-hidden="true">
+                        {actionClipboardShareSocials.map((social, index) => (
+                          <span className={shareSocialCount > index ? 'action-clipboard-share-social--visible' : ''} key={social.name} aria-label={social.label}>
+                            <SocialMark className="action-clipboard-share-social-mark" name={social.name} />
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-content action-clipboard-panel-content--group">
+                    <div style={shareMockupsStyle} className={`action-clipboard-group-mockups action-clipboard-group-mockups--share${sharePhase === 'selecting' ? ' action-clipboard-group-mockups--share-selecting' : ''}${sharePhase === 'flying' || sharePhase === 'expanded' || sharePhase === 'collapsing' ? ' action-clipboard-group-mockups--share-flying' : ''}${sharePhase === 'returning' ? ' action-clipboard-group-mockups--share-returning' : ''}`}>
+                      {panels.map((sharePanel, index) => (
+                        <MiniMockup
+                          type={sharePanel.type}
+                          key={`share-${sharePanel.id}`}
+                          marker={<MockupCheck className={`action-clipboard-share-check${shareCheckCount > index ? ' action-clipboard-share-check--visible' : ''}`} />}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-title">{dict.actionClipboard.featureLabels.share}</div>
+                  <div className="action-clipboard-panel-description">{dict.actionClipboard.shareDescription}</div>
+          </article>
+
+          <article className="action-clipboard-panel" key="export">
+                  <div className={`action-clipboard-panel-bar-shell${exportExpanded ? ' action-clipboard-panel-bar-shell--export-expanded' : ''}`}>
+                    <div
+                      className={`action-clipboard-panel-bar-motion${exportExpanded ? ' action-clipboard-panel-bar-motion--export-expanded' : ''}${exportShakeCycle > 0 ? ` action-clipboard-panel-bar-motion--export-shaking-${exportShakeCycle % 2 === 0 ? 'even' : 'odd'}` : ''}`}
+                      style={exportShakeCycle > 0 ? exportIslandShakeStyle : undefined}
+                    >
+                      <div className="action-clipboard-panel-bar" />
+                    </div>
+                    <div className={`action-clipboard-panel-bar-foreground${exportExpanded ? ' action-clipboard-panel-bar-foreground--export-expanded' : ''}`}>
+                      <span className="action-clipboard-panel-folder-wrap">
+                        <DynamicExportIcon />
+                      </span>
+                      <AnimatedProgress value={exportCount} active={exportCount > 0} label={`${exportCount} files ready to export`} />
+                      <div className="action-clipboard-export-formats" aria-hidden="true">
+                        <span className={exportFormatCount > 0 ? 'action-clipboard-export-format--visible' : ''}>
+                          <DynamicJsonIcon />
+                          <strong>JSON</strong>
+                        </span>
+                        <span className={exportFormatCount > 1 ? 'action-clipboard-export-format--visible' : ''}>
+                          <DynamicCsvIcon />
+                          <strong>CSV</strong>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-content action-clipboard-panel-content--group">
+                    <div className={`action-clipboard-group-mockups action-clipboard-group-mockups--export${exportPhase === 'selecting' ? ' action-clipboard-group-mockups--export-selecting' : ''}${exportPhase === 'flying' || exportPhase === 'expanded' || exportPhase === 'collapsing' ? ' action-clipboard-group-mockups--export-flying' : ''}${exportPhase === 'returning' ? ' action-clipboard-group-mockups--export-returning' : ''}`}>
+                      {exportPanels.map((exportPanel, index) => (
+                        <MiniMockup
+                          type={exportPanel.type}
+                          key={`export-${exportPanel.id}`}
+                          marker={<MockupCheck className={`action-clipboard-export-check${exportCheckCount > index ? ' action-clipboard-export-check--visible' : ''}`} />}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="action-clipboard-panel-title">{dict.actionClipboard.exportTitle}</div>
+                  <div className="action-clipboard-panel-description">{dict.actionClipboard.exportDescription}</div>
+          </article>
+
+          <VoicePreview />
+          <ScanPreview />
+          <ClipboardPreview
+            phase={clipboardPhase}
+            copyCount={clipboardCopyCount}
+            checkCount={clipboardCheckCount}
+            shakeCycle={clipboardShakeCycle}
+            cycle={clipboardCycle}
+          />
+          <ICloudPreview
+            phase={icloudPhase}
+            count={icloudCount}
+            checkCount={icloudCheckCount}
+            shakeCycle={icloudShakeCycle}
+            cycle={icloudCycle}
+          />
         </div>
       </div>
     </ActionClipboardSection>

@@ -1,5 +1,10 @@
 import styled, { keyframes } from 'styled-components';
 
+const coreHeadingTextReveal = keyframes`
+  from { transform: translateY(112%); opacity: 0; filter: blur(7px); }
+  to { transform: translateY(0); opacity: 1; filter: blur(0); }
+`;
+
 const coreHeadingUnderline = keyframes`
   0%, 12% { transform: scaleX(0); transform-origin: left center; }
   100% { transform: scaleX(1); transform-origin: left center; }
@@ -187,6 +192,24 @@ export const CoreClipboardSection = styled.section`
     text-wrap: balance;
   }
   h2 > span { display: block; white-space: nowrap; }
+  h2:lang(hi), h2:lang(bn), h2:lang(th) { letter-spacing: normal; }
+  .core-heading-word {
+    display: inline-block;
+    clip-path: inset(-.3em -.25em);
+    vertical-align: bottom;
+  }
+  .core-heading-grapheme {
+    display: inline-block;
+    transform: translateY(112%);
+    opacity: 0;
+    filter: blur(7px);
+  }
+  &.is-heading-animated .core-heading-grapheme {
+    animation-name: ${coreHeadingTextReveal};
+    animation-duration: var(--core-text-duration);
+    animation-timing-function: cubic-bezier(.215, .61, .355, 1);
+    animation-fill-mode: forwards;
+  }
   .core-heading-highlight {
     position: relative;
     display: inline-block;
@@ -203,11 +226,11 @@ export const CoreClipboardSection = styled.section`
     opacity: .9;
     transform: scaleX(0);
   }
-  &.is-heading-animated .core-heading-underline { animation: ${coreHeadingUnderline} 1.15s cubic-bezier(.65, 0, .35, 1) forwards; }
+  &.is-heading-animated .core-heading-underline { animation: ${coreHeadingUnderline} 1.15s cubic-bezier(.65, 0, .35, 1) var(--core-underline-delay) forwards; }
   &.is-heading-reversing .core-heading-underline { animation: ${coreHeadingUnderlineReverse} .46s cubic-bezier(.4, 0, 1, 1) forwards; }
   .core-heading-highlight-green .core-heading-underline { background: #36c978; }
   .core-heading-highlight-blue .core-heading-underline { background: #4b8dff; }
-  &.is-heading-animated .core-heading-highlight-blue .core-heading-underline { animation-delay: .28s; }
+  &.is-heading-animated .core-heading-highlight-blue .core-heading-underline { animation-delay: calc(var(--core-underline-delay) + .28s); }
 
   .core-phone-stage {
     position: relative;
@@ -373,7 +396,9 @@ export const CoreClipboardSection = styled.section`
     }
     .core-app-icon { opacity: 1; filter: brightness(1.08); animation: none !important; }
     .core-app-name,
-    .core-heading-underline { animation: none; }
+    .core-heading-underline { animation: none !important; }
+    .core-heading-grapheme { animation: none !important; transform: none; opacity: 1; filter: none; }
+    .core-heading-underline { transform: scaleX(1); }
   }
 
   @media (max-width: 1199px) and (prefers-reduced-motion: reduce) {
