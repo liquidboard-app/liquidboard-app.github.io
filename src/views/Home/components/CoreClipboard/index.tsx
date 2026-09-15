@@ -382,13 +382,16 @@ const CoreClipboard: React.FC = () => {
       const hiddenPhoneFilter = compact ? 'blur(14px)' : 'blur(22px)';
       const phaseDuration = compact ? .94 : 1;
       const nextPhaseDuration = compact ? 1.10 : 1;
-      const phaseGap = compact ? -.16 : .2;
+      const phaseGap = compact ? 0 : .2;
       // Leave a short reading beat on the first phone, then another beat
       // after phone two has landed. On touch layouts the outgoing phone waits
       // a little longer so the incoming phone establishes its motion first.
       const initialHold = compact ? .34 : 0;
       const betweenPhaseHold = compact ? .32 : 0;
-      const outgoingStartPosition = compact ? '<.18' : '<';
+      // On touch layouts the outgoing center must start moving and blurring
+      // in the same frame the incoming phone first appears. A delayed start
+      // leaves both phones stacked in the middle during a slow swipe.
+      const outgoingStartPosition = '<';
       const stageShift = () => Math.max(stage.clientWidth * .78, 260);
       const scrollDistance = () => compact
         ? Math.max(stage.clientHeight * 3.3, 1900)
@@ -436,12 +439,15 @@ const CoreClipboard: React.FC = () => {
             // The initial hold shifts the second-phone landing earlier in the
             // normalized timeline; keep the middle snap on phone two instead
             // of letting it settle at the start of phone three's transition.
+            // A zero delay makes a completed touch gesture commit to the
+            // checkpoint immediately, so the scene never remains half-way
+            // between phones while the user starts the next swipe.
             snapTo: [0, .48, 1],
             directional: true,
             inertia: false,
-            delay: .04,
-            duration: { min: .12, max: .28 },
-            ease: 'power2.out',
+            delay: 0,
+            duration: { min: .18, max: .36 },
+            ease: 'power3.out',
           } : undefined,
           invalidateOnRefresh: true,
         });
