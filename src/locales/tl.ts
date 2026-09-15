@@ -18,6 +18,8 @@ const tl: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Mga feature ng LiquidBoard',
     progressLabel: 'Progress ng feature ng Clipboard',
+    headingTitle: 'Ganap na pag-customize',
+    headingDescription: 'Buuin ang bawat clipboard ayon sa gusto mo',
     groupTitle: { primary: 'Pangalan', secondary: 'ng grupo' },
     groupDescription: 'I-uri ayon sa pangangailangan',
     pinDescription: 'Unahin ang mahalaga',

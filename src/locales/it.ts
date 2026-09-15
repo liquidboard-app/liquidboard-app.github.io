@@ -18,6 +18,8 @@ const it: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Funzionalità di LiquidBoard',
     progressLabel: 'Avanzamento delle funzionalità degli appunti',
+    headingTitle: 'Personalizzazione completa',
+    headingDescription: 'Crea ogni clipboard come vuoi',
     groupTitle: { primary: 'Nome', secondary: 'del gruppo' },
     groupDescription: 'Classifica secondo necessità',
     pinDescription: 'Le cose importanti prima',

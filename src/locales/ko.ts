@@ -18,6 +18,8 @@ const ko: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard 기능',
     progressLabel: '클립보드 기능 진행률',
+    headingTitle: '완벽한 맞춤 설정',
+    headingDescription: '원하는 방식으로 클립보드를 만들어 보세요',
     groupTitle: { primary: '그룹', secondary: '이름' },
     groupDescription: '필요에 따라 분류',
     pinDescription: '중요한 항목을 먼저',

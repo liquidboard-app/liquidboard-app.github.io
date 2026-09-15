@@ -19,6 +19,8 @@ const tr: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard özellikleri',
     progressLabel: 'Pano özellik ilerlemesi',
+    headingTitle: 'Eksiksiz özelleştirme',
+    headingDescription: 'Her panoyu istediğin gibi oluştur',
     groupTitle: { primary: 'Grup', secondary: 'adı' },
     groupDescription: 'İhtiyaca göre sınıflandır',
     pinDescription: 'Önemliler en üstte',

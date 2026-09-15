@@ -18,6 +18,8 @@ const ru: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Возможности LiquidBoard',
     progressLabel: 'Прогресс функций буфера обмена',
+    headingTitle: 'Полная настройка',
+    headingDescription: 'Создавайте буфер обмена по-своему',
     groupTitle: { primary: 'Название', secondary: 'группы' },
     groupDescription: 'Классифицируйте по необходимости',
     pinDescription: 'Важное — в начале',

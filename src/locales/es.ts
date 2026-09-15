@@ -18,6 +18,8 @@ const es: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Funciones de LiquidBoard',
     progressLabel: 'Progreso de las funciones del portapapeles',
+    headingTitle: 'Personalización total',
+    headingDescription: 'Crea cada portapapeles a tu manera',
     groupTitle: { primary: 'Nombre', secondary: 'del grupo' },
     groupDescription: 'Clasifica según tus necesidades',
     pinDescription: 'Lo importante, primero',

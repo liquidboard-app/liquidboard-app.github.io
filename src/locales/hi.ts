@@ -18,6 +18,8 @@ const hi: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard सुविधाएँ',
     progressLabel: 'क्लिपबोर्ड सुविधाओं की प्रगति',
+    headingTitle: 'पूरी तरह अनुकूलित करें',
+    headingDescription: 'अपनी पसंद के अनुसार हर क्लिपबोर्ड बनाएँ',
     groupTitle: { primary: 'समूह', secondary: 'का नाम' },
     groupDescription: 'ज़रूरत के अनुसार वर्गीकृत करें',
     pinDescription: 'ज़रूरी चीज़ें सबसे ऊपर',

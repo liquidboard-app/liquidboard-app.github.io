@@ -18,6 +18,8 @@ const de: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard-Funktionen',
     progressLabel: 'Fortschritt der Zwischenablage-Funktionen',
+    headingTitle: 'Vollständige Anpassung',
+    headingDescription: 'Erstelle jede Zwischenablage nach deinen Wünschen',
     groupTitle: { primary: 'Name', secondary: 'der Gruppe' },
     groupDescription: 'Nach Bedarf kategorisieren',
     pinDescription: 'Wichtiges zuerst',

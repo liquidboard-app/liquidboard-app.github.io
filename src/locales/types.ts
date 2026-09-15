@@ -29,6 +29,8 @@ export type LocaleDict = {
   actionClipboard: {
     sectionLabel: string;
     progressLabel: string;
+    headingTitle: string;
+    headingDescription: string;
     groupTitle: { primary: string; secondary: string };
     groupDescription: string;
     pinDescription: string;

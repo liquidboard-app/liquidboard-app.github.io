@@ -9,8 +9,8 @@ import { ActionClipboardSection } from './styled';
 
 type MockupType = 'text' | 'link' | 'image' | 'color' | 'sticker';
 
-const GroupFolderIcon: React.FC = () => (
-  <svg className="action-clipboard-panel-folder" viewBox="0 0 24 24" role="img" aria-label="Group folder">
+const GroupFolderIcon: React.FC<{ label: string }> = ({ label }) => (
+  <svg className="action-clipboard-panel-folder" viewBox="0 0 24 24" role="img" aria-label={label}>
     <defs>
       <linearGradient id="action-clipboard-folder-gradient" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
         <stop offset="0" stopColor="#60a5fa" />
@@ -1114,11 +1114,11 @@ const ActionClipboard: React.FC = () => {
   }, []);
 
   return (
-    <ActionClipboardSection ref={sectionRef} aria-label="Action clipboard previews">
+    <ActionClipboardSection ref={sectionRef} aria-label={dict.actionClipboard.sectionLabel}>
       <div className="container">
         <header className="action-clipboard-heading">
-          <h2>Tuỳ chỉnh trọn vẹn</h2>
-          <p>Xây dựng mọi Clipboard theo ý thích</p>
+          <h2>{dict.actionClipboard.headingTitle}</h2>
+          <p>{dict.actionClipboard.headingDescription}</p>
         </header>
         <div className="action-clipboard-grid">
           <article className="action-clipboard-panel" key="group">
@@ -1131,7 +1131,7 @@ const ActionClipboard: React.FC = () => {
                     </div>
                     <div className="action-clipboard-panel-bar-foreground">
                       <span className="action-clipboard-panel-folder-wrap">
-                        <GroupFolderIcon />
+                        <GroupFolderIcon label={dict.actionClipboard.featureLabels.group} />
                       </span>
                       <AnimatedProgress value={groupCount} active={groupCount > 0} label={`${groupCount} items collected`} />
                     </div>

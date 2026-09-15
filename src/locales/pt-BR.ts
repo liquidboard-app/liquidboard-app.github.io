@@ -18,6 +18,8 @@ const ptBR: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Recursos do LiquidBoard',
     progressLabel: 'Progresso dos recursos da área de transferência',
+    headingTitle: 'Personalização completa',
+    headingDescription: 'Crie cada área de transferência do seu jeito',
     groupTitle: { primary: 'Nome', secondary: 'do grupo' },
     groupDescription: 'Classifique conforme a necessidade',
     pinDescription: 'Mantenha o que importa no topo',

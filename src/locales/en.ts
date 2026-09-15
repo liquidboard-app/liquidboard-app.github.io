@@ -19,6 +19,8 @@ const en: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard features',
     progressLabel: 'Action Clipboard feature progress',
+    headingTitle: 'Complete customization',
+    headingDescription: 'Build every clipboard your way',
     groupTitle: { primary: 'Group', secondary: 'Name' },
     groupDescription: 'Classify as needed',
     pinDescription: 'Keep important items first',

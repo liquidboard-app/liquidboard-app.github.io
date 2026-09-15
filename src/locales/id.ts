@@ -18,6 +18,8 @@ const id: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Fitur LiquidBoard',
     progressLabel: 'Progres fitur Clipboard',
+    headingTitle: 'Kustomisasi lengkap',
+    headingDescription: 'Buat setiap clipboard sesuai keinginan Anda',
     groupTitle: { primary: 'Nama', secondary: 'grup' },
     groupDescription: 'Klasifikasikan sesuai kebutuhan',
     pinDescription: 'Yang penting di urutan teratas',

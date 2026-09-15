@@ -18,6 +18,8 @@ const vi: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Các tính năng LiquidBoard',
     progressLabel: 'Tiến trình tính năng Clipboard',
+    headingTitle: 'Tuỳ chỉnh trọn vẹn',
+    headingDescription: 'Xây dựng mọi Clipboard theo ý thích',
     groupTitle: { primary: 'Nhóm', secondary: 'Tên' },
     groupDescription: 'Phân loại theo nhu cầu',
     pinDescription: 'Quan trọng lên đầu tiên',

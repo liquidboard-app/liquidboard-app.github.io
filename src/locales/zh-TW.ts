@@ -18,6 +18,8 @@ const zhTW: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoard 功能',
     progressLabel: '剪貼簿功能進度',
+    headingTitle: '完整自訂',
+    headingDescription: '依照你的喜好打造每個剪貼簿',
     groupTitle: { primary: '群組', secondary: '名稱' },
     groupDescription: '依需求分類',
     pinDescription: '重要項目置於最前',

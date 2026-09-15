@@ -18,6 +18,8 @@ const ja: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'LiquidBoardの機能',
     progressLabel: 'クリップボード機能の進行状況',
+    headingTitle: 'すべてを自由にカスタマイズ',
+    headingDescription: '思いどおりのクリップボードを作成',
     groupTitle: { primary: 'グループの', secondary: '名前' },
     groupDescription: '必要に応じて分類',
     pinDescription: '重要なものを先頭に',

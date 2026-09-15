@@ -18,6 +18,8 @@ const th: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'ฟีเจอร์ของ LiquidBoard',
     progressLabel: 'ความคืบหน้าฟีเจอร์คลิปบอร์ด',
+    headingTitle: 'ปรับแต่งได้อย่างเต็มที่',
+    headingDescription: 'สร้างคลิปบอร์ดในแบบที่คุณต้องการ',
     groupTitle: { primary: 'ชื่อ', secondary: 'กลุ่ม' },
     groupDescription: 'จัดหมวดหมู่ตามต้องการ',
     pinDescription: 'สิ่งสำคัญไว้ด้านบน',

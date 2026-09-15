@@ -18,6 +18,8 @@ const fr: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Fonctionnalités de LiquidBoard',
     progressLabel: 'Progression des fonctionnalités du presse-papiers',
+    headingTitle: 'Personnalisation complète',
+    headingDescription: 'Créez chaque presse-papiers à votre façon',
     groupTitle: { primary: 'Nom', secondary: 'du groupe' },
     groupDescription: 'Classez selon vos besoins',
     pinDescription: 'Les éléments importants en premier',

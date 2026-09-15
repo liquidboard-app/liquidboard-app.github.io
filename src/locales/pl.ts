@@ -18,6 +18,8 @@ const pl: LocaleDict = {
   actionClipboard: {
     sectionLabel: 'Funkcje LiquidBoard',
     progressLabel: 'Postęp funkcji schowka',
+    headingTitle: 'Pełna personalizacja',
+    headingDescription: 'Twórz każdy schowek po swojemu',
     groupTitle: { primary: 'Nazwa', secondary: 'grupy' },
     groupDescription: 'Kategoryzuj według potrzeb',
     pinDescription: 'Najważniejsze na górze',
