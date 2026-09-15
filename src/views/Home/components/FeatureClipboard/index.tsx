@@ -512,13 +512,13 @@ const FeatureClipboard: React.FC = () => {
         // than stickers (long glyph runs, shadows and image decode). Let
         // their compact entrance catch up faster while preserving the softer
         // reverse suction and the existing sticker timing.
-        const basePositionSmoothing = mobileQuery.matches && scrollDirection >= 0
-          ? isSticker ? .56 : .72
-          : mobileQuery.matches ? .42 : .46;
+        const basePositionSmoothing = compactLayout && scrollDirection >= 0
+          ? isSticker ? .56 : .9
+          : compactLayout ? .42 : .46;
         const positionSmoothing = 1 - ((1 - basePositionSmoothing) ** elapsedFrames);
         const baseScaleSmoothing = motion.targetScale < motion.scale
           ? .58
-          : mobileQuery.matches ? isSticker ? .64 : .76 : .52;
+          : compactLayout ? isSticker ? .64 : .88 : .52;
         const scaleSmoothing = 1 - ((1 - baseScaleSmoothing) ** elapsedFrames);
         motion.scale += (motion.targetScale - motion.scale) * scaleSmoothing;
         motion.x += (motion.targetX - motion.x) * positionSmoothing;
