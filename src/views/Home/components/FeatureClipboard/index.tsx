@@ -267,6 +267,8 @@ const FeatureClipboard: React.FC = () => {
     const minimumScale = .002;
     let animationFrame = 0;
     let previousFrameTime = 0;
+    let previousScrollY = window.scrollY || window.pageYOffset;
+    let scrollDirection = 1;
     let revealDirty = true;
     type RevealMotion = {
       scale: number;
@@ -322,6 +324,7 @@ const FeatureClipboard: React.FC = () => {
         // Keep the launch on one compositor transform. Updating three custom
         // properties per frame makes mobile browsers recalculate the transform
         // expression for every card while the list is moving.
+        if (item.style.willChange !== 'transform') item.style.willChange = 'transform';
         item.style.transform = `translate3d(${motion.x.toFixed(2)}px, ${(motion.y + staggerY).toFixed(2)}px, 0) scale(${motion.scale.toFixed(3)})`;
         return;
       }
@@ -418,8 +421,13 @@ const FeatureClipboard: React.FC = () => {
       updates.forEach(({ item, scale, x, y, active, aboveViewport }) => {
         const motion = revealMotions.get(item);
         const wasActive = visibleRevealItems.has(item);
-        if (active) visibleRevealItems.add(item);
-        else visibleRevealItems.delete(item);
+        if (active) {
+          visibleRevealItems.add(item);
+          if (item.style.willChange !== 'transform') item.style.willChange = 'transform';
+        } else {
+          visibleRevealItems.delete(item);
+          if (item.style.willChange !== 'auto') item.style.willChange = 'auto';
+        }
 
         if (!motion || immediate || (active && !wasActive)) {
           setRevealMotionImmediate(item, scale, x, y);
@@ -448,14 +456,21 @@ const FeatureClipboard: React.FC = () => {
       const elapsedFrames = previousFrameTime
         ? Math.min(2, Math.max(.5, (frameTime - previousFrameTime) / (1000 / 60)))
         : 1;
-      const basePositionSmoothing = mobileQuery.matches ? .42 : .46;
+      // Cards travel into the grid while scrolling down. Follow that direction
+      // a little more aggressively; the reverse suction keeps its existing
+      // softer response because it already feels smooth on touch devices.
+      const basePositionSmoothing = mobileQuery.matches
+        ? scrollDirection >= 0 ? .56 : .42
+        : .46;
       const positionSmoothing = 1 - ((1 - basePositionSmoothing) ** elapsedFrames);
       previousFrameTime = frameTime;
       let isMoving = false;
       visibleRevealItems.forEach((item) => {
         const motion = revealMotions.get(item);
         if (!motion) return;
-        const baseScaleSmoothing = motion.targetScale < motion.scale ? .58 : .52;
+        const baseScaleSmoothing = motion.targetScale < motion.scale
+          ? .58
+          : mobileQuery.matches ? .64 : .52;
         const scaleSmoothing = 1 - ((1 - baseScaleSmoothing) ** elapsedFrames);
         motion.scale += (motion.targetScale - motion.scale) * scaleSmoothing;
         motion.x += (motion.targetX - motion.x) * positionSmoothing;
@@ -496,6 +511,11 @@ const FeatureClipboard: React.FC = () => {
       if (!animationFrame) animationFrame = window.requestAnimationFrame(renderMotion);
     };
     const handleScroll = () => {
+      const currentScrollY = window.scrollY || window.pageYOffset;
+      if (Math.abs(currentScrollY - previousScrollY) > .5) {
+        scrollDirection = currentScrollY >= previousScrollY ? 1 : -1;
+        previousScrollY = currentScrollY;
+      }
       revealDirty = true;
       requestRender();
     };
@@ -517,6 +537,7 @@ const FeatureClipboard: React.FC = () => {
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       revealItems.forEach((item) => {
         item.style.removeProperty('transform');
+        item.style.removeProperty('will-change');
         item.style.removeProperty('--feature-item-reveal-scale');
         item.style.removeProperty('--feature-item-launch-x');
         item.style.removeProperty('--feature-item-launch-y');
