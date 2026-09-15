@@ -240,6 +240,45 @@ const FeatureClipboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (!compactLayout || typeof window === 'undefined') return undefined;
+    const section = sectionRef.current;
+    if (!section) return undefined;
+
+    // The image rail and the sticker rail share the same source files. Warm
+    // those small responsive assets before the first cards reach the launch
+    // point so Safari does not spend a scroll frame decoding them. Stickers
+    // appeared smoother because the same files had already been decoded by
+    // the time their section entered the viewport.
+    let warmed = false;
+    let observer: IntersectionObserver | undefined;
+    const warmGalleryImages = () => {
+      if (warmed) return;
+      warmed = true;
+      galleryImages.forEach(({ src }) => {
+        const image = new Image();
+        const srcSet = getHeroImageSrcSet(src);
+        if (srcSet) image.srcset = srcSet;
+        image.sizes = heroImageSizes;
+        image.decoding = 'async';
+        image.src = src;
+        const decodePromise = image.decode?.();
+        if (decodePromise) void decodePromise.catch(() => undefined);
+      });
+    };
+
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) warmGalleryImages();
+      }, { rootMargin: '1200px 0px' });
+      observer.observe(section);
+    } else {
+      warmGalleryImages();
+    }
+
+    return () => observer?.disconnect();
+  }, [compactLayout]);
+
+  useEffect(() => {
     const section = sectionRef.current;
     if (!compactLayout || !section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
 
@@ -421,12 +460,19 @@ const FeatureClipboard: React.FC = () => {
       updates.forEach(({ item, scale, x, y, active, aboveViewport }) => {
         const motion = revealMotions.get(item);
         const wasActive = visibleRevealItems.has(item);
+        const canSkipPaint = item.classList.contains('feature-text-list-item')
+          || item.classList.contains('feature-image-list-item');
         if (active) {
           visibleRevealItems.add(item);
           if (item.style.willChange !== 'transform') item.style.willChange = 'transform';
+          if (canSkipPaint && item.style.contentVisibility !== 'visible') item.style.contentVisibility = 'visible';
         } else {
           visibleRevealItems.delete(item);
           if (item.style.willChange !== 'auto') item.style.willChange = 'auto';
+          // Long text cards and first-pass image cards are the expensive
+          // surfaces. Let the browser skip painting their off-screen content;
+          // the active window above switches them back before launch.
+          if (canSkipPaint && item.style.contentVisibility !== 'auto') item.style.contentVisibility = 'auto';
         }
 
         if (!motion || immediate || (active && !wasActive)) {
@@ -456,21 +502,23 @@ const FeatureClipboard: React.FC = () => {
       const elapsedFrames = previousFrameTime
         ? Math.min(2, Math.max(.5, (frameTime - previousFrameTime) / (1000 / 60)))
         : 1;
-      // Cards travel into the grid while scrolling down. Follow that direction
-      // a little more aggressively; the reverse suction keeps its existing
-      // softer response because it already feels smooth on touch devices.
-      const basePositionSmoothing = mobileQuery.matches
-        ? scrollDirection >= 0 ? .56 : .42
-        : .46;
-      const positionSmoothing = 1 - ((1 - basePositionSmoothing) ** elapsedFrames);
       previousFrameTime = frameTime;
       let isMoving = false;
       visibleRevealItems.forEach((item) => {
         const motion = revealMotions.get(item);
         if (!motion) return;
+        const isSticker = item.classList.contains('feature-sticker-list-item');
+        // Text cards and first-pass image cards are more expensive to paint
+        // than stickers (long glyph runs, shadows and image decode). Let
+        // their compact entrance catch up faster while preserving the softer
+        // reverse suction and the existing sticker timing.
+        const basePositionSmoothing = mobileQuery.matches && scrollDirection >= 0
+          ? isSticker ? .56 : .72
+          : mobileQuery.matches ? .42 : .46;
+        const positionSmoothing = 1 - ((1 - basePositionSmoothing) ** elapsedFrames);
         const baseScaleSmoothing = motion.targetScale < motion.scale
           ? .58
-          : mobileQuery.matches ? .64 : .52;
+          : mobileQuery.matches ? isSticker ? .64 : .76 : .52;
         const scaleSmoothing = 1 - ((1 - baseScaleSmoothing) ** elapsedFrames);
         motion.scale += (motion.targetScale - motion.scale) * scaleSmoothing;
         motion.x += (motion.targetX - motion.x) * positionSmoothing;
@@ -538,6 +586,7 @@ const FeatureClipboard: React.FC = () => {
       revealItems.forEach((item) => {
         item.style.removeProperty('transform');
         item.style.removeProperty('will-change');
+        item.style.removeProperty('content-visibility');
         item.style.removeProperty('--feature-item-reveal-scale');
         item.style.removeProperty('--feature-item-launch-x');
         item.style.removeProperty('--feature-item-launch-y');
