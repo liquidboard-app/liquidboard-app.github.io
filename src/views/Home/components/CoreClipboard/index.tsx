@@ -136,9 +136,11 @@ const CoreClipboard: React.FC = () => {
       // iOS can keep the text layer in its blurred raster surface after the
       // keyframe has reached blur(0). Flatten each finished grapheme back to a
       // normal text layer so visible letters are always crisp.
+      event.target.style.animation = 'none';
       event.target.style.filter = 'none';
       event.target.style.opacity = '1';
       event.target.style.transform = 'none';
+      event.target.style.willChange = 'auto';
     };
     headingElement?.addEventListener('animationend', finalizeCompactHeadingGrapheme);
 

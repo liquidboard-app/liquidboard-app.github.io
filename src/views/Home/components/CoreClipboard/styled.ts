@@ -5,6 +5,14 @@ const coreHeadingTextReveal = keyframes`
   to { transform: translateY(0); opacity: 1; filter: blur(0); }
 `;
 
+// Mobile Safari can keep a blurred raster surface for a split grapheme even
+// after the regular keyframe reaches blur(0). Keep the compact entrance crisp
+// while retaining the same lift and stagger motion.
+const coreHeadingTextRevealCompact = keyframes`
+  from { transform: translateY(112%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+`;
+
 const coreHeadingUnderline = keyframes`
   0%, 12% { transform: scaleX(0); transform-origin: left center; }
   100% { transform: scaleX(1); transform-origin: left center; }
@@ -209,6 +217,11 @@ export const CoreClipboardSection = styled.section`
     animation-duration: var(--core-text-duration);
     animation-timing-function: cubic-bezier(.215, .61, .355, 1);
     animation-fill-mode: forwards;
+  }
+  @media (max-width: 1199px) {
+    &.is-heading-animated .core-heading-grapheme {
+      animation-name: ${coreHeadingTextRevealCompact};
+    }
   }
   .core-heading-highlight {
     position: relative;
