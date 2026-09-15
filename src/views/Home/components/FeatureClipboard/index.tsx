@@ -509,16 +509,17 @@ const FeatureClipboard: React.FC = () => {
         if (!motion) return;
         const isSticker = item.classList.contains('feature-sticker-list-item');
         // Text cards and first-pass image cards are more expensive to paint
-        // than stickers (long glyph runs, shadows and image decode). Let
-        // their compact entrance catch up faster while preserving the softer
-        // reverse suction and the existing sticker timing.
+        // than stickers (long glyph runs, shadows and image decode). Follow
+        // their forward position and scale directly so slow scrolls cannot
+        // leave the cards visibly behind; keep the softer reverse suction and
+        // existing sticker timing.
         const basePositionSmoothing = compactLayout && scrollDirection >= 0
-          ? isSticker ? .56 : .9
+          ? isSticker ? .56 : 1
           : compactLayout ? .42 : .46;
         const positionSmoothing = 1 - ((1 - basePositionSmoothing) ** elapsedFrames);
         const baseScaleSmoothing = motion.targetScale < motion.scale
           ? .58
-          : compactLayout ? isSticker ? .64 : .88 : .52;
+          : compactLayout ? isSticker ? .64 : 1 : .52;
         const scaleSmoothing = 1 - ((1 - baseScaleSmoothing) ** elapsedFrames);
         motion.scale += (motion.targetScale - motion.scale) * scaleSmoothing;
         motion.x += (motion.targetX - motion.x) * positionSmoothing;
