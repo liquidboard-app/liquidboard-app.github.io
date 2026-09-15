@@ -443,13 +443,13 @@ const CoreClipboard: React.FC = () => {
             // The initial hold shifts the second-phone landing earlier in the
             // normalized timeline; keep the middle snap on phone two instead
             // of letting it settle at the start of phone three's transition.
-            // A zero delay makes a completed touch gesture commit to the
-            // checkpoint immediately, so the scene never remains half-way
-            // between phones while the user starts the next swipe.
+            // GSAP treats a literal 0 as "use the default" (100ms). Use a
+            // tiny positive delay so a completed touch gesture commits to the
+            // checkpoint immediately instead of lingering between phones.
             snapTo: [0, .48, 1],
             directional: true,
             inertia: false,
-            delay: 0,
+            delay: .001,
             duration: { min: .18, max: .36 },
             ease: 'power3.out',
           } : undefined,
