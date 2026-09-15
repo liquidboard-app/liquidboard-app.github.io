@@ -246,9 +246,7 @@ const FeatureClipboard: React.FC = () => {
 
     // The image rail and the sticker rail share the same source files. Warm
     // those small responsive assets before the first cards reach the launch
-    // point so Safari does not spend a scroll frame decoding them. Stickers
-    // appeared smoother because the same files had already been decoded by
-    // the time their section entered the viewport.
+    // point to reduce the chance of decoding work during the entrance.
     let warmed = false;
     let observer: IntersectionObserver | undefined;
     const warmGalleryImages = () => {
@@ -363,11 +361,10 @@ const FeatureClipboard: React.FC = () => {
         // Keep the launch on one compositor transform. Updating three custom
         // properties per frame makes mobile browsers recalculate the transform
         // expression for every card while the list is moving.
-        if (item.style.willChange !== 'transform') item.style.willChange = 'transform';
-        item.style.transform = `translate3d(${motion.x.toFixed(2)}px, ${(motion.y + staggerY).toFixed(2)}px, 0) scale(${motion.scale.toFixed(3)})`;
+        item.style.transform = `translate3d(${motion.x.toFixed(2)}px, ${(motion.y + staggerY).toFixed(2)}px, 0) scale(${motion.scale.toFixed(5)})`;
         return;
       }
-      item.style.setProperty('--feature-item-reveal-scale', motion.scale.toFixed(3));
+      item.style.setProperty('--feature-item-reveal-scale', motion.scale.toFixed(5));
       item.style.setProperty('--feature-item-launch-x', `${motion.x.toFixed(2)}px`);
       item.style.setProperty('--feature-item-launch-y', `${motion.y.toFixed(2)}px`);
     };
@@ -460,36 +457,24 @@ const FeatureClipboard: React.FC = () => {
       updates.forEach(({ item, scale, x, y, active, aboveViewport }) => {
         const motion = revealMotions.get(item);
         const wasActive = visibleRevealItems.has(item);
-        const canSkipPaint = item.classList.contains('feature-text-list-item')
-          || item.classList.contains('feature-image-list-item');
-        if (active) {
-          visibleRevealItems.add(item);
-          if (item.style.willChange !== 'transform') item.style.willChange = 'transform';
-          if (canSkipPaint && item.style.contentVisibility !== 'visible') item.style.contentVisibility = 'visible';
-        } else {
+        if (!active) {
           visibleRevealItems.delete(item);
           if (item.style.willChange !== 'auto') item.style.willChange = 'auto';
-          // Long text cards and first-pass image cards are the expensive
-          // surfaces. Let the browser skip painting their off-screen content;
-          // the active window above switches them back before launch.
-          if (canSkipPaint && item.style.contentVisibility !== 'auto') item.style.contentVisibility = 'auto';
-        }
-
-        if (!motion || immediate || (active && !wasActive)) {
-          setRevealMotionImmediate(item, scale, x, y);
+          // Future rows used to be translated back to the viewport bottom on
+          // every scroll, including rows in the other two rails. Hide and park
+          // them once: no moving tiny surfaces or layer promotion off-screen.
+          if (item.style.visibility !== 'hidden') item.style.visibility = 'hidden';
+          if (!motion || wasActive || immediate) {
+            setRevealMotionImmediate(item, aboveViewport ? 1 : minimumScale);
+          }
           return;
         }
-        if (!active) {
-          const endpointScale = aboveViewport ? 1 : minimumScale;
-          const endpointX = aboveViewport ? 0 : x;
-          const endpointY = aboveViewport ? 0 : y;
-          if (
-            Math.abs(motion.scale - endpointScale) > .001
-            || Math.abs(motion.x - endpointX) > .05
-            || Math.abs(motion.y - endpointY) > .05
-          ) {
-            setRevealMotionImmediate(item, endpointScale, endpointX, endpointY);
-          }
+
+        visibleRevealItems.add(item);
+        if (item.style.willChange !== 'transform') item.style.willChange = 'transform';
+        if (item.style.visibility !== 'visible') item.style.visibility = 'visible';
+        if (!motion || immediate || !wasActive) {
+          setRevealMotionImmediate(item, scale, x, y);
           return;
         }
         motion.targetScale = scale;
@@ -507,19 +492,12 @@ const FeatureClipboard: React.FC = () => {
       visibleRevealItems.forEach((item) => {
         const motion = revealMotions.get(item);
         if (!motion) return;
-        const isSticker = item.classList.contains('feature-sticker-list-item');
-        // Text cards and first-pass image cards are more expensive to paint
-        // than stickers (long glyph runs, shadows and image decode). Follow
-        // their forward position and scale directly so slow scrolls cannot
-        // leave the cards visibly behind; keep the softer reverse suction and
-        // existing sticker timing.
-        const basePositionSmoothing = compactLayout && scrollDirection >= 0
-          ? isSticker ? .56 : 1
-          : compactLayout ? .42 : .46;
+        // All compact rails use the sticker response. Direct assignment for
+        // text/images stopped their rAF loop after each scroll notification,
+        // exposing gaps between native touch scroll events on slow gestures.
+        const basePositionSmoothing = scrollDirection >= 0 ? .56 : .42;
         const positionSmoothing = 1 - ((1 - basePositionSmoothing) ** elapsedFrames);
-        const baseScaleSmoothing = motion.targetScale < motion.scale
-          ? .58
-          : compactLayout ? isSticker ? .64 : 1 : .52;
+        const baseScaleSmoothing = motion.targetScale < motion.scale ? .58 : .64;
         const scaleSmoothing = 1 - ((1 - baseScaleSmoothing) ** elapsedFrames);
         motion.scale += (motion.targetScale - motion.scale) * scaleSmoothing;
         motion.x += (motion.targetX - motion.x) * positionSmoothing;
@@ -587,7 +565,7 @@ const FeatureClipboard: React.FC = () => {
       revealItems.forEach((item) => {
         item.style.removeProperty('transform');
         item.style.removeProperty('will-change');
-        item.style.removeProperty('content-visibility');
+        item.style.removeProperty('visibility');
         item.style.removeProperty('--feature-item-reveal-scale');
         item.style.removeProperty('--feature-item-launch-x');
         item.style.removeProperty('--feature-item-launch-y');
