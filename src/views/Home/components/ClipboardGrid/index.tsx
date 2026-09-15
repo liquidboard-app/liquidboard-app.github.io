@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import GridBackground from '@/components/GridBackground';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getHeroImageSrcSet, heroImageSizes } from '@/utils/responsiveImages';
+import { publicAsset } from '@/utils/publicAssets';
 import { getHeroClipboardItemCopy, type HeroClipboardItemKey } from '../../heroClipboardCopy';
 import { ClipboardGridSection } from './styled';
 
@@ -26,17 +27,17 @@ type ItemStyle = React.CSSProperties & Record<`--${string}`, string>;
 type LayoutPlacement = { x: number; y: number; scale: number };
 
 const galleryImages = [
-  { src: '/assets/hero-image/HERO_IMG_1.JPG', alt: 'Sculptural green landscape' },
-  { src: '/assets/hero-image/HERO_IMG_2.JPG', alt: 'Blue botanical composition' },
-  { src: '/assets/hero-image/HERO_IMG_3.JPG', alt: 'Architectural curve at dusk' },
-  { src: '/assets/hero-image/HERO_IMG_4.JPG', alt: 'Circular wheat field beneath a blue sky' },
-  { src: '/assets/hero-image/HERO_IMG_5.JPG', alt: 'Layered garden waterfalls' },
-  { src: '/assets/hero-image/HERO_IMG_6.JPG', alt: 'Fashion portrait framed by foliage' },
-  { src: '/assets/hero-image/HERO_IMG_7.JPG', alt: 'Concrete bridge between buildings' },
-  { src: '/assets/hero-image/HERO_IMG_8.JPG', alt: 'Monumental circular sculpture' },
-  { src: '/assets/hero-image/HERO_IMG_9.JPG', alt: 'Red architectural landscape' },
-  { src: '/assets/hero-image/HERO_IMG_10.JPG', alt: 'Figure crossing a concrete bridge' },
-  { src: '/assets/hero-image/HERO_IMG_11.JPG', alt: 'Figure standing among dark basalt columns' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_1.JPG'), alt: 'Sculptural green landscape' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_2.JPG'), alt: 'Blue botanical composition' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_3.JPG'), alt: 'Architectural curve at dusk' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_4.JPG'), alt: 'Circular wheat field beneath a blue sky' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_5.JPG'), alt: 'Layered garden waterfalls' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_6.JPG'), alt: 'Fashion portrait framed by foliage' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_7.JPG'), alt: 'Concrete bridge between buildings' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_8.JPG'), alt: 'Monumental circular sculpture' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_9.JPG'), alt: 'Red architectural landscape' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_10.JPG'), alt: 'Figure crossing a concrete bridge' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_11.JPG'), alt: 'Figure standing among dark basalt columns' },
 ];
 
 const linkPreviewImages = {

@@ -1,10 +1,12 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getHeroImageSrcSet, heroImageSizes } from '@/utils/responsiveImages';
+import { publicAsset } from '@/utils/publicAssets';
 import { splitGraphemes } from '@/utils/graphemes';
 import { getFeatureClipboardContent, type FeatureClipboardKey } from '../../featureClipboardContent';
 import { getHeroClipboardItemCopy, type HeroTextItemKey } from '../../heroClipboardCopy';
 import { FeatureClipboardSection } from './styled';
+import { bindPhaseScrollInput, clipboardPhaseAt, createClipboardPhases, railProgress } from '@/utils/scrollPhases';
 
 const featureItems: FeatureClipboardKey[] = ['text', 'image', 'sticker'];
 const localizedTextItemKeys: HeroTextItemKey[] = [
@@ -74,17 +76,17 @@ const textItems = [
 ] as const;
 
 const galleryImages = [
-  { src: '/assets/hero-image/HERO_IMG_1.JPG', alt: 'Sculptural green landscape' },
-  { src: '/assets/hero-image/HERO_IMG_2.JPG', alt: 'Blue botanical composition' },
-  { src: '/assets/hero-image/HERO_IMG_3.JPG', alt: 'Architectural curve at dusk' },
-  { src: '/assets/hero-image/HERO_IMG_4.JPG', alt: 'Circular wheat field beneath a blue sky' },
-  { src: '/assets/hero-image/HERO_IMG_5.JPG', alt: 'Layered garden waterfalls' },
-  { src: '/assets/hero-image/HERO_IMG_6.JPG', alt: 'Fashion portrait framed by foliage' },
-  { src: '/assets/hero-image/HERO_IMG_7.JPG', alt: 'Concrete bridge between buildings' },
-  { src: '/assets/hero-image/HERO_IMG_8.JPG', alt: 'Monumental circular sculpture' },
-  { src: '/assets/hero-image/HERO_IMG_9.JPG', alt: 'Red architectural landscape' },
-  { src: '/assets/hero-image/HERO_IMG_10.JPG', alt: 'Figure crossing a concrete bridge' },
-  { src: '/assets/hero-image/HERO_IMG_11.JPG', alt: 'Figure standing among dark basalt columns' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_1.JPG'), alt: 'Sculptural green landscape' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_2.JPG'), alt: 'Blue botanical composition' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_3.JPG'), alt: 'Architectural curve at dusk' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_4.JPG'), alt: 'Circular wheat field beneath a blue sky' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_5.JPG'), alt: 'Layered garden waterfalls' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_6.JPG'), alt: 'Fashion portrait framed by foliage' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_7.JPG'), alt: 'Concrete bridge between buildings' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_8.JPG'), alt: 'Monumental circular sculpture' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_9.JPG'), alt: 'Red architectural landscape' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_10.JPG'), alt: 'Figure crossing a concrete bridge' },
+  { src: publicAsset('/assets/hero-image/HERO_IMG_11.JPG'), alt: 'Figure standing among dark basalt columns' },
 ] as const;
 
 const imageItems = Array.from({ length: 30 }, (_, index) => ({
@@ -103,15 +105,15 @@ type TextClipboardRailItem =
   | { id: string; type: 'color'; name: string; value: string; color: string; lightText?: boolean };
 
 const textRailExtras: TextClipboardRailItem[] = [
-  { id: 'link-product', type: 'link', title: 'LiquidBoard', href: 'liquidboard.io', image: '/assets/hero-image/HERO_IMG_8.JPG', alt: 'LiquidBoard product preview' },
+  { id: 'link-product', type: 'link', title: 'LiquidBoard', href: 'liquidboard.io', image: publicAsset('/assets/hero-image/HERO_IMG_8.JPG'), alt: 'LiquidBoard product preview' },
   { id: 'color-azure', type: 'color', name: 'Azure Blue', value: '#3B82F6', color: '#3b82f6', lightText: true },
-  { id: 'link-portfolio', type: 'link', title: 'Product portfolio', href: 'behance.net/liquidboard', image: '/assets/hero-image/HERO_IMG_6.JPG', alt: 'Product portfolio preview' },
+  { id: 'link-portfolio', type: 'link', title: 'Product portfolio', href: 'behance.net/liquidboard', image: publicAsset('/assets/hero-image/HERO_IMG_6.JPG'), alt: 'Product portfolio preview' },
   { id: 'color-coral', type: 'color', name: 'Soft Coral', value: '#FF7A70', color: '#ff7a70' },
-  { id: 'link-campaign', type: 'link', title: 'Campaign reference', href: 'notion.so/launch-board', image: '/assets/hero-image/HERO_IMG_9.JPG', alt: 'Campaign reference preview' },
+  { id: 'link-campaign', type: 'link', title: 'Campaign reference', href: 'notion.so/launch-board', image: publicAsset('/assets/hero-image/HERO_IMG_9.JPG'), alt: 'Campaign reference preview' },
   { id: 'color-forest', type: 'color', name: 'Forest Green', value: '#175C45', color: '#175c45', lightText: true },
-  { id: 'link-mockup', type: 'link', title: 'iPhone mockup', href: 'figma.com/file/mockup', image: '/assets/hero-image/HERO_IMG_3.JPG', alt: 'iPhone mockup preview' },
+  { id: 'link-mockup', type: 'link', title: 'iPhone mockup', href: 'figma.com/file/mockup', image: publicAsset('/assets/hero-image/HERO_IMG_3.JPG'), alt: 'iPhone mockup preview' },
   { id: 'color-lilac', type: 'color', name: 'Electric Lilac', value: '#8B5CF6', color: '#8b5cf6', lightText: true },
-  { id: 'link-brief', type: 'link', title: 'Creative brief', href: 'docs.google.com/brief', image: '/assets/hero-image/HERO_IMG_1.JPG', alt: 'Creative brief preview' },
+  { id: 'link-brief', type: 'link', title: 'Creative brief', href: 'docs.google.com/brief', image: publicAsset('/assets/hero-image/HERO_IMG_1.JPG'), alt: 'Creative brief preview' },
   { id: 'color-electric-blue', type: 'color', name: 'Electric Blue', value: '#243CFF', color: '#243cff', lightText: true },
   { id: 'link-apple', type: 'link', title: 'Apple', href: 'apple.com', image: 'https://image.thum.io/get/width/1200/crop/720/noanimate/https://www.apple.com/', alt: 'Apple website preview' },
   { id: 'color-warm-lemon', type: 'color', name: 'Warm Lemon', value: '#F4CB3F', color: '#f4cb3f' },
@@ -539,9 +541,18 @@ const FeatureClipboard: React.FC = () => {
           // leaving an empty scroll segment before the rail enters view.
           return pin.clientHeight * .84;
         };
-        const listEndOffset = (listTrack: HTMLDivElement, listViewport: HTMLDivElement) => (
-          -listTrack.scrollHeight + listViewport.clientHeight * (compact ? .60 : .88)
-        );
+        const listEndOffset = (listTrack: HTMLDivElement, listViewport: HTMLDivElement) => {
+          if (!compact && listTrack === stickerListTrack) {
+            const visibleItems = Array.from(listTrack.children) as HTMLElement[];
+            const lastCenter = Math.max(0, ...visibleItems
+              .filter((item) => item.offsetWidth > 0)
+              .map((item) => item.offsetTop + item.offsetHeight * .5));
+            // The final row must reach the reading position before leaving
+            // the section; the old endpoint left it near the bottom edge.
+            return listViewport.clientHeight * .5 - lastCenter;
+          }
+          return -listTrack.scrollHeight + listViewport.clientHeight * (compact ? .60 : .88);
+        };
         const copyContents = Array.from(track.querySelectorAll('.feature-clipboard-copy-content')) as HTMLElement[];
         const listViewports = [textListViewport, imageListViewport, stickerListViewport];
         const allTextListItems = Array.from(textListTrack.children) as HTMLElement[];
@@ -838,34 +849,18 @@ const FeatureClipboard: React.FC = () => {
         gsap.set(textListTrack, { x: 0, y: () => listStartOffset(textListViewport), willChange: 'transform' });
         gsap.set(imageListTrack, { x: 0, y: () => listStartOffset(imageListViewport), willChange: 'transform' });
         gsap.set(stickerListTrack, { x: 0, y: () => listStartOffset(stickerListViewport), willChange: 'transform' });
-        const textVerticalDistance = Math.max(listTravelDistance(textListTrack, textListViewport), 1);
-        const imageVerticalDistance = Math.max(listTravelDistance(imageListTrack, imageListViewport), 1);
-        const stickerVerticalDistance = Math.max(listTravelDistance(stickerListTrack, stickerListViewport), 1);
-        // Reserve a center beat after each phase arrives. The copy is revealed
-        // blurred in the center, moves into the left column while keeping its
-        // centered text alignment, then the list gets its own scroll distance.
-        const phaseCenterHold = Math.max(320, Math.min(500, window.innerHeight * .40));
-        const copyMoveScrollGuard = Math.max(760, Math.min(920, window.innerHeight * .86));
-        const copyMoveDuration = .42;
+        const listTracks = [textListTrack, imageListTrack, stickerListTrack];
+        const measurePhases = () => createClipboardPhases(
+          listTracks.map((rail, index) => listTravelDistance(rail, listViewports[index])),
+          Math.max(320, Math.min(500, window.innerHeight * .40)),
+          80,
+        );
+        // Fixed until an explicit layout refresh; never changed by scroll input.
+        let phases = measurePhases();
+        const copyMoveDuration = .52;
         const copyReturnDuration = copyMoveDuration;
         const copyHideDuration = .42;
         const phaseHandoffDuration = .72;
-        const phaseIntroDistance = phaseCenterHold + copyMoveScrollGuard;
-        const listRevealDistance = Math.max(96, Math.min(180, window.innerHeight * .12));
-        const textRailStart = phaseIntroDistance + listRevealDistance;
-        const firstSlideStart = textRailStart + textVerticalDistance;
-        // Start each panel handoff at the exact end of the preceding list.
-        // The next title waits for the .72s panel landing, so there is no
-        // empty, scroll-sized gap between the two phases.
-        const imageRailStart = firstSlideStart;
-        const imageContentStart = imageRailStart + phaseIntroDistance + listRevealDistance;
-        const secondSlideStart = imageContentStart + imageVerticalDistance;
-        const stickerRailStart = secondSlideStart;
-        const stickerContentStart = stickerRailStart + phaseIntroDistance + listRevealDistance;
-        const totalDistance = stickerContentStart + stickerVerticalDistance;
-        const phaseStarts = [0, imageRailStart, stickerRailStart];
-        const railStarts = [textRailStart, imageContentStart, stickerContentStart];
-        const copyMoveStarts = phaseStarts.map((phaseStart) => phaseStart + phaseCenterHold);
 
         type CopyTween = ReturnType<typeof gsap.timeline>;
         type TrackTween = ReturnType<typeof gsap.to>;
@@ -878,28 +873,23 @@ const FeatureClipboard: React.FC = () => {
         const copyMoveTweens: Array<CopyTween | undefined> = [];
         const copyHoldReady: boolean[] = copyContents.map(() => false);
         const copyMoveComplete: boolean[] = copyContents.map(() => false);
-        const copyRevealProgress: number[] = copyContents.map(() => 0);
         const copyReverseComplete: boolean[] = copyContents.map(() => false);
-        const copyReverseCentered: boolean[] = copyContents.map(() => false);
-        const copyReverseCenterProgress: number[] = copyContents.map(() => 0);
         // A phase may only begin its center reveal once its horizontal panel
         // handoff has landed. Without this gate, phase 2/3 reveal off-screen
         // while the previous panel slides away and appear already finished.
         const phaseReady: boolean[] = copyContents.map((_copy, index) => index === 0);
         const listVisibility: boolean[] = listViewports.map(() => false);
-        const listTracks = [textListTrack, imageListTrack, stickerListTrack];
-        // Each rail receives its own zero point only after the matching title
-        // has physically landed on the left. This makes its scroll range
-        // independent from a fast wheel gesture during the title transition.
+        // Origins are fixed for the scene's lifetime. A rail becomes active
+        // only after its title lands; transition input cannot shift its origin.
         const listStartProgress: number[] = listViewports.map(() => Number.NaN);
         const listRenderedProgress = listViewports.map(() => 0);
-        const listScrollOffsets = listViewports.map(() => 0);
         const copyRevealDuration = .68;
-        const copyMoveScrollDistance = Math.max(240, Math.min(360, window.innerHeight * .30));
+
         let latestProgressDistance = 0;
         let latestDirection = 1;
         let trackHandoffIndex = 0;
         let trackMoving = false;
+        let nativeSeekRequested = false;
 
         const syncListRail = (index: number, progressDistance: number) => {
           if (trackMoving || index !== trackHandoffIndex) return;
@@ -916,9 +906,7 @@ const FeatureClipboard: React.FC = () => {
           // The travel ratio is identical for every rail, regardless of when
           // its title finishes moving or how many cards it contains.
           const endProgress = startProgress + Math.max(listTravelDistance(rail, viewport), 1);
-          const progress = endProgress > startProgress
-            ? Math.max(0, Math.min(1, (progressDistance + listScrollOffsets[index] - startProgress) / (endProgress - startProgress)))
-            : 1;
+          const progress = railProgress(progressDistance, startProgress, endProgress - startProgress);
           const endY = listEndOffset(rail, viewport);
           listRenderedProgress[index] = progress;
           gsap.set(rail, { y: startY + ((endY - startY) * progress) });
@@ -933,10 +921,10 @@ const FeatureClipboard: React.FC = () => {
           listViewports.forEach((viewport, index) => {
             // A rail remains visible until it has fully returned to its first
             // row. Only then may the title leave the left column on reverse.
-            const revealStart = railStarts[index] ?? Number.POSITIVE_INFINITY;
+            const revealStart = phases.railStarts[index] ?? Number.POSITIVE_INFINITY;
             const shouldShow = copyMotionStates[index] === 'left'
               && copyMoveComplete[index]
-              && progressDistance + listScrollOffsets[index] >= revealStart;
+              && progressDistance >= revealStart;
             if (shouldShow === listVisibility[index]) return;
             listVisibility[index] = shouldShow;
             gsap.to(viewport, {
@@ -948,11 +936,7 @@ const FeatureClipboard: React.FC = () => {
           });
         };
 
-        const copyMoveThreshold = (index: number) => Math.max(
-          copyMoveStarts[index] ?? Number.POSITIVE_INFINITY,
-          (copyRevealProgress[index] ?? 0) + copyMoveScrollDistance,
-        );
-        const copyReverseHideDistance = Math.max(56, Math.min(96, window.innerHeight * .08));
+        const copyMoveThreshold = (index: number) => phases.railStarts[index];
 
         const killCopyTweens = (index: number) => {
           copyHoldReady[index] = false;
@@ -994,9 +978,6 @@ const FeatureClipboard: React.FC = () => {
           copyMotionStates[index] = 'center';
           copyMoveComplete[index] = false;
           copyReverseComplete[index] = false;
-          copyReverseCentered[index] = false;
-          copyReverseCenterProgress[index] = 0;
-          copyRevealProgress[index] = latestProgressDistance;
           syncListVisibility(latestProgressDistance);
           if (wasHidden) {
             reveal.eventCallback('onComplete', () => {
@@ -1025,23 +1006,30 @@ const FeatureClipboard: React.FC = () => {
           gsap.set(nodes, { filter: 'blur(0px)', opacity: 1 });
           copyMoveComplete[index] = false;
           copyReverseComplete[index] = false;
-          copyReverseCentered[index] = false;
-          copyReverseCenterProgress[index] = 0;
           syncListVisibility(latestProgressDistance);
           const move = gsap.timeline({ defaults: { overwrite: 'auto' } });
-          move.to(copy, {
-            '--feature-copy-scroll-x': '0px',
-            duration: copyMoveDuration,
+          const horizontal = { value: copyCenterOffset(copy) };
+          // Keep a soft, readable silhouette while the copy travels. Setting
+          // opacity to zero before the x tween made the title disappear and
+          // reappear at its destination, which looked like a jump.
+          move.to(nodes, { opacity: .42, filter: 'blur(14px)', duration: .10, ease: 'power2.in' }, 0);
+          move.to(horizontal, {
+            value: 0,
+            duration: copyMoveDuration - .22,
             ease: 'power2.inOut',
-          }, 0);
+            onUpdate: () => {
+              // Write through style.setProperty so CSS custom properties are
+              // interpolated consistently in every GSAP bundle/runtime.
+              copy.style.setProperty('--feature-copy-scroll-x', `${horizontal.value}px`);
+            },
+          }, .10);
+          move.to(nodes, { opacity: 1, filter: 'blur(0px)', duration: .12, ease: 'power2.out' }, copyMoveDuration - .12);
           move.eventCallback('onComplete', () => {
             gsap.set(copy, { '--feature-copy-scroll-x': '0px', '--feature-copy-align': 'center' });
             copyMoveComplete[index] = true;
-            // Use the current scroll position as the rail's origin. The
-            // first visible row therefore stays put until the title motion
-            // ends, even if scrolling continued while that motion played.
-            listStartProgress[index] = latestProgressDistance;
-            listScrollOffsets[index] = 0;
+            // Scroll input is gated during this motion. Keep the rail origin
+            // fixed so its first row and reverse path always share one anchor.
+            listStartProgress[index] = phases.railStarts[index];
             syncListRail(index, latestProgressDistance);
             syncListVisibility(latestProgressDistance);
           });
@@ -1064,10 +1052,8 @@ const FeatureClipboard: React.FC = () => {
           gsap.set(nodes, { filter: 'blur(0px)', opacity: 1, willChange: 'transform,filter,opacity' });
           copyMotionStates[index] = 'left';
           copyMoveComplete[index] = true;
-          listStartProgress[index] = railStarts[index] ?? latestProgressDistance;
+          listStartProgress[index] = phases.railStarts[index] ?? latestProgressDistance;
           copyReverseComplete[index] = false;
-          copyReverseCentered[index] = false;
-          copyReverseCenterProgress[index] = 0;
         };
 
         function returnCopyToCenter(index: number) {
@@ -1080,11 +1066,17 @@ const FeatureClipboard: React.FC = () => {
           copyMoveComplete[index] = false;
           syncListVisibility(latestProgressDistance);
           const returning = gsap.timeline({ defaults: { overwrite: 'auto' } });
-          returning.to(copy, {
-            '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
-            duration: copyReturnDuration,
+          const horizontal = { value: 0 };
+          returning.to(nodes, { opacity: .42, filter: 'blur(14px)', duration: .10, ease: 'power2.in' }, 0);
+          returning.to(horizontal, {
+            value: copyCenterOffset(copy),
+            duration: copyReturnDuration - .22,
             ease: 'power2.inOut',
-          }, 0);
+            onUpdate: () => {
+              copy.style.setProperty('--feature-copy-scroll-x', `${horizontal.value}px`);
+            },
+          }, .10);
+          returning.to(nodes, { opacity: 1, filter: 'blur(0px)', duration: .12, ease: 'power2.out' }, copyReturnDuration - .12);
           returning.eventCallback('onComplete', () => {
             gsap.set(copy, {
               '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
@@ -1092,8 +1084,6 @@ const FeatureClipboard: React.FC = () => {
               '--feature-copy-align': 'center',
             });
             copyMotionStates[index] = 'center';
-            copyReverseCentered[index] = true;
-            copyReverseCenterProgress[index] = latestProgressDistance;
             // If the user changes direction while this copy is centered,
             // allow the normal forward left/list sequence to resume.
             copyHoldReady[index] = true;
@@ -1128,8 +1118,6 @@ const FeatureClipboard: React.FC = () => {
           hiding.eventCallback('onComplete', () => {
             copyMotionStates[index] = 'hidden';
             copyReverseComplete[index] = true;
-            copyReverseCentered[index] = false;
-            copyReverseCenterProgress[index] = 0;
             // The user can stop exactly while the blur-out finishes. Resume
             // the reverse state machine here instead of waiting for another
             // browser scroll event, otherwise the outgoing panel may remain
@@ -1152,8 +1140,6 @@ const FeatureClipboard: React.FC = () => {
           copyMoveComplete[index] = false;
           listStartProgress[index] = Number.NaN;
           syncListRail(index, latestProgressDistance);
-          copyReverseCentered[index] = false;
-          copyReverseCenterProgress[index] = 0;
           syncListVisibility(latestProgressDistance);
         };
 
@@ -1165,15 +1151,14 @@ const FeatureClipboard: React.FC = () => {
           if (index < 0) return;
           const state = copyMotionStates[index];
           const reverseCopyStart = (Number.isFinite(listStartProgress[index])
-            ? listStartProgress[index] : railStarts[index]) - listScrollOffsets[index];
-          if (direction < 0 && progressDistance < reverseCopyStart) {
+            ? listStartProgress[index] : phases.railStarts[index]);
+          if (direction < 0 && progressDistance <= reverseCopyStart) {
             if (state === 'left') {
               returnCopyToCenter(index);
               return;
             }
             if (state === 'center' && copyHoldReady[index]
-              && progressDistance <= (copyReverseCentered[index]
-                ? copyReverseCenterProgress[index] : copyRevealProgress[index]) - copyReverseHideDistance) {
+              && progressDistance <= phases.starts[index] + (index === 0 ? 1 : 0)) {
               hideCopyFromCenter(index);
               return;
             }
@@ -1184,7 +1169,7 @@ const FeatureClipboard: React.FC = () => {
           }
           // If the user reverses while a newly arrived panel is still empty,
           // do not start a fresh reveal only to remove it a moment later.
-          if (direction < 0 && state === 'hidden' && progressDistance < reverseCopyStart) {
+          if (direction < 0 && state === 'hidden' && progressDistance <= reverseCopyStart) {
             syncListVisibility(progressDistance);
             return;
           }
@@ -1203,9 +1188,46 @@ const FeatureClipboard: React.FC = () => {
         };
 
         const trackHandoffTweens: Array<TrackTween | undefined> = [];
+        // Scrollbar dragging, Home/End and restoration are seeks, not wheel
+        // gestures. Resolve their pose directly without fighting native scroll
+        // or replaying a queue of transitions after the section has left view.
+        const settleAtPosition = (distance: number) => {
+          trackHandoffTweens.forEach((tween) => tween?.kill());
+          trackMoving = false;
+          const pose = clipboardPhaseAt(phases, distance);
+          trackHandoffIndex = pose.index;
+          copyContents.forEach((copy, index) => {
+            killCopyTweens(index);
+            phaseReady[index] = index <= pose.index;
+            if (index < pose.index || (index === pose.index && pose.left)) {
+              placeCopyAtLeft(index);
+            } else if (index === pose.index) {
+              gsap.set(copy, {
+                autoAlpha: 1,
+                '--feature-copy-scroll-x': `${copyCenterOffset(copy)}px`,
+                '--feature-copy-scroll-y': '0px',
+              });
+              gsap.set(copyNodes[index], { opacity: 1, filter: 'blur(0px)' });
+              gsap.set(copyWordGroups[index], { opacity: 1, yPercent: 0 });
+              copyMotionStates[index] = 'center';
+              copyHoldReady[index] = true;
+              copyMoveComplete[index] = false;
+              copyReverseComplete[index] = false;
+              listStartProgress[index] = Number.NaN;
+            } else {
+              hideCopy(index);
+            }
+          });
+          latestProgressDistance = distance;
+          gsap.set(track, { x: -(slideDistance() * pose.index) });
+          syncListRails(distance);
+          syncListVisibility(distance);
+          displayedIndex = pose.index;
+          setActiveIndex(pose.index);
+        };
         const syncTrackHandoff = (progressDistance: number, direction: number) => {
           if (trackMoving) return;
-          const scrollTargetIndex = progressDistance < firstSlideStart ? 0 : progressDistance < secondSlideStart ? 1 : 2;
+          const scrollTargetIndex = progressDistance < phases.starts[1] ? 0 : progressDistance < phases.starts[2] ? 1 : 2;
           // A scroll boundary alone cannot advance the panel: the outgoing
           // rail must actually have rendered its final position first.
           if (direction >= 0 && scrollTargetIndex > trackHandoffIndex
@@ -1240,13 +1262,7 @@ const FeatureClipboard: React.FC = () => {
             trackMoving = false;
             phaseReady[targetIndex] = true;
             if (direction < 0) {
-              const retainedProgress = listRenderedProgress[targetIndex];
               placeCopyAtLeft(targetIndex);
-              const start = listStartProgress[targetIndex];
-              const end = start + Math.max(listTravelDistance(listTracks[targetIndex], listViewports[targetIndex]), 1);
-              // Resume from the exact rendered row after landing. Scrolling
-              // during the horizontal handoff must not consume this rail.
-              listScrollOffsets[targetIndex] = start + retainedProgress * (end - start) - latestProgressDistance;
             }
             syncCopyMotion(latestProgressDistance, latestDirection);
             syncListRails(latestProgressDistance);
@@ -1272,13 +1288,22 @@ const FeatureClipboard: React.FC = () => {
           scrollTrigger: {
             trigger: pin,
             start: () => `top ${headerOffset()}px`,
-            end: () => `+=${Math.max(totalDistance, window.innerHeight * 2.4)}`,
+            end: () => `+=${phases.totalDistance}`,
             pin: true,
             scrub: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            onRefresh: () => {
+            onRefreshInit: () => {
               refreshMeasurements();
+              phases = measurePhases();
+              listStartProgress.forEach((start, index) => {
+                if (Number.isFinite(start)) listStartProgress[index] = phases.railStarts[index];
+              });
+            },
+            onRefresh: (self) => {
+              refreshMeasurements();
+              // A layout refresh must not cancel a title transition in flight.
+              if (self.isActive && nativeSeekRequested) settleAtPosition(Math.max(0, self.scroll() - self.start));
               syncListRails(latestProgressDistance);
               updateCardScale();
               updateImageCardScale();
@@ -1288,18 +1313,22 @@ const FeatureClipboard: React.FC = () => {
             // this section. It must begin its blur-in only when the pinned
             // scene actually enters the viewport.
             onEnter: (self) => {
+              if (self.scroll() - self.start >= phases.railStarts[0]) {
+                settleAtPosition(self.scroll() - self.start);
+                return;
+              }
               phaseReady[0] = true;
-              syncCopyMotion(self.progress * totalDistance, 1);
-              syncTrackHandoff(self.progress * totalDistance, 1);
+              syncCopyMotion(Math.max(0, self.scroll() - self.start), 1);
+              syncTrackHandoff(Math.max(0, self.scroll() - self.start), 1);
             },
             onEnterBack: (self) => {
-              const progressDistance = self.progress * totalDistance;
+              const progressDistance = Math.max(0, self.scroll() - self.start);
               // A page can enter this pinned scene from its lower edge (for
               // example after a reload). Rehydrate the current phase in its
               // completed left/list state, then let the normal reverse path
               // bring the list down before returning copy to center.
-              const resumeIndex = progressDistance >= stickerRailStart ? 2
-                : progressDistance >= imageRailStart ? 1
+              const resumeIndex = progressDistance >= phases.starts[2] ? 2
+                : progressDistance >= phases.starts[1] ? 1
                   : 0;
               gsap.set(track, { x: -(slideDistance() * resumeIndex) });
               trackHandoffIndex = resumeIndex;
@@ -1326,14 +1355,19 @@ const FeatureClipboard: React.FC = () => {
               displayedIndex = 0;
               setActiveIndex(0);
             },
+            onLeave: () => settleAtPosition(phases.totalDistance),
             onUpdate: (self) => {
-              const progressDistance = self.progress * totalDistance;
+              const progressDistance = Math.max(0, self.scroll() - self.start);
+              if (nativeSeekRequested && self.isActive && Math.abs(progressDistance - latestProgressDistance) > .5) {
+                settleAtPosition(progressDistance);
+                return;
+              }
               syncCopyMotion(progressDistance, self.direction);
               syncListRails(progressDistance);
               syncTrackHandoff(progressDistance, self.direction);
               // Keep the active phase on the previous panel while the
               // horizontal handoff is in progress.
-              const nextIndex = progressDistance < firstSlideStart ? 0 : progressDistance < secondSlideStart ? 1 : 2;
+              const nextIndex = trackHandoffIndex;
               if (nextIndex === displayedIndex) return;
               displayedIndex = nextIndex;
               setActiveIndex(nextIndex);
@@ -1342,7 +1376,46 @@ const FeatureClipboard: React.FC = () => {
         });
         // ScrollTrigger remains the pin/timing source. Rails are positioned
         // by syncListRail so a list cannot progress behind title movement.
-        timeline.to({}, { duration: totalDistance, ease: 'none' }, 0);
+        timeline.to({}, { duration: 1, ease: 'none' }, 0);
+
+        // One fixed scroll range owns this scene. Stop each gesture at its
+        // next checkpoint before native scrolling happens, and consume no
+        // input during the short, non-scrubbed title/panel transitions.
+        // This replaces changing the pin-spacer height during scroll.
+        const scene = timeline.scrollTrigger;
+        const onSeekPointer = (event: PointerEvent) => {
+          const width = document.documentElement?.clientWidth ?? window.innerWidth;
+          nativeSeekRequested = event.button === 0 && event.clientX >= width - 16;
+        };
+        const onSeekKey = (event: KeyboardEvent) => {
+          if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+          if (event.key === 'Home' || event.key === 'End') nativeSeekRequested = true;
+        };
+        window.addEventListener('pointerdown', onSeekPointer);
+        window.addEventListener('keydown', onSeekKey);
+        motionCleanups.push(() => {
+          window.removeEventListener('pointerdown', onSeekPointer);
+          window.removeEventListener('keydown', onSeekKey);
+        });
+        const motionBusy = () => trackMoving || copyMotionStates.some((state, index) => (
+          state === 'returning' || (state === 'center' && !copyHoldReady[index])
+          || (state === 'left' && !copyMoveComplete[index])
+        ));
+        if (scene) motionCleanups.push(bindPhaseScrollInput({
+          range: () => ({ start: scene.start, end: scene.end }),
+          checkpoints: () => phases.checkpoints,
+          busy: motionBusy,
+          beforeScroll: (distance, direction) => {
+            syncCopyMotion(distance, direction);
+            syncTrackHandoff(distance, direction);
+          },
+          afterScroll: () => {
+            // Only explicit scrollbar/Home/End input may bypass transitions.
+            // Timing or coordinate differences in ordinary scroll are not seeks.
+            nativeSeekRequested = false;
+            ScrollTrigger.update();
+          },
+        }));
       });
 
       cleanup = () => {
@@ -1373,7 +1446,7 @@ const FeatureClipboard: React.FC = () => {
         });
       }
     };
-  }, [compactLayout]);
+  }, [compactLayout, lang]);
 
   return (
     <FeatureClipboardSection ref={sectionRef} aria-label="Clipboard feature highlights">

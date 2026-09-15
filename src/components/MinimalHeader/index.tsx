@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getAccessibilityLabels, getLanguageConfig, getMenuToggleLabels, getUpdatesLabel, supportedLanguages } from '@/locales/config';
 import { sentenceCase } from '@/locales/casing';
+import { publicAsset } from '@/utils/publicAssets';
 import {
   HeaderShell,
   HeaderBrand,
@@ -159,7 +160,7 @@ const MinimalHeader: React.FC = () => {
           onClick={handleHomeNavigation}
         >
           <span className="header-brand-logo" aria-hidden="true">
-            <img src="/assets/logo-app-dark.jpg" alt="" />
+            <img src={publicAsset('/assets/logo-app-dark.jpg')} alt="" />
           </span>
         </HeaderBrand>
 

@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { splitGraphemes } from '@/utils/graphemes';
+import { publicAsset } from '@/utils/publicAssets';
 import { CoreClipboardSection } from './styled';
 
 const phones = [
-  { label: 'Text', image: '/assets/lb-text.webp', tone: 'sand' },
-  { label: 'Image', image: '/assets/lb-photos.webp', tone: 'sky' },
-  { label: 'Sticker', image: '/assets/lb-keyboard.webp', tone: 'violet' },
+  { label: 'Text', image: publicAsset('/assets/lb-text.webp'), tone: 'sand' },
+  { label: 'Image', image: publicAsset('/assets/lb-photos.webp'), tone: 'sky' },
+  { label: 'Sticker', image: publicAsset('/assets/lb-keyboard.webp'), tone: 'violet' },
 ] as const;
 
 const coreHighlightTerms: Record<string, { line1: string; line2: string }> = {
@@ -421,8 +422,8 @@ const CoreClipboard: React.FC = () => {
         <div className="core-app-brand">
           <span className="core-app-name">Liquid</span>
           <span className="core-app-logos" aria-hidden="true">
-            <span className="core-app-icon core-app-icon-light"><img src="/assets/logo-app-light.jpg" alt="" decoding="async" /></span>
-            <span className="core-app-icon core-app-icon-dark"><img src="/assets/logo-app-dark.jpg" alt="" decoding="async" /></span>
+            <span className="core-app-icon core-app-icon-light"><img src={publicAsset('/assets/logo-app-light.jpg')} alt="" decoding="async" /></span>
+            <span className="core-app-icon core-app-icon-dark"><img src={publicAsset('/assets/logo-app-dark.jpg')} alt="" decoding="async" /></span>
           </span>
           <span className="core-app-name">Board</span>
         </div>

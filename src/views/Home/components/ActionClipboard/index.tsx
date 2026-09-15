@@ -1,6 +1,7 @@
 import React from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { bindPhaseScrollInput } from '@/utils/scrollPhases';
 import { Pin as PinIcon } from 'lucide-react';
 import { useTranslation } from '../../../../contexts/LanguageContext';
 import SocialMark, { type SocialName } from '../SocialMark';
@@ -741,38 +742,57 @@ const ActionClipboard: React.FC = () => {
     const media = gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)', () => {
       const heading = section.querySelector('.action-clipboard-heading');
+      const grid = section.querySelector('.action-clipboard-grid');
       const panels = section.querySelectorAll('.action-clipboard-panel');
       const reveal = gsap.timeline({ paused: true });
       const panelReveal = gsap.timeline({ paused: true });
+      let headingRevealing = false;
+      reveal.eventCallback('onComplete', () => { headingRevealing = false; });
+      const revealHeading = () => {
+        headingRevealing = reveal.progress() < 1;
+        reveal.play();
+      };
+      const headingLift = () => Math.min(96, window.innerHeight * .12);
       gsap.set([heading, ...panels], { autoAlpha: 0, filter: 'blur(14px)' });
+      gsap.set(grid, { autoAlpha: 0 });
       reveal
         .to(heading, { autoAlpha: 1, filter: 'blur(0px)', duration: .7, ease: 'power2.out' }, .12)
         .set(heading, { clearProps: 'filter' });
       panelReveal
-        .to(panels, { autoAlpha: 1, filter: 'blur(0px)', duration: .8, stagger: .06, ease: 'power2.out' })
-        .set(panels, { clearProps: 'filter' });
-      ScrollTrigger.create({
+        // Keep the centered reading phase, then blend movement and reveal over
+        // a scroll range instead of switching a timed animation on at one point.
+        .to(heading, { y: () => -headingLift(), duration: .22, ease: 'sine.inOut' }, .75)
+        .to(grid, { y: () => -headingLift(), duration: .22, ease: 'sine.inOut' }, .75)
+        .to(grid, { autoAlpha: 1, duration: .18, ease: 'sine.inOut' }, .77)
+        .to(panels, {
+          autoAlpha: 1, filter: 'blur(0px)', duration: .18,
+          stagger: { amount: .04 }, ease: 'sine.inOut',
+        }, .77)
+        .to({}, { duration: .01 }, .99);
+      const scene = ScrollTrigger.create({
         trigger: section,
-        start: () => `top ${window.innerHeight * .24 - parseFloat(getComputedStyle(section).paddingTop)}px`,
-        end: () => `+=${Math.max(2600, window.innerHeight * 3.6)}`,
+        animation: panelReveal,
+        scrub: .65,
+        start: () => `top ${(window.innerHeight - (heading?.getBoundingClientRect().height ?? 0)) / 2 - parseFloat(getComputedStyle(section).paddingTop)}px`,
+        end: () => `+=${Math.max(1700, window.innerHeight * 2.3)}`,
         pin: section,
         // FeatureClipboard loads its pin asynchronously. Measure this section
         // after upstream pins have added their scroll spacing on every refresh.
         refreshPriority: -10,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onEnter: () => { reveal.play(); },
-        onEnterBack: () => { reveal.play(); },
-        // The first three quarters of the pinned distance belong exclusively to
-        // the heading. Panels require further scrolling, not a timed delay.
-        onUpdate: (self) => {
-          if (self.progress >= .75) panelReveal.play();
-          else if (self.direction < 0) panelReveal.reverse();
-        },
+        onEnter: revealHeading,
+        onEnterBack: revealHeading,
         onLeaveBack: () => {
+          headingRevealing = false;
           reveal.pause(0);
-          panelReveal.pause(0);
         },
+      });
+      return bindPhaseScrollInput({
+        range: () => ({ start: scene.start, end: scene.end }),
+        checkpoints: () => [1, (scene.end - scene.start) * .75, scene.end - scene.start],
+        busy: () => headingRevealing,
+        afterScroll: () => ScrollTrigger.update(),
       });
     }, section);
     return () => media.revert();

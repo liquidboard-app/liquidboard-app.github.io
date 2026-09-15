@@ -5,6 +5,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getAccessibilityLabels, getLanguageConfig, getUpdatesLabel, supportedLanguages } from '@/locales/config';
 import { sentenceCase } from '@/locales/casing';
+import { publicAsset } from '@/utils/publicAssets';
 import {
   Brand,
   HeaderWrapper,
@@ -419,8 +420,8 @@ const Header: React.FC = () => {
           className={`brand-logo ${hasLogoSwapped ? 'has-swapped' : ''} ${showLightLogo ? 'is-light' : ''}`}
           aria-hidden="true"
         >
-          <img className="brand-logo-dark" src="/assets/logo-app-dark.jpg" alt="" />
-          <img className="brand-logo-light" src="/assets/logo-app-light.jpg" alt="" />
+          <img className="brand-logo-dark" src={publicAsset('/assets/logo-app-dark.jpg')} alt="" />
+          <img className="brand-logo-light" src={publicAsset('/assets/logo-app-light.jpg')} alt="" />
         </span>
         <span>LiquidBoard</span>
       </Brand>

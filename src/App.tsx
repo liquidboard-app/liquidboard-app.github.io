@@ -134,7 +134,7 @@ const PageMetadata: React.FC = () => {
     const pageMetadata = pageMetadataByLanguage[lang] ?? pageMetadataByLanguage.en;
     const metadata = pageMetadata[pathname] ?? pageMetadata['/'];
     const description = pathname === '/' ? dict.browserDescription : metadata.description;
-    const canonicalUrl = new URL(pathname, window.location.origin).toString();
+    const canonicalUrl = new URL(`${import.meta.env.BASE_URL}${pathname.replace(/^\//, '')}`, window.location.origin).toString();
     const setMeta = (attribute: 'name' | 'property', key: string, content: string) => {
       let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
       if (!element) {
@@ -419,7 +419,7 @@ const RoutedPages: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+  <BrowserRouter basename={import.meta.env.BASE_URL} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <PageMetadata />
     <ScrollToTop />
     <Header />

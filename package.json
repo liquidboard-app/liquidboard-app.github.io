@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "test:scroll": "node --test tests/scrollPhases.test.mjs tests/featureClipboardScene.test.mjs tests/actionClipboardScene.test.mjs",
     "verify": "tsc --noEmit && eslint . && vite build"
   },
   "dependencies": {
