@@ -280,7 +280,7 @@ export const FeatureClipboardSection = styled.section`
     .feature-clipboard-content.is-text-feature,
     .feature-clipboard-content.is-image-feature,
     .feature-clipboard-content.is-sticker-feature {
-      --feature-content-inline: clamp(24px, 4vw, 40px);
+      --feature-content-inline: clamp(18px, 3vw, 30px);
       height: auto;
     }
     .feature-clipboard-content.is-text-feature .feature-clipboard-copy-content,
@@ -303,7 +303,7 @@ export const FeatureClipboardSection = styled.section`
       width: min(78vw, 628px);
       max-width: 100%;
       box-sizing: border-box;
-      padding-inline: 16px;
+      padding-inline: 8px;
     }
     .feature-clipboard-content.is-text-feature h2,
     .feature-clipboard-content.is-image-feature h2,
@@ -341,8 +341,9 @@ export const FeatureClipboardSection = styled.section`
     .feature-image-list-item,
     .feature-sticker-list-item {
       z-index: var(--feature-item-reveal-z, 1);
-      contain: layout style;
-      content-visibility: auto;
+      contain: layout paint;
+      content-visibility: visible;
+      backface-visibility: hidden;
       transform: none;
       will-change: auto;
     }
@@ -456,7 +457,7 @@ export const FeatureClipboardSection = styled.section`
       left: auto;
       width: 100%;
       min-height: 0;
-      padding: calc(var(--feature-header-height) + 32px) var(--page-gutter) 36px;
+      padding: calc(var(--feature-header-height) + 32px) clamp(12px, 3vw, 16px) 36px;
       text-align: center;
       transform: none;
     }

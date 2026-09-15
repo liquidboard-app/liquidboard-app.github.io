@@ -345,7 +345,7 @@ export const CoreClipboardSection = styled.section`
       backface-visibility: hidden;
       contain: layout paint;
     }
-    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, filter, opacity; }
+    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, opacity; }
     .core-phone-frame { translate: 0; contain: paint; }
   }
 
@@ -375,7 +375,7 @@ export const CoreClipboardSection = styled.section`
       backface-visibility: hidden;
       contain: layout paint;
     }
-    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, filter, opacity; }
+    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, opacity; }
     .core-phone-frame { translate: 0; contain: paint; }
   }
 

@@ -279,6 +279,16 @@ const FeatureClipboard: React.FC = () => {
     const revealMotions = new Map<HTMLElement, RevealMotion>();
 
     const writeRevealMotion = (item: HTMLElement, motion: RevealMotion) => {
+      if (compactLayout) {
+        const staggerY = evenRevealItems.has(item)
+          ? mobileQuery.matches ? 24 : Math.min(38, Math.max(30, window.innerWidth * .03))
+          : 0;
+        // Keep the launch on one compositor transform. Updating three custom
+        // properties per frame makes mobile browsers recalculate the transform
+        // expression for every card while the list is moving.
+        item.style.transform = `translate3d(${motion.x.toFixed(2)}px, ${(motion.y + staggerY).toFixed(2)}px, 0) scale(${motion.scale.toFixed(3)})`;
+        return;
+      }
       item.style.setProperty('--feature-item-reveal-scale', motion.scale.toFixed(3));
       item.style.setProperty('--feature-item-launch-x', `${motion.x.toFixed(2)}px`);
       item.style.setProperty('--feature-item-launch-y', `${motion.y.toFixed(2)}px`);
@@ -402,14 +412,14 @@ const FeatureClipboard: React.FC = () => {
       const elapsedFrames = previousFrameTime
         ? Math.min(2, Math.max(.5, (frameTime - previousFrameTime) / (1000 / 60)))
         : 1;
-      const basePositionSmoothing = mobileQuery.matches ? .24 : .26;
+      const basePositionSmoothing = mobileQuery.matches ? .42 : .46;
       const positionSmoothing = 1 - ((1 - basePositionSmoothing) ** elapsedFrames);
       previousFrameTime = frameTime;
       let isMoving = false;
       visibleRevealItems.forEach((item) => {
         const motion = revealMotions.get(item);
         if (!motion) return;
-        const baseScaleSmoothing = motion.targetScale < motion.scale ? .44 : .38;
+        const baseScaleSmoothing = motion.targetScale < motion.scale ? .58 : .52;
         const scaleSmoothing = 1 - ((1 - baseScaleSmoothing) ** elapsedFrames);
         motion.scale += (motion.targetScale - motion.scale) * scaleSmoothing;
         motion.x += (motion.targetX - motion.x) * positionSmoothing;
@@ -463,6 +473,7 @@ const FeatureClipboard: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       revealItems.forEach((item) => {
+        item.style.removeProperty('transform');
         item.style.removeProperty('--feature-item-reveal-scale');
         item.style.removeProperty('--feature-item-launch-x');
         item.style.removeProperty('--feature-item-launch-y');

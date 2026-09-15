@@ -358,8 +358,11 @@ const CoreClipboard: React.FC = () => {
       const [firstPhone, secondPhone, thirdPhone] = phoneItems;
       if (!firstPhone || !secondPhone || !thirdPhone) return;
 
+      const compact = !window.matchMedia('(min-width: 1200px)').matches;
+      const phoneFilter = compact ? 'none' : 'blur(18px)';
+      const hiddenPhoneFilter = compact ? 'none' : 'blur(22px)';
       const stageShift = () => Math.max(stage.clientWidth * .78, 260);
-      const scrollDistance = () => Math.max(stage.clientHeight * 2.5, 1500);
+      const scrollDistance = () => Math.max(stage.clientHeight * 2.85, 1650);
 
       const context = gsap.context(() => {
         gsap.set(phoneItems, {
@@ -368,11 +371,11 @@ const CoreClipboard: React.FC = () => {
           x: stageShift,
           autoAlpha: 0,
           scale: .94,
-          filter: 'blur(18px)',
+          filter: phoneFilter,
           force3D: true,
-          willChange: 'transform,filter,opacity',
+          willChange: 'transform,opacity',
         });
-        gsap.set(firstPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', zIndex: 1 });
+        gsap.set(firstPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'none', zIndex: 1 });
         gsap.set(secondPhone, { zIndex: 2 });
         gsap.set(thirdPhone, { zIndex: 3 });
 
@@ -380,10 +383,10 @@ const CoreClipboard: React.FC = () => {
         // scroll naturally restores the prior phone from the left, with the
         // same blur/opacity transition and without a separate JS scroll loop.
         const scene = gsap.timeline({ defaults: { overwrite: 'auto' } })
-          .to(secondPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out' })
-          .to(firstPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(22px)', duration: 1, ease: 'power2.inOut' }, '<')
-          .to(thirdPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out' }, '>.2')
-          .to(secondPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(22px)', duration: 1, ease: 'power2.inOut' }, '<');
+          .to(secondPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'none', duration: 1, ease: 'power3.out' })
+          .to(firstPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: hiddenPhoneFilter, duration: 1, ease: 'power2.inOut' }, '<')
+          .to(thirdPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'none', duration: 1, ease: 'power3.out' }, '>.2')
+          .to(secondPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: hiddenPhoneFilter, duration: 1, ease: 'power2.inOut' }, '<');
 
         scrollTrigger = ScrollTrigger.create({
           trigger: stage,
@@ -394,7 +397,15 @@ const CoreClipboard: React.FC = () => {
           anticipatePin: 0,
           refreshPriority: 1,
           animation: scene,
-          scrub: .32,
+          scrub: compact ? .18 : .32,
+          snap: compact ? {
+            snapTo: [0, .55, 1],
+            directional: true,
+            inertia: false,
+            delay: .06,
+            duration: { min: .16, max: .38 },
+            ease: 'power2.out',
+          } : undefined,
           invalidateOnRefresh: true,
         });
       }, stage);

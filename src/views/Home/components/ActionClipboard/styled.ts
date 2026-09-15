@@ -1387,11 +1387,11 @@ export const ActionClipboardSection = styled.section`
     --action-clipboard-pin-to-x: 0px;
   }
   .action-clipboard-group-mockups > .action-clipboard-mockup {
-    width: clamp(56px, 8vw, 96px);
-    height: clamp(56px, 8vw, 96px);
+    width: var(--action-clipboard-group-item-size);
+    height: var(--action-clipboard-group-item-size);
     min-width: 0;
     min-height: 0;
-    flex: 0 0 clamp(56px, 8vw, 96px);
+    flex: 0 0 var(--action-clipboard-group-item-size);
     aspect-ratio: 1 / 1;
     padding: clamp(4px, 1vw, 10px);
     gap: clamp(3px, .8vw, 8px);
@@ -1536,6 +1536,19 @@ export const ActionClipboardSection = styled.section`
       padding-block: clamp(28px, 3.2vw, 36px);
       min-height: calc(clamp(260px, 31vw, 446px) + 2 * (clamp(28px, 3.2vw, 36px) - clamp(14px, 1.6vw, 22px)));
     }
+    /* The scan preview has its own deliberately tall stage. Give the other
+       previews the same breathing room so their content does not collapse on
+       a single-column tablet layout. */
+    .action-clipboard-panel:not(.action-clipboard-panel--scan) {
+      min-height: calc(clamp(260px, 31vw, 446px) + 2 * (clamp(28px, 3.2vw, 36px) - clamp(14px, 1.6vw, 22px)) + 44px);
+    }
+    .action-clipboard-panel:not(.action-clipboard-panel--scan) .action-clipboard-panel-content--group {
+      min-height: clamp(148px, 22vw, 220px);
+    }
+    .action-clipboard-group-mockups,
+    .action-clipboard-clipboard-stage {
+      --action-clipboard-group-item-size: clamp(68px, 9vw, 104px);
+    }
   }
 
   @media (max-width: 700px) {
@@ -1546,9 +1559,20 @@ export const ActionClipboardSection = styled.section`
       min-height: calc(clamp(185px, 48vw, 280px) + 2 * (clamp(28px, 4vw, 36px) - 12px));
       padding: clamp(28px, 4vw, 36px) 12px;
     }
+    .action-clipboard-panel:not(.action-clipboard-panel--scan) {
+      min-height: clamp(350px, 88vw, 410px);
+    }
     .action-clipboard-panel { border-right: 0; }
     .action-clipboard-panel-content { width: min(100%, 150px); }
-    .action-clipboard-panel-content--group { width: 100%; }
+    .action-clipboard-panel-content--group {
+      width: 100%;
+      min-height: clamp(126px, 34vw, 150px);
+    }
+    .action-clipboard-group-mockups,
+    .action-clipboard-clipboard-stage {
+      --action-clipboard-group-item-size: clamp(60px, 15vw, 68px);
+      --action-clipboard-group-item-gap: clamp(5px, 1.4vw, 8px);
+    }
     .action-clipboard-group-mockups { justify-content: center; }
   }
 
