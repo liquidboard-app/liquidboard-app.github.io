@@ -795,6 +795,56 @@ const ActionClipboard: React.FC = () => {
 
   React.useLayoutEffect(() => {
     const section = sectionRef.current;
+    if (!section) return undefined;
+
+    const compactQuery = window.matchMedia('(max-width: 1199px)');
+    const flyTargets = Array.from(section.querySelectorAll<HTMLElement>(
+      '.action-clipboard-group-mockups, .action-clipboard-clipboard-stage',
+    ));
+    const targetItems = (target: HTMLElement) => target.querySelectorAll<HTMLElement>(
+      '.action-clipboard-mockup, .action-clipboard-clipboard-social-card',
+    );
+    const syncFlyOffsets = () => {
+      flyTargets.forEach((target) => {
+        const panel = target.closest<HTMLElement>('.action-clipboard-panel');
+        const island = panel?.querySelector<HTMLElement>('.action-clipboard-panel-bar-shell');
+        if (!panel || !island) return;
+        if (!compactQuery.matches) {
+          targetItems(target)
+            .forEach((item) => item.style.removeProperty('--action-clipboard-fly-y'));
+          return;
+        }
+        // The target wrapper itself has no transform; its center therefore
+        // remains the layout center even while children are flying. Measuring
+        // that center avoids the fixed offset becoming wrong when compact
+        // item height or panel spacing changes.
+        const islandBounds = island.getBoundingClientRect();
+        const targetBounds = target.getBoundingClientRect();
+        const offsetY = (islandBounds.top + islandBounds.height * .5)
+          - (targetBounds.top + targetBounds.height * .5);
+        targetItems(target)
+          .forEach((item) => item.style.setProperty('--action-clipboard-fly-y', `${offsetY.toFixed(2)}px`));
+      });
+    };
+
+    syncFlyOffsets();
+    const resizeObserver = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(syncFlyOffsets);
+    resizeObserver?.observe(section);
+    flyTargets.forEach((target) => resizeObserver?.observe(target));
+    section.querySelectorAll<HTMLElement>('.action-clipboard-panel-bar-shell').forEach((island) => resizeObserver?.observe(island));
+    window.addEventListener('resize', syncFlyOffsets, { passive: true });
+    compactQuery.addEventListener('change', syncFlyOffsets);
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', syncFlyOffsets);
+      compactQuery.removeEventListener('change', syncFlyOffsets);
+      flyTargets.forEach((target) => targetItems(target)
+        .forEach((item) => item.style.removeProperty('--action-clipboard-fly-y')));
+    };
+  }, []);
+
+  React.useLayoutEffect(() => {
+    const section = sectionRef.current;
     if (!section) return;
     gsap.registerPlugin(ScrollTrigger);
     const media = gsap.matchMedia();

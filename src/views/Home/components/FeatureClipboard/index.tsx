@@ -816,6 +816,11 @@ const FeatureClipboard: React.FC = () => {
           ));
         };
         const updateRail = (index: number) => {
+          // Compact cards are rendered by the single compositor reveal loop
+          // above. Running the desktop arc pass here would repeatedly remove
+          // their transform on every scrub frame and make slow touch scrolls
+          // visibly stutter while the two loops fight over the same style.
+          if (compact) return;
           if (index === 0) updateCardScale();
           else if (index === 1) updateImageCardScale();
           else updateStickerCardScale();
