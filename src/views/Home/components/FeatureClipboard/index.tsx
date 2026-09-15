@@ -277,6 +277,42 @@ const FeatureClipboard: React.FC = () => {
       targetY: number;
     };
     const revealMotions = new Map<HTMLElement, RevealMotion>();
+    type RevealGeometry = {
+      track: HTMLElement;
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    const revealGeometry = new Map<HTMLElement, RevealGeometry>();
+    const trackDocumentPositions = new Map<HTMLElement, { top: number; left: number }>();
+    let geometryDirty = true;
+
+    const refreshRevealGeometry = () => {
+      revealGeometry.clear();
+      trackDocumentPositions.clear();
+      const scrollX = window.scrollX || window.pageXOffset;
+      const scrollY = window.scrollY || window.pageYOffset;
+      revealTracks.forEach((track) => {
+        if (!track) return;
+        const bounds = track.getBoundingClientRect();
+        trackDocumentPositions.set(track, {
+          top: bounds.top + scrollY,
+          left: bounds.left + scrollX,
+        });
+        revealItems.forEach((item) => {
+          if (item.parentElement !== track || !item.offsetWidth || !item.offsetHeight) return;
+          revealGeometry.set(item, {
+            track,
+            top: item.offsetTop,
+            left: item.offsetLeft,
+            width: item.offsetWidth,
+            height: item.offsetHeight,
+          });
+        });
+      });
+      geometryDirty = false;
+    };
 
     const writeRevealMotion = (item: HTMLElement, motion: RevealMotion) => {
       if (compactLayout) {
@@ -301,6 +337,7 @@ const FeatureClipboard: React.FC = () => {
     };
 
     const updateRevealItems = (items: Iterable<HTMLElement>, immediate = false) => {
+      if (geometryDirty) refreshRevealGeometry();
       const viewportHeight = Math.max(window.innerHeight, 1);
       const viewportWidth = Math.max(window.innerWidth, 1);
       const mobile = mobileQuery.matches;
@@ -311,7 +348,8 @@ const FeatureClipboard: React.FC = () => {
       // Keeping the origin on the edge (rather than several hundred pixels
       // below it) makes the compact launch match the iPad composition.
       const launchOriginY = viewportHeight;
-      const trackBounds = new Map<HTMLElement, DOMRect>();
+      const scrollX = window.scrollX || window.pageXOffset;
+      const scrollY = window.scrollY || window.pageYOffset;
       const updates: Array<{
         item: HTMLElement;
         scale: number;
@@ -322,33 +360,31 @@ const FeatureClipboard: React.FC = () => {
       }> = [];
 
       for (const item of items) {
-        if (!item.offsetWidth || !item.offsetHeight) continue;
-        const track = item.parentElement;
-        if (!track) continue;
-        let bounds = trackBounds.get(track);
-        if (!bounds) {
-          bounds = track.getBoundingClientRect();
-          trackBounds.set(track, bounds);
-        }
+        const geometry = revealGeometry.get(item);
+        if (!geometry) continue;
+        const trackPosition = trackDocumentPositions.get(geometry.track);
+        if (!trackPosition) continue;
+        const boundsTop = trackPosition.top - scrollY;
+        const boundsLeft = trackPosition.left - scrollX;
 
         const staggerY = evenRevealItems.has(item)
           ? mobile ? 24 : Math.min(38, Math.max(30, viewportWidth * .03))
           : 0;
-        const finalTop = bounds.top + item.offsetTop + staggerY;
+        const finalTop = boundsTop + geometry.top + staggerY;
         const linearProgress = Math.max(0, Math.min(1, (revealStart - finalTop) / (revealStart - revealEnd)));
         // Leave the shared bottom origin quickly, then settle gently into the
         // grid. Reversing the same curve makes the bottom feel magnetic.
         const launchProgress = 1 - ((1 - linearProgress) ** 2.6);
-        const finalCenterX = bounds.left + item.offsetLeft + item.offsetWidth * .5;
-        const finalCenterY = bounds.top + item.offsetTop + staggerY + item.offsetHeight * .5;
+        const finalCenterX = boundsLeft + geometry.left + geometry.width * .5;
+        const finalCenterY = boundsTop + geometry.top + staggerY + geometry.height * .5;
         const y = (launchOriginY - finalCenterY) * (1 - launchProgress);
         // Scale from the item's visible, transformed position instead of its
         // off-screen grid position. The tiny state now reaches the actual
         // bottom edge before expanding, so the launch/suction is perceptible.
-        const rowFinalTop = bounds.top + item.offsetTop;
+        const rowFinalTop = boundsTop + geometry.top;
         const rowLinearProgress = Math.max(0, Math.min(1, (revealStart - rowFinalTop) / (revealStart - revealEnd)));
         const rowLaunchProgress = 1 - ((1 - rowLinearProgress) ** 2.6);
-        const rowFinalCenterY = bounds.top + item.offsetTop + item.offsetHeight * .5;
+        const rowFinalCenterY = boundsTop + geometry.top + geometry.height * .5;
         const rowY = (launchOriginY - rowFinalCenterY) * (1 - rowLaunchProgress);
         const visibleCenterY = rowFinalCenterY + rowY;
         // Make the scale range wider than one compact-grid row. The following
@@ -372,7 +408,7 @@ const FeatureClipboard: React.FC = () => {
           scale: minimumScale + scaleProgress * (1 - minimumScale),
           x,
           y,
-          active: finalTop + item.offsetHeight > viewportHeight * -.4 && finalTop < viewportHeight * 1.5,
+          active: finalTop + geometry.height > viewportHeight * -.4 && finalTop < viewportHeight * 1.5,
           aboveViewport: finalTop < 0,
         });
       }
@@ -463,14 +499,21 @@ const FeatureClipboard: React.FC = () => {
       revealDirty = true;
       requestRender();
     };
+    const handleResize = () => {
+      geometryDirty = true;
+      revealDirty = true;
+      requestRender();
+    };
 
     revealItems.forEach((item) => {
       item.style.setProperty('--feature-item-reveal-z', `${revealLayerByItem.get(item) ?? 1}`);
     });
     updateRevealItems(revealItems, true);
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       revealItems.forEach((item) => {
         item.style.removeProperty('transform');
