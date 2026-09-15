@@ -378,8 +378,8 @@ const CoreClipboard: React.FC = () => {
       // Keep the directional blur on touch layouts, but use a smaller radius
       // than desktop so the transition remains visible without a large paint
       // surface on iPad and mobile GPUs.
-      const phoneFilter = compact ? 'blur(10px)' : 'blur(18px)';
-      const hiddenPhoneFilter = compact ? 'blur(14px)' : 'blur(22px)';
+      const phoneFilter = compact ? 'blur(8px)' : 'blur(18px)';
+      const hiddenPhoneFilter = compact ? 'blur(10px)' : 'blur(22px)';
       const phaseDuration = compact ? .94 : 1;
       const nextPhaseDuration = compact ? 1.10 : 1;
       const phaseGap = compact ? 0 : .2;
@@ -434,7 +434,11 @@ const CoreClipboard: React.FC = () => {
           anticipatePin: 0,
           refreshPriority: 1,
           animation: scene,
-          scrub: compact ? .1 : .32,
+          // Numeric scrub intentionally trails the scroll position. That
+          // delay is noticeable on iOS as a pause before the center phone
+          // starts moving, so touch layouts follow the scroll directly and
+          // let snap own the completed phase handoff.
+          scrub: compact ? true : .32,
           snap: compact ? {
             // The initial hold shifts the second-phone landing earlier in the
             // normalized timeline; keep the middle snap on phone two instead
