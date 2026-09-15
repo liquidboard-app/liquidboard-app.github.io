@@ -1531,6 +1531,10 @@ export const ActionClipboardSection = styled.section`
   @media (max-width: 1199px) {
     .action-clipboard-grid { grid-template-columns: minmax(0, 1fr); }
     .action-clipboard-panel { border-right: 0; }
+    /* The desktop odd-panel rule is more specific than the generic reset
+       above. Once the grid is one column, remove every vertical panel edge
+       and leave the wrapper as the only left/right border. */
+    .action-clipboard-grid > .action-clipboard-panel { border-inline: 0; }
     .action-clipboard-panel:last-child { border-bottom: 0; }
     .action-clipboard-panel {
       padding-block: clamp(28px, 3.2vw, 36px);
