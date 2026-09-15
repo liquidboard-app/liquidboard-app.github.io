@@ -129,6 +129,18 @@ const CoreClipboard: React.FC = () => {
     let scrollDirectionDistance = 0;
     const directionCommitDistance = 80;
     const desktopQuery = window.matchMedia('(min-width: 1200px)');
+    const headingElement = sectionRef.current;
+    const finalizeCompactHeadingGrapheme = (event: AnimationEvent) => {
+      if (desktopQuery.matches || !(event.target instanceof HTMLElement)) return;
+      if (!event.target.classList.contains('core-heading-grapheme')) return;
+      // iOS can keep the text layer in its blurred raster surface after the
+      // keyframe has reached blur(0). Flatten each finished grapheme back to a
+      // normal text layer so visible letters are always crisp.
+      event.target.style.filter = 'none';
+      event.target.style.opacity = '1';
+      event.target.style.transform = 'none';
+    };
+    headingElement?.addEventListener('animationend', finalizeCompactHeadingGrapheme);
 
     const syncPhoneCenterShift = () => {
       const section = sectionRef.current;
@@ -302,6 +314,7 @@ const CoreClipboard: React.FC = () => {
 
       return () => {
         headingObserver.disconnect();
+        headingElement?.removeEventListener('animationend', finalizeCompactHeadingGrapheme);
         window.clearTimeout(headingAnimationTimer);
         window.clearTimeout(sidePhonesAnimationTimer);
         window.clearTimeout(sidePhonesReverseTimer);
@@ -321,6 +334,7 @@ const CoreClipboard: React.FC = () => {
       window.clearTimeout(sidePhonesAnimationTimer);
       window.clearTimeout(sidePhonesReverseTimer);
       window.clearTimeout(centerPhoneAnimationTimer);
+      headingElement?.removeEventListener('animationend', finalizeCompactHeadingGrapheme);
       window.removeEventListener('scroll', scheduleProgressUpdate);
       window.removeEventListener('resize', handleResize);
       desktopQuery.removeEventListener('change', syncPhoneCenterShift);
@@ -365,7 +379,8 @@ const CoreClipboard: React.FC = () => {
       const phoneFilter = compact ? 'blur(10px)' : 'blur(18px)';
       const hiddenPhoneFilter = compact ? 'blur(14px)' : 'blur(22px)';
       const phaseDuration = compact ? .78 : 1;
-      const phaseGap = compact ? .08 : .2;
+      const phaseGap = compact ? -.10 : .2;
+      const firstExitPosition = compact ? '<.1' : '<';
       const stageShift = () => Math.max(stage.clientWidth * .78, 260);
       const scrollDistance = () => Math.max(stage.clientHeight * 2.85, 1650);
 
@@ -389,7 +404,9 @@ const CoreClipboard: React.FC = () => {
         // same blur/opacity transition and without a separate JS scroll loop.
         const scene = gsap.timeline({ defaults: { overwrite: 'auto' } })
           .to(secondPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: phaseDuration, ease: 'power3.out' })
-          .to(firstPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: hiddenPhoneFilter, duration: phaseDuration, ease: 'power2.inOut' }, '<')
+          // Let the incoming phone establish its motion just before the
+          // outgoing phone leaves, which reads better on a slow touch swipe.
+          .to(firstPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: hiddenPhoneFilter, duration: phaseDuration, ease: 'power2.inOut' }, firstExitPosition)
           .to(thirdPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: phaseDuration, ease: 'power3.out' }, `>${phaseGap}`)
           .to(secondPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: hiddenPhoneFilter, duration: phaseDuration, ease: 'power2.inOut' }, '<');
 

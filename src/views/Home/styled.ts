@@ -66,6 +66,9 @@ export const SectionDownload = styled.section`
   .socials a { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 13px; background: #e7e9f2; color: #151515; transition: color .2s ease, transform .2s ease, background .2s ease; }
   .socials a:hover { color: #151515; background: #dde0e9; transform: translateY(-4px); }
   .socials svg { width: 21px; height: 21px; fill: currentColor; }
+  @media (hover: none), (pointer: coarse) {
+    .socials a:hover { background: #e7e9f2; transform: none; }
+  }
   @media (max-width: 700px) { margin-top: 110px; .socials { margin: 70px 0 110px; } }
   @media (prefers-reduced-motion: reduce) {
     .download-reveal-control,

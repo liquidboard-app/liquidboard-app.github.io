@@ -481,7 +481,7 @@ const VoicePreview: React.FC = () => {
       gsap.set(mockup, { autoAlpha: 0 });
       gsap.set(voiceCheck, { autoAlpha: 0, scale: .45 });
       gsap.set(skeletons, { scaleX: 0, transformOrigin: 'left center' });
-      gsap.timeline({ delay: .65, repeat: -1, repeatDelay: .9, repeatRefresh: true })
+      const timeline = gsap.timeline({ paused: true, delay: .65, repeat: -1, repeatDelay: .9, repeatRefresh: true })
         .call(() => { wave.restart(); })
         .to(audio, { color: '#fff', duration: .2 }, 0)
         .set(skeletons, { scaleX: 0 }, 0)
@@ -496,6 +496,35 @@ const VoicePreview: React.FC = () => {
         .call(() => { wave.pause(); })
         .to(bars, { scaleY: 1, duration: .16, ease: 'sine.out' })
         .to(audio, { color: '#737373', duration: .2 }, '<');
+
+      let isNearViewport = false;
+      const syncPlayback = () => {
+        if (isNearViewport && document.visibilityState === 'visible') {
+          timeline.resume();
+          return;
+        }
+        timeline.pause();
+        wave.pause();
+      };
+      const visibilityChange = () => syncPlayback();
+      const observer = typeof IntersectionObserver === 'undefined'
+        ? undefined
+        : new IntersectionObserver(([entry]) => {
+          isNearViewport = entry.isIntersecting;
+          syncPlayback();
+        }, { rootMargin: '900px 0px' });
+      document.addEventListener('visibilitychange', visibilityChange);
+      observer?.observe(panel);
+      if (!observer) {
+        isNearViewport = true;
+        syncPlayback();
+      }
+      return () => {
+        observer?.disconnect();
+        document.removeEventListener('visibilitychange', visibilityChange);
+        timeline.kill();
+        wave.kill();
+      };
     }, panel);
 
     return () => media.revert();
@@ -566,7 +595,7 @@ const ScanPreview: React.FC = () => {
         .to(viewIcon, { scale: scanViewPulseMaxScale, duration: .52, repeat: -1, yoyo: true, ease: 'sine.inOut' }, 0)
         .to(view, { color: '#fff', duration: .52, repeat: -1, yoyo: true, ease: 'sine.inOut' }, 0);
 
-      const timeline = gsap.timeline({ delay: .75, repeat: -1, repeatDelay: .95, repeatRefresh: true });
+      const timeline = gsap.timeline({ paused: true, delay: .75, repeat: -1, repeatDelay: .95, repeatRefresh: true });
       timeline
         .set(view, { color: '#737373' }, 0)
         .set(viewIcon, { scale: scanViewIdleScale }, 0)
@@ -598,6 +627,35 @@ const ScanPreview: React.FC = () => {
         .call(() => { viewPulse.pause(); })
         .to(viewIcon, { scale: scanViewIdleScale, duration: .42, ease: 'sine.inOut' })
         .to(view, { color: '#737373', duration: .42, ease: 'sine.inOut' }, '<');
+
+      let isNearViewport = false;
+      const syncPlayback = () => {
+        if (isNearViewport && document.visibilityState === 'visible') {
+          timeline.resume();
+          return;
+        }
+        timeline.pause();
+        viewPulse.pause();
+      };
+      const visibilityChange = () => syncPlayback();
+      const observer = typeof IntersectionObserver === 'undefined'
+        ? undefined
+        : new IntersectionObserver(([entry]) => {
+          isNearViewport = entry.isIntersecting;
+          syncPlayback();
+        }, { rootMargin: '900px 0px' });
+      document.addEventListener('visibilitychange', visibilityChange);
+      observer?.observe(panel);
+      if (!observer) {
+        isNearViewport = true;
+        syncPlayback();
+      }
+      return () => {
+        observer?.disconnect();
+        document.removeEventListener('visibilitychange', visibilityChange);
+        timeline.kill();
+        viewPulse.kill();
+      };
     }, panel);
 
     return () => media.revert();
@@ -850,12 +908,56 @@ const ActionClipboard: React.FC = () => {
   } as React.CSSProperties;
 
   React.useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return undefined;
+
     let timers: number[] = [];
     let pinTimers: number[] = [];
     let shareTimers: number[] = [];
     let exportTimers: number[] = [];
     let clipboardTimers: number[] = [];
     let icloudTimers: number[] = [];
+    let cycleTimer: number | undefined;
+    let pinCycleTimer: number | undefined;
+    let shareCycleTimer: number | undefined;
+    let exportCycleTimer: number | undefined;
+    let clipboardCycleTimer: number | undefined;
+    let icloudCycleTimer: number | undefined;
+    let isNearViewport = false;
+    let isRunning = false;
+
+    const clearTimers = () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      pinTimers.forEach((timer) => window.clearTimeout(timer));
+      shareTimers.forEach((timer) => window.clearTimeout(timer));
+      exportTimers.forEach((timer) => window.clearTimeout(timer));
+      clipboardTimers.forEach((timer) => window.clearTimeout(timer));
+      icloudTimers.forEach((timer) => window.clearTimeout(timer));
+      timers = [];
+      pinTimers = [];
+      shareTimers = [];
+      exportTimers = [];
+      clipboardTimers = [];
+      icloudTimers = [];
+    };
+
+    const stopAnimations = () => {
+      if (!isRunning) return;
+      if (cycleTimer !== undefined) window.clearInterval(cycleTimer);
+      if (pinCycleTimer !== undefined) window.clearInterval(pinCycleTimer);
+      if (shareCycleTimer !== undefined) window.clearInterval(shareCycleTimer);
+      if (exportCycleTimer !== undefined) window.clearInterval(exportCycleTimer);
+      if (clipboardCycleTimer !== undefined) window.clearInterval(clipboardCycleTimer);
+      if (icloudCycleTimer !== undefined) window.clearInterval(icloudCycleTimer);
+      cycleTimer = undefined;
+      pinCycleTimer = undefined;
+      shareCycleTimer = undefined;
+      exportCycleTimer = undefined;
+      clipboardCycleTimer = undefined;
+      icloudCycleTimer = undefined;
+      clearTimers();
+      isRunning = false;
+    };
     const scheduleCycle = () => {
       timers.forEach((timer) => window.clearTimeout(timer));
       setGroupCount(0);
@@ -1084,32 +1186,45 @@ const ActionClipboard: React.FC = () => {
       }, actionClipboardICloudReturnStart));
     };
 
-    scheduleCycle();
-    schedulePinCycle();
-    scheduleShareCycle();
-    scheduleExportCycle();
-    scheduleClipboardCycle();
-    scheduleICloudCycle();
-    const cycleTimer = window.setInterval(scheduleCycle, actionClipboardAnimationCycle);
-    const pinCycleTimer = window.setInterval(schedulePinCycle, actionClipboardPinCycle);
-    const shareCycleTimer = window.setInterval(scheduleShareCycle, actionClipboardShareCycle);
-    const exportCycleTimer = window.setInterval(scheduleExportCycle, actionClipboardExportCycle);
-    const clipboardCycleTimer = window.setInterval(scheduleClipboardCycle, actionClipboardClipboardCycle);
-    const icloudCycleTimer = window.setInterval(scheduleICloudCycle, actionClipboardICloudCycle);
+    const startAnimations = () => {
+      if (isRunning || !isNearViewport || document.visibilityState !== 'visible') return;
+      isRunning = true;
+      scheduleCycle();
+      schedulePinCycle();
+      scheduleShareCycle();
+      scheduleExportCycle();
+      scheduleClipboardCycle();
+      scheduleICloudCycle();
+      cycleTimer = window.setInterval(scheduleCycle, actionClipboardAnimationCycle);
+      pinCycleTimer = window.setInterval(schedulePinCycle, actionClipboardPinCycle);
+      shareCycleTimer = window.setInterval(scheduleShareCycle, actionClipboardShareCycle);
+      exportCycleTimer = window.setInterval(scheduleExportCycle, actionClipboardExportCycle);
+      clipboardCycleTimer = window.setInterval(scheduleClipboardCycle, actionClipboardClipboardCycle);
+      icloudCycleTimer = window.setInterval(scheduleICloudCycle, actionClipboardICloudCycle);
+    };
+
+    const visibilityChange = () => {
+      if (document.visibilityState === 'visible') startAnimations();
+      else stopAnimations();
+    };
+    const observer = typeof IntersectionObserver === 'undefined'
+      ? undefined
+      : new IntersectionObserver(([entry]) => {
+        isNearViewport = entry.isIntersecting;
+        if (isNearViewport) startAnimations();
+        else stopAnimations();
+      }, { rootMargin: '900px 0px' });
+    document.addEventListener('visibilitychange', visibilityChange);
+    observer?.observe(section);
+    if (!observer) {
+      isNearViewport = true;
+      startAnimations();
+    }
 
     return () => {
-      window.clearInterval(cycleTimer);
-      window.clearInterval(pinCycleTimer);
-      window.clearInterval(shareCycleTimer);
-      window.clearInterval(exportCycleTimer);
-      window.clearInterval(clipboardCycleTimer);
-      window.clearInterval(icloudCycleTimer);
-      timers.forEach((timer) => window.clearTimeout(timer));
-      pinTimers.forEach((timer) => window.clearTimeout(timer));
-      shareTimers.forEach((timer) => window.clearTimeout(timer));
-      exportTimers.forEach((timer) => window.clearTimeout(timer));
-      clipboardTimers.forEach((timer) => window.clearTimeout(timer));
-      icloudTimers.forEach((timer) => window.clearTimeout(timer));
+      observer?.disconnect();
+      document.removeEventListener('visibilitychange', visibilityChange);
+      stopAnimations();
     };
   }, []);
 
