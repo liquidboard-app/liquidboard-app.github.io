@@ -359,8 +359,11 @@ const CoreClipboard: React.FC = () => {
       if (!firstPhone || !secondPhone || !thirdPhone) return;
 
       const compact = !window.matchMedia('(min-width: 1200px)').matches;
-      const phoneFilter = compact ? 'none' : 'blur(18px)';
-      const hiddenPhoneFilter = compact ? 'none' : 'blur(22px)';
+      // Keep the directional blur on touch layouts, but use a smaller radius
+      // than desktop so the transition remains visible without a large paint
+      // surface on iPad and mobile GPUs.
+      const phoneFilter = compact ? 'blur(12px)' : 'blur(18px)';
+      const hiddenPhoneFilter = compact ? 'blur(16px)' : 'blur(22px)';
       const stageShift = () => Math.max(stage.clientWidth * .78, 260);
       const scrollDistance = () => Math.max(stage.clientHeight * 2.85, 1650);
 
@@ -373,7 +376,7 @@ const CoreClipboard: React.FC = () => {
           scale: .94,
           filter: phoneFilter,
           force3D: true,
-          willChange: 'transform,opacity',
+          willChange: 'transform,filter,opacity',
         });
         gsap.set(firstPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'none', zIndex: 1 });
         gsap.set(secondPhone, { zIndex: 2 });
