@@ -43,6 +43,7 @@ interface PhaseScrollInput {
   checkpoints: () => readonly number[];
   busy: () => boolean;
   captureTouch?: boolean;
+  onGestureStart?: () => void;
   beforeScroll?: (distance: number, direction: number) => void;
   afterScroll: () => void;
 }
@@ -95,8 +96,14 @@ export function bindPhaseScrollInput(options: PhaseScrollInput) {
     window.scrollTo({ top: next, behavior: 'instant' });
     options.afterScroll();
   };
+  let lastWheelTime = -Infinity;
   const onWheel = (event: WheelEvent) => {
     if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    // Trackpad momentum is part of the same gesture, including the tail after
+    // a scene's animation has finished. The gap only identifies new input;
+    // it never delays the start of a transition.
+    if (event.timeStamp - lastWheelTime > 240) options.onGestureStart?.();
+    lastWheelTime = event.timeStamp;
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
     consumeScroll(event.deltaY * unit, event);
   };
@@ -107,6 +114,7 @@ export function bindPhaseScrollInput(options: PhaseScrollInput) {
       : event.key === 'PageDown' ? window.innerHeight * .85
         : event.key === 'PageUp' ? -window.innerHeight * .85
           : event.key === ' ' ? window.innerHeight * .85 * (event.shiftKey ? -1 : 1) : 0;
+    if (delta && !event.repeat) options.onGestureStart?.();
     consumeScroll(delta, event);
   };
   let touchX = 0;
@@ -117,9 +125,14 @@ export function bindPhaseScrollInput(options: PhaseScrollInput) {
     singleTouch = event.touches.length === 1;
     touchCommitted = false;
     if (singleTouch) {
+      options.onGestureStart?.();
       touchX = event.touches[0].clientX;
       touchY = event.touches[0].clientY;
     }
+  };
+  // A scrollbar drag or click is an explicit new navigation action.
+  const onPointerDown = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') options.onGestureStart?.();
   };
   const onTouchMove = (event: TouchEvent) => {
     if (!singleTouch || event.touches.length !== 1) return;
@@ -144,11 +157,13 @@ export function bindPhaseScrollInput(options: PhaseScrollInput) {
   }
   window.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('keydown', onKeyDown);
+  if (options.onGestureStart) window.addEventListener('pointerdown', onPointerDown);
   return () => {
     inputOwners.delete(options);
     window.removeEventListener('touchstart', onTouchStart);
     window.removeEventListener('touchmove', onTouchMove);
     window.removeEventListener('wheel', onWheel);
     window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('pointerdown', onPointerDown);
   };
 }

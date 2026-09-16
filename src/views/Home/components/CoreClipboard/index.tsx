@@ -377,8 +377,8 @@ const CoreClipboard: React.FC = () => {
       if (!firstPhone || !secondPhone || !thirdPhone) return;
 
       const stageShift = () => Math.max(stage.clientWidth * .78, 260);
-      const firstHold = () => Math.max(stage.clientHeight * .9, 600);
-      const secondHold = () => Math.max(stage.clientHeight * .85, 560);
+      const firstHold = () => Math.max(stage.clientHeight * 1.6, 1100);
+      const secondHold = () => Math.max(stage.clientHeight * 1.5, 1000);
       const scrollDistance = () => firstHold() + secondHold() + Math.max(stage.clientHeight * .5, 320);
 
       const context = gsap.context(() => {
@@ -398,6 +398,9 @@ const CoreClipboard: React.FC = () => {
 
         let currentPhone = 0;
         let moving = false;
+        // Animation completion must not unlock the rest of the same swipe.
+        // Keep its scroll anchor until an actual new input gesture begins.
+        let gestureAnchor: number | null = null;
         let transition: ReturnType<typeof gsap.timeline> | undefined;
         const showPhone = (next: number) => {
           if (moving || next === currentPhone) return;
@@ -416,10 +419,16 @@ const CoreClipboard: React.FC = () => {
             .to(outgoing, { x: -direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(10px)', duration: .62, ease: 'power2.inOut' }, 0);
         };
         const resolvePhone = (distance: number, direction: number) => {
+          if (moving || gestureAnchor !== null) return;
           // A small spatial dead zone prevents jitter at a completed boundary.
           const thresholds = [firstHold(), firstHold() + secondHold()];
-          if (direction > 0 && currentPhone < 2 && distance >= thresholds[currentPhone] - 1) showPhone(currentPhone + 1);
-          if (direction < 0 && currentPhone > 0 && distance <= thresholds[currentPhone - 1] - 48) showPhone(currentPhone - 1);
+          if (direction > 0 && currentPhone < 2 && distance >= thresholds[currentPhone] - 1) {
+            gestureAnchor = thresholds[currentPhone];
+            showPhone(currentPhone + 1);
+          } else if (direction < 0 && currentPhone > 0 && distance <= thresholds[currentPhone - 1] - 48) {
+            gestureAnchor = thresholds[currentPhone - 1] - 48;
+            showPhone(currentPhone - 1);
+          }
         };
         const scene = ScrollTrigger.create({
           trigger: stage,
@@ -429,14 +438,24 @@ const CoreClipboard: React.FC = () => {
           pinSpacing: true,
           anticipatePin: 0,
           refreshPriority: 1,
-          onUpdate: (self) => resolvePhone(self.scroll() - self.start, self.direction),
+          onUpdate: (self) => {
+            resolvePhone(self.scroll() - self.start, self.direction);
+            // Safari may have already started native scrolling before a swipe
+            // reaches this scene. Clamp that momentum too, not just cancelable
+            // touchmove events, so it cannot spend the next photo's hold.
+            if (gestureAnchor !== null) {
+              const anchor = Math.round(self.start + gestureAnchor);
+              if (Math.abs(self.scroll() - anchor) > 1) self.scroll(anchor);
+            }
+          },
         });
         scrollTrigger = scene;
         releaseInput = bindPhaseScrollInput({
           range: () => ({ start: scene.start, end: scene.end }),
           checkpoints: () => [1, firstHold() - 48, firstHold(), firstHold() + secondHold() - 48, firstHold() + secondHold(), scrollDistance()],
-          busy: () => moving,
+          busy: () => moving || gestureAnchor !== null,
           captureTouch: true,
+          onGestureStart: () => { if (!moving) gestureAnchor = null; },
           beforeScroll: resolvePhone,
           afterScroll: () => ScrollTrigger.update(),
         });
