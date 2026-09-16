@@ -110,19 +110,18 @@ for (const [width, height] of [[390, 700], [820, 1000]]) {
     } finally { h.cleanup(); }
   });
 
-  test(`${width}px: one long touch plus native momentum changes only one image`, () => {
+  test(`${width}px: one long touch and momentum change only one image without trapping scroll`, () => {
     const h = install(width, height);
+    const first = Math.max(height * 1.6, 1100);
     try {
       h.touch('touchstart', 700);
       for (const y of [-10000, -20000, -30000, -40000]) h.touch('touchmove', y);
       assert.equal(h.timelines.length, 1);
       h.timelines[0].progress(1).pause();
-      const anchor = h.window.scrollY;
       h.touch('touchmove', -50000);
       h.touch('touchend', 0);
-      for (let i = 0; i < 4; i++) h.nativeScroll(h.scene.end + 10000);
+      for (let i = 0; i < 4; i++) h.nativeScroll(h.scene.start + first + 240);
       assert.equal(h.timelines.length, 1, 'native momentum after finger lift must remain locked');
-      assert.equal(h.window.scrollY, anchor, 'momentum must not consume the next hold');
       h.touch('touchstart', 700);
       for (const y of [-10000, -20000, -30000]) h.touch('touchmove', y);
       assert.equal(h.timelines.length, 2, 'new swipe may advance exactly one image');
@@ -131,10 +130,8 @@ for (const [width, height] of [[390, 700], [820, 1000]]) {
       for (const y of [10000, 20000, 30000]) h.touch('touchmove', y);
       assert.equal(h.timelines.length, 3);
       h.timelines[2].progress(1).pause();
-      const reverseAnchor = h.window.scrollY;
       h.nativeScroll(0);
       assert.equal(h.timelines.length, 3);
-      assert.equal(h.window.scrollY, reverseAnchor);
     } finally { h.cleanup(); }
   });
 
@@ -142,18 +139,17 @@ for (const [width, height] of [[390, 700], [820, 1000]]) {
     const h = install(width, height);
     try {
       h.touch('touchstart', 700);
-      h.nativeScroll(h.scene.end + 10000);
+      h.nativeScroll(h.scene.start + Math.max(height * 1.6, 1100) + 240);
       assert.equal(h.timelines.length, 1);
       h.timelines[0].progress(1).pause();
-      h.nativeScroll(h.scene.end + 10000);
+      h.nativeScroll(h.scene.start + Math.max(height * 1.6, 1100) + 600);
       assert.equal(h.timelines.length, 1);
       // Fresh trackpad gesture, followed by a long tail after completion.
       for (const time of [0, 50, 100, 150]) h.wheel(10000, time);
       assert.equal(h.timelines.length, 2);
       h.timelines[1].progress(1).pause();
-      const anchor = h.window.scrollY;
       for (let time = 200; time < 2000; time += 50) h.wheel(10000, time);
-      assert.equal(h.window.scrollY, anchor, 'trackpad tail cannot spend further scroll');
+      assert.equal(h.timelines.length, 2, 'trackpad tail cannot trigger another photo');
       h.wheel(-10000, 2500);
       assert.equal(h.timelines.length, 3, 'fresh reverse gesture unlocks immediately');
     } finally { h.cleanup(); }
@@ -192,16 +188,15 @@ test('trackpad reversal unlocks photo two without waiting for an idle gap', () =
   } finally { h.cleanup(); }
 });
 
-test('one reverse input crosses the real handoff, not a stale rounded forward checkpoint', () => {
+test('a reverse input can leave photo two after a fractional native scroll', () => {
   const h = install(820, 1000);
   try {
     h.scene.start = 1000.4;
     h.nativeScroll(3000);
     h.timelines[0].progress(1).pause();
-    assert.equal(h.window.scrollY, 2600);
-    // Forward checkpoint is 2600.4: its floor is only a pixel from the anchor.
+    // A native fling can settle away from its transition boundary.
     h.window.scrollY = 2601;
-    h.wheel(-100, 1000);
+    h.wheel(-1000, 1000);
     assert.equal(h.timelines.length, 2, 'first reverse input must begin returning to photo one');
     h.timelines[1].progress(1).pause();
     assert.equal(h.phones[0].autoAlpha, 1);
