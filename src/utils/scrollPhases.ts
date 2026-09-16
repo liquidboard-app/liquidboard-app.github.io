@@ -44,6 +44,7 @@ interface PhaseScrollInput {
   busy: () => boolean;
   captureTouch?: boolean;
   onGestureStart?: () => void;
+  gestureCommitted?: () => boolean;
   beforeScroll?: (distance: number, direction: number) => void;
   afterScroll: () => void;
 }
@@ -97,13 +98,16 @@ export function bindPhaseScrollInput(options: PhaseScrollInput) {
     options.afterScroll();
   };
   let lastWheelTime = -Infinity;
+  let lastWheelDirection = 0;
   const onWheel = (event: WheelEvent) => {
     if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
     // Trackpad momentum is part of the same gesture, including the tail after
     // a scene's animation has finished. The gap only identifies new input;
     // it never delays the start of a transition.
-    if (event.timeStamp - lastWheelTime > 240) options.onGestureStart?.();
+    const direction = Math.sign(event.deltaY);
+    if (event.timeStamp - lastWheelTime > 240 || direction !== lastWheelDirection) options.onGestureStart?.();
     lastWheelTime = event.timeStamp;
+    lastWheelDirection = direction;
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
     consumeScroll(event.deltaY * unit, event);
   };
@@ -149,7 +153,7 @@ export function bindPhaseScrollInput(options: PhaseScrollInput) {
     consumeScroll(delta, event);
     // A swipe that starts a handoff cannot spend its remaining movement on
     // the next phone, even if the finger stays down beyond the animation.
-    if (event.defaultPrevented && options.busy()) touchCommitted = true;
+    if (event.defaultPrevented && (options.gestureCommitted?.() ?? options.busy())) touchCommitted = true;
   };
   if (options.captureTouch) {
     window.addEventListener('touchstart', onTouchStart, { passive: true });

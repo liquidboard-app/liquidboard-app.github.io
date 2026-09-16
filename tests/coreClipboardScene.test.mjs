@@ -159,3 +159,51 @@ for (const [width, height] of [[390, 700], [820, 1000]]) {
     } finally { h.cleanup(); }
   });
 }
+
+for (const direction of [1, -1]) test(`a new touch during the first handoff resumes in direction ${direction}`, () => {
+  const h = install(390, 700);
+  try {
+    h.touch('touchstart', 700);
+    for (const y of [-10000, -20000, -30000]) h.touch('touchmove', y);
+    assert.equal(h.timelines.length, 1);
+    h.timelines[0].progress(.5).pause();
+    h.touch('touchend', 0);
+    h.touch('touchstart', 700);
+    h.touch('touchmove', 700 - direction * 50);
+    h.timelines[0].progress(1);
+    assert.equal(h.input.busy(), false, 'new gesture must not inherit the old gesture lock');
+    for (const distance of [10000, 20000, 30000]) h.touch('touchmove', 700 - direction * distance);
+    assert.equal(h.timelines.length, 2, 'new swipe must move on or return, without another finger lift');
+    h.timelines[1].progress(1).pause();
+    assert.equal(h.phones[direction > 0 ? 2 : 0].autoAlpha, 1);
+  } finally { h.cleanup(); }
+});
+
+test('trackpad reversal unlocks photo two without waiting for an idle gap', () => {
+  const h = install(820, 1000);
+  try {
+    for (const time of [0, 50, 100, 150]) h.wheel(10000, time);
+    assert.equal(h.timelines.length, 1);
+    h.timelines[0].progress(1).pause();
+    for (const time of [180, 210]) h.wheel(-10000, time);
+    assert.equal(h.timelines.length, 2);
+    h.timelines[1].progress(1).pause();
+    assert.equal(h.phones[0].autoAlpha, 1);
+  } finally { h.cleanup(); }
+});
+
+test('one reverse input crosses the real handoff, not a stale rounded forward checkpoint', () => {
+  const h = install(820, 1000);
+  try {
+    h.scene.start = 1000.4;
+    h.nativeScroll(3000);
+    h.timelines[0].progress(1).pause();
+    assert.equal(h.window.scrollY, 2600);
+    // Forward checkpoint is 2600.4: its floor is only a pixel from the anchor.
+    h.window.scrollY = 2601;
+    h.wheel(-100, 1000);
+    assert.equal(h.timelines.length, 2, 'first reverse input must begin returning to photo one');
+    h.timelines[1].progress(1).pause();
+    assert.equal(h.phones[0].autoAlpha, 1);
+  } finally { h.cleanup(); }
+});

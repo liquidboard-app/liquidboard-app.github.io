@@ -401,6 +401,7 @@ const CoreClipboard: React.FC = () => {
         // Animation completion must not unlock the rest of the same swipe.
         // Keep its scroll anchor until an actual new input gesture begins.
         let gestureAnchor: number | null = null;
+        let gestureCommitted = false;
         let transition: ReturnType<typeof gsap.timeline> | undefined;
         const showPhone = (next: number) => {
           if (moving || next === currentPhone) return;
@@ -409,17 +410,21 @@ const CoreClipboard: React.FC = () => {
           const incoming = phoneItems[next];
           currentPhone = next;
           moving = true;
+          gestureCommitted = true;
           gsap.set(incoming, { x: direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(8px)', zIndex: 2 });
           gsap.set(outgoing, { zIndex: 1 });
           transition = gsap.timeline({ onComplete: () => {
             moving = false;
+            // A new swipe may already have begun during the previous handoff.
+            // It has not changed a photo yet and must be allowed to continue.
+            if (!gestureCommitted) gestureAnchor = null;
             gsap.set(incoming, { filter: 'none' });
           } })
             .to(incoming, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .62, ease: 'power2.inOut' }, 0)
             .to(outgoing, { x: -direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(10px)', duration: .62, ease: 'power2.inOut' }, 0);
         };
         const resolvePhone = (distance: number, direction: number) => {
-          if (moving || gestureAnchor !== null) return;
+          if (moving || gestureCommitted) return;
           // A small spatial dead zone prevents jitter at a completed boundary.
           const thresholds = [firstHold(), firstHold() + secondHold()];
           if (direction > 0 && currentPhone < 2 && distance >= thresholds[currentPhone] - 1) {
@@ -452,10 +457,23 @@ const CoreClipboard: React.FC = () => {
         scrollTrigger = scene;
         releaseInput = bindPhaseScrollInput({
           range: () => ({ start: scene.start, end: scene.end }),
-          checkpoints: () => [1, firstHold() - 48, firstHold(), firstHold() + secondHold() - 48, firstHold() + secondHold(), scrollDistance()],
-          busy: () => moving || gestureAnchor !== null,
+          // Only stop at the next actual handoff in either direction. Keeping
+          // the previous forward threshold here catches reverse input just
+          // one rounded pixel away from the anchor on fractional layouts.
+          checkpoints: () => [
+            1,
+            ...(currentPhone === 0 ? [firstHold()]
+              : currentPhone === 1 ? [firstHold() - 48, firstHold() + secondHold()]
+                : [firstHold() + secondHold() - 48]),
+            scrollDistance(),
+          ],
+          busy: () => moving || gestureCommitted,
+          gestureCommitted: () => gestureCommitted,
           captureTouch: true,
-          onGestureStart: () => { if (!moving) gestureAnchor = null; },
+          onGestureStart: () => {
+            gestureCommitted = false;
+            if (!moving) gestureAnchor = null;
+          },
           beforeScroll: resolvePhone,
           afterScroll: () => ScrollTrigger.update(),
         });
