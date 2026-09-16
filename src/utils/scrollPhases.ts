@@ -42,6 +42,7 @@ interface PhaseScrollInput {
   range: () => { start: number; end: number };
   checkpoints: () => readonly number[];
   busy: () => boolean;
+  captureTouch?: boolean;
   beforeScroll?: (distance: number, direction: number) => void;
   afterScroll: () => void;
 }
@@ -108,10 +109,45 @@ export function bindPhaseScrollInput(options: PhaseScrollInput) {
           : event.key === ' ' ? window.innerHeight * .85 * (event.shiftKey ? -1 : 1) : 0;
     consumeScroll(delta, event);
   };
+  let touchX = 0;
+  let touchY = 0;
+  let singleTouch = false;
+  let touchCommitted = false;
+  const onTouchStart = (event: TouchEvent) => {
+    singleTouch = event.touches.length === 1;
+    touchCommitted = false;
+    if (singleTouch) {
+      touchX = event.touches[0].clientX;
+      touchY = event.touches[0].clientY;
+    }
+  };
+  const onTouchMove = (event: TouchEvent) => {
+    if (!singleTouch || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    const delta = touchY - touch.clientY;
+    const horizontal = touchX - touch.clientX;
+    touchX = touch.clientX;
+    touchY = touch.clientY;
+    if (Math.abs(horizontal) > Math.abs(delta)) return;
+    if (touchCommitted) {
+      if (event.cancelable) event.preventDefault();
+      return;
+    }
+    consumeScroll(delta, event);
+    // A swipe that starts a handoff cannot spend its remaining movement on
+    // the next phone, even if the finger stays down beyond the animation.
+    if (event.defaultPrevented && options.busy()) touchCommitted = true;
+  };
+  if (options.captureTouch) {
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+  }
   window.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('keydown', onKeyDown);
   return () => {
     inputOwners.delete(options);
+    window.removeEventListener('touchstart', onTouchStart);
+    window.removeEventListener('touchmove', onTouchMove);
     window.removeEventListener('wheel', onWheel);
     window.removeEventListener('keydown', onKeyDown);
   };

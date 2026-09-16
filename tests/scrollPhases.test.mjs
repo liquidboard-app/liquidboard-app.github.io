@@ -145,3 +145,30 @@ test('fractional layout anchors remain traversable when browser scroll offsets a
   wheel(-100);
   assert.equal(window.scrollY, 1300, 'reverse must also get past the rounded checkpoint');
 });
+
+test('touch handoff finishes once per swipe and preserves pinch gestures', () => {
+  const { window } = environment(1500);
+  let busy = false;
+  cleanups.push(bindPhaseScrollInput({
+    range: () => ({ start: 1000, end: 3000 }), checkpoints: () => [600, 1200],
+    captureTouch: true, busy: () => busy,
+    afterScroll() { busy = true; },
+  }));
+  const touch = (type, y, count = 1) => {
+    const event = new Event(type, { cancelable: true });
+    Object.assign(event, { touches: Array.from({ length: count }, () => ({ clientX: 100, clientY: y })) });
+    window.dispatchEvent(event);
+    return event;
+  };
+  touch('touchstart', 700);
+  assert.equal(touch('touchmove', 100).defaultPrevented, true);
+  assert.equal(window.scrollY, 1600, 'large swipe stops at the next phase');
+  busy = false;
+  touch('touchmove', 0);
+  assert.equal(window.scrollY, 1600, 'same swipe cannot advance after animation completes');
+  touch('touchstart', 100);
+  touch('touchmove', 200);
+  assert.equal(window.scrollY, 1500, 'new reverse swipe is accepted');
+  touch('touchstart', 200, 2);
+  assert.equal(touch('touchmove', 100, 2).defaultPrevented, false);
+});

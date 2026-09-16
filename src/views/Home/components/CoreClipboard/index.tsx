@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { splitGraphemes } from '@/utils/graphemes';
 import { publicAsset } from '@/utils/publicAssets';
+import { bindPhaseScrollInput } from '@/utils/scrollPhases';
 import { CoreClipboardSection } from './styled';
 
 const phones = [
@@ -352,6 +353,7 @@ const CoreClipboard: React.FC = () => {
     let active = true;
     let scrollTrigger: { kill: () => void } | undefined;
     let revertScene: (() => void) | undefined;
+    let releaseInput: (() => void) | undefined;
 
     const setupPinnedScene = async () => {
       const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
@@ -374,28 +376,10 @@ const CoreClipboard: React.FC = () => {
       const [firstPhone, secondPhone, thirdPhone] = phoneItems;
       if (!firstPhone || !secondPhone || !thirdPhone) return;
 
-      const compact = !window.matchMedia('(min-width: 1200px)').matches;
-      // Keep the directional blur on touch layouts, but use a smaller radius
-      // than desktop so the transition remains visible without a large paint
-      // surface on iPad and mobile GPUs.
-      const phoneFilter = compact ? 'blur(8px)' : 'blur(18px)';
-      const hiddenPhoneFilter = compact ? 'blur(10px)' : 'blur(22px)';
-      const phaseDuration = compact ? .94 : 1;
-      const nextPhaseDuration = compact ? 1.10 : 1;
-      const phaseGap = compact ? 0 : .2;
-      // Leave a short reading beat on the first phone, then another beat
-      // after phone two has landed. On touch layouts the outgoing phone waits
-      // a little longer so the incoming phone establishes its motion first.
-      const initialHold = compact ? .34 : 0;
-      const betweenPhaseHold = compact ? .32 : 0;
-      // On touch layouts the outgoing center must start moving and blurring
-      // in the same frame the incoming phone first appears. A delayed start
-      // leaves both phones stacked in the middle during a slow swipe.
-      const outgoingStartPosition = '<';
       const stageShift = () => Math.max(stage.clientWidth * .78, 260);
-      const scrollDistance = () => compact
-        ? Math.max(stage.clientHeight * 3.3, 1900)
-        : Math.max(stage.clientHeight * 2.85, 1650);
+      const firstHold = () => Math.max(stage.clientHeight * .9, 600);
+      const secondHold = () => Math.max(stage.clientHeight * .85, 560);
+      const scrollDistance = () => firstHold() + secondHold() + Math.max(stage.clientHeight * .5, 320);
 
       const context = gsap.context(() => {
         gsap.set(phoneItems, {
@@ -404,7 +388,7 @@ const CoreClipboard: React.FC = () => {
           x: stageShift,
           autoAlpha: 0,
           scale: .94,
-          filter: phoneFilter,
+          filter: 'blur(8px)',
           force3D: true,
           willChange: 'transform,filter,opacity',
         });
@@ -412,20 +396,32 @@ const CoreClipboard: React.FC = () => {
         gsap.set(secondPhone, { zIndex: 2 });
         gsap.set(thirdPhone, { zIndex: 3 });
 
-        // The forward scroll replaces each phone from the right. Reverse
-        // scroll naturally restores the prior phone from the left, with the
-        // same blur/opacity transition and without a separate JS scroll loop.
-        const scene = gsap.timeline({ defaults: { overwrite: 'auto' } })
-          .to({}, { duration: initialHold })
-          .to(secondPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: phaseDuration, ease: 'power3.out' })
-          // Let the incoming phone establish its motion just before the
-          // outgoing phone leaves, which reads better on a slow touch swipe.
-          .to(firstPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: hiddenPhoneFilter, duration: phaseDuration, ease: 'power2.inOut' }, outgoingStartPosition)
-          .to({}, { duration: betweenPhaseHold })
-          .to(thirdPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: nextPhaseDuration, ease: 'power3.out' }, `>${phaseGap}`)
-          .to(secondPhone, { x: () => -stageShift(), autoAlpha: 0, scale: .94, filter: hiddenPhoneFilter, duration: nextPhaseDuration, ease: 'power2.inOut' }, outgoingStartPosition);
-
-        scrollTrigger = ScrollTrigger.create({
+        let currentPhone = 0;
+        let moving = false;
+        let transition: ReturnType<typeof gsap.timeline> | undefined;
+        const showPhone = (next: number) => {
+          if (moving || next === currentPhone) return;
+          const direction = Math.sign(next - currentPhone);
+          const outgoing = phoneItems[currentPhone];
+          const incoming = phoneItems[next];
+          currentPhone = next;
+          moving = true;
+          gsap.set(incoming, { x: direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(8px)', zIndex: 2 });
+          gsap.set(outgoing, { zIndex: 1 });
+          transition = gsap.timeline({ onComplete: () => {
+            moving = false;
+            gsap.set(incoming, { filter: 'none' });
+          } })
+            .to(incoming, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .62, ease: 'power2.inOut' }, 0)
+            .to(outgoing, { x: -direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(10px)', duration: .62, ease: 'power2.inOut' }, 0);
+        };
+        const resolvePhone = (distance: number, direction: number) => {
+          // A small spatial dead zone prevents jitter at a completed boundary.
+          const thresholds = [firstHold(), firstHold() + secondHold()];
+          if (direction > 0 && currentPhone < 2 && distance >= thresholds[currentPhone] - 1) showPhone(currentPhone + 1);
+          if (direction < 0 && currentPhone > 0 && distance <= thresholds[currentPhone - 1] - 48) showPhone(currentPhone - 1);
+        };
+        const scene = ScrollTrigger.create({
           trigger: stage,
           start: () => `top top+=${headerOffset()}`,
           end: () => `+=${scrollDistance()}`,
@@ -433,28 +429,18 @@ const CoreClipboard: React.FC = () => {
           pinSpacing: true,
           anticipatePin: 0,
           refreshPriority: 1,
-          animation: scene,
-          // Numeric scrub intentionally trails the scroll position. That
-          // delay is noticeable on iOS as a pause before the center phone
-          // starts moving, so touch layouts follow the scroll directly and
-          // let snap own the completed phase handoff.
-          scrub: compact ? true : .32,
-          snap: compact ? {
-            // The initial hold shifts the second-phone landing earlier in the
-            // normalized timeline; keep the middle snap on phone two instead
-            // of letting it settle at the start of phone three's transition.
-            // GSAP treats a literal 0 as "use the default" (100ms). Use a
-            // tiny positive delay so a completed touch gesture commits to the
-            // checkpoint immediately instead of lingering between phones.
-            snapTo: [0, .48, 1],
-            directional: true,
-            inertia: false,
-            delay: .001,
-            duration: { min: .18, max: .36 },
-            ease: 'power3.out',
-          } : undefined,
-          invalidateOnRefresh: true,
+          onUpdate: (self) => resolvePhone(self.scroll() - self.start, self.direction),
         });
+        scrollTrigger = scene;
+        releaseInput = bindPhaseScrollInput({
+          range: () => ({ start: scene.start, end: scene.end }),
+          checkpoints: () => [1, firstHold() - 48, firstHold(), firstHold() + secondHold() - 48, firstHold() + secondHold(), scrollDistance()],
+          busy: () => moving,
+          captureTouch: true,
+          beforeScroll: resolvePhone,
+          afterScroll: () => ScrollTrigger.update(),
+        });
+        return () => transition?.kill();
       }, stage);
       revertScene = () => context.revert();
 
@@ -466,6 +452,7 @@ const CoreClipboard: React.FC = () => {
     void setupPinnedScene();
     return () => {
       active = false;
+      releaseInput?.();
       scrollTrigger?.kill();
       revertScene?.();
     };
