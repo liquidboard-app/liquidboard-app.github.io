@@ -4,7 +4,6 @@ import { test } from 'node:test';
 import vm from 'node:vm';
 import ts from 'typescript';
 import { gsap } from 'gsap';
-import { bindPhaseScrollInput } from '../src/utils/scrollPhases.ts';
 
 function install(width, height) {
   const source = readFileSync(new URL('../src/views/Home/components/CoreClipboard/index.tsx', import.meta.url), 'utf8');
@@ -12,193 +11,71 @@ function install(width, height) {
   const end = source.indexOf('      revertScene =', start);
   const phones = Array.from({ length: 3 }, () => ({ x: 0, xPercent: 0, yPercent: 0, autoAlpha: 0, scale: 1, filter: '', force3D: false, willChange: '', zIndex: 0 }));
   const timelines = [];
-  const window = new EventTarget();
-  Object.assign(window, { scrollY: 1000, innerHeight: height });
-  window.scrollTo = ({ top }) => { window.scrollY = top; };
-  globalThis.window = window;
-  globalThis.Element = class {};
-  globalThis.document = { body: {} };
   let scene;
-  let input;
-  let cleanup;
   let options;
-  const nativeScroll = (top) => {
-    const direction = Math.sign(top - window.scrollY);
-    window.scrollY = top;
-    scene.direction = direction;
-    options.onUpdate(scene);
-  };
   const code = ts.transpileModule(source.slice(start, end), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
   vm.runInNewContext(code, {
     stage: { clientWidth: width, clientHeight: height }, phoneItems: phones,
     firstPhone: phones[0], secondPhone: phones[1], thirdPhone: phones[2], headerOffset: () => 75,
-    gsap: { set: gsap.set, context: (fn) => fn(), timeline(options) { const t = gsap.timeline(options); timelines.push(t); return t; } },
-    ScrollTrigger: {
-      create(config) {
-        options = config;
-        scene = {
-          start: 1000, end: 1000 + Number(config.end().slice(2)), direction: 1,
-          scroll: (top) => { if (top !== undefined) window.scrollY = top; return window.scrollY; },
-        };
-        return scene;
-      },
-      update() { options.onUpdate(scene); },
-    },
-    bindPhaseScrollInput(config) {
-      input = config;
-      cleanup = bindPhaseScrollInput({ ...config, beforeScroll(distance, direction) {
-        scene.direction = direction;
-        config.beforeScroll(distance, direction);
-      } });
-      return cleanup;
-    },
+    gsap: { set: gsap.set, context: (fn) => fn(), timeline(config) { const timeline = gsap.timeline(config); timelines.push(timeline); return timeline; } },
+    ScrollTrigger: { create(config) {
+      options = config;
+      scene = { start: 1000, end: 1000 + Number(config.end().slice(2)), scroll: () => scene.position };
+      return scene;
+    } },
   });
-  const touch = (type, y) => {
-    const event = new Event(type, { cancelable: true });
-    Object.assign(event, { touches: type === 'touchend' ? [] : [{ clientX: 100, clientY: y }] });
-    window.dispatchEvent(event);
+  const scrollTo = (distance) => {
+    scene.position = scene.start + distance;
+    options.onUpdate(scene);
   };
-  const wheel = (deltaY, timeStamp) => {
-    const event = new Event('wheel', { cancelable: true });
-    Object.assign(event, { deltaY, deltaX: 0, deltaMode: 0, ctrlKey: false });
-    Object.defineProperty(event, 'timeStamp', { value: timeStamp });
-    window.dispatchEvent(event);
-  };
-  return { phones, timelines, input, window, scene, touch, wheel, nativeScroll, cleanup() {
-    cleanup();
-    timelines.forEach((t) => t.kill());
-    gsap.ticker.sleep();
-  } };
+  return { phones, timelines, scene, scrollTo, cleanup() { timelines.forEach((timeline) => timeline.kill()); gsap.ticker.sleep(); } };
 }
 
 for (const [width, height] of [[390, 700], [820, 1000]]) {
-  test(`${width}px: longer holds, synchronized complete handoffs, and reverse`, () => {
-    const h = install(width, height);
-    const first = Math.max(height * 1.6, 1100);
-    const second = Math.max(height * 1.5, 1000);
+  test(`${width}px: Core is a discrete blur slider with longer holds`, () => {
+    const slider = install(width, height);
+    const firstHold = Math.max(height * 1.6, 1100);
+    const secondHold = Math.max(height * 1.5, 1000);
     try {
-      h.input.beforeScroll(first - 100, 1);
-      assert.equal(h.timelines.length, 0, 'first photo survives well beyond the old hold');
-      h.input.beforeScroll(first, 1);
-      h.timelines[0].progress(.5).pause();
-      assert.ok(h.phones[0].x < 0 && h.phones[1].x > 0);
-      h.timelines[0].progress(1);
-      assert.equal(h.phones[0].autoAlpha, 0);
-      assert.equal(h.phones[1].x, 0);
-      assert.equal(h.phones[1].filter, 'none');
-      assert.equal(h.input.busy(), true, 'completed animation does not unlock the gesture');
-      h.input.beforeScroll(first + second + 1000, 1);
-      assert.equal(h.timelines.length, 1);
-      h.touch('touchstart', 700);
-      h.input.beforeScroll(first + second - 100, 1);
-      assert.equal(h.timelines.length, 1, 'next image also requires the longer distance');
-      h.input.beforeScroll(first + second, 1);
-      h.timelines[1].progress(1).pause();
-      h.touch('touchstart', 100);
-      h.input.beforeScroll(first + second - 48, -1);
-      h.timelines[2].progress(.5).pause();
-      assert.ok(h.phones[1].x < 0 && h.phones[2].x > 0);
-      h.timelines[2].progress(1);
-      h.input.beforeScroll(0, -1);
-      assert.equal(h.timelines.length, 3, 'reverse gesture cannot change two images');
-      h.touch('touchstart', 100);
-      h.input.beforeScroll(first - 48, -1);
-      h.timelines[3].progress(1).pause();
-      assert.equal(h.phones[0].autoAlpha, 1);
-      assert.equal(h.phones[0].filter, 'none');
-      assert.equal(h.scene.end - h.scene.start, first + second + Math.max(height * .5, 320));
-    } finally { h.cleanup(); }
+      slider.scrollTo(firstHold - 1);
+      assert.equal(slider.timelines.length, 0, 'the first phone remains centered through its hold');
+
+      slider.scrollTo(firstHold + 1);
+      const firstTransition = slider.timelines[0];
+      firstTransition.progress(.5).pause();
+      assert.ok(slider.phones[0].x < 0 && slider.phones[1].x > 0, 'outgoing and incoming phones move together');
+      firstTransition.progress(1).pause();
+      assert.equal(slider.phones[0].autoAlpha, 0);
+      assert.equal(slider.phones[1].x, 0);
+      assert.equal(slider.phones[1].filter, 'none');
+
+      slider.scrollTo(firstHold + secondHold - 1);
+      assert.equal(slider.timelines.length, 1, 'the second phone receives its own hold');
+      slider.scrollTo(firstHold + secondHold + 1);
+      slider.timelines[1].progress(1).pause();
+      assert.equal(slider.phones[2].autoAlpha, 1);
+
+      slider.scrollTo(firstHold + secondHold - 1);
+      slider.timelines[2].progress(1).pause();
+      assert.equal(slider.phones[1].autoAlpha, 1, 'scrolling up returns to the prior phone');
+      slider.scrollTo(firstHold - 1);
+      slider.timelines[3].progress(1).pause();
+      assert.equal(slider.phones[0].autoAlpha, 1);
+      assert.equal(slider.scene.end - slider.scene.start, firstHold + secondHold + Math.max(height * .5, 320));
+    } finally { slider.cleanup(); }
   });
 
-  test(`${width}px: one long touch and momentum change only one image without trapping scroll`, () => {
-    const h = install(width, height);
-    const first = Math.max(height * 1.6, 1100);
+  test(`${width}px: a transition never locks later scroll updates`, () => {
+    const slider = install(width, height);
+    const firstHold = Math.max(height * 1.6, 1100);
     try {
-      h.touch('touchstart', 700);
-      for (const y of [-10000, -20000, -30000, -40000]) h.touch('touchmove', y);
-      assert.equal(h.timelines.length, 1);
-      h.timelines[0].progress(1).pause();
-      h.touch('touchmove', -50000);
-      h.touch('touchend', 0);
-      for (let i = 0; i < 4; i++) h.nativeScroll(h.scene.start + first + 240);
-      assert.equal(h.timelines.length, 1, 'native momentum after finger lift must remain locked');
-      h.touch('touchstart', 700);
-      for (const y of [-10000, -20000, -30000]) h.touch('touchmove', y);
-      assert.equal(h.timelines.length, 2, 'new swipe may advance exactly one image');
-      h.timelines[1].progress(1).pause();
-      h.touch('touchstart', 100);
-      for (const y of [10000, 20000, 30000]) h.touch('touchmove', y);
-      assert.equal(h.timelines.length, 3);
-      h.timelines[2].progress(1).pause();
-      h.nativeScroll(0);
-      assert.equal(h.timelines.length, 3);
-    } finally { h.cleanup(); }
-  });
-
-  test(`${width}px: noncancelable native fling and trackpad tail cannot skip photos`, () => {
-    const h = install(width, height);
-    try {
-      h.touch('touchstart', 700);
-      h.nativeScroll(h.scene.start + Math.max(height * 1.6, 1100) + 240);
-      assert.equal(h.timelines.length, 1);
-      h.timelines[0].progress(1).pause();
-      h.nativeScroll(h.scene.start + Math.max(height * 1.6, 1100) + 600);
-      assert.equal(h.timelines.length, 1);
-      // Fresh trackpad gesture, followed by a long tail after completion.
-      for (const time of [0, 50, 100, 150]) h.wheel(10000, time);
-      assert.equal(h.timelines.length, 2);
-      h.timelines[1].progress(1).pause();
-      for (let time = 200; time < 2000; time += 50) h.wheel(10000, time);
-      assert.equal(h.timelines.length, 2, 'trackpad tail cannot trigger another photo');
-      h.wheel(-10000, 2500);
-      assert.equal(h.timelines.length, 3, 'fresh reverse gesture unlocks immediately');
-    } finally { h.cleanup(); }
+      slider.scrollTo(firstHold + 1);
+      slider.timelines[0].progress(1).pause();
+      slider.scrollTo(firstHold - 1);
+      assert.equal(slider.timelines.length, 2, 'the first reverse scroll starts immediately');
+      slider.timelines[1].progress(1).pause();
+      slider.scrollTo(firstHold + 1);
+      assert.equal(slider.timelines.length, 3, 'the next forward scroll remains available');
+    } finally { slider.cleanup(); }
   });
 }
-
-for (const direction of [1, -1]) test(`a new touch during the first handoff resumes in direction ${direction}`, () => {
-  const h = install(390, 700);
-  try {
-    h.touch('touchstart', 700);
-    for (const y of [-10000, -20000, -30000]) h.touch('touchmove', y);
-    assert.equal(h.timelines.length, 1);
-    h.timelines[0].progress(.5).pause();
-    h.touch('touchend', 0);
-    h.touch('touchstart', 700);
-    h.touch('touchmove', 700 - direction * 50);
-    h.timelines[0].progress(1);
-    assert.equal(h.input.busy(), false, 'new gesture must not inherit the old gesture lock');
-    for (const distance of [10000, 20000, 30000]) h.touch('touchmove', 700 - direction * distance);
-    assert.equal(h.timelines.length, 2, 'new swipe must move on or return, without another finger lift');
-    h.timelines[1].progress(1).pause();
-    assert.equal(h.phones[direction > 0 ? 2 : 0].autoAlpha, 1);
-  } finally { h.cleanup(); }
-});
-
-test('trackpad reversal unlocks photo two without waiting for an idle gap', () => {
-  const h = install(820, 1000);
-  try {
-    for (const time of [0, 50, 100, 150]) h.wheel(10000, time);
-    assert.equal(h.timelines.length, 1);
-    h.timelines[0].progress(1).pause();
-    for (const time of [180, 210]) h.wheel(-10000, time);
-    assert.equal(h.timelines.length, 2);
-    h.timelines[1].progress(1).pause();
-    assert.equal(h.phones[0].autoAlpha, 1);
-  } finally { h.cleanup(); }
-});
-
-test('a reverse input can leave photo two after a fractional native scroll', () => {
-  const h = install(820, 1000);
-  try {
-    h.scene.start = 1000.4;
-    h.nativeScroll(3000);
-    h.timelines[0].progress(1).pause();
-    // A native fling can settle away from its transition boundary.
-    h.window.scrollY = 2601;
-    h.wheel(-1000, 1000);
-    assert.equal(h.timelines.length, 2, 'first reverse input must begin returning to photo one');
-    h.timelines[1].progress(1).pause();
-    assert.equal(h.phones[0].autoAlpha, 1);
-  } finally { h.cleanup(); }
-});

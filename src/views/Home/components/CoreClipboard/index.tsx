@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { splitGraphemes } from '@/utils/graphemes';
 import { publicAsset } from '@/utils/publicAssets';
-import { bindPhaseScrollInput } from '@/utils/scrollPhases';
 import { CoreClipboardSection } from './styled';
 
 const phones = [
@@ -353,7 +352,6 @@ const CoreClipboard: React.FC = () => {
     let active = true;
     let scrollTrigger: { kill: () => void } | undefined;
     let revertScene: (() => void) | undefined;
-    let releaseInput: (() => void) | undefined;
 
     const setupPinnedScene = async () => {
       const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
@@ -398,10 +396,6 @@ const CoreClipboard: React.FC = () => {
 
         let currentPhone = 0;
         let moving = false;
-        // Animation completion must not unlock the rest of the same swipe.
-        // This is deliberately a gesture lock, never a scroll-position lock:
-        // a position lock can trap a new touch at the old phase boundary.
-        let gestureCommitted = false;
         let transition: ReturnType<typeof gsap.timeline> | undefined;
         const showPhone = (next: number) => {
           if (moving || next === currentPhone) return;
@@ -410,7 +404,6 @@ const CoreClipboard: React.FC = () => {
           const incoming = phoneItems[next];
           currentPhone = next;
           moving = true;
-          gestureCommitted = true;
           gsap.set(incoming, { x: direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(8px)', zIndex: 2 });
           gsap.set(outgoing, { zIndex: 1 });
           transition = gsap.timeline({ onComplete: () => {
@@ -420,15 +413,13 @@ const CoreClipboard: React.FC = () => {
             .to(incoming, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .62, ease: 'power2.inOut' }, 0)
             .to(outgoing, { x: -direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(10px)', duration: .62, ease: 'power2.inOut' }, 0);
         };
-        const resolvePhone = (distance: number, direction: number) => {
-          if (moving || gestureCommitted) return;
-          // A small spatial dead zone prevents jitter at a completed boundary.
+        const syncPhone = (distance: number) => {
+          // This is a discrete slider: scroll chooses a slide and then GSAP
+          // completes its blur/slide transition. No scrub or input lock can
+          // leave the stage half-transitioned or trap the next scroll.
           const thresholds = [firstHold(), firstHold() + secondHold()];
-          if (direction > 0 && currentPhone < 2 && distance >= thresholds[currentPhone] - 1) {
-            showPhone(currentPhone + 1);
-          } else if (direction < 0 && currentPhone > 0 && distance <= thresholds[currentPhone - 1] - 48) {
-            showPhone(currentPhone - 1);
-          }
+          const next = distance < thresholds[0] ? 0 : distance < thresholds[1] ? 1 : 2;
+          showPhone(next);
         };
         const scene = ScrollTrigger.create({
           trigger: stage,
@@ -438,28 +429,9 @@ const CoreClipboard: React.FC = () => {
           pinSpacing: true,
           anticipatePin: 0,
           refreshPriority: 1,
-          onUpdate: (self) => resolvePhone(self.scroll() - self.start, self.direction),
+          onUpdate: (self) => syncPhone(self.scroll() - self.start),
         });
         scrollTrigger = scene;
-        releaseInput = bindPhaseScrollInput({
-          range: () => ({ start: scene.start, end: scene.end }),
-          // Only stop at the next actual handoff in either direction. Keeping
-          // the previous forward threshold here catches reverse input just
-          // one rounded pixel away from the anchor on fractional layouts.
-          checkpoints: () => [
-            1,
-            ...(currentPhone === 0 ? [firstHold()]
-              : currentPhone === 1 ? [firstHold() - 48, firstHold() + secondHold()]
-                : [firstHold() + secondHold() - 48]),
-            scrollDistance(),
-          ],
-          busy: () => moving || gestureCommitted,
-          gestureCommitted: () => gestureCommitted,
-          captureTouch: true,
-          onGestureStart: () => { gestureCommitted = false; },
-          beforeScroll: resolvePhone,
-          afterScroll: () => ScrollTrigger.update(),
-        });
         return () => transition?.kill();
       }, stage);
       revertScene = () => context.revert();
@@ -472,7 +444,6 @@ const CoreClipboard: React.FC = () => {
     void setupPinnedScene();
     return () => {
       active = false;
-      releaseInput?.();
       scrollTrigger?.kill();
       revertScene?.();
     };
