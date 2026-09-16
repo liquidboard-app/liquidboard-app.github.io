@@ -377,7 +377,10 @@ const CoreClipboard: React.FC = () => {
       const stageShift = () => Math.max(stage.clientWidth * .78, 260);
       const firstHold = () => Math.max(stage.clientHeight * 1.6, 1100);
       const secondHold = () => Math.max(stage.clientHeight * 1.5, 1000);
-      const scrollDistance = () => firstHold() + secondHold() + Math.max(stage.clientHeight * .5, 320);
+      // Leave a full reading beat once the last phone lands so a stronger
+      // swipe from phone two cannot immediately carry the page onward.
+      const finalHold = () => Math.max(stage.clientHeight * .9, 640);
+      const scrollDistance = () => firstHold() + secondHold() + finalHold();
 
       const context = gsap.context(() => {
         gsap.set(phoneItems, {

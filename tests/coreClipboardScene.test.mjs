@@ -61,7 +61,7 @@ for (const [width, height] of [[390, 700], [820, 1000]]) {
       slider.scrollTo(firstHold - 1);
       slider.timelines[3].progress(1).pause();
       assert.equal(slider.phones[0].autoAlpha, 1);
-      assert.equal(slider.scene.end - slider.scene.start, firstHold + secondHold + Math.max(height * .5, 320));
+      assert.equal(slider.scene.end - slider.scene.start, firstHold + secondHold + Math.max(height * .9, 640));
     } finally { slider.cleanup(); }
   });
 
