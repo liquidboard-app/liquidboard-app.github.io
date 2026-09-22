@@ -1,81 +1,44 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import vm from 'node:vm';
-import ts from 'typescript';
-import { gsap } from 'gsap';
 
-function install(width, height) {
-  const source = readFileSync(new URL('../src/views/Home/components/CoreClipboard/index.tsx', import.meta.url), 'utf8');
-  const start = source.indexOf('      const stageShift =');
-  const end = source.indexOf('      revertScene =', start);
-  const phones = Array.from({ length: 3 }, () => ({ x: 0, xPercent: 0, yPercent: 0, autoAlpha: 0, scale: 1, filter: '', force3D: false, willChange: '', zIndex: 0 }));
-  const timelines = [];
-  let scene;
-  let options;
-  const code = ts.transpileModule(source.slice(start, end), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, {
-    stage: { clientWidth: width, clientHeight: height }, phoneItems: phones,
-    firstPhone: phones[0], secondPhone: phones[1], thirdPhone: phones[2], headerOffset: () => 75,
-    gsap: { set: gsap.set, context: (fn) => fn(), timeline(config) { const timeline = gsap.timeline(config); timelines.push(timeline); return timeline; } },
-    ScrollTrigger: { create(config) {
-      options = config;
-      scene = { start: 1000, end: 1000 + Number(config.end().slice(2)), scroll: () => scene.position };
-      return scene;
-    } },
-  });
-  const scrollTo = (distance) => {
-    scene.position = scene.start + distance;
-    options.onUpdate(scene);
-  };
-  return { phones, timelines, scene, scrollTo, cleanup() { timelines.forEach((timeline) => timeline.kill()); gsap.ticker.sleep(); } };
-}
+const componentSource = readFileSync(new URL('../src/views/Home/components/CoreClipboard/index.tsx', import.meta.url), 'utf8');
+const styleSource = readFileSync(new URL('../src/views/Home/components/CoreClipboard/styled.ts', import.meta.url), 'utf8');
 
-for (const [width, height] of [[390, 700], [820, 1000]]) {
-  test(`${width}px: Core is a discrete blur slider with longer holds`, () => {
-    const slider = install(width, height);
-    const firstHold = Math.max(height * 1.6, 1100);
-    const secondHold = Math.max(height * 1.5, 1000);
-    try {
-      slider.scrollTo(firstHold - 1);
-      assert.equal(slider.timelines.length, 0, 'the first phone remains centered through its hold');
+test('CoreClipboard renders multiple vertical items with two previews per item', () => {
+  const itemDefinitions = componentSource.match(/\n  \{\n    label:/g) ?? [];
+  const imagePairs = componentSource.match(/images: \[publicAsset\([^\n]+\), publicAsset\([^\n]+\)\]/g) ?? [];
 
-      slider.scrollTo(firstHold + 1);
-      const firstTransition = slider.timelines[0];
-      firstTransition.progress(.5).pause();
-      assert.ok(slider.phones[0].x < 0 && slider.phones[1].x > 0, 'outgoing and incoming phones move together');
-      firstTransition.progress(1).pause();
-      assert.equal(slider.phones[0].autoAlpha, 0);
-      assert.equal(slider.phones[1].x, 0);
-      assert.equal(slider.phones[1].filter, 'none');
+  assert.equal(itemDefinitions.length, 3, 'CoreClipboard should contain exactly three content items');
+  assert.equal(imagePairs.length, itemDefinitions.length, 'each content item should define two preview images');
+  assert.match(componentSource, /className="core-clipboard-list"/);
+  assert.match(componentSource, /core-clipboard-item-\$\{index \+ 1\}/);
+  assert.match(componentSource, /lucide-smartphone preview-icon core-preview-icon/);
+  assert.match(componentSource, /lucide-keyboard preview-icon core-preview-icon/);
+  assert.match(componentSource, />App<\/span>/);
+  assert.match(componentSource, />Keyboard<\/span>/);
+  assert.match(styleSource, /width: min\(calc\(100% - \(var\(--page-gutter\) \* 2\)\), 991px\)/);
+  assert.match(styleSource, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styleSource, /background: linear-gradient\(90deg, #f2f2f2 0 50%, #000 50% 100%\)/);
+  assert.match(styleSource, /\.core-clipboard-item-2[\s\S]*background: linear-gradient\(90deg, #000 0 50%, #f2f2f2 50% 100%\)/);
+  assert.match(styleSource, /\.core-clipboard-item-3[\s\S]*background: linear-gradient\(90deg, #f2f2f2 0 50%, #000 50% 100%\)/);
+  assert.match(styleSource, /\.core-clipboard-media:hover img[\s\S]*transform: scale\(1\.02\)/);
+  assert.match(styleSource, /\.core-clipboard-media \{[\s\S]*overflow: visible/);
+  assert.match(styleSource, /\.core-preview-icons \.core-preview-icon/);
+  assert.match(styleSource, /\.core-preview-icons[\s\S]*padding-top: clamp/);
+  assert.match(styleSource, /\.core-preview-badge[\s\S]*border-radius: 999px/);
+  assert.match(styleSource, /\.core-clipboard-item-images[\s\S]*margin: clamp\(24px/);
+  assert.match(styleSource, /border-radius: 0/);
+});
 
-      slider.scrollTo(firstHold + secondHold - 1);
-      assert.equal(slider.timelines.length, 1, 'the second phone receives its own hold');
-      slider.scrollTo(firstHold + secondHold + 1);
-      slider.timelines[1].progress(1).pause();
-      assert.equal(slider.phones[2].autoAlpha, 1);
-
-      slider.scrollTo(firstHold + secondHold - 1);
-      slider.timelines[2].progress(1).pause();
-      assert.equal(slider.phones[1].autoAlpha, 1, 'scrolling up returns to the prior phone');
-      slider.scrollTo(firstHold - 1);
-      slider.timelines[3].progress(1).pause();
-      assert.equal(slider.phones[0].autoAlpha, 1);
-      assert.equal(slider.scene.end - slider.scene.start, firstHold + secondHold + Math.max(height * .9, 640));
-    } finally { slider.cleanup(); }
-  });
-
-  test(`${width}px: a transition never locks later scroll updates`, () => {
-    const slider = install(width, height);
-    const firstHold = Math.max(height * 1.6, 1100);
-    try {
-      slider.scrollTo(firstHold + 1);
-      slider.timelines[0].progress(1).pause();
-      slider.scrollTo(firstHold - 1);
-      assert.equal(slider.timelines.length, 2, 'the first reverse scroll starts immediately');
-      slider.timelines[1].progress(1).pause();
-      slider.scrollTo(firstHold + 1);
-      assert.equal(slider.timelines.length, 3, 'the next forward scroll remains available');
-    } finally { slider.cleanup(); }
-  });
-}
+test('CoreClipboard keeps native scrolling and reveals items with blur', () => {
+  assert.doesNotMatch(componentSource, /ScrollTrigger/);
+  assert.doesNotMatch(componentSource, /pin:\s*true/);
+  assert.doesNotMatch(componentSource, /phoneStageRef|phoneRowRef/);
+  assert.match(componentSource, /new IntersectionObserver/);
+  assert.match(componentSource, /item\.classList\.add\('is-item-revealed'\)/);
+  assert.match(styleSource, /\.core-clipboard-media[\s\S]*filter: blur\(18px\)/);
+  assert.match(styleSource, /\.core-clipboard-item\.is-item-revealed \.core-clipboard-media/);
+  assert.match(styleSource, /filter: blur\(0\)/);
+  assert.match(styleSource, /transition-delay: 130ms/);
+});

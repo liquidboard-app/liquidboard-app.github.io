@@ -1,28 +1,5 @@
 import styled, { keyframes } from 'styled-components';
 
-const clipboardEnter = keyframes`
-  from { opacity: 0; filter: blur(12px); transform: translate(var(--item-x), calc(var(--item-y) + 22px)) rotate(var(--item-rotate)) scale(.94); }
-  to { opacity: 1; filter: blur(0); transform: translate(var(--item-x), var(--item-y)) rotate(var(--item-rotate)) scale(1); }
-`;
-
-const clipboardExit = keyframes`
-  from { opacity: 1; filter: blur(0); transform: translate(var(--item-x), var(--item-y)) rotate(var(--item-rotate)) scale(1); }
-  to { opacity: 0; filter: blur(12px); transform: translate(var(--item-x), calc(var(--item-y) - 10px)) rotate(var(--item-rotate)) scale(.84); }
-`;
-
-// Blur on several independently moving cards forces a large repaint on iOS.
-// The compact variant keeps the same rise/scale choreography and lets opacity
-// provide the soft edge while every frame remains compositor-only.
-const clipboardEnterCompact = keyframes`
-  from { opacity: 0; transform: translate3d(var(--item-x), calc(var(--item-y) + 22px), 0) rotate(var(--item-rotate)) scale(.94); }
-  to { opacity: 1; transform: translate3d(var(--item-x), var(--item-y), 0) rotate(var(--item-rotate)) scale(1); }
-`;
-
-const clipboardExitCompact = keyframes`
-  from { opacity: 1; transform: translate3d(var(--item-x), var(--item-y), 0) rotate(var(--item-rotate)) scale(1); }
-  to { opacity: 0; transform: translate3d(var(--item-x), calc(var(--item-y) - 10px), 0) rotate(var(--item-rotate)) scale(.84); }
-`;
-
 const copyOverlayIn = keyframes`
   from { opacity: 0; -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); }
   to { opacity: 1; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
@@ -53,18 +30,17 @@ const copyCheckOut = keyframes`
   to { opacity: 0; transform: scale(.8); }
 `;
 
+const linkPreviewSpin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
 export const ClipboardGridSection = styled.section`
   overflow: clip;
   background: #fff;
   color: #151515;
   .hero-grid {
-    /* Keep the 40-unit random layout inside the padded clipboard canvas. */
-    --grid-size: min(
-      32px,
-      calc((min(100vw, var(--page-max-width)) - (var(--page-gutter) * 2)) / 40)
-    );
-    --grid-surface-size: calc(var(--grid-size) * .78);
-    min-height: clamp(420px, 50vw, 640px);
+    --grid-surface-size: calc(min(32px, (min(100vw, var(--page-max-width)) - (var(--page-gutter) * 2)) / 40) * .78);
+    min-height: clamp(720px, 70vw, 920px);
     pointer-events: none;
   }
   .hero-grid::after {
@@ -79,21 +55,52 @@ export const ClipboardGridSection = styled.section`
     pointer-events: none;
   }
   .clipboard-container {
-    /* Match the canvas width to the 40-unit positioning system. Without this cap,
-       a wide desktop canvas has unused space after the final grid unit. */
-    width: min(100%, calc((var(--grid-size) * 40) + (var(--page-gutter) * 2)));
-    height: clamp(420px, 50vw, 640px);
+    width: 100%;
+    height: clamp(720px, 70vw, 920px);
     margin-inline: auto;
-    padding-inline: var(--page-gutter);
+    padding: clamp(36px, 5vw, 64px) 0;
     box-sizing: border-box;
   }
-  .clipboard-canvas { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  .clipboard-canvas {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(18px, 2vw, 28px);
+    overflow: hidden;
+  }
+  .clipboard-marquee-row { width: 100%; overflow: hidden; }
+  .clipboard-marquee-track {
+    display: flex;
+    width: max-content;
+    flex: none;
+    will-change: transform;
+  }
+  .clipboard-marquee-group {
+    display: flex;
+    gap: clamp(18px, 2vw, 34px);
+    flex: none;
+    padding-right: clamp(18px, 2vw, 34px);
+  }
+  .clipboard-item-wrap {
+    width: var(--clipboard-item-size, clamp(190px, 19vw, 232px));
+    height: var(--clipboard-item-size, clamp(190px, 19vw, 232px));
+    aspect-ratio: 1;
+    flex: 0 0 var(--clipboard-item-size, clamp(190px, 19vw, 232px));
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .clipboard-item {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: var(--item-width);
-    height: var(--item-height);
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
     box-sizing: border-box;
     -webkit-appearance: none;
     appearance: none;
@@ -112,21 +119,8 @@ export const ClipboardGridSection = styled.section`
     touch-action: manipulation;
     cursor: copy;
     pointer-events: auto;
-    transform: translate(var(--item-x), var(--item-y)) rotate(var(--item-rotate));
-    animation: ${clipboardEnter} .86s cubic-bezier(.22, 1, .36, 1) both;
-    box-shadow: 0 18px 34px rgba(21, 21, 21, .12);
     backface-visibility: hidden;
   }
-  .clipboard-item:nth-child(2) { animation-delay: .06s; }
-  .clipboard-item:nth-child(3) { animation-delay: .12s; }
-  .clipboard-item:nth-child(4) { animation-delay: .18s; }
-  .clipboard-item:nth-child(5) { animation-delay: .24s; }
-  .clipboard-item:nth-child(6) { animation-delay: .30s; }
-  .clipboard-item:nth-child(7) { animation-delay: .36s; }
-  .clipboard-item:nth-child(8) { animation-delay: .42s; }
-  .clipboard-item:nth-child(9) { animation-delay: .48s; }
-  .clipboard-item:nth-child(10) { animation-delay: .54s; }
-  .clipboard-canvas.is-leaving .clipboard-item { animation: ${clipboardExit} .76s cubic-bezier(.55, 0, 1, .45) both; }
   .clipboard-item:focus-visible { outline: 3px solid rgba(29, 159, 98, .72); outline-offset: 4px; }
   @media (hover: none), (pointer: coarse) {
     .clipboard-item:focus,
@@ -182,41 +176,74 @@ export const ClipboardGridSection = styled.section`
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    padding: clamp(14px, 1.1vw, 18px);
+    padding: clamp(12px, 1vw, 14px);
     overflow: hidden;
     border-radius: clamp(14px, 1.5vw, 22px);
+    border: 1px solid rgba(21, 21, 21, .12);
     background: #fff;
+    text-align: left;
   }
   .clipboard-item-text h3 {
+    display: -webkit-box;
     overflow: hidden;
     color: #151515;
-    font-size: clamp(15px, 1.25vw, 21px);
+    font-size: clamp(13px, 1vw, 17px);
     font-weight: 620;
     letter-spacing: -.045em;
     line-height: 1.22;
     flex: 0 0 auto;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
   }
   .clipboard-item-text p {
     max-width: none;
     margin-top: 7px;
     color: rgba(21, 21, 21, .6);
     font-size: clamp(13px, .95vw, 16px);
-    line-height: 1.35;
+    line-height: 1.18;
     display: -webkit-box;
     overflow: hidden;
     white-space: pre-line;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: var(--text-line-clamp, 1);
+    -webkit-line-clamp: 8;
   }
   .clipboard-item-link {
     display: flex;
     flex-direction: column;
     border-radius: clamp(14px, 1.5vw, 22px);
+    border: 1px solid rgba(21, 21, 21, .12);
     background: #fff;
   }
-  .clipboard-item-link img { display: block; width: 100%; min-height: 0; flex: 1 1 auto; object-fit: cover; }
+  .clipboard-link-preview {
+    position: relative;
+    display: grid;
+    min-height: 0;
+    flex: 1 1 auto;
+    place-items: center;
+    overflow: hidden;
+    background: #ededed;
+  }
+  .clipboard-link-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  .clipboard-link-preview.is-loaded img { opacity: 1; }
+  .clipboard-link-loader {
+    position: absolute;
+    z-index: 1;
+    width: clamp(24px, 2.4vw, 34px);
+    height: clamp(24px, 2.4vw, 34px);
+    border: 2px solid rgba(21, 21, 21, .14);
+    border-top-color: rgba(21, 21, 21, .52);
+    border-radius: 50%;
+    animation: ${linkPreviewSpin} .8s linear infinite;
+  }
   .clipboard-link-placeholder {
     display: grid;
     min-height: 0;
@@ -251,43 +278,51 @@ export const ClipboardGridSection = styled.section`
   .clipboard-item-image img,
   .clipboard-item-sticker img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .clipboard-item-sticker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     --sticker-cut-padding: 7px;
     --sticker-cut-radius: clamp(24px, 2.8vw, 42px);
     padding: var(--sticker-cut-padding);
     border-radius: var(--sticker-cut-radius);
-    background: #fff;
-    box-shadow: 0 15px 30px rgba(21, 21, 21, .15);
+    background: transparent;
   }
-  .clipboard-item-sticker img { border-radius: calc(var(--sticker-cut-radius) - var(--sticker-cut-padding)); }
+  .clipboard-item-sticker img {
+    width: 100%;
+    height: 100%;
+    border-radius: calc(var(--sticker-cut-radius) - var(--sticker-cut-padding));
+    object-fit: contain;
+  }
 
   @media (min-width: 768px) and (max-width: 1199px) {
-    .hero-grid { min-height: clamp(540px, 58vw, 680px); --grid-surface-size: calc(var(--grid-size) * .92); }
-    .clipboard-container { height: clamp(540px, 58vw, 680px); }
+    .hero-grid { min-height: clamp(700px, 80vw, 900px); }
+    .clipboard-container { height: clamp(700px, 80vw, 900px); }
     .clipboard-item-text { padding: 16px; }
   }
 
   @media (max-width: 767px) {
-    --clipboard-mobile-gutter: max(8px, calc(var(--page-gutter) - 8px));
     .hero-grid {
-      --grid-size: calc((100vw - (var(--clipboard-mobile-gutter) * 2)) / 40);
-      --grid-surface-size: var(--grid-size);
+      --grid-surface-size: calc(100vw / 40);
+      min-height: clamp(540px, 150vw, 680px);
     }
     .clipboard-container {
-      height: clamp(400px, 112vw, 540px);
-      padding-inline: var(--clipboard-mobile-gutter);
+      height: clamp(540px, 150vw, 680px);
+      padding: 30px 0;
     }
-    .clipboard-item {
-      animation-name: ${clipboardEnterCompact};
-      will-change: transform, opacity;
+    .clipboard-canvas {
+      gap: 16px;
     }
-    .clipboard-canvas.is-leaving .clipboard-item { animation-name: ${clipboardExitCompact}; }
+    .clipboard-marquee-group { gap: 16px; padding-right: 16px; }
+    .clipboard-item-wrap {
+      --clipboard-item-size: clamp(148px, 40vw, 188px);
+    }
     .clipboard-item-text {
       min-height: 0;
-      justify-content: center;
+      justify-content: flex-start;
       padding: 7.5px 11.5px;
     }
-    .clipboard-item-text h3 { font-size: clamp(11px, 3.2vw, 14px); }
-    .clipboard-item-text p { margin-top: 5px; font-size: clamp(9px, 2.7vw, 12px); line-height: 1.25; }
+    .clipboard-item-text h3 { font-size: clamp(10px, 2.8vw, 12px); }
+    .clipboard-item-text p { margin-top: 5px; font-size: clamp(9px, 2.7vw, 12px); line-height: 1.18; }
     .clipboard-item-color { padding: 8px; }
     .clipboard-item-color span { font-size: clamp(10px, 3vw, 13px); }
     .clipboard-item-color strong { font-size: clamp(12px, 3.5vw, 16px); }
@@ -295,6 +330,7 @@ export const ClipboardGridSection = styled.section`
     .clipboard-item-link strong { font-size: clamp(10px, 3vw, 13px); }
     .clipboard-item-link span { font-size: clamp(8px, 2.4vw, 10px); }
     .clipboard-item-sticker { --sticker-cut-padding: 4px; --sticker-cut-radius: 24px; }
+    .clipboard-item-text p { -webkit-line-clamp: 6; }
   }
 
 `;

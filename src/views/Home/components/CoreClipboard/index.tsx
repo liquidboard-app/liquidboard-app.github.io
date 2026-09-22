@@ -4,10 +4,19 @@ import { splitGraphemes } from '@/utils/graphemes';
 import { publicAsset } from '@/utils/publicAssets';
 import { CoreClipboardSection } from './styled';
 
-const phones = [
-  { label: 'Text', image: publicAsset('/assets/lb-text.webp'), tone: 'sand' },
-  { label: 'Image', image: publicAsset('/assets/lb-photos.webp'), tone: 'sky' },
-  { label: 'Sticker', image: publicAsset('/assets/lb-keyboard.webp'), tone: 'violet' },
+const coreItems = [
+  {
+    label: 'Text',
+    images: [publicAsset('/assets/lb-text.webp'), publicAsset('/assets/lb-text.webp')],
+  },
+  {
+    label: 'Image',
+    images: [publicAsset('/assets/lb-photos.webp'), publicAsset('/assets/lb-photos.webp')],
+  },
+  {
+    label: 'Sticker',
+    images: [publicAsset('/assets/lb-keyboard.webp'), publicAsset('/assets/lb-keyboard.webp')],
+  },
 ] as const;
 
 const coreHighlightTerms: Record<string, { line1: string; line2: string }> = {
@@ -35,6 +44,51 @@ const coreHighlightTerms: Record<string, { line1: string; line2: string }> = {
 const coreTextDuration = 620;
 const coreTextStagger = 26;
 
+const SmartphonePreviewIcon: React.FC = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="lucide lucide-smartphone preview-icon core-preview-icon"
+    aria-hidden="true"
+  >
+    <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+    <path d="M12 18h.01" />
+  </svg>
+);
+
+const KeyboardPreviewIcon: React.FC = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="lucide lucide-keyboard preview-icon core-preview-icon"
+    aria-hidden="true"
+  >
+    <path d="M10 8h.01" />
+    <path d="M12 12h.01" />
+    <path d="M14 8h.01" />
+    <path d="M16 12h.01" />
+    <path d="M18 8h.01" />
+    <path d="M6 8h.01" />
+    <path d="M7 16h10" />
+    <path d="M8 12h.01" />
+    <rect width="20" height="16" x="2" y="4" rx="2" />
+  </svg>
+);
+
 const renderHighlightedCoreLine = (
   text: string,
   term: string,
@@ -57,19 +111,12 @@ const renderHighlightedCoreLine = (
   );
 };
 
-type AnimationPhase = 'idle' | 'entering' | 'entered' | 'reversing';
-type SidePhonesLock = 'top' | 'bottom';
-type ScrollDirection = 'up' | 'down';
+type AnimationPhase = 'idle' | 'entering' | 'entered';
 
 const CoreClipboard: React.FC = () => {
   const { dict, lang } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
-  const phoneStageRef = useRef<HTMLDivElement>(null);
-  const phoneRowRef = useRef<HTMLDivElement>(null);
   const [headingPhase, setHeadingPhase] = useState<AnimationPhase>('idle');
-  const [sidePhonesPhase, setSidePhonesPhase] = useState<AnimationPhase>('idle');
-  const [centerPhonePhase, setCenterPhonePhase] = useState<AnimationPhase>('idle');
-  const [isPinnedScroll, setIsPinnedScroll] = useState(false);
 
   let characterIndex = 0;
   const renderSplitText = (text: string) => text.split(/(\s+)/).map((word, wordIndex) => {
@@ -96,38 +143,8 @@ const CoreClipboard: React.FC = () => {
   const textRevealDuration = coreTextDuration + Math.max(0, characterIndex - 1) * coreTextStagger;
 
   useEffect(() => {
-    const compactViewportQuery = window.matchMedia('(max-width: 1199px)');
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: no-preference)');
-    const syncPinnedScroll = () => {
-      setIsPinnedScroll(compactViewportQuery.matches && motionQuery.matches);
-    };
-
-    syncPinnedScroll();
-    compactViewportQuery.addEventListener('change', syncPinnedScroll);
-    motionQuery.addEventListener('change', syncPinnedScroll);
-    return () => {
-      compactViewportQuery.removeEventListener('change', syncPinnedScroll);
-      motionQuery.removeEventListener('change', syncPinnedScroll);
-    };
-  }, []);
-
-  useEffect(() => {
     let headingPhase: AnimationPhase = 'idle';
-    let sidePhonesPhase: AnimationPhase = 'idle';
-    let centerPhonePhase: AnimationPhase = 'idle';
-    let sidePhonesLock: SidePhonesLock | null = null;
     let headingAnimationTimer: number | undefined;
-    let sidePhonesAnimationTimer: number | undefined;
-    let sidePhonesReverseTimer: number | undefined;
-    let centerPhoneAnimationTimer: number | undefined;
-    let updateFrame: number | undefined;
-    let lastViewportWidth = window.innerWidth;
-    let lastScrollY = window.scrollY;
-    let isScrollingUp = false;
-    let isScrollingDown = false;
-    let scrollDirection: ScrollDirection | null = null;
-    let scrollDirectionDistance = 0;
-    const directionCommitDistance = 80;
     const desktopQuery = window.matchMedia('(min-width: 1200px)');
     const headingElement = sectionRef.current;
     const finalizeCompactHeadingGrapheme = (event: AnimationEvent) => {
@@ -144,34 +161,9 @@ const CoreClipboard: React.FC = () => {
     };
     headingElement?.addEventListener('animationend', finalizeCompactHeadingGrapheme);
 
-    const syncPhoneCenterShift = () => {
-      const section = sectionRef.current;
-      const row = phoneRowRef.current;
-      if (!section || !row || !desktopQuery.matches) {
-        section?.style.removeProperty('--core-phone-center-shift');
-        return;
-      }
-
-      const phoneItems = Array.from(row.querySelectorAll<HTMLElement>('.core-phone'));
-      if (phoneItems.length < 3) return;
-      const centers = phoneItems.map((phone) => {
-        const bounds = phone.getBoundingClientRect();
-        return bounds.left + bounds.width / 2;
-      });
-      section.style.setProperty('--core-phone-center-shift', `${centers[1] - centers[0]}px`);
-    };
-
     const setHeading = (phase: typeof headingPhase) => {
       headingPhase = phase;
       setHeadingPhase(phase);
-    };
-    const setSidePhones = (phase: typeof sidePhonesPhase) => {
-      sidePhonesPhase = phase;
-      setSidePhonesPhase(phase);
-    };
-    const setCenterPhone = (phase: typeof centerPhonePhase) => {
-      centerPhonePhase = phase;
-      setCenterPhonePhase(phase);
     };
     const beginHeadingEnter = () => {
       if (headingPhase !== 'idle') return;
@@ -181,281 +173,43 @@ const CoreClipboard: React.FC = () => {
         setHeading('entered');
       }, 1450);
     };
-    const beginSidePhonesEnter = () => {
-      if (sidePhonesPhase === 'entering' || sidePhonesPhase === 'entered') return;
-      window.clearTimeout(sidePhonesAnimationTimer);
-      window.clearTimeout(sidePhonesReverseTimer);
-      setSidePhones('entering');
-      sidePhonesAnimationTimer = window.setTimeout(() => {
-        setSidePhones('entered');
-      }, 720);
-    };
-    const beginSidePhonesReverse = (direction: SidePhonesLock) => {
-      if (sidePhonesPhase !== 'entered') return;
-      window.clearTimeout(sidePhonesAnimationTimer);
-      window.clearTimeout(sidePhonesReverseTimer);
-      sidePhonesLock = direction;
-      setSidePhones('reversing');
-      sidePhonesReverseTimer = window.setTimeout(() => {
-        setSidePhones('idle');
-      }, 620);
-    };
-    const beginCenterPhoneEnter = () => {
-      if (centerPhonePhase !== 'idle') return;
-      window.clearTimeout(centerPhoneAnimationTimer);
-      setCenterPhone('entering');
-      centerPhoneAnimationTimer = window.setTimeout(() => {
-        setCenterPhone('entered');
-      }, 860);
-    };
-    const requestHeading = (visible: boolean) => {
-      if (visible) beginHeadingEnter();
-    };
-    const requestSidePhonesEnter = (visible: boolean) => {
-      if (visible) beginSidePhonesEnter();
-    };
-    const requestSidePhonesReverse = (visible: boolean, direction: SidePhonesLock) => {
-      if (visible) beginSidePhonesReverse(direction);
-    };
-    const requestCenterPhone = (visible: boolean) => {
-      if (visible) beginCenterPhoneEnter();
-    };
-    const resolveAnimationState = (nextProgress: number, viewportHeight: number) => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      // Separate enter/exit thresholds create a small dead zone around each trigger.
-      // This keeps animations stable while the user lingers near the boundary.
-      const shouldEnterHeading = nextProgress >= .06;
-      const shouldEnterCenterPhone = nextProgress >= .55;
-
-      if (shouldEnterHeading) requestHeading(true);
-      if (shouldEnterCenterPhone) requestCenterPhone(true);
-
-      const phoneStage = phoneStageRef.current;
-      if (phoneStage) {
-        const stageTop = phoneStage.getBoundingClientRect().top;
-        const sidePhonesUpThreshold = viewportHeight * .82;
-        const wasReturningFromTop = sidePhonesLock === 'top';
-        const shouldConvergeSidePhones = isScrollingUp
-          ? stageTop >= sidePhonesUpThreshold
-          : isScrollingDown && stageTop < -viewportHeight * .85;
-        const shouldEnterSidePhones = isScrollingUp
-          ? stageTop >= -viewportHeight * .6 && stageTop < sidePhonesUpThreshold
-          : stageTop < viewportHeight * (wasReturningFromTop ? .78 : 1.05);
-
-        // Keep a spatial dead zone between the up/down thresholds. The lock
-        // is released only after the user crosses that zone in the opposite
-        // direction, preventing rapid scroll oscillation from replaying both
-        // animations over and over.
-        if (isScrollingUp && sidePhonesLock === 'bottom' && stageTop >= -viewportHeight * .6) {
-          sidePhonesLock = null;
-        }
-        if (isScrollingDown && sidePhonesLock === 'top' && scrollDirectionDistance >= directionCommitDistance) {
-          sidePhonesLock = null;
-        }
-
-        if (shouldConvergeSidePhones) {
-          requestSidePhonesReverse(true, isScrollingUp ? 'top' : 'bottom');
-        } else if (shouldEnterSidePhones && (isScrollingUp || isScrollingDown) && !sidePhonesLock) {
-          requestSidePhonesEnter(true);
-        }
-      }
-    };
-
-    const updateProgress = () => {
-      updateFrame = undefined;
-      const section = sectionRef.current;
-      if (!section) return;
-
-      const bounds = section.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || 1;
-      const currentScrollY = window.scrollY;
-      const scrollDelta = currentScrollY - lastScrollY;
-      if (scrollDelta !== 0) {
-        const nextDirection: ScrollDirection = scrollDelta < 0 ? 'up' : 'down';
-        if (nextDirection !== scrollDirection) {
-          scrollDirection = nextDirection;
-          scrollDirectionDistance = 0;
-        }
-        scrollDirectionDistance += Math.abs(scrollDelta);
-      }
-      isScrollingUp = scrollDirection === 'up' && scrollDirectionDistance >= directionCommitDistance;
-      isScrollingDown = scrollDirection === 'down' && scrollDirectionDistance >= directionCommitDistance;
-      lastScrollY = currentScrollY;
-      const start = viewportHeight * .78;
-      const distance = Math.max(1, bounds.height - viewportHeight * .55);
-      const nextProgress = Math.min(1, Math.max(0, (start - bounds.top) / distance));
-      resolveAnimationState(nextProgress, viewportHeight);
-    };
-    const scheduleProgressUpdate = () => {
-      if (updateFrame !== undefined) return;
-      updateFrame = window.requestAnimationFrame(updateProgress);
-    };
-    const handleResize = () => {
-      const nextViewportWidth = window.innerWidth;
-      // Expanding/collapsing mobile browser chrome is a height-only resize.
-      // Scroll already resolves the entrance thresholds, so do not add layout
-      // reads for every toolbar animation frame.
-      if (!desktopQuery.matches && nextViewportWidth === lastViewportWidth) return;
-      lastViewportWidth = nextViewportWidth;
-      syncPhoneCenterShift();
-      scheduleProgressUpdate();
-    };
-
-    // Phone spread/converge is a desktop-only treatment. On touch layouts it
-    // used to keep reading two element bounds on every scroll frame, including
-    // while the horizontal phone rail was pinned. An observer is enough to run
-    // the heading entrance once and keeps the main thread free for the rail.
-    if (!desktopQuery.matches) {
-      const section = sectionRef.current;
-      const headingObserver = new IntersectionObserver((entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) beginHeadingEnter();
-      }, { rootMargin: '0px 0px -12% 0px' });
-      if (section) headingObserver.observe(section);
-
-      return () => {
-        headingObserver.disconnect();
-        headingElement?.removeEventListener('animationend', finalizeCompactHeadingGrapheme);
-        window.clearTimeout(headingAnimationTimer);
-        window.clearTimeout(sidePhonesAnimationTimer);
-        window.clearTimeout(sidePhonesReverseTimer);
-        window.clearTimeout(centerPhoneAnimationTimer);
-      };
-    }
-
-    syncPhoneCenterShift();
-    updateProgress();
-    window.addEventListener('scroll', scheduleProgressUpdate, { passive: true });
-    window.addEventListener('resize', handleResize, { passive: true });
-    desktopQuery.addEventListener('change', syncPhoneCenterShift);
-    desktopQuery.addEventListener('change', scheduleProgressUpdate);
+    const headingObserver = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) beginHeadingEnter();
+    }, { rootMargin: '0px 0px -12% 0px' });
+    if (sectionRef.current) headingObserver.observe(sectionRef.current);
     return () => {
-      if (updateFrame !== undefined) window.cancelAnimationFrame(updateFrame);
       window.clearTimeout(headingAnimationTimer);
-      window.clearTimeout(sidePhonesAnimationTimer);
-      window.clearTimeout(sidePhonesReverseTimer);
-      window.clearTimeout(centerPhoneAnimationTimer);
+      headingObserver.disconnect();
       headingElement?.removeEventListener('animationend', finalizeCompactHeadingGrapheme);
-      window.removeEventListener('scroll', scheduleProgressUpdate);
-      window.removeEventListener('resize', handleResize);
-      desktopQuery.removeEventListener('change', syncPhoneCenterShift);
-      desktopQuery.removeEventListener('change', scheduleProgressUpdate);
     };
   }, []);
 
   useEffect(() => {
-    const stage = phoneStageRef.current;
-    const row = phoneRowRef.current;
-    if (!isPinnedScroll || !stage || !row) return undefined;
+    const section = sectionRef.current;
+    if (!section) return undefined;
 
-    let active = true;
-    let scrollTrigger: { kill: () => void } | undefined;
-    let revertScene: (() => void) | undefined;
+    const items = Array.from(section.querySelectorAll<HTMLElement>('[data-core-item]'));
+    if (!('IntersectionObserver' in window)) {
+      items.forEach((item) => item.classList.add('is-item-revealed'));
+      return undefined;
+    }
 
-    const setupPinnedScene = async () => {
-      const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
-        import('gsap'),
-        import('gsap/ScrollTrigger'),
-      ]);
-      if (!active) return;
-
-      gsap.registerPlugin(ScrollTrigger);
-      if (window.matchMedia('(pointer: coarse)').matches) {
-        ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
-      }
-      const headerOffset = () => {
-        const header = document.querySelector('header');
-        return header && getComputedStyle(header).position === 'fixed'
-          ? Math.round(header.getBoundingClientRect().height)
-          : 0;
-      };
-      const phoneItems = Array.from(row.querySelectorAll<HTMLElement>('.core-phone'));
-      const [firstPhone, secondPhone, thirdPhone] = phoneItems;
-      if (!firstPhone || !secondPhone || !thirdPhone) return;
-
-      const stageShift = () => Math.max(stage.clientWidth * .78, 260);
-      const firstHold = () => Math.max(stage.clientHeight * 1.6, 1100);
-      const secondHold = () => Math.max(stage.clientHeight * 1.5, 1000);
-      // Leave a full reading beat once the last phone lands so a stronger
-      // swipe from phone two cannot immediately carry the page onward.
-      const finalHold = () => Math.max(stage.clientHeight * .9, 640);
-      const scrollDistance = () => firstHold() + secondHold() + finalHold();
-
-      const context = gsap.context(() => {
-        gsap.set(phoneItems, {
-          xPercent: -50,
-          yPercent: -50,
-          x: stageShift,
-          autoAlpha: 0,
-          scale: .94,
-          filter: 'blur(8px)',
-          force3D: true,
-          willChange: 'transform,filter,opacity',
-        });
-        gsap.set(firstPhone, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', zIndex: 1 });
-        gsap.set(secondPhone, { zIndex: 2 });
-        gsap.set(thirdPhone, { zIndex: 3 });
-
-        let currentPhone = 0;
-        let moving = false;
-        let transition: ReturnType<typeof gsap.timeline> | undefined;
-        const showPhone = (next: number) => {
-          if (moving || next === currentPhone) return;
-          const direction = Math.sign(next - currentPhone);
-          const outgoing = phoneItems[currentPhone];
-          const incoming = phoneItems[next];
-          currentPhone = next;
-          moving = true;
-          gsap.set(incoming, { x: direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(8px)', zIndex: 2 });
-          gsap.set(outgoing, { zIndex: 1 });
-          transition = gsap.timeline({ onComplete: () => {
-            moving = false;
-            gsap.set(incoming, { filter: 'none' });
-          } })
-            .to(incoming, { x: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: .62, ease: 'power2.inOut' }, 0)
-            .to(outgoing, { x: -direction * stageShift(), autoAlpha: 0, scale: .94, filter: 'blur(10px)', duration: .62, ease: 'power2.inOut' }, 0);
-        };
-        const syncPhone = (distance: number) => {
-          // This is a discrete slider: scroll chooses a slide and then GSAP
-          // completes its blur/slide transition. No scrub or input lock can
-          // leave the stage half-transitioned or trap the next scroll.
-          const thresholds = [firstHold(), firstHold() + secondHold()];
-          const next = distance < thresholds[0] ? 0 : distance < thresholds[1] ? 1 : 2;
-          showPhone(next);
-        };
-        const scene = ScrollTrigger.create({
-          trigger: stage,
-          start: () => `top top+=${headerOffset()}`,
-          end: () => `+=${scrollDistance()}`,
-          pin: true,
-          pinSpacing: true,
-          anticipatePin: 0,
-          refreshPriority: 1,
-          onUpdate: (self) => syncPhone(self.scroll() - self.start),
-        });
-        scrollTrigger = scene;
-        return () => transition?.kill();
-      }, stage);
-      revertScene = () => context.revert();
-
-      requestAnimationFrame(() => {
-        if (active) ScrollTrigger.refresh();
+    const itemObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-item-revealed');
+        itemObserver.unobserve(entry.target);
       });
-    };
+    }, { rootMargin: '0px 0px -10% 0px', threshold: .12 });
 
-    void setupPinnedScene();
-    return () => {
-      active = false;
-      scrollTrigger?.kill();
-      revertScene?.();
-    };
-  }, [isPinnedScroll, lang]);
+    items.forEach((item) => itemObserver.observe(item));
+    return () => itemObserver.disconnect();
+  }, []);
 
   return (
     <CoreClipboardSection
       ref={sectionRef}
-    className={`${headingPhase === 'entering' || headingPhase === 'entered' ? 'is-heading-animated' : ''}${headingPhase === 'reversing' ? ' is-heading-reversing' : ''}${sidePhonesPhase === 'entering' || sidePhonesPhase === 'entered' ? ' is-phones-entered' : ''}${sidePhonesPhase === 'reversing' ? ' is-phones-reversing' : ''}${centerPhonePhase === 'entering' || centerPhonePhase === 'entered' ? ' is-center-phone-entered' : ''}${centerPhonePhase === 'reversing' ? ' is-center-phone-reversing' : ''}${isPinnedScroll ? ' is-pinned-scroll' : ''}`}
+      className={headingPhase === 'entering' || headingPhase === 'entered' ? 'is-heading-animated' : ''}
     >
       <div className="core-clipboard-heading">
         <div className="core-app-brand">
@@ -480,18 +234,33 @@ const CoreClipboard: React.FC = () => {
         </h2>
       </div>
 
-      <div ref={phoneStageRef} className="core-phone-stage" aria-label="LiquidBoard Core Clipboard preview">
-        <div ref={phoneRowRef} className="core-phone-row">
-          {phones.map((phone, index) => (
-            <article className={`core-phone core-phone-${phone.tone} core-phone-${index + 1}`} key={phone.label}>
-              <div className="core-phone-frame">
-                <span className="core-phone-island" aria-hidden="true" />
-                <img src={phone.image} alt={`${phone.label} clipboard preview`} loading="eager" decoding="async" />
-                <span className="core-phone-home" aria-hidden="true" />
-              </div>
-            </article>
-          ))}
-        </div>
+      <div className="core-clipboard-list" aria-label="LiquidBoard Core Clipboard preview">
+        {coreItems.map((item, index) => (
+          <article className={`core-clipboard-item core-clipboard-item-${index + 1}`} data-core-item key={item.label}>
+            <div className="core-preview-icons" aria-hidden="true">
+              <span className="core-preview-badge core-preview-badge-app">
+                <SmartphonePreviewIcon />
+                <span>App</span>
+              </span>
+              <span className="core-preview-badge core-preview-badge-keyboard">
+                <KeyboardPreviewIcon />
+                <span>Keyboard</span>
+              </span>
+            </div>
+            <div className="core-clipboard-item-images">
+              {item.images.map((image, imageIndex) => (
+                <div className="core-clipboard-media" key={`${item.label}-${imageIndex}`}>
+                  <img
+                    src={image}
+                    alt={`${item.label} clipboard preview ${imageIndex + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
       </div>
     </CoreClipboardSection>
   );

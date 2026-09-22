@@ -23,36 +23,6 @@ const coreHeadingUnderlineReverse = keyframes`
   to { transform: scaleX(0); transform-origin: right center; }
 `;
 
-const corePhoneSpreadFromCenterLeft = keyframes`
-  from { transform: translateX(var(--core-phone-center-shift)) scale(.92); }
-  to { transform: translateX(0) scale(1); }
-`;
-
-const corePhoneSpreadFromCenterRight = keyframes`
-  from { transform: translateX(calc(var(--core-phone-center-shift) * -1)) scale(.92); }
-  to { transform: translateX(0) scale(1); }
-`;
-
-const corePhoneConvergeToCenterLeft = keyframes`
-  from { transform: translateX(0) scale(1); }
-  to { transform: translateX(var(--core-phone-center-shift)) scale(.92); }
-`;
-
-const corePhoneConvergeToCenterRight = keyframes`
-  from { transform: translateX(0) scale(1); }
-  to { transform: translateX(calc(var(--core-phone-center-shift) * -1)) scale(.92); }
-`;
-
-const corePhoneEnterFromBottom = keyframes`
-  from { transform: translateY(0); }
-  to { transform: translateY(0); }
-`;
-
-const corePhoneExitToBottom = keyframes`
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(110px); }
-`;
-
 const coreBrandSeparate = keyframes`
   from { gap: 0; }
   to { gap: 20px; }
@@ -94,10 +64,9 @@ const coreDarkLogoHide = keyframes`
 `;
 
 export const CoreClipboardSection = styled.section`
-  --core-phone-center-shift: 0px;
   position: relative;
-  min-height: 132dvh;
-  overflow: clip;
+  min-height: auto;
+  overflow: visible;
   background: #fff;
   color: #151515;
 
@@ -245,158 +214,14 @@ export const CoreClipboardSection = styled.section`
   .core-heading-highlight-blue .core-heading-underline { background: #4b8dff; }
   &.is-heading-animated .core-heading-highlight-blue .core-heading-underline { animation-delay: calc(var(--core-underline-delay) + .28s); }
 
-  .core-phone-stage {
-    position: relative;
-    width: 100%;
-    min-height: min(58vw, 820px);
-  }
-  .core-phone-row {
-    display: grid;
-    width: min(calc(100% - (var(--page-gutter) * 2)), 1140px);
-    min-height: inherit;
-    margin-inline: auto;
-    gap: clamp(12px, 1.5vw, 28px);
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: end;
-    justify-items: center;
-  }
-  .core-phone {
-    width: min(25vw, 340px);
-    transform: translate3d(0, 0, 0);
-    transition: transform .14s cubic-bezier(.22, 1, .36, 1);
-    will-change: transform;
-  }
-  .core-phone-1,
-  .core-phone-3 { transform: translate3d(0, 0, 0); }
-  .core-phone-frame {
-    position: relative;
-    aspect-ratio: .49;
-    padding: 0;
-    overflow: visible;
-    border: 0;
-    border-radius: clamp(34px, 3.2vw, 54px);
-    background: transparent;
-    box-shadow: none;
-  }
-  .core-phone-frame img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: clamp(27px, 2.6vw, 43px);
-    backface-visibility: hidden;
-    transform: translateZ(0);
-  }
-  .core-phone-island {
-    position: absolute;
-    z-index: 2;
-    top: clamp(12px, 1.15vw, 20px);
-    left: 50%;
-    width: 31%;
-    height: clamp(18px, 1.75vw, 28px);
-    border-radius: 999px;
-    background: #080808;
-    transform: translateX(-50%);
-  }
-  .core-phone-home {
-    position: absolute;
-    z-index: 2;
-    bottom: clamp(10px, .9vw, 16px);
-    left: 50%;
-    width: 31%;
-    height: 4px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .92);
-    transform: translateX(-50%);
-  }
-  @media (min-width: 1200px) {
-    padding-block: clamp(160px, 14vw, 240px);
-    .core-clipboard-heading { padding-bottom: clamp(40px, 2.2vw, 50px); }
-    .core-phone-row {
-      align-items: start;
-      grid-template-columns: repeat(3, minmax(0, min(20vw, 280px)));
-      justify-content: center;
-      gap: clamp(4px, .5vw, 8px);
-      padding-top: 60px;
-    }
-    .core-phone { width: min(20vw, 280px); }
-    .core-phone-stage { min-height: min(58vw, 820px); }
-    .core-phone-1 { transform: translate3d(0, 0, 0); }
-    .core-phone-2 { transform: translate3d(0, 0, 0); }
-    .core-phone-3 { transform: translate3d(0, 0, 0); }
-    .core-phone-1,
-    .core-phone-3 { position: relative; z-index: 1; }
-    .core-phone-2 { position: relative; z-index: 2; }
-    .core-phone-1 .core-phone-frame { transform: translateX(var(--core-phone-center-shift)) scale(.92); }
-    .core-phone-2 .core-phone-frame { opacity: 1; transform: translateY(0); }
-    .core-phone-3 .core-phone-frame { transform: translateX(calc(var(--core-phone-center-shift) * -1)) scale(.92); }
-    &.is-phones-entered .core-phone-1 .core-phone-frame { animation: ${corePhoneSpreadFromCenterLeft} .72s cubic-bezier(.33, 1, .68, 1) forwards; }
-    &.is-center-phone-entered .core-phone-2 .core-phone-frame { animation: ${corePhoneEnterFromBottom} .86s cubic-bezier(.16, 1, .3, 1) forwards; }
-    &.is-phones-entered .core-phone-3 .core-phone-frame { animation: ${corePhoneSpreadFromCenterRight} .72s cubic-bezier(.33, 1, .68, 1) forwards; }
-    &.is-phones-reversing .core-phone-1 .core-phone-frame { animation: ${corePhoneConvergeToCenterLeft} .62s cubic-bezier(.33, 1, .68, 1) forwards; }
-    &.is-center-phone-reversing .core-phone-2 .core-phone-frame { animation: ${corePhoneExitToBottom} .62s cubic-bezier(.4, 0, 1, 1) forwards; }
-    &.is-phones-reversing .core-phone-3 .core-phone-frame { animation: ${corePhoneConvergeToCenterRight} .62s cubic-bezier(.33, 1, .68, 1) forwards; }
-  }
-  @media (min-width: 768px) and (max-width: 1199px) {
-    min-height: auto;
-    .core-phone-stage {
-      height: calc(100dvh - 72px);
-      height: calc(100svh - 72px);
-      min-height: 0;
-      overflow: clip;
-      touch-action: pan-y;
-      contain: layout paint;
-    }
-    .core-phone-row {
-      --core-scroll-phone-width: min(62vw, calc(49dvh - 59px));
-      --core-scroll-phone-width: min(62vw, calc(49svh - 59px));
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: 0;
-      margin: 0;
-      backface-visibility: hidden;
-      contain: layout paint;
-    }
-    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, opacity; }
-    .core-phone-frame { translate: 0; contain: paint; }
-  }
-
   @media (max-width: 767px) {
-    min-height: auto;
-    padding-bottom: 0;
     .core-clipboard-heading { padding-top: 42px; padding-bottom: clamp(36px, 6vw, 44px); }
     .core-app-brand { margin-bottom: 16px; }
     .core-app-logos { --core-brand-grid-size: calc((100vw - (var(--page-gutter) * 2)) / 40); will-change: auto; }
     h2 { font-size: clamp(17px, 5.6vw, 30px); line-height: 1.34; }
-    .core-phone-stage {
-      height: calc(100dvh - 75px);
-      height: calc(100svh - 75px);
-      min-height: 0;
-      overflow: clip;
-      touch-action: pan-y;
-      contain: layout paint;
-    }
-    .core-phone-row {
-      --core-scroll-phone-width: min(84vw, calc(49dvh - 60px));
-      --core-scroll-phone-width: min(84vw, calc(49svh - 60px));
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: 0;
-      margin: 0;
-      backface-visibility: hidden;
-      contain: layout paint;
-    }
-    .core-phone { position: absolute; top: 50%; left: 50%; width: var(--core-scroll-phone-width); transition: none; contain: paint; will-change: transform, opacity; }
-    .core-phone-frame { translate: 0; contain: paint; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .core-phone,
-    .core-phone-1,
-    .core-phone-3 { transform: none; transition: none; }
-    .core-phone-frame { opacity: 1 !important; transform: none !important; animation: none !important; }
     .core-app-brand { gap: 20px; animation: none !important; }
     .core-app-logos {
       width: calc((var(--core-logo-size) * 2) - 8px);
@@ -414,9 +239,155 @@ export const CoreClipboardSection = styled.section`
     .core-heading-underline { transform: scaleX(1); }
   }
 
-  @media (max-width: 1199px) and (prefers-reduced-motion: reduce) {
-    .core-phone-stage { height: auto; overflow-x: auto; contain: none; scroll-snap-type: x mandatory; }
-    .core-phone-row { display: flex; width: max-content; height: auto; padding-inline: calc((100vw - var(--core-scroll-phone-width)) / 2); gap: 48px; transform: none !important; }
-    .core-phone { position: static; width: var(--core-scroll-phone-width); flex: 0 0 var(--core-scroll-phone-width); opacity: 1 !important; filter: none !important; scroll-snap-align: center; }
+  .core-clipboard-list {
+    display: flex;
+    width: min(calc(100% - (var(--page-gutter) * 2)), 991px);
+    margin: 0 auto;
+    padding-top: clamp(36px, 7vw, 96px);
+    padding-bottom: clamp(64px, 10vw, 144px);
+    flex-direction: column;
+    gap: clamp(32px, 5vw, 72px);
+  }
+  .core-clipboard-item {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    padding: clamp(18px, 3vw, 32px);
+    background: linear-gradient(90deg, #f2f2f2 0 50%, #000 50% 100%);
+    border-radius: 0;
+  }
+  .core-clipboard-item-2 {
+    background: linear-gradient(90deg, #000 0 50%, #f2f2f2 50% 100%);
+  }
+  .core-clipboard-item-3 {
+    background: linear-gradient(90deg, #f2f2f2 0 50%, #000 50% 100%);
+  }
+  .core-clipboard-item-images {
+    display: grid;
+    width: 100%;
+    margin: clamp(24px, 3vw, 40px) auto 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: clamp(32px, 6vw, 72px);
+  }
+  .core-clipboard-media {
+    display: flex;
+    min-width: 0;
+    overflow: visible;
+    align-items: flex-start;
+    justify-content: center;
+    background: transparent;
+    opacity: 0;
+    filter: blur(18px);
+    transform: translateY(22px);
+    transition: opacity .64s ease, filter .64s ease, transform .64s cubic-bezier(.22, 1, .36, 1);
+    will-change: opacity, filter, transform;
+  }
+  .core-preview-icons {
+    display: grid;
+    width: 100%;
+    box-sizing: border-box;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: clamp(32px, 6vw, 72px);
+    padding-top: clamp(8px, 1.4vw, 16px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .64s ease;
+  }
+  .core-clipboard-item.is-item-revealed .core-preview-icons {
+    opacity: 1;
+  }
+  .core-preview-icons .core-preview-icon {
+    position: static;
+    width: 24px;
+    height: 24px;
+  }
+  .core-preview-badge {
+    display: inline-flex;
+    min-height: 40px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-self: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .core-preview-badge-app {
+    background: #000;
+    color: #fff;
+  }
+  .core-preview-badge-keyboard {
+    background: #fff;
+    color: #000;
+  }
+  .core-clipboard-item-2 .core-preview-badge-app {
+    background: #fff;
+    color: #000;
+  }
+  .core-clipboard-item-2 .core-preview-badge-keyboard {
+    background: #000;
+    color: #fff;
+  }
+  .core-clipboard-media:nth-child(2) {
+    transition-delay: 130ms;
+  }
+  .core-clipboard-item.is-item-revealed .core-clipboard-media {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  .core-clipboard-media img {
+    display: block;
+    width: min(100%, 260px);
+    height: auto;
+    aspect-ratio: 900 / 1840;
+    object-fit: contain;
+    transform-origin: center;
+    transition: transform .7s cubic-bezier(.22, 1, .36, 1);
+  }
+
+  @media (min-width: 1200px) {
+    padding-block: 0;
+    .core-clipboard-heading { padding-top: clamp(100px, 9vw, 160px); }
+    .core-clipboard-item { padding: clamp(36px, 4vw, 56px); }
+  }
+
+  @media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+    .core-clipboard-media:hover img {
+      transform: scale(1.02);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .core-clipboard-list { gap: 28px; padding-top: 36px; padding-bottom: 64px; }
+    .core-clipboard-item { padding: clamp(28px, 8vw, 40px) 12px; }
+    .core-clipboard-item-images { width: 100%; gap: 8px; }
+    .core-preview-icons { gap: 8px; }
+    .core-clipboard-item-images { margin-top: 24px; }
+    .core-preview-icons .core-preview-icon {
+      width: 20px;
+      height: 20px;
+    }
+    .core-preview-badge { min-height: 36px; padding: 6px 10px; font-size: 12px; }
+    .core-clipboard-media img { width: min(100%, 140px); }
+  }
+
+  @media (min-width: 768px) and (max-width: 1199px) {
+    .core-clipboard-media img { width: min(100%, 220px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .core-clipboard-media,
+    .core-clipboard-item.is-item-revealed .core-clipboard-media {
+      opacity: 1;
+      filter: none;
+      transform: none;
+      transition: none;
+    }
   }
 `;

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const GridSurface = styled.section`
   --grid-size: 64px;
-  --grid-line: rgba(38, 33, 32, .12);
+  --grid-line: rgba(38, 33, 32, .08);
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -29,6 +29,6 @@ export const GridSurface = styled.section`
 
   @media (max-width: 700px) {
     --grid-size: 42px;
-    --grid-line: rgba(38, 33, 32, .1);
+    --grid-line: rgba(38, 33, 32, .07);
   }
 `;

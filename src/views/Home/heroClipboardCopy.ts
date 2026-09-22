@@ -22,26 +22,14 @@ const colorCodes: Record<HeroColorItemKey, string> = {
   softRose: '#F4A4B7', freshGreen: '#35C878', basaltBlack: '#151515', oceanBlue: '#2B8CFF',
 };
 
-const colorLabels: Record<string, Record<HeroColorItemKey, string>> = {
-  en: { electricBlue: 'Electric Blue', warmLemon: 'Warm Lemon', deepViolet: 'Deep Violet', softRose: 'Soft Rose', freshGreen: 'Fresh Green', basaltBlack: 'Basalt Black', oceanBlue: 'Ocean Blue' },
-  vi: { electricBlue: 'Xanh Điện', warmLemon: 'Vàng Chanh', deepViolet: 'Tím Đậm', softRose: 'Hồng Phấn', freshGreen: 'Xanh Tươi', basaltBlack: 'Đen Bazan', oceanBlue: 'Xanh Đại Dương' },
-  ja: { electricBlue: 'エレクトリックブルー', warmLemon: 'ウォームレモン', deepViolet: 'ディープバイオレット', softRose: 'ソフトローズ', freshGreen: 'フレッシュグリーン', basaltBlack: '玄武岩ブラック', oceanBlue: 'オーシャンブルー' },
-  es: { electricBlue: 'Azul Eléctrico', warmLemon: 'Amarillo Limón', deepViolet: 'Violeta Intenso', softRose: 'Rosa Suave', freshGreen: 'Verde Fresco', basaltBlack: 'Negro Basalto', oceanBlue: 'Azul Océano' },
-  'zh-TW': { electricBlue: '電光藍', warmLemon: '暖檸黃', deepViolet: '深紫色', softRose: '柔玫粉', freshGreen: '清新綠', basaltBlack: '玄武黑', oceanBlue: '海洋藍' },
-  'zh-CN': { electricBlue: '电光蓝', warmLemon: '暖柠黄', deepViolet: '深紫色', softRose: '柔玫粉', freshGreen: '清新绿', basaltBlack: '玄武黑', oceanBlue: '海洋蓝' },
-  'pt-BR': { electricBlue: 'Azul Elétrico', warmLemon: 'Amarelo Limão', deepViolet: 'Violeta Profundo', softRose: 'Rosa Suave', freshGreen: 'Verde Fresco', basaltBlack: 'Preto Basalto', oceanBlue: 'Azul Oceano' },
-  fr: { electricBlue: 'Bleu Électrique', warmLemon: 'Jaune Citron', deepViolet: 'Violet Profond', softRose: 'Rose Doux', freshGreen: 'Vert Frais', basaltBlack: 'Noir Basalte', oceanBlue: 'Bleu Océan' },
-  de: { electricBlue: 'Elektrisches Blau', warmLemon: 'Warmes Zitronengelb', deepViolet: 'Tiefviolett', softRose: 'Zartrosa', freshGreen: 'Frisches Grün', basaltBlack: 'Basaltschwarz', oceanBlue: 'Ozeanblau' },
-  ru: { electricBlue: 'Электрический Синий', warmLemon: 'Тёплый Лимонный', deepViolet: 'Глубокий Фиолетовый', softRose: 'Нежный Розовый', freshGreen: 'Свежий Зелёный', basaltBlack: 'Базальтовый Чёрный', oceanBlue: 'Океанический Синий' },
-  ko: { electricBlue: '일렉트릭 블루', warmLemon: '웜 레몬', deepViolet: '딥 바이올렛', softRose: '소프트 로즈', freshGreen: '프레시 그린', basaltBlack: '현무암 블랙', oceanBlue: '오션 블루' },
-  hi: { electricBlue: 'इलेक्ट्रिक ब्लू', warmLemon: 'गर्म लेमन', deepViolet: 'गहरा वायलेट', softRose: 'हल्का रोज़', freshGreen: 'ताज़ा हरा', basaltBlack: 'बेसाल्ट ब्लैक', oceanBlue: 'ओशन ब्लू' },
-  bn: { electricBlue: 'ইলেকট্রিক নীল', warmLemon: 'উষ্ণ লেবু', deepViolet: 'গভীর বেগুনি', softRose: 'নরম গোলাপি', freshGreen: 'সতেজ সবুজ', basaltBlack: 'ব্যাসল্ট কালো', oceanBlue: 'সমুদ্র নীল' },
-  id: { electricBlue: 'Biru Elektrik', warmLemon: 'Kuning Lemon', deepViolet: 'Ungu Pekat', softRose: 'Merah Muda Lembut', freshGreen: 'Hijau Segar', basaltBlack: 'Hitam Basalt', oceanBlue: 'Biru Laut' },
-  it: { electricBlue: 'Blu Elettrico', warmLemon: 'Giallo Limone', deepViolet: 'Viola Intenso', softRose: 'Rosa Delicato', freshGreen: 'Verde Fresco', basaltBlack: 'Nero Basalto', oceanBlue: 'Blu Oceano' },
-  th: { electricBlue: 'น้ำเงินไฟฟ้า', warmLemon: 'เหลืองเลมอน', deepViolet: 'ม่วงเข้ม', softRose: 'ชมพูอ่อน', freshGreen: 'เขียวสด', basaltBlack: 'ดำบะซอลต์', oceanBlue: 'น้ำเงินมหาสมุทร' },
-  tl: { electricBlue: 'Electric Blue', warmLemon: 'Warm Lemon', deepViolet: 'Deep Violet', softRose: 'Soft Rose', freshGreen: 'Fresh Green', basaltBlack: 'Basalt Black', oceanBlue: 'Ocean Blue' },
-  pl: { electricBlue: 'Elektryczny Niebieski', warmLemon: 'Ciepła Cytryna', deepViolet: 'Głęboki Fiolet', softRose: 'Delikatny Róż', freshGreen: 'Świeża Zieleń', basaltBlack: 'Bazaltowa Czerń', oceanBlue: 'Oceaniczny Błękit' },
-  tr: { electricBlue: 'Elektrik Mavisi', warmLemon: 'Sıcak Limon', deepViolet: 'Koyu Mor', softRose: 'Yumuşak Pembe', freshGreen: 'Taze Yeşil', basaltBlack: 'Bazalt Siyahı', oceanBlue: 'Okyanus Mavisi' },
+const colorLabels: Record<HeroColorItemKey, string> = {
+  electricBlue: 'Electric Blue',
+  warmLemon: 'Warm Lemon',
+  deepViolet: 'Deep Violet',
+  softRose: 'Soft Rose',
+  freshGreen: 'Fresh Green',
+  basaltBlack: 'Basalt Black',
+  oceanBlue: 'Ocean Blue',
 };
 
 const textCopy: Record<string, Partial<Record<HeroTextItemKey, HeroClipboardCopy>>> = {
@@ -282,7 +270,7 @@ const textCopy: Record<string, Partial<Record<HeroTextItemKey, HeroClipboardCopy
 export const getHeroClipboardItemCopy = (lang: string, key: HeroClipboardItemKey): HeroClipboardCopy => {
   if (key in colorCodes) {
     const colorKey = key as HeroColorItemKey;
-    return { title: (colorLabels[lang] ?? colorLabels.en)[colorKey], body: colorCodes[colorKey] };
+    return { title: colorLabels[colorKey], body: colorCodes[colorKey] };
   }
 
   const textKey = key as HeroTextItemKey;
