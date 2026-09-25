@@ -61,14 +61,9 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   return (
     <LanguageContext.Provider value={{ lang, changeLang, dict, isLanguageChanging }}>
-      <div className={`language-page-shell${isLanguageChanging ? ' is-changing' : ''}`}>
+      <div className="language-page-shell">
         {children}
       </div>
-      <div
-        className={`language-transition${isLanguageChanging ? ' is-visible' : ''}`}
-        aria-hidden={!isLanguageChanging}
-        aria-live="polite"
-      />
     </LanguageContext.Provider>
   );
 };

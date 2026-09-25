@@ -16,10 +16,10 @@ const Question = styled.button<{ $open: boolean }>`
   gap: 20px;
   padding: 22px 24px;
   border: 0;
-  background: ${({ $open }) => $open ? 'rgba(255, 255, 255, .5)' : 'transparent'};
-  color: #302824;
+  background: ${({ $open }) => $open ? 'var(--ghost-bg)' : 'transparent'};
+  color: var(--text);
   font-size: clamp(18px, 1.4dvw, 21px);
-  font-weight: 750;
+  font-weight: 800;
   text-align: left;
   svg { flex: 0 0 auto; transform: rotate(${({ $open }) => $open ? '180deg' : '0'}); transition: transform .25s ease; }
   @media (max-width: 650px) { padding: 18px; font-size: 16px; }
@@ -30,7 +30,7 @@ const Answer = styled.div<{ $open: boolean }>`
   opacity: ${({ $open }) => $open ? 1 : 0};
   transition: grid-template-rows .28s ease, opacity .25s ease;
   > div { overflow: hidden; }
-  p { margin: 0; padding: 22px 24px; color: #000; font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
+  p { margin: 0; padding: 22px 24px; color: var(--muted-text); font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
   @media (max-width: 650px) { p { padding: 18px; font-size: 16px; line-height: 1.55; } }
 `;
 

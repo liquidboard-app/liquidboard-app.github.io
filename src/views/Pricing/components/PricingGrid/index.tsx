@@ -68,29 +68,29 @@ const Card = styled(GlassCard)<{ $tone: string }>`
   min-height: 360px;
   padding: clamp(18px, 2.2dvw, 28px) clamp(22px, 3dvw, 38px);
   overflow: hidden;
-  background: rgba(255, 255, 255, .82);
+  background: var(--surface);
   transition: transform .28s ease, box-shadow .28s ease;
   &:hover { transform: translateY(-6px); box-shadow: 0 28px 65px rgba(75, 47, 33, .14); }
-  h2 { position: relative; z-index: 0; display: inline-block; margin: 0; font-size: clamp(28px, 3.4dvw, 46px); line-height: 1.1; font-weight: 810; letter-spacing: -.018em; }
+  h2 { position: relative; z-index: 0; display: inline-block; margin: 0; font-size: clamp(28px, 3.4dvw, 46px); line-height: 1.1; font-weight: 860; letter-spacing: -.018em; }
   h2::after { position: absolute; right: 0; bottom: 2%; left: 0; z-index: -1; height: 26%; border-radius: 3px; background: ${({ $tone }) => planHighlight($tone)}; content: ''; transform: scaleX(0); transform-origin: left center; animation: ${highlightSweep} .64s cubic-bezier(.22, 1, .36, 1) var(--plan-highlight-delay, 0ms) forwards; }
   .price { display: flex; flex-wrap: wrap; align-items: baseline; row-gap: 5px; margin: 12px 0 0; font-size: clamp(20px, 1.8dvw, 26px); line-height: 1; letter-spacing: -.018em; }
   .price-value { display: inline-flex; align-items: baseline; white-space: nowrap; }
-  .price-amount { font-size: inherit; font-weight: 820; white-space: nowrap; }
-  .price-qualifier { color: #000; font-size: inherit; font-weight: 720; letter-spacing: -.006em; white-space: nowrap; }
-  .lifetime, .description { display: flex; align-items: center; gap: 6px; color: #000; font-size: 14px; line-height: 1.45; font-weight: 600; letter-spacing: -.006em; }
-  .lifetime svg, .description svg { flex: 0 0 auto; color: #000; }
+  .price-amount { font-size: inherit; font-weight: 870; white-space: nowrap; }
+  .price-qualifier { color: var(--text); font-size: inherit; font-weight: 770; letter-spacing: -.006em; white-space: nowrap; }
+  .lifetime, .description { display: flex; align-items: center; gap: 6px; color: var(--text); font-size: 14px; line-height: 1.45; font-weight: 650; letter-spacing: -.006em; }
+  .lifetime svg, .description svg { flex: 0 0 auto; color: var(--text); }
   .lifetime-icon { transform-origin: center; animation: ${infinityFloat} 2.4s ease-in-out infinite; }
   .person-icon { transform-origin: center; }
   &:hover[data-plan-index='0'] .person-icon { animation: ${userFloat} .8s ease-in-out; }
   &:hover[data-plan-index='1'] .person-icon { animation: ${userAddPop} .8s cubic-bezier(.22, 1, .36, 1); }
   &:hover[data-plan-index='2'] .person-icon { animation: ${usersGather} .82s ease-in-out; }
   &:hover[data-plan-index='3'] .person-icon { animation: ${userCogPulse} .86s cubic-bezier(.22, 1, .36, 1); }
-  .plan-meta { display: grid; gap: 6px; margin-top: 14px; padding: 14px 0; border-bottom: 1px solid rgba(70,45,34,.09); }
+  .plan-meta { display: grid; gap: 6px; margin-top: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
   .lifetime, .description { min-height: 20px; margin: 0; }
   ul { display: grid; grid-template-columns: 1fr; gap: 9px; margin: 0; padding: 14px 0 0; list-style: none; }
-  li { display: flex; gap: 8px; color: #000; font-size: 14px; line-height: 1.45; font-weight: 600; }
-  li svg { flex: 0 0 auto; margin-top: 2px; color: #000; }
-  .feature-number { color: inherit; font-weight: 760; }
+  li { display: flex; gap: 8px; color: var(--text); font-size: 14px; line-height: 1.45; font-weight: 650; }
+  li svg { flex: 0 0 auto; margin-top: 2px; color: var(--text); }
+  .feature-number { color: inherit; font-weight: 810; }
   @media (max-width: 560px) { min-height: 0; border-radius: 24px; }
   @media (prefers-reduced-motion: reduce) {
     h2::after { transform: scaleX(1); animation: none; }

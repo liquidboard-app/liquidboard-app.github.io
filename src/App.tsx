@@ -1,13 +1,10 @@
 import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { ArrowUp } from 'lucide-react';
 import Header from './components/MinimalHeader';
-import CollaboratorCursor from './components/CollaboratorCursor';
 import { useTranslation } from './contexts/LanguageContext';
-import { getAccessibilityLabels } from './locales/config';
 
-const Home = lazy(() => import('@/views/Home'));
+const NewVersion = lazy(() => import('@/views/NewVersion'));
 const Pricing = lazy(() => import('@/views/Pricing'));
 const Faq = lazy(() => import('@/views/Faq'));
 const Policy = lazy(() => import('@/views/Policy'));
@@ -22,7 +19,7 @@ const RoutePage: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 const HomeRoute: React.FC<{ replayKey?: number }> = ({ replayKey = 0 }) => {
   const { key } = useLocation();
-  return <RouteContent><Home key={`${key}-${replayKey}`} /></RouteContent>;
+  return <RouteContent><NewVersion key={`${key}-${replayKey}`} /></RouteContent>;
 };
 
 type PageMetadataMap = Record<string, { description: string }>;
@@ -159,7 +156,7 @@ const PageMetadata: React.FC = () => {
   return null;
 };
 
-const ScrollTopButton = styled.button<{ $visible: boolean; $leaving: boolean }>`
+export const ScrollTopButton = styled.button<{ $visible: boolean; $leaving: boolean }>`
   position: fixed;
   right: clamp(16px, 3dvw, 32px);
   bottom: clamp(18px, 3dvw, 32px);
@@ -263,90 +260,6 @@ const ScrollToTop = () => {
   return null;
 };
 
-const ScrollTopControl: React.FC = () => {
-  const { lang } = useTranslation();
-  const accessibility = getAccessibilityLabels(lang);
-  const [visible, setVisible] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
-  const scrollFrameRef = useRef<number>();
-  const isScrollingRef = useRef(false);
-
-  useEffect(() => {
-    const updateVisibility = () => {
-      const isMobile = window.matchMedia('(max-width: 700px)').matches;
-      const isDesktop = window.matchMedia('(min-width: 1200px)').matches;
-      const featureStackStart = Number(document.querySelector<HTMLElement>('[data-feature-stack-start]')?.dataset.featureStackStart);
-      const threshold = isMobile
-        ? Math.max(420, window.innerHeight * 0.9)
-        : isDesktop && Number.isFinite(featureStackStart)
-          ? featureStackStart
-          : Math.max(720, window.innerHeight * 0.95);
-      const isPastThreshold = window.scrollY > threshold;
-      setVisible(isPastThreshold);
-      if (!isPastThreshold) setDismissed(false);
-    };
-    updateVisibility();
-    window.addEventListener('scroll', updateVisibility, { passive: true });
-    window.addEventListener('resize', updateVisibility, { passive: true });
-    window.addEventListener('liquidboard:feature-stack-threshold-change', updateVisibility);
-    return () => {
-      window.removeEventListener('scroll', updateVisibility);
-      window.removeEventListener('resize', updateVisibility);
-      window.removeEventListener('liquidboard:feature-stack-threshold-change', updateVisibility);
-    };
-  }, []);
-
-  useEffect(() => () => {
-    if (scrollFrameRef.current !== undefined) window.cancelAnimationFrame(scrollFrameRef.current);
-  }, []);
-
-  const scrollToTop = () => {
-    if (isScrollingRef.current || window.scrollY <= 0) return;
-
-    const startY = window.scrollY;
-    const duration = Math.min(1950, Math.max(950, startY * 0.24));
-    const startedAt = window.performance.now();
-    isScrollingRef.current = true;
-    setIsLeaving(true);
-
-    const advance = (now: number) => {
-      const elapsed = Math.min((now - startedAt) / duration, 1);
-      const easedProgress = elapsed < 0.5
-        ? 16 * elapsed ** 5
-        : 1 - (-2 * elapsed + 2) ** 5 / 2;
-      window.scrollTo({ top: Math.round(startY * (1 - easedProgress)), left: 0, behavior: 'auto' });
-
-      if (elapsed < 1) {
-        scrollFrameRef.current = window.requestAnimationFrame(advance);
-      } else {
-        isScrollingRef.current = false;
-        scrollFrameRef.current = undefined;
-      }
-    };
-
-    scrollFrameRef.current = window.requestAnimationFrame(advance);
-  };
-
-  return (
-    <ScrollTopButton
-      type="button"
-      $visible={(visible && !dismissed) || isLeaving}
-      $leaving={isLeaving}
-      aria-label={accessibility.scrollToTop}
-      onClick={scrollToTop}
-    >
-      <span className="scroll-arrow" aria-hidden="true" onAnimationEnd={() => {
-        if (!isLeaving) return;
-        setIsLeaving(false);
-        setDismissed(true);
-      }}>
-        <ArrowUp size={22} strokeWidth={2.6} />
-      </span>
-    </ScrollTopButton>
-  );
-};
-
 const RoutedPages: React.FC = () => {
   const location = useLocation();
   const [displayLocation, setDisplayLocation] = useState(location);
@@ -423,9 +336,7 @@ const App: React.FC = () => (
     <PageMetadata />
     <ScrollToTop />
     <Header />
-    <CollaboratorCursor />
     <RoutedPages />
-    <ScrollTopControl />
   </BrowserRouter>
 );
 

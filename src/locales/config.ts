@@ -1,23 +1,23 @@
 export const supportedLanguages = [
-  { code: 'en', label: 'English', native: 'English', chooseLabel: 'Choose language' },
-  { code: 'vi', label: 'Vietnamese', native: 'Tiếng Việt', chooseLabel: 'Chọn ngôn ngữ' },
-  { code: 'ja', label: 'Japanese', native: '日本語', chooseLabel: '言語を選択' },
-  { code: 'es', label: 'Spanish', native: 'Español', chooseLabel: 'Elegir idioma' },
-  { code: 'zh-TW', label: 'Chinese (Traditional)', native: '繁體中文', chooseLabel: '選擇語言' },
-  { code: 'zh-CN', label: 'Chinese (Simplified)', native: '简体中文', chooseLabel: '选择语言' },
-  { code: 'pt-BR', label: 'Portuguese', native: 'Português', chooseLabel: 'Escolher idioma' },
-  { code: 'fr', label: 'French', native: 'Français', chooseLabel: 'Choisir la langue' },
-  { code: 'de', label: 'German', native: 'Deutsch', chooseLabel: 'Sprache wählen' },
-  { code: 'ru', label: 'Russian', native: 'Русский', chooseLabel: 'Выберите язык' },
-  { code: 'ko', label: 'Korean', native: '한국어', chooseLabel: '언어 선택' },
-  { code: 'hi', label: 'Hindi', native: 'हिन्दी', chooseLabel: 'भाषा चुनें' },
-  { code: 'bn', label: 'Bengali', native: 'বাংলা', chooseLabel: 'ভাষা নির্বাচন করুন' },
-  { code: 'id', label: 'Indonesian', native: 'Bahasa Indonesia', chooseLabel: 'Pilih bahasa' },
-  { code: 'it', label: 'Italian', native: 'Italiano', chooseLabel: 'Scegli la lingua' },
-  { code: 'th', label: 'Thai', native: 'ไทย', chooseLabel: 'เลือกภาษา' },
-  { code: 'tl', label: 'Filipino', native: 'Filipino', chooseLabel: 'Pumili ng wika' },
-  { code: 'pl', label: 'Polish', native: 'Polski', chooseLabel: 'Wybierz język' },
-  { code: 'tr', label: 'Turkish', native: 'Türkçe', chooseLabel: 'Dil seçin' },
+  { code: 'en', label: 'English', native: 'English', chooseLabel: 'Language' },
+  { code: 'vi', label: 'Vietnamese', native: 'Tiếng Việt', chooseLabel: 'Ngôn Ngữ' },
+  { code: 'ja', label: 'Japanese', native: '日本語', chooseLabel: '言語' },
+  { code: 'es', label: 'Spanish', native: 'Español', chooseLabel: 'Idioma' },
+  { code: 'zh-TW', label: 'Chinese (Traditional)', native: '繁體中文', chooseLabel: '語言' },
+  { code: 'zh-CN', label: 'Chinese (Simplified)', native: '简体中文', chooseLabel: '语言' },
+  { code: 'pt-BR', label: 'Portuguese', native: 'Português', chooseLabel: 'Idioma' },
+  { code: 'fr', label: 'French', native: 'Français', chooseLabel: 'Langue' },
+  { code: 'de', label: 'German', native: 'Deutsch', chooseLabel: 'Sprache' },
+  { code: 'ru', label: 'Russian', native: 'Русский', chooseLabel: 'Язык' },
+  { code: 'ko', label: 'Korean', native: '한국어', chooseLabel: '언어' },
+  { code: 'hi', label: 'Hindi', native: 'हिन्दी', chooseLabel: 'भाषा' },
+  { code: 'bn', label: 'Bengali', native: 'বাংলা', chooseLabel: 'ভাষা' },
+  { code: 'id', label: 'Indonesian', native: 'Bahasa Indonesia', chooseLabel: 'Bahasa' },
+  { code: 'it', label: 'Italian', native: 'Italiano', chooseLabel: 'Lingua' },
+  { code: 'th', label: 'Thai', native: 'ไทย', chooseLabel: 'ภาษา' },
+  { code: 'tl', label: 'Filipino', native: 'Filipino', chooseLabel: 'Wika' },
+  { code: 'pl', label: 'Polish', native: 'Polski', chooseLabel: 'Język' },
+  { code: 'tr', label: 'Turkish', native: 'Türkçe', chooseLabel: 'Dil' },
 ] as const;
 
 export const getLanguageConfig = (code: string) => (
@@ -57,6 +57,30 @@ const menuToggleLabels: Record<string, { menu: string; close: string }> = {
 };
 
 export const getMenuToggleLabels = (code: string) => menuToggleLabels[code] ?? menuToggleLabels.en;
+
+const headerActionLabels: Record<string, { language: string; light: string; dark: string; download: string }> = {
+  en: { language: 'Language', light: 'Light', dark: 'Dark', download: 'Download' },
+  vi: { language: 'Ngôn ngữ', light: 'Sáng', dark: 'Tối', download: 'Tải xuống' },
+  ja: { language: '言語', light: 'ライト', dark: 'ダーク', download: 'ダウンロード' },
+  es: { language: 'Idioma', light: 'Claro', dark: 'Oscuro', download: 'Descargar' },
+  'zh-TW': { language: '語言', light: '淺色', dark: '深色', download: '下載' },
+  'zh-CN': { language: '语言', light: '浅色', dark: '深色', download: '下载' },
+  'pt-BR': { language: 'Idioma', light: 'Claro', dark: 'Escuro', download: 'Baixar' },
+  fr: { language: 'Langue', light: 'Clair', dark: 'Sombre', download: 'Télécharger' },
+  de: { language: 'Sprache', light: 'Hell', dark: 'Dunkel', download: 'Herunterladen' },
+  ru: { language: 'Язык', light: 'Светлая тема', dark: 'Тёмная тема', download: 'Скачать' },
+  ko: { language: '언어', light: '라이트 모드', dark: '다크 모드', download: '다운로드' },
+  hi: { language: 'भाषा', light: 'लाइट मोड', dark: 'डार्क मोड', download: 'डाउनलोड करें' },
+  bn: { language: 'ভাষা', light: 'লাইট মোড', dark: 'ডার্ক মোড', download: 'ডাউনলোড' },
+  id: { language: 'Bahasa', light: 'Terang', dark: 'Gelap', download: 'Unduh' },
+  it: { language: 'Lingua', light: 'Chiaro', dark: 'Scuro', download: 'Scarica' },
+  th: { language: 'ภาษา', light: 'สว่าง', dark: 'มืด', download: 'ดาวน์โหลด' },
+  tl: { language: 'Wika', light: 'Maliwanag', dark: 'Madilim', download: 'I-download' },
+  pl: { language: 'Język', light: 'Jasny', dark: 'Ciemny', download: 'Pobierz' },
+  tr: { language: 'Dil', light: 'Açık', dark: 'Koyu', download: 'İndir' },
+};
+
+export const getHeaderActionLabels = (code: string) => headerActionLabels[code] ?? headerActionLabels.en;
 
 const accessibilityLabels = {
   en: {

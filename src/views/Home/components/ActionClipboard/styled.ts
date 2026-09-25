@@ -17,7 +17,7 @@ export const ActionClipboardSection = styled.section`
   .action-clipboard-heading h2 {
     margin: 0;
     font-size: clamp(36px, 5vw, 72px);
-    font-weight: 800;
+    font-weight: 850;
     letter-spacing: -.055em;
     line-height: .98;
   }
@@ -374,7 +374,7 @@ export const ActionClipboardSection = styled.section`
     border: 1px solid rgba(21, 21, 21, .1);
     color: #a3a3a3;
     font-size: clamp(15px, 1.8vw, 18px);
-    font-weight: 650;
+    font-weight: 700;
     line-height: 1;
   }
   .action-clipboard-progress-stack {
@@ -500,7 +500,7 @@ export const ActionClipboardSection = styled.section`
   }
   .action-clipboard-export-formats strong {
     font-size: clamp(10px, 1vw, 13px);
-    font-weight: 720;
+    font-weight: 770;
     letter-spacing: .02em;
     line-height: 1;
   }
@@ -578,7 +578,7 @@ export const ActionClipboardSection = styled.section`
     background: #f97316;
     color: #fff;
     font-size: var(--action-clipboard-pin-badge-content-size);
-    font-weight: 800;
+    font-weight: 850;
     line-height: 1;
     opacity: 0;
     transform: scale(.45);
@@ -968,7 +968,7 @@ export const ActionClipboardSection = styled.section`
     margin-top: clamp(12px, 1.5vw, 20px);
     text-align: center;
     font-size: clamp(20px, 2.2vw, 32px);
-    font-weight: 800;
+    font-weight: 850;
     line-height: 1;
   }
   .action-clipboard-panel-description {

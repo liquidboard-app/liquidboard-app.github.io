@@ -13,6 +13,9 @@
     "verify": "tsc --noEmit && eslint . && vite build"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@fortawesome/react-fontawesome": "^3.5.0",
     "gsap": "^3.13.0",
     "lucide-react": "^0.474.0",
     "react": "^18.3.1",

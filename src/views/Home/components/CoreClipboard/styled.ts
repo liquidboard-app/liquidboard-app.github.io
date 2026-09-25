@@ -154,16 +154,16 @@ export const CoreClipboardSection = styled.section`
     margin: 0;
     color: #151515;
     font-size: clamp(20px, 1.9vw, 28px);
-    font-weight: 680;
+    font-weight: 730;
     letter-spacing: -.04em;
   }
   h2 {
     max-width: 100%;
     margin: 0;
     color: #151515;
-    font-family: 'Google Sans Flex', sans-serif;
+    font-family: inherit;
     font-size: clamp(38px, 4.6vw, 76px);
-    font-weight: 740;
+    font-weight: 790;
     letter-spacing: -.055em;
     line-height: 1.28;
     text-wrap: balance;
@@ -313,7 +313,7 @@ export const CoreClipboardSection = styled.section`
     padding: 7px 14px;
     border-radius: 999px;
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 700;
     line-height: 1;
     white-space: nowrap;
   }
@@ -355,6 +355,7 @@ export const CoreClipboardSection = styled.section`
     padding-block: 0;
     .core-clipboard-heading { padding-top: clamp(100px, 9vw, 160px); }
     .core-clipboard-item { padding: clamp(36px, 4vw, 56px); }
+    .core-clipboard-media img { width: min(100%, 280px); }
   }
 
   @media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {

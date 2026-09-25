@@ -6,7 +6,7 @@ import { getAboutComponent } from '../../locales';
 
 const Content = styled.div`
   padding: clamp(18px, 3.5dvw, 38px);
-  p { margin: 0 0 20px; color: #000; font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
+  p { max-width: 667px; margin: 0 auto 20px; color: var(--text); font-size: clamp(16px, 1.2vw, 19px); line-height: 1.5; font-weight: 500; letter-spacing: -.02em; }
   p:last-child { margin-bottom: 0; }
   a {
     display: inline-flex;
@@ -15,16 +15,16 @@ const Content = styled.div`
     max-width: 100%;
     margin: .5em 0 0;
     gap: 7px;
-    color: #6f4fc7;
+    color: var(--accent);
     font: inherit;
-    font-weight: 700;
+    font-weight: 750;
     line-height: 1.2;
     overflow-wrap: anywhere;
     text-decoration: none;
     transition: color .18s ease, transform .18s ease;
   }
   a:hover {
-    color: #4f35a0;
+    color: color-mix(in srgb, var(--accent) 78%, var(--text));
     transform: translateY(-1px);
   }
   a[href$='/data-security']::before,
@@ -50,7 +50,8 @@ const Content = styled.div`
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 20 6v5c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V6l8-4Z' fill='black'/%3E%3C/svg%3E");
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 20 6v5c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V6l8-4Z' fill='black'/%3E%3C/svg%3E");
   }
-  @media (max-width: 650px) { p { font-size: 16px; line-height: 1.55; } }
+  @media (max-width: 1199px) { p { font-size: 16px; } }
+  @media (max-width: 700px) { p { font-size: 15px; line-height: 1.42; } }
 `;
 
 const AboutContent: React.FC = () => {

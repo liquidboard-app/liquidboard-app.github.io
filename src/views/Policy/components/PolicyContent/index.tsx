@@ -15,16 +15,16 @@ type PolicyComponents = {
 
 const Content = styled.div`
   padding: clamp(24px, 5dvw, 58px);
-  h2 { margin: 34px 0 12px; color: #332a26; font-size: 23px; line-height: 1.25; letter-spacing: -.025em; }
+  h2 { margin: 34px 0 12px; color: var(--text); font-size: 23px; line-height: 1.25; letter-spacing: -.025em; }
   h2:first-child { margin-top: 0; }
-  p, li { color: #000; font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
+  p, li { color: var(--text); font-size: clamp(17px, 1.35dvw, 20px); line-height: 1.58; font-weight: 540; letter-spacing: -.012em; }
   p { margin: 0 0 15px; }
   ul { display: grid; gap: 8px; padding-left: 22px; }
-  strong { color: #382e29; }
+  strong { color: var(--text); }
   a {
     margin-inline: .2em;
-    color: #6f4fc7;
-    font-weight: 700;
+    color: var(--accent);
+    font-weight: 750;
     overflow-wrap: anywhere;
     border-bottom: 1px solid currentColor;
   }

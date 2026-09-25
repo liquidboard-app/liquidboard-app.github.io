@@ -162,11 +162,11 @@ export const FeatureClipboardSection = styled.section`
   }
   .feature-text-list-item-link img { display: block; width: 100%; min-height: 0; flex: 1 1 auto; object-fit: cover; }
   .feature-text-list-item-link div { display: grid; gap: 2px; padding: 11px 13px 13px; background: #fff; }
-  .feature-text-list-item-link strong { color: #151515; font-size: clamp(15px, 1.15vw, 19px); font-weight: 680; letter-spacing: -.04em; line-height: 1.1; }
+  .feature-text-list-item-link strong { color: #151515; font-size: clamp(15px, 1.15vw, 19px); font-weight: 730; letter-spacing: -.04em; line-height: 1.1; }
   .feature-text-list-item-link span { color: rgba(21, 21, 21, .52); font-size: clamp(11px, .82vw, 13px); letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .feature-text-list-item-color { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; color: #151515; text-align: center; }
-  .feature-text-list-item-color > span { font-size: clamp(14px, 1.05vw, 18px); font-weight: 640; letter-spacing: -.04em; }
-  .feature-text-list-item-color > strong { font-size: clamp(21px, 1.7vw, 29px); font-weight: 650; letter-spacing: -.055em; line-height: 1; }
+  .feature-text-list-item-color > span { font-size: clamp(14px, 1.05vw, 18px); font-weight: 690; letter-spacing: -.04em; }
+  .feature-text-list-item-color > strong { font-size: clamp(21px, 1.7vw, 29px); font-weight: 700; letter-spacing: -.055em; line-height: 1; }
   .feature-text-list-item-color.is-light { color: #fff; }
   .feature-image-list-item {
     height: clamp(190px, 17vw, 270px);
@@ -198,14 +198,14 @@ export const FeatureClipboardSection = styled.section`
   .feature-sticker-list-item img { display: block; width: 100%; height: 100%; border-radius: calc(clamp(24px, 2.8vw, 42px) - 7px); object-fit: cover; }
   .feature-text-list-item h3,
   .feature-text-list-item p { max-width: 100%; min-width: 0; margin: 0; overflow-wrap: anywhere; word-break: break-word; }
-  .feature-text-list-item h3 { color: #151515; font-size: clamp(17px, 1.35vw, 22px); font-weight: 680; letter-spacing: -.045em; line-height: 1.1; }
+  .feature-text-list-item h3 { color: #151515; font-size: clamp(17px, 1.35vw, 22px); font-weight: 730; letter-spacing: -.045em; line-height: 1.1; }
   .feature-text-list-item p { margin-top: 9px; color: rgba(21, 21, 21, .6); font-size: clamp(13px, 1vw, 16px); letter-spacing: -.025em; line-height: 1.3; }
   h2 {
     max-width: 760px;
     margin: 0;
-    font-family: 'Google Sans Flex', sans-serif;
+    font-family: inherit;
     font-size: clamp(46px, 5.6vw, 90px);
-    font-weight: 740;
+    font-weight: 790;
     letter-spacing: -.065em;
     line-height: 1.02;
     text-wrap: balance;

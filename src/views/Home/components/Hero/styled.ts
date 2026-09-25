@@ -49,7 +49,7 @@ export const HeroSection = styled.section`
     height: 50dvh;
     min-height: 0;
     margin-inline: auto;
-    padding: calc(75px + clamp(8px, 2dvh, 24px)) var(--page-gutter) clamp(32px, 5dvh, 60px);
+    padding: calc(67px + clamp(8px, 2dvh, 24px)) var(--page-gutter) clamp(32px, 5dvh, 60px);
   }
   .hero-layout {
     display: grid;
@@ -68,9 +68,9 @@ export const HeroSection = styled.section`
     justify-self: start;
     margin: 0;
     color: #151515;
-    font-family: 'Google Sans Flex', sans-serif;
+    font-family: inherit;
     font-size: clamp(64px, 8vw, 124px);
-    font-weight: 740;
+    font-weight: 800;
     letter-spacing: -.04em;
     line-height: 1.12;
     white-space: nowrap;
@@ -125,9 +125,9 @@ export const HeroSection = styled.section`
     border-radius: 999px;
     background: #151515;
     color: #fff;
-    font-family: 'Google Sans Flex', sans-serif;
+    font-family: inherit;
     font-size: 16px;
-    font-weight: 650;
+    font-weight: 800;
     line-height: 1;
     transition: background .2s ease;
   }
@@ -161,7 +161,7 @@ export const HeroSection = styled.section`
     .hero-intro {
       height: auto;
       min-height: 390px;
-      padding-top: 122px;
+      padding-top: 114px;
       padding-bottom: 0;
     }
 
@@ -185,7 +185,7 @@ export const HeroSection = styled.section`
     .hero-intro {
       height: auto;
       min-height: auto;
-      padding-top: 110px;
+      padding-top: 104px;
       padding-bottom: 24px;
     }
 

@@ -14,19 +14,10 @@ const button = `
   padding: 0 var(--download-button-padding);
   border-radius: var(--download-button-radius);
   font-size: 18px;
-  font-weight: 780;
+  font-weight: 830;
   letter-spacing: -0.025em;
   transition: box-shadow .18s ease;
   @media (max-width: 600px) { --download-button-height: 52px; --download-button-half-height: 26px; --download-button-padding: 19px; --download-button-radius: 18px; font-size: 15px; }
-`;
-
-export const LandingPage = styled.main`
-  min-height: 100dvh;
-  overflow-x: clip;
-  overflow-y: visible;
-  padding: 0;
-  background: #fff;
-  color: #262120;
 `;
 
 export const DownloadButton = styled.a`
@@ -87,7 +78,7 @@ export const Footer = styled.footer`
   pointer-events: none;
   color: rgba(96, 96, 96, .42);
   &::after { position: absolute; z-index: 1; inset: 0; background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 28%, rgba(255, 255, 255, .55) 70%, #fff 100%); content: ''; pointer-events: none; }
-  span { position: absolute; right: 0; bottom: 10px; left: 0; width: 100%; font-size: clamp(54px, 15dvw, 240px); line-height: .9; font-weight: 810; letter-spacing: .01em; text-align: center; white-space: nowrap; }
+  span { position: absolute; right: 0; bottom: 10px; left: 0; width: 100%; font-size: clamp(54px, 15dvw, 240px); line-height: .9; font-weight: 860; letter-spacing: .01em; text-align: center; white-space: nowrap; }
   &.footer-wordmark span {
     opacity: 0;
     filter: blur(14px);

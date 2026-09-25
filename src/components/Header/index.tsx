@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Globe2, X } from 'lucide-react';
+import { Check, Languages, X } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getAccessibilityLabels, getLanguageConfig, getUpdatesLabel, supportedLanguages } from '@/locales/config';
@@ -476,7 +476,7 @@ const Header: React.FC = () => {
             setLanguageOpen((open) => !open);
           }}
         >
-          <Globe2 size={20} strokeWidth={2.4} />
+          <Languages size={24} strokeWidth={2} />
         </LanguageTrigger>
         <button
           type="button"

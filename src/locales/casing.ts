@@ -50,3 +50,8 @@ export const sentenceCase = (value: string, lang: string) => {
 export const inlineCase = (value: string, lang: string) => (
   sentenceCaseLanguages.has(lang) ? lowerForLocale(value, lang) : normalizeTerms(value)
 );
+
+export const titleCaseLatin = (value: string, lang: string) => {
+  if (!/\p{Script=Latin}/u.test(value)) return value;
+  return value.replace(/(^|[\s\-'])\p{L}/gu, (match) => match.toLocaleUpperCase(lang));
+};
