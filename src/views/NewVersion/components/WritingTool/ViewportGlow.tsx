@@ -11,6 +11,7 @@ const fragmentSource = `
   uniform vec2 resolution;
   uniform float time;
   uniform float reveal;
+  uniform float thickness;
   uniform vec4 cornerRadii;
 
   float roundedBoxDistance(vec2 point, vec2 halfSize, float radius) {
@@ -27,19 +28,19 @@ const fragmentSource = `
     float sizeScale = min(resolution.x, resolution.y) / 588.0;
     float borderDistance = roundedBoxDistance(point, resolution * 0.5, cornerRadius);
     float inwardDistance = max(-borderDistance, 0.0);
-    float outsideGlow = exp(-max(borderDistance, 0.0) / (12.0 * sizeScale));
+    float outsideGlow = exp(-max(borderDistance, 0.0) / (12.0 * thickness * sizeScale));
     float cornerWeight = exp(-1.3 * length(fromCorner / (vec2(185.0, 160.0) * sizeScale)));
     float push = (1.0 - reveal) * 8.0 * sizeScale;
     float edgeLight = (0.50 + 0.12 * cornerWeight)
-                    * exp(-(inwardDistance + push) / (mix(3.0, mix(9.0, 19.0, cornerWeight), reveal) * sizeScale))
+                    * exp(-(inwardDistance + push) / (mix(3.0, mix(9.0, 19.0, cornerWeight), reveal) * thickness * sizeScale))
                     + (0.17 + 0.10 * cornerWeight)
-                    * exp(-(inwardDistance + push) / (mix(8.0, mix(38.0, 90.0, cornerWeight), reveal) * sizeScale));
+                    * exp(-(inwardDistance + push) / (mix(8.0, mix(38.0, 90.0, cornerWeight), reveal) * thickness * sizeScale));
     float cornerDistance = length(fromCorner / (vec2(110.0, 105.0) * mix(0.35, 1.0, reveal) * sizeScale));
     float cornerLight = 0.48 * exp(-2.0 * pow(cornerDistance, 1.25));
     float spreadDistance = length(fromCorner / (resolution * vec2(0.6, 0.7)));
     float ambientLight = 0.12 * reveal * exp(-1.7 * spreadDistance);
 
-    float animatedTime = time * 1.5;
+    float animatedTime = -time * 1.5;
     float angle = animatedTime * 0.95;
     vec2 field = point / length(resolution) * 1.65;
     field = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)) * field;
@@ -56,7 +57,7 @@ const fragmentSource = `
   }
 `;
 
-export default function ViewportGlow({ artRef }: { artRef: RefObject<HTMLDivElement> }) {
+export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLDivElement> }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fallback, setFallback] = useState(false);
@@ -110,6 +111,7 @@ export default function ViewportGlow({ artRef }: { artRef: RefObject<HTMLDivElem
     const cornerRadii = gl.getUniformLocation(program, 'cornerRadii');
     const time = gl.getUniformLocation(program, 'time');
     const revealUniform = gl.getUniformLocation(program, 'reveal');
+    const thicknessUniform = gl.getUniformLocation(program, 'thickness');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
     let scrollFrame = 0;
@@ -129,9 +131,9 @@ export default function ViewportGlow({ artRef }: { artRef: RefObject<HTMLDivElem
       draw(performance.now());
     };
     const updateReveal = () => {
-      const art = artRef.current;
-      if (!art) return;
-      const rect = art.getBoundingClientRect();
+      const target = targetRef.current;
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / (viewportHeight + rect.height)));
       scrollReveal = reducedMotion.matches
@@ -153,13 +155,15 @@ export default function ViewportGlow({ artRef }: { artRef: RefObject<HTMLDivElem
       canvas.height = Math.max(1, Math.round(canvas.clientHeight));
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(resolution, canvas.width, canvas.height);
-      const artStyle = getComputedStyle(artRef.current ?? canvas);
+      const glowThickness = parseFloat(getComputedStyle(wrapperRef.current ?? canvas).getPropertyValue('--glow-thickness')) || 1;
+      gl.uniform1f(thicknessUniform, glowThickness);
+      const targetStyle = getComputedStyle(targetRef.current ?? canvas);
       gl.uniform4f(
         cornerRadii,
-        parseFloat(artStyle.borderTopLeftRadius) || 0,
-        parseFloat(artStyle.borderTopRightRadius) || 0,
-        parseFloat(artStyle.borderBottomRightRadius) || 0,
-        parseFloat(artStyle.borderBottomLeftRadius) || 0,
+        parseFloat(targetStyle.borderTopLeftRadius) || 0,
+        parseFloat(targetStyle.borderTopRightRadius) || 0,
+        parseFloat(targetStyle.borderBottomRightRadius) || 0,
+        parseFloat(targetStyle.borderBottomLeftRadius) || 0,
       );
       updateReveal();
       restart();
@@ -193,7 +197,7 @@ export default function ViewportGlow({ artRef }: { artRef: RefObject<HTMLDivElem
       canvas.removeEventListener('webglcontextrestored', onRestored);
       dispose();
     };
-  }, [generation, artRef]);
+  }, [generation, targetRef]);
 
   return <WritingToolViewportGlow ref={wrapperRef} aria-hidden="true" data-fallback={fallback}>
     <canvas ref={canvasRef} />

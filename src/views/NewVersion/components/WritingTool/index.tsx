@@ -9,12 +9,12 @@ const WritingTool: React.FC = () => {
   const { lang } = useTranslation();
   const copy = getWritingToolCopy(lang);
   const [availabilityPrefix, availabilitySuffix] = copy.availability.split('iOS 27');
-  const artRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [showGlow, setShowGlow] = useState(false);
 
   useEffect(() => {
-    const art = artRef.current;
-    if (!art) return undefined;
+    const card = cardRef.current;
+    if (!card) return undefined;
     if (typeof IntersectionObserver === 'undefined') {
       setShowGlow(true);
       return undefined;
@@ -23,7 +23,7 @@ const WritingTool: React.FC = () => {
     const observer = new IntersectionObserver(([entry]) => {
       setShowGlow(entry.isIntersecting);
     }, { rootMargin: '50% 0px 50% 0px' });
-    observer.observe(art);
+    observer.observe(card);
     return () => observer.disconnect();
   }, []);
 
@@ -48,11 +48,10 @@ const WritingTool: React.FC = () => {
     </h2>
     <p>{copy.description}</p>
   </header>
-  <div className="writing-card">
-    <div className="writing-art" ref={artRef} aria-hidden="true">
+  <div className="writing-card" ref={cardRef}>
+    <div className="writing-art" aria-hidden="true">
       <img className="writing-app-image writing-app-dark" src={publicAsset('/assets/app-features-dark.PNG')} alt="" />
       <img className="writing-app-image writing-app-light" src={publicAsset('/assets/app-features-light.PNG')} alt="" />
-      {showGlow && <ViewportGlow artRef={artRef} />}
     </div>
     <div className="writing-copy">
       <img className="writing-symbol" src={publicAsset('/assets/Apple_Intelligence.svg')} alt="Apple Intelligence" />
@@ -63,6 +62,7 @@ const WritingTool: React.FC = () => {
         </section>)}
       </div>
     </div>
+    {showGlow && <ViewportGlow targetRef={cardRef} />}
   </div>
 </WritingToolSection>;
 };

@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
 export const WritingToolSection = styled.section`
+  position: relative;
+  isolation: isolate;
   padding: 158px var(--page-gutter) 160px;
   background: var(--bg);
   color: var(--text);
@@ -27,22 +29,31 @@ export const WritingToolSection = styled.section`
   .ios-version-icon img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.11); }
 
   .writing-card {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 0;
     width: min(1200px, 100%);
     min-height: 640px;
     margin: 0 auto;
+    overflow: hidden;
+    border-radius: 36px;
+    background: var(--surface);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .1);
   }
-  .writing-art { position: relative; display: grid; min-height: 640px; overflow: hidden; border-radius: 36px; place-items: center; background: var(--surface); box-shadow: 0 24px 80px rgba(0, 0, 0, .1); }
+  .writing-art { position: relative; z-index: 1; display: grid; min-height: 640px; overflow: hidden; place-items: center; background: var(--surface); }
+  .writing-art::before { position: absolute; inset: 0; background: linear-gradient(rgba(8, 8, 10, .30), rgba(8, 8, 10, .30)), url('/assets/background-writing-tool.jpg') center / cover; content: ''; }
+  :root[data-theme='light'] & .writing-art::before { background-image: linear-gradient(rgba(255, 255, 255, .18), rgba(255, 255, 255, .18)), url('/assets/background-writing-tool.jpg'); }
   .writing-app-image { display: block; width: auto; max-width: 88%; height: 88%; max-height: 560px; object-fit: contain; }
+  .writing-app-image { position: relative; z-index: 1; }
   .writing-app-light { display: none; }
   :root[data-theme='light'] & .writing-app-dark { display: none; }
   :root[data-theme='light'] & .writing-app-light { display: block; }
 
-  .writing-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(34px, 5vw, 68px) clamp(28px, 4vw, 56px); border-radius: 36px; background: var(--surface); box-shadow: 0 24px 80px rgba(0, 0, 0, .1); }
+  .writing-copy { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; padding: clamp(34px, 5vw, 68px) clamp(28px, 4vw, 56px); background: var(--surface); }
   :root[data-theme='light'] & .writing-art,
-  :root[data-theme='light'] & .writing-copy { background: #fff; }
+  :root[data-theme='light'] & .writing-copy,
+  :root[data-theme='light'] & .writing-card { background: #fff; }
   .writing-symbol { display: block; width: 72px; height: 72px; margin-bottom: 20px; object-fit: contain; }
   .writing-feature-list { display: grid; }
   .writing-feature { padding: 22px 0; }
@@ -59,18 +70,20 @@ export const WritingToolSection = styled.section`
     .writing-intro { margin-bottom: 32px; padding-inline: 15px; }
     .writing-intro h2 { font-size: clamp(29px, 6.6vw, 39px); line-height: 1.2; }
     .writing-intro p { max-width: 340px; margin-top: 16px; font-size: 15px; line-height: 1.42; }
-    .writing-card { grid-template-columns: 1fr; gap: 16px; }
-    .writing-art { min-height: 560px; border-radius: 28px; }
-    .writing-app-image { max-width: 96%; height: 96%; max-height: 500px; }
-    .writing-copy { padding: 30px 22px; border-radius: 28px; }
+    .writing-card { grid-template-columns: 1fr; }
+    .writing-card { border-radius: 28px; }
+    .writing-art { min-height: 625px; }
+    .writing-app-image { max-width: 100%; height: 100%; max-height: 560px; }
+    .writing-copy { padding: 30px 22px; }
     .writing-feature { padding: 18px 0; }
   }
 `;
 
 export const WritingToolViewportGlow = styled.div`
+  --glow-thickness: 1.14;
   --glow-corner-size: 100px;
-  --glow-shadow-blur: 14px;
-  --glow-shadow-spread: 2px;
+  --glow-shadow-blur: 16px;
+  --glow-shadow-spread: 2.5px;
   position: absolute;
   z-index: 2;
   inset: 0;
@@ -92,8 +105,9 @@ export const WritingToolViewportGlow = styled.div`
   }
 
   @media (max-width: 1024px), (max-width: 1366px) and (pointer: coarse) {
+    --glow-thickness: 1.07;
     --glow-corner-size: 110px;
-    --glow-shadow-blur: 15px;
+    --glow-shadow-blur: 16px;
     --glow-shadow-spread: 2px;
     -webkit-mask-image:
       linear-gradient(to right, #000, transparent 56px, transparent calc(100% - 56px), #000),
@@ -103,8 +117,9 @@ export const WritingToolViewportGlow = styled.div`
       linear-gradient(to bottom, #000, transparent 56px, transparent calc(100% - 56px), #000);
   }
   @media (max-width: 760px) {
+    --glow-thickness: 1.08;
     --glow-corner-size: 65px;
-    --glow-shadow-blur: 8px;
+    --glow-shadow-blur: 9px;
     --glow-shadow-spread: 1px;
   }
 `;

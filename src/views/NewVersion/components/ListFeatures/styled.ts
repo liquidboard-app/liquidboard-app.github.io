@@ -90,8 +90,8 @@ export const ListFeaturesSection = styled.section`
     .feature-symbol-green img { width: 25px; height: 16px; }
     h2 { margin-bottom: 22px; }
     .feature-group { padding: 18px 0; }
-    .feature-art { height: 560px; min-height: 560px; }
-    .feature-art .feature-app-image { max-width: 96%; height: 96%; max-height: 500px; }
+    .feature-art { height: 625px; min-height: 625px; }
+    .feature-art .feature-app-image { max-width: 100%; height: 100%; max-height: 560px; }
     .story-controls { right: 12px; bottom: 12px; left: 12px; }
     .story-progress { top: 14px; right: 14px; left: 14px; gap: 5px; }
     .story-mode-indicator, .story-play-toggle { width: 40px; height: 40px; flex-basis: 40px; }
