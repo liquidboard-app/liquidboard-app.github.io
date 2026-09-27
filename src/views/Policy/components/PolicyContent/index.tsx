@@ -3,8 +3,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import { Tab, Tabs } from '@/components/PageLayout';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { sentenceCase } from '@/locales/casing';
-import { getPolicyComponents } from '../../locales';
+import { sentenceCase } from '@/components/Translations/Global/casing';
+import { getPolicyComponents } from '@/components/Translations/Policy';
 
 type PolicyComponents = {
   Security: React.ComponentType;

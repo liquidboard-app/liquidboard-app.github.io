@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { GlassCard } from '@/components/PageLayout';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { getAccessibilityLabels } from '@/locales/config';
+import { getAccessibilityLabels } from '@/components/Translations/Global/config';
 import FaqList from '../FaqList';
 
 export type HelpSection = 'faq' | 'documents' | 'contact';
@@ -32,55 +32,31 @@ const getMediaByteLimit = (file: File) => (
   file.type.startsWith('video/') ? MAX_VIDEO_FILE_BYTES : MAX_IMAGE_FILE_BYTES
 );
 
-const mediaLimitLabels: Record<string, string> = {
-  en: 'Images up to 5 MB · Videos up to 50 MB',
-  vi: 'Ảnh tối đa 5 MB · Video tối đa 50 MB',
-  ja: '画像は最大5 MB・動画は最大50 MB',
-  es: 'Imágenes de hasta 5 MB · Vídeos de hasta 50 MB',
-  'zh-TW': '圖片最多 5 MB · 影片最多 50 MB',
-  'zh-CN': '图片最大 5 MB · 视频最大 50 MB',
-  'pt-BR': 'Imagens de até 5 MB · Vídeos de até 50 MB',
-  fr: 'Images jusqu’à 5 MB · Vidéos jusqu’à 50 MB',
-  de: 'Bilder bis 5 MB · Videos bis 50 MB',
-  ru: 'Изображения до 5 MB · Видео до 50 MB',
-  ko: '이미지는 최대 5 MB · 동영상은 최대 50 MB',
-  hi: 'छवियाँ अधिकतम 5 MB · वीडियो अधिकतम 50 MB',
-  bn: 'ছবি সর্বোচ্চ 5 MB · ভিডিও সর্বোচ্চ 50 MB',
-  id: 'Gambar hingga 5 MB · Video hingga 50 MB',
-  it: 'Immagini fino a 5 MB · Video fino a 50 MB',
-  th: 'รูปภาพสูงสุด 5 MB · วิดีโอสูงสุด 50 MB',
-  tl: 'Mga larawan hanggang 5 MB · Mga video hanggang 50 MB',
-  pl: 'Obrazy do 5 MB · Filmy do 50 MB',
-  tr: 'Görseller en fazla 5 MB · Videolar en fazla 50 MB',
-};
+import { mediaLimitMessage } from '@/components/Translations/Faq/helpCopy';
 
-const totalMediaLimitLabels: Record<string, string> = {
-  en: 'Total attachments up to 50 MB',
-  vi: 'Tổng tệp đính kèm tối đa 50 MB',
-  ja: '添付ファイル合計は最大50 MB',
-  es: 'Total de archivos adjuntos de hasta 50 MB',
-  'zh-TW': '附件總計最多50 MB',
-  'zh-CN': '附件总计最大 50 MB',
-  'pt-BR': 'Total de anexos de até 50 MB',
-  fr: 'Total des pièces jointes jusqu’à 50 MB',
-  de: 'Anhänge insgesamt bis 50 MB',
-  ru: 'Общий размер вложений до 50 MB',
-  ko: '첨부 파일 전체는 최대 50 MB',
-  hi: 'सभी अटैचमेंट कुल मिलाकर अधिकतम 50 MB',
-  bn: 'মোট সংযুক্তি সর্বোচ্চ 50 MB',
-  id: 'Total lampiran hingga 50 MB',
-  it: 'Totale allegati fino a 50 MB',
-  th: 'ไฟล์แนบทั้งหมดสูงสุด 50 MB',
-  tl: 'Kabuuang attachment hanggang 50 MB',
-  pl: 'Łączny rozmiar załączników do 50 MB',
-  tr: 'Eklerin toplamı en fazla 50 MB',
-};
+const FormLabel = styled.label``;
+const LabelText = styled.span``;
+const Required = styled.span``;
+const LabelInput = styled.input``;
+const EmailSuggestions = styled.span``;
+const EmailSuggestionsButton = styled.button``;
+const LabelTextarea = styled.textarea``;
+const MediaField = styled.div``;
+const MediaHeading = styled.span``;
+const MediaGrid = styled.span``;
+const MediaItemSpanElement = styled.span``;
+const MediaPreview = styled.span``;
+const MediaPreviewVideo = styled.video``;
+const MediaPreviewImg = styled.img``;
+const MediaRemove = styled.button``;
+const MediaName = styled.span``;
+const MediaInput = styled.label``;
+const MediaInputInput = styled.input``;
+const MediaCount = styled.span``;
+const MediaLimit = styled.span``;
+const Submit = styled.button``;
+const FormP = styled.p``;
 
-const mediaLimitMessage = (lang: string) => {
-  const base = mediaLimitLabels[lang] ?? mediaLimitLabels.en;
-  const total = totalMediaLimitLabels[lang] ?? totalMediaLimitLabels.en;
-  return `${base} · ${total}`;
-};
 
 const TabList = styled.div`
   display: flex;
@@ -258,17 +234,17 @@ const HelpContent: React.FC<{ section: HelpSection }> = ({ section }) => {
       {section === 'documents' && <Placeholder>{dict.help?.docsPlaceholder ?? 'Documentation is being updated...'}</Placeholder>}
       {section === 'contact' && (
         <Form onSubmit={(event) => { void submit(event); }}>
-          <label><span className="label-text">{labels.email}<span className="required" aria-hidden="true">*</span></span><input required name="email" type="email" autoComplete="email" placeholder="email@gmail.com" value={email} onChange={(event) => setEmail(event.target.value)} />{showEmailSuggestions && <span className="email-suggestions">{EMAIL_DOMAINS.map((domain) => <button type="button" key={domain} onClick={() => setEmail(`${emailLocalPart}${domain}`)}>{domain}</button>)}</span>}</label>
-          <label><span className="label-text">{labels.problem}<span className="required" aria-hidden="true">*</span></span><textarea required name="problem" placeholder={labels.problemPlaceholder} /></label>
-          <div className="media-field"><span className="media-heading"><span className="label-text">{labels.media}</span></span>
-            <span className="media-grid">
-              {mediaItems.map(({ file, previewUrl }, index) => <span className="media-item" key={`${file.name}-${file.lastModified}-${index}`}><span className="media-preview">{file.type.startsWith('video/') ? <video src={previewUrl} muted preload="metadata" /> : <img src={previewUrl} alt="" />}<button className="media-remove" type="button" aria-label={`${labels.removeMedia} ${file.name}`} onClick={() => removeMedia(index)}><X size={15} /></button></span><span className="media-name" title={file.name}>{file.name}</span></span>)}
-              {mediaItems.length < MAX_MEDIA && <label className="media-input" aria-label={labels.addMedia}><input type="file" accept="image/*,video/*" multiple onChange={selectFiles} /><Plus size={30} strokeWidth={2.2} /><span className="media-count">{mediaItems.length}/{MAX_MEDIA}</span></label>}
-            </span>
-            <span className="media-limit"><Info size={14} strokeWidth={2.2} aria-hidden="true" />{labels.mediaLimit}</span>
-          </div>
-          <button className="submit" type="submit" disabled={submitting}><Send size={17} />{submitting ? labels.sending : labels.send}</button>
-          {formMessage && <p className={`form-message ${formMessage.tone}`} role={formMessage.tone === 'error' ? 'alert' : 'status'}>{formMessage.text}</p>}
+          <FormLabel><LabelText className="label-text">{labels.email}<Required className="required" aria-hidden="true">*</Required></LabelText><LabelInput required name="email" type="email" autoComplete="email" placeholder="email@gmail.com" value={email} onChange={(event) => setEmail(event.target.value)} />{showEmailSuggestions && <EmailSuggestions className="email-suggestions">{EMAIL_DOMAINS.map((domain) => <EmailSuggestionsButton type="button" key={domain} onClick={() => setEmail(`${emailLocalPart}${domain}`)}>{domain}</EmailSuggestionsButton>)}</EmailSuggestions>}</FormLabel>
+          <FormLabel><LabelText className="label-text">{labels.problem}<Required className="required" aria-hidden="true">*</Required></LabelText><LabelTextarea required name="problem" placeholder={labels.problemPlaceholder} /></FormLabel>
+          <MediaField className="media-field"><MediaHeading className="media-heading"><LabelText className="label-text">{labels.media}</LabelText></MediaHeading>
+            <MediaGrid className="media-grid">
+              {mediaItems.map(({ file, previewUrl }, index) => <MediaItemSpanElement className="media-item" key={`${file.name}-${file.lastModified}-${index}`}><MediaPreview className="media-preview">{file.type.startsWith('video/') ? <MediaPreviewVideo src={previewUrl} muted preload="metadata" /> : <MediaPreviewImg src={previewUrl} alt="" />}<MediaRemove className="media-remove" type="button" aria-label={`${labels.removeMedia} ${file.name}`} onClick={() => removeMedia(index)}><X size={15} /></MediaRemove></MediaPreview><MediaName className="media-name" title={file.name}>{file.name}</MediaName></MediaItemSpanElement>)}
+              {mediaItems.length < MAX_MEDIA && <MediaInput className="media-input" aria-label={labels.addMedia}><MediaInputInput type="file" accept="image/*,video/*" multiple onChange={selectFiles} /><Plus size={30} strokeWidth={2.2} /><MediaCount className="media-count">{mediaItems.length}/{MAX_MEDIA}</MediaCount></MediaInput>}
+            </MediaGrid>
+            <MediaLimit className="media-limit"><Info size={14} strokeWidth={2.2} aria-hidden="true" />{labels.mediaLimit}</MediaLimit>
+          </MediaField>
+          <Submit className="submit" type="submit" disabled={submitting}><Send size={17} />{submitting ? labels.sending : labels.send}</Submit>
+          {formMessage && <FormP className={`form-message ${formMessage.tone}`} role={formMessage.tone === 'error' ? 'alert' : 'status'}>{formMessage.text}</FormP>}
         </Form>
       )}
     </>

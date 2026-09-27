@@ -1,8 +1,8 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { sentenceCase } from '@/locales/casing';
-import { getAboutComponent } from '../../locales';
+import { sentenceCase } from '@/components/Translations/Global/casing';
+import { getAboutComponent } from '@/components/Translations/About';
 
 const Content = styled.div`
   padding: clamp(18px, 3.5dvw, 38px);

@@ -1,0 +1,17 @@
+import { AboutParagraph, AboutLineBreak } from './elements';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const AboutContent_hi: React.FC = () => (
+  <>
+    <AboutParagraph>LiquidBoard iPhone पर टेक्स्ट, इमेज और स्टिकर के लिए एक क्लिपबोर्ड प्रबंधन ऐप है। यह ऐप आपको बार-बार उपयोग होने वाली सामग्री बनाने या अन्य ऐप्स या डिवाइस से कॉपी की गई सामग्री सहेजने में मदद करता है। डेटा प्रबंधन को सरल बनाने के लिए पूरा फीचर सेट उपलब्ध कराया गया है।</AboutParagraph>
+    <AboutParagraph>LiquidBoard आपके iPhone कीबोर्ड के साथ एकीकृत होता है, जिससे सहेजे गए टेक्स्ट, इमेज और स्टिकर भेजना आसान हो जाता है। आप इसका उपयोग अक्सर दोहराए जाने वाले टेक्स्ट, QR Code इमेज और अपने पसंदीदा स्टिकर बनाने के लिए कर सकते हैं।</AboutParagraph>
+    <AboutParagraph>सिंक करते समय सारा डेटा आपके डिवाइस या आपके iCloud पर स्थानीय और सुरक्षित रूप से संग्रहीत रहता है। LiquidBoard यह वचन देता है कि वह आपका कोई भी डेटा कहीं और संग्रहीत, उपयोग या अपलोड नहीं करेगा।</AboutParagraph>
+    <AboutParagraph>ऐप में स्टिकर फीचर Vision Framework से बनाया गया है, जो iOS डिवाइस में अंतर्निहित Apple की कंप्यूटर विज़न और मशीन लर्निंग लाइब्रेरी है, ताकि बैकग्राउंड अलग किए जा सकें और स्टिकर काटे जा सकें।</AboutParagraph>
+    <AboutParagraph>अनुमतियों और फीचर से जुड़ी सभी प्रतिबद्धताएँ Apple द्वारा ऐप के डेटा सुरक्षा और गोपनीयता दस्तावेज़ों के माध्यम से लागू और नियंत्रित की जाती हैं।</AboutParagraph>
+    <AboutParagraph>हम इन दस्तावेज़ों को ऐप और इस वेबसाइट पर प्रकाशित करते हैं. <AboutLineBreak /><Link to="/policy/data-security">डेटा सुरक्षा</Link><AboutLineBreak /><Link to="/policy/privacy">गोपनीयता</Link></AboutParagraph>
+    <AboutParagraph>भविष्य में हम Siri AI के साथ नवीनतम iOS संस्करणों और macOS तथा iPadOS संस्करणों में AI फीचर का विस्तार करने का प्रयास करेंगे। LiquidBoard उपयोगकर्ताओं की अनुमतियों और संवेदनशील डेटा की सुरक्षा के लिए केवल सिस्टम स्तर पर AI फीचर विकसित करने के लिए प्रतिबद्ध है।</AboutParagraph>
+  </>
+);
+
+export default AboutContent_hi;

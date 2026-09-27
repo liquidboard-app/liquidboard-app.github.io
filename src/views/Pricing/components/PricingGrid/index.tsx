@@ -3,7 +3,21 @@ import { Check, Infinity as InfinityIcon, UserRound, UserRoundCog, UserRoundPlus
 import styled, { keyframes } from 'styled-components';
 import { GlassCard } from '@/components/PageLayout';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { inlineCase, sentenceCase } from '@/locales/casing';
+import { inlineCase, sentenceCase } from '@/components/Translations/Global/casing';
+
+const FeatureNumber = styled.span``;
+const CardH2 = styled.h2``;
+const Price = styled.div``;
+const PriceQualifier = styled.span``;
+const PriceValue = styled.span``;
+const PriceAmount = styled.span``;
+const PlanMeta = styled.div``;
+const Lifetime = styled.div``;
+const Description = styled.p``;
+const CardUl = styled.ul``;
+const UlLi = styled.li``;
+const FeatureLabel = styled.span``;
+
 
 const infinityFloat = keyframes`
   0%, 100% { transform: translateY(0) scale(1); }
@@ -50,7 +64,7 @@ const planHighlight = (tone: string) => (
 
 const renderFeatureLabel = (feature: string) => feature.split(/(\d+(?:[.,]\d+)*)/g).map((part, index) => (
   /^\d/.test(part)
-    ? <span className="feature-number" key={`${part}-${index}`}>{part}</span>
+    ? <FeatureNumber className="feature-number" key={`${part}-${index}`}>{part}</FeatureNumber>
     : <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
 ));
 
@@ -109,27 +123,27 @@ const PricingGrid: React.FC = () => {
           : ['', ''];
         return (
           <Card key={plan.name} $tone={plan.tone} data-plan-index={index} style={{ '--plan-highlight-delay': `${index * 90 + 120}ms` } as React.CSSProperties}>
-            <h2>{plan.name}</h2>
-            <div className="price">
+            <CardH2>{plan.name}</CardH2>
+            <Price className="price">
               {pricePrefix.trim() && (
-                <span className="price-qualifier" style={{ marginInlineEnd: /\s$/.test(pricePrefix) ? 7 : 0 }}>
+                <PriceQualifier className="price-qualifier" style={{ marginInlineEnd: /\s$/.test(pricePrefix) ? 7 : 0 }}>
                   {pricePrefix.trim()}
-                </span>
+                </PriceQualifier>
               )}
-              <span className="price-value">
-                <span className="price-amount">{plan.price || '—'}</span>
+              <PriceValue className="price-value">
+                <PriceAmount className="price-amount">{plan.price || '—'}</PriceAmount>
                 {priceSuffix.trim() && (
-                  <span className="price-qualifier" style={{ marginInlineStart: /^\s/.test(priceSuffix) ? 5 : 0 }}>
+                  <PriceQualifier className="price-qualifier" style={{ marginInlineStart: /^\s/.test(priceSuffix) ? 5 : 0 }}>
                     {priceSuffix.trim()}
-                  </span>
+                  </PriceQualifier>
                 )}
-              </span>
-            </div>
-            <div className="plan-meta">
-              <div className="lifetime"><InfinityIcon className="lifetime-icon" size={16} strokeWidth={2.4} />{sentenceCase(plan.lifetime, lang)}</div>
-              <p className="description"><PlanIcon className="person-icon" size={16} strokeWidth={2.4} />{sentenceCase(plan.description, lang)}</p>
-            </div>
-            <ul>{plan.features.map((feature) => <li key={feature}><Check size={15} strokeWidth={3} /><span className="feature-label">{renderFeatureLabel(inlineCase(feature, lang))}</span></li>)}</ul>
+              </PriceValue>
+            </Price>
+            <PlanMeta className="plan-meta">
+              <Lifetime className="lifetime"><InfinityIcon className="lifetime-icon" size={16} strokeWidth={2.4} />{sentenceCase(plan.lifetime, lang)}</Lifetime>
+              <Description className="description"><PlanIcon className="person-icon" size={16} strokeWidth={2.4} />{sentenceCase(plan.description, lang)}</Description>
+            </PlanMeta>
+            <CardUl>{plan.features.map((feature) => <UlLi key={feature}><Check size={15} strokeWidth={3} /><FeatureLabel className="feature-label">{renderFeatureLabel(inlineCase(feature, lang))}</FeatureLabel></UlLi>)}</CardUl>
           </Card>
         );
       })}

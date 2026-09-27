@@ -3,8 +3,12 @@ import { ChevronDown } from 'lucide-react';
 import styled from 'styled-components';
 import { GlassCard } from '@/components/PageLayout';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { sentenceCase } from '@/locales/casing';
-import { getFaqs } from '../../locales';
+import { sentenceCase } from '@/components/Translations/Global/casing';
+import { getFaqs } from '@/components/Translations/Faq';
+
+const AnswerDiv = styled.div``;
+const DivP = styled.p``;
+
 
 const List = styled.div`display: grid; gap: 12px;`;
 const Card = styled(GlassCard)`overflow: hidden;`;
@@ -54,7 +58,7 @@ const FaqList: React.FC = () => {
             <Question $open={open} onClick={() => setOpenIndex(open ? null : index)} aria-expanded={open}>
               {sentenceCase(faq.q, lang)}<ChevronDown size={20} />
             </Question>
-            <Answer $open={open}><div><p>{faq.a}</p></div></Answer>
+            <Answer $open={open}><AnswerDiv><DivP>{faq.a}</DivP></AnswerDiv></Answer>
           </Card>
         );
       })}

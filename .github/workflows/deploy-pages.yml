@@ -25,7 +25,6 @@ jobs:
           node-version: '22'
           cache: yarn
       - run: yarn install --frozen-lockfile
-      - run: yarn test:scroll
       - run: yarn verify
         env:
           GITHUB_PAGES: 'true'

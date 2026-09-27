@@ -1,6 +1,10 @@
+import styled from 'styled-components';
 import React, { createContext, useCallback, useContext, useEffect, useState, ReactNode } from 'react';
-import { LocaleDict } from '../locales/types';
-import { defaultDict, getDict } from '../locales';
+import { LocaleDict } from '../components/Translations/Global/types';
+import { defaultDict, getDict } from '../components/Translations/Global';
+
+const LanguagePageShell = styled.div``;
+
 
 type LanguageContextType = {
   lang: string;
@@ -61,9 +65,9 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   return (
     <LanguageContext.Provider value={{ lang, changeLang, dict, isLanguageChanging }}>
-      <div className="language-page-shell">
+      <LanguagePageShell className="language-page-shell">
         {children}
-      </div>
+      </LanguagePageShell>
     </LanguageContext.Provider>
   );
 };

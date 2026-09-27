@@ -1,38 +1,31 @@
 import React from 'react';
 import { useTranslation } from '@/contexts/LanguageContext';
-import AppStoreButton from '../AppStoreButton';
-import { HeroSection } from './styled';
+import { DownloadGroup, HeroAccent, HeroDescription, HeroHeading, HeroLineBreak, HeroSection, RequirementNote, RequirementPrefix, VersionIcon, VersionLabel, VersionLogo, VersionNumber, VersionSuffix, VersionText } from './styled';
+import { getIosRequirement, getHomeCopy } from '@/components/Translations/Home/homeCopy';
+import { getHomeHeroDescription } from '@/components/Translations/Home/heroCopy';
+import AppStoreButton from '@/components/AppStoreButton';
+import { publicAsset } from '@/utils/publicAssets';
 
-type HeroProps = {
-  title?: string;
-  description?: string;
-  showDownload?: boolean;
-};
-
-const Hero: React.FC<HeroProps> = ({
-  title = 'LiquidBoard',
-  description,
-  showDownload = true,
-}) => {
-  const { dict } = useTranslation();
-  const heroLead = description ?? `${[dict.hero.line1, dict.hero.line2.left, dict.hero.line2.right].join(' ')}.`;
-
-  return (
-    <HeroSection>
-      <div className="hero-intro">
-        <div className="hero-layout">
-          <h1 className="hero-brand" key={title}>
-            <span className="hero-brand-word">{title}</span>
-            <span className="hero-brand-dot" aria-hidden="true" />
-          </h1>
-          <div className="hero-aside">
-            <p className="hero-description-lead">{heroLead}</p>
-            {showDownload ? <AppStoreButton className="hero-download-button" animatedIcon /> : null}
-          </div>
-        </div>
-      </div>
-    </HeroSection>
-  );
+const Hero: React.FC = () => {
+  const { lang } = useTranslation();
+  const copy = getHomeCopy(lang);
+  const description = getHomeHeroDescription(lang);
+  const iosRequirement = getIosRequirement(lang);
+  const [requirementPrefix, requirementSuffix] = iosRequirement.split('iOS 26');
+  return <HeroSection>
+    <HeroHeading>{copy.headline[0]}<HeroLineBreak /><HeroAccent>{copy.headline[1]}</HeroAccent></HeroHeading>
+    <HeroDescription>{description}</HeroDescription>
+    <DownloadGroup>
+      <AppStoreButton className="hero-download-button" />
+      <RequirementNote aria-label={iosRequirement}>
+        {requirementPrefix.trim() && <RequirementPrefix>{requirementPrefix.trim()}</RequirementPrefix>}
+        <VersionLabel>
+          <VersionIcon aria-hidden="true"><VersionLogo src={publicAsset('/assets/ios-26-logo.png')} alt="" /></VersionIcon>
+          <VersionText><VersionNumber>iOS 26</VersionNumber><VersionSuffix>{requirementSuffix}</VersionSuffix></VersionText>
+        </VersionLabel>
+      </RequirementNote>
+    </DownloadGroup>
+  </HeroSection>;
 };
 
 export default Hero;

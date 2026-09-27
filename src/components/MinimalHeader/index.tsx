@@ -1,13 +1,36 @@
+import styled from 'styled-components';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Languages, Moon, Sun, X } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useTranslation } from '@/contexts/LanguageContext';
-import { getAccessibilityLabels, getHeaderActionLabels, getLanguageConfig, getMenuToggleLabels, supportedLanguages } from '@/locales/config';
-import { sentenceCase, titleCaseLatin } from '@/locales/casing';
+import { getAccessibilityLabels, getHeaderActionLabels, getLanguageConfig, getMenuToggleLabels, supportedLanguages } from '@/components/Translations/Global/config';
+import { sentenceCase, titleCaseLatin } from '@/components/Translations/Global/casing';
 import { publicAsset } from '@/utils/publicAssets';
 import { HeaderShell, HeaderBrand, HeaderNav, HeaderLink, HeaderActions, HeaderButton, MenuButton, MenuOverlay } from './styled';
-import { LanguageItem, LanguageList as FullLanguageList, LanguageModal, LanguageModalHeader, ProgressiveBlur } from '../Header/styled';
+import { LanguageItem, LanguageList as FullLanguageList, LanguageModal, LanguageModalHeader, ProgressiveBlur } from '../LanguagePicker/styled';
+
+const MenuIcon = styled.svg``;
+const MenuLine = styled.path``;
+
+
+const Logo = styled.img``;
+const HeaderBrandSpan = styled.span``;
+const MobileMenuControls = styled.div``;
+const ThemeIcon = styled.span``;
+const TooltipPopover = styled.span``;
+const TooltipPopoverI = styled.i``;
+const LanguageModalBlurDiv = styled.div``;
+const LanguageModalTitle = styled.h2``;
+const LanguageModalHeaderButton = styled.button``;
+const LanguageItemsDiv = styled.div``;
+const LanguageCopy = styled.span``;
+const LanguageCopyStrong = styled.strong``;
+const LanguageCopySmall = styled.small``;
+const LanguageStatus = styled.span``;
+const LanguageProgressCircle = styled.span``;
+const LanguageProgressRing = styled.span``;
+
 
 const MinimalHeader: React.FC = () => {
   const { lang, changeLang, dict, isLanguageChanging } = useTranslation();
@@ -85,31 +108,32 @@ const MinimalHeader: React.FC = () => {
     { to: '/', label: titleCaseLatin(sentenceCase(dict.nav.home, lang), lang), end: true },
     { to: '/about', label: titleCaseLatin(sentenceCase(dict.nav.about, lang), lang) },
     { to: '/pricing', label: titleCaseLatin(sentenceCase(dict.nav.pricing, lang), lang) },
+    { to: '/policy', label: titleCaseLatin(sentenceCase(dict.nav.policy, lang), lang) },
     { to: '/help/faq', label: titleCaseLatin(sentenceCase(dict.nav.help, lang), lang) },
   ];
   return <>
     <HeaderShell>
       <HeaderBrand as={Link} to="/" aria-label="LiquidBoard home">
-        <img className="logo logo-dark" src={publicAsset('/assets/logo-app-dark.jpg')} alt="LiquidBoard" />
-        <img className="logo logo-light" src={publicAsset('/assets/logo-app-light.jpg')} alt="" />
-        <span>LiquidBoard</span>
+        <Logo className="logo logo-dark" src={publicAsset('/assets/logo-app-dark.jpg')} alt="LiquidBoard" />
+        <Logo className="logo logo-light" src={publicAsset('/assets/logo-app-light.jpg')} alt="" />
+        <HeaderBrandSpan>LiquidBoard</HeaderBrandSpan>
       </HeaderBrand>
       <HeaderNav className={menuOpen ? 'open' : ''}>
         {menuItems.map((item) => <HeaderLink key={item.to} as={NavLink} to={item.to} end={item.end} onClick={() => setMenuOpen(false)}>{item.label}</HeaderLink>)}
-        <div className="mobile-menu-controls">
+        <MobileMenuControls className="mobile-menu-controls">
           <HeaderButton className="menu-action-button" type="button" aria-label={actionLabels.language} aria-expanded={languageOpen} aria-controls="language-modal" onClick={() => { setMenuOpen(false); openLanguageModal(); }}><Languages size={22} strokeWidth={2} /></HeaderButton>
-          <HeaderButton className="menu-action-button" type="button" aria-label={theme === 'light' ? actionLabels.light : actionLabels.dark} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><span className="theme-icon">{theme === 'dark' ? <Moon size={22} /> : <Sun size={22} />}</span></HeaderButton>
-        </div>
+          <HeaderButton className="menu-action-button" type="button" aria-label={theme === 'light' ? actionLabels.light : actionLabels.dark} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><ThemeIcon className="theme-icon">{theme === 'dark' ? <Moon size={22} /> : <Sun size={22} />}</ThemeIcon></HeaderButton>
+        </MobileMenuControls>
       </HeaderNav>
      <HeaderActions>
-        <HeaderButton className="language-button desktop-action" type="button" aria-label={actionLabels.language} data-tooltip={actionLabels.language} aria-expanded={languageOpen} aria-controls="language-modal" onClick={() => { if (languageOpen) setLanguageOpen(false); else openLanguageModal(); }}><Languages size={22} strokeWidth={2} /><span className="tooltip-popover" aria-hidden="true">{actionLabels.language}<i /></span></HeaderButton>
-        <HeaderButton className="theme-button desktop-action" type="button" aria-label={theme === 'light' ? actionLabels.light : actionLabels.dark} data-tooltip={theme === 'light' ? actionLabels.light : actionLabels.dark} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><span className="theme-icon">{theme === 'dark' ? <Moon size={22} /> : <Sun size={22} />}</span><span className="tooltip-popover" aria-hidden="true">{theme === 'light' ? actionLabels.light : actionLabels.dark}<i /></span></HeaderButton>
+        <HeaderButton className="language-button desktop-action" type="button" aria-label={actionLabels.language} data-tooltip={actionLabels.language} aria-expanded={languageOpen} aria-controls="language-modal" onClick={() => { if (languageOpen) setLanguageOpen(false); else openLanguageModal(); }}><Languages size={22} strokeWidth={2} /><TooltipPopover className="tooltip-popover" aria-hidden="true">{actionLabels.language}<TooltipPopoverI /></TooltipPopover></HeaderButton>
+        <HeaderButton className="theme-button desktop-action" type="button" aria-label={theme === 'light' ? actionLabels.light : actionLabels.dark} data-tooltip={theme === 'light' ? actionLabels.light : actionLabels.dark} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><ThemeIcon className="theme-icon">{theme === 'dark' ? <Moon size={22} /> : <Sun size={22} />}</ThemeIcon><TooltipPopover className="tooltip-popover" aria-hidden="true">{theme === 'light' ? actionLabels.light : actionLabels.dark}<TooltipPopoverI /></TooltipPopover></HeaderButton>
         <MenuButton className={`menu-toggle${menuOpen ? ' is-open' : ''}`} type="button" aria-label={menuOpen ? menuLabels.close : menuLabels.menu} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
-          <svg className="menu-icon" viewBox="0 0 32 32" aria-hidden="true">
-            <path className="menu-line menu-line-top" d="M2 6h28" />
-            <path className="menu-line menu-line-middle" d="M2 16h28" />
-            <path className="menu-line menu-line-bottom" d="M2 26h28" />
-          </svg>
+          <MenuIcon className="menu-icon" viewBox="0 0 32 32" aria-hidden="true">
+            <MenuLine className="menu-line menu-line-top" d="M2 6h28" />
+            <MenuLine className="menu-line menu-line-middle" d="M2 16h28" />
+            <MenuLine className="menu-line menu-line-bottom" d="M2 26h28" />
+          </MenuIcon>
         </MenuButton>
       </HeaderActions>
     </HeaderShell>
@@ -123,13 +147,13 @@ const MinimalHeader: React.FC = () => {
           setLanguageProgress(0);
           changeStartedRef.current = false;
         }}>
-        <ProgressiveBlur className="language-modal-blur" aria-hidden="true">{Array.from({ length: 8 }).map((_, index) => <div key={index} />)}</ProgressiveBlur>
+        <ProgressiveBlur className="language-modal-blur" aria-hidden="true">{Array.from({ length: 8 }).map((_, index) => <LanguageModalBlurDiv key={index} />)}</ProgressiveBlur>
         <LanguageModalHeader className="language-modal-header">
-          <h2 id="language-modal-title">{getLanguageConfig(lang).chooseLabel}</h2>
-          <button type="button" aria-label={accessibility.closeLanguageSelection} disabled={isLanguageChanging || languagePhase !== 'idle'} onClick={() => setLanguageOpen(false)}><X size={22} strokeWidth={2.4} /></button>
+          <LanguageModalTitle id="language-modal-title">{getLanguageConfig(lang).chooseLabel}</LanguageModalTitle>
+          <LanguageModalHeaderButton type="button" aria-label={accessibility.closeLanguageSelection} disabled={isLanguageChanging || languagePhase !== 'idle'} onClick={() => setLanguageOpen(false)}><X size={22} strokeWidth={2.4} /></LanguageModalHeaderButton>
         </LanguageModalHeader>
         <FullLanguageList ref={languageListRef} className="language-items" data-animation-phase={languagePhase}>
-          <div>{orderedLanguages.map((language) => {
+          <LanguageItemsDiv>{orderedLanguages.map((language) => {
             const active = lang === language.code;
             const isSelected = language.code === selectedLanguage;
             const selectedPhaseClass = isSelected && languagePhase === 'settle'
@@ -151,12 +175,12 @@ const MinimalHeader: React.FC = () => {
               void changeLangRef.current(language.code);
               setLanguagePhase('progress');
             }}>
-              <span className="language-copy"><strong>{language.label}</strong><small>{language.native}</small></span>
-              <span className="language-status" aria-hidden="true">
-                {isSelected ? <span className="language-progress-circle" style={{ '--progress-angle': `${languageProgress * 3.6}deg` } as React.CSSProperties}><span className="language-progress-ring" /><Check className="language-progress-check" size={19} strokeWidth={3} /></span> : active ? <Check size={20} strokeWidth={3} /> : null}
-              </span>
+              <LanguageCopy className="language-copy"><LanguageCopyStrong>{language.label}</LanguageCopyStrong><LanguageCopySmall>{language.native}</LanguageCopySmall></LanguageCopy>
+              <LanguageStatus className="language-status" aria-hidden="true">
+                {isSelected ? <LanguageProgressCircle className="language-progress-circle" style={{ '--progress-angle': `${languageProgress * 3.6}deg` } as React.CSSProperties}><LanguageProgressRing className="language-progress-ring" /><Check className="language-progress-check" size={19} strokeWidth={3} /></LanguageProgressCircle> : active ? <Check size={20} strokeWidth={3} /> : null}
+              </LanguageStatus>
             </LanguageItem>;
-          })}</div>
+          })}</LanguageItemsDiv>
         </FullLanguageList>
       </LanguageModal>, document.body,
     )}
