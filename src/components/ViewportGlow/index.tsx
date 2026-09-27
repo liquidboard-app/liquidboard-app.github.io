@@ -163,7 +163,6 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
       const layer = wrapperRef.current;
       if (!layer) return;
       layer.style.setProperty('--glow-viewport-top', `${visualViewport?.offsetTop ?? 0}px`);
-      layer.style.setProperty('--glow-viewport-height', `${visualViewport?.height ?? window.innerHeight}px`);
       updateReveal();
     };
     const resize = () => {
@@ -188,7 +187,7 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
     const onRestored = () => setGeneration((value) => value + 1);
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     window.addEventListener('resize', resize);
     visualViewport?.addEventListener('resize', syncVisualViewport);
     visualViewport?.addEventListener('scroll', syncVisualViewport);
@@ -202,7 +201,7 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
       cancelAnimationFrame(frame);
       cancelAnimationFrame(scrollFrame);
       observer.disconnect();
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', resize);
       visualViewport?.removeEventListener('resize', syncVisualViewport);
       visualViewport?.removeEventListener('scroll', syncVisualViewport);

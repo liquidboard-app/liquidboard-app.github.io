@@ -42,6 +42,18 @@ const RoutePage = styled.div`
   background: var(--bg);
 `;
 
+const RoutedScrollFrame = styled.div`
+  @media (pointer: coarse), (max-width: 700px) {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+`;
+
 const HomeRoute: React.FC<{ replayKey?: number }> = ({ replayKey = 0 }) => {
   const { key } = useLocation();
   return <RouteContent><HomeContent key={`${key}-${replayKey}`} /></RouteContent>;
@@ -135,9 +147,14 @@ export const ScrollTopButton = styled.button<{ $visible: boolean; $leaving: bool
   }
 `;
 
+const scrollToStart = () => {
+  const frame = document.getElementById('app-scroll-frame');
+  if (frame) frame.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  else window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+};
+
 const ScrollToTop = () => {
   useLayoutEffect(() => {
-    const scrollToStart = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     scrollToStart();
 
     if (!window.matchMedia('(min-width: 1200px)').matches) return undefined;
@@ -166,7 +183,6 @@ const ScrollToTop = () => {
     const handleRouteContentSwapped = () => {
       // The outgoing page is fully hidden before RoutedPages swaps the route.
       // Reset scroll in that hidden gap so the user never watches the jump.
-      const scrollToStart = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       scrollToStart();
 
       if (!window.matchMedia('(min-width: 1200px)').matches) return;
@@ -236,21 +252,23 @@ const RoutedPages: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <RouteTransitionStage $phase={transitionPhase}>
-      <Routes location={displayLocation}>
-      <Route path="/" element={<RoutePage><HomeRoute replayKey={homeReplayKey} /></RoutePage>} />
-      <Route path="/about" element={<RoutePage><RouteContent><About /></RouteContent></RoutePage>} />
-      <Route path="/pricing" element={<RoutePage><RouteContent><Pricing /></RouteContent></RoutePage>} />
-      <Route path="/updates" element={<RoutePage><RouteContent><Updates /></RouteContent></RoutePage>} />
-      <Route path="/faq" element={<RoutePage><Navigate to="/help/faq" replace /></RoutePage>} />
-      <Route path="/help" element={<RoutePage><Navigate to="/help/contact" replace /></RoutePage>} />
-      <Route path="/help/faq" element={<RoutePage><RouteContent><Faq section="faq" /></RouteContent></RoutePage>} />
-      <Route path="/help/document" element={<RoutePage><RouteContent><Faq section="documents" /></RouteContent></RoutePage>} />
-      <Route path="/help/documents" element={<RoutePage><Navigate to="/help/document" replace /></RoutePage>} />
-      <Route path="/help/contact" element={<RoutePage><RouteContent><Faq section="contact" /></RouteContent></RoutePage>} />
-      <Route path="/policy/*" element={<RoutePage><RouteContent><Policy /></RouteContent></RoutePage>} />
-      </Routes>
-    </RouteTransitionStage>
+    <RoutedScrollFrame id="app-scroll-frame">
+      <RouteTransitionStage $phase={transitionPhase}>
+        <Routes location={displayLocation}>
+        <Route path="/" element={<RoutePage><HomeRoute replayKey={homeReplayKey} /></RoutePage>} />
+        <Route path="/about" element={<RoutePage><RouteContent><About /></RouteContent></RoutePage>} />
+        <Route path="/pricing" element={<RoutePage><RouteContent><Pricing /></RouteContent></RoutePage>} />
+        <Route path="/updates" element={<RoutePage><RouteContent><Updates /></RouteContent></RoutePage>} />
+        <Route path="/faq" element={<RoutePage><Navigate to="/help/faq" replace /></RoutePage>} />
+        <Route path="/help" element={<RoutePage><Navigate to="/help/contact" replace /></RoutePage>} />
+        <Route path="/help/faq" element={<RoutePage><RouteContent><Faq section="faq" /></RouteContent></RoutePage>} />
+        <Route path="/help/document" element={<RoutePage><RouteContent><Faq section="documents" /></RouteContent></RoutePage>} />
+        <Route path="/help/documents" element={<RoutePage><Navigate to="/help/document" replace /></RoutePage>} />
+        <Route path="/help/contact" element={<RoutePage><RouteContent><Faq section="contact" /></RouteContent></RoutePage>} />
+        <Route path="/policy/*" element={<RoutePage><RouteContent><Policy /></RouteContent></RoutePage>} />
+        </Routes>
+      </RouteTransitionStage>
+    </RoutedScrollFrame>
   );
 };
 
