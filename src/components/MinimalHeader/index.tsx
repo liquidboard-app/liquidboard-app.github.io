@@ -50,7 +50,11 @@ const MinimalHeader: React.FC = () => {
   const menuLabels = getMenuToggleLabels(lang);
   const orderedLanguages = [...supportedLanguages].sort((a, b) => Number(b.code === languageOrderCode) - Number(a.code === languageOrderCode));
   const openLanguageModal = () => { setLanguageOrderCode(lang); setLanguageOpen(true); };
-  useLayoutEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem('liquidboard-theme', theme); }, [theme]);
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#ffffff' : '#111111');
+    localStorage.setItem('liquidboard-theme', theme);
+  }, [theme]);
   useEffect(() => {
     if (!languageOpen && languagePhase !== 'closing') return;
     const previousOverflow = document.body.style.overflow;

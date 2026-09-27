@@ -8,11 +8,11 @@ export const ViewportGlowLayer = styled.div`
   --glow-viewport-height: 100vh;
   @supports (height: 100lvh) { --glow-viewport-height: 100lvh; }
   position: fixed;
-  z-index: 2;
-  top: calc(var(--glow-viewport-top, 0px) + 72px);
+  z-index: 201;
+  top: 0;
   right: 0;
   left: 0;
-  height: calc(var(--glow-viewport-height) - 72px);
+  height: var(--glow-viewport-height);
   overflow: hidden;
   pointer-events: none;
 

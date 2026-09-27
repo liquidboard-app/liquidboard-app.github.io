@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useEffect, useRef, useState, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { ViewportGlowLayer } from './styled';
 
 const ViewportGlowLayerCanvas = styled.canvas``;
@@ -159,14 +160,7 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
         updateReveal();
       });
     };
-    const syncVisualViewport = () => {
-      const layer = wrapperRef.current;
-      if (!layer) return;
-      layer.style.setProperty('--glow-viewport-top', `${visualViewport?.offsetTop ?? 0}px`);
-      updateReveal();
-    };
     const resize = () => {
-      syncVisualViewport();
       // Soft light needs only CSS-pixel resolution, even on Retina screens.
       canvas.width = Math.max(1, Math.round(canvas.clientWidth));
       canvas.height = Math.max(1, Math.round(canvas.clientHeight));
@@ -189,8 +183,8 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
     observer.observe(canvas);
     window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     window.addEventListener('resize', resize);
-    visualViewport?.addEventListener('resize', syncVisualViewport);
-    visualViewport?.addEventListener('scroll', syncVisualViewport);
+    visualViewport?.addEventListener('resize', updateReveal);
+    visualViewport?.addEventListener('scroll', updateReveal);
     reducedMotion.addEventListener('change', updateReveal);
     document.addEventListener('visibilitychange', restart);
     canvas.addEventListener('webglcontextlost', onLost);
@@ -203,8 +197,8 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
       observer.disconnect();
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', resize);
-      visualViewport?.removeEventListener('resize', syncVisualViewport);
-      visualViewport?.removeEventListener('scroll', syncVisualViewport);
+      visualViewport?.removeEventListener('resize', updateReveal);
+      visualViewport?.removeEventListener('scroll', updateReveal);
       reducedMotion.removeEventListener('change', updateReveal);
       document.removeEventListener('visibilitychange', restart);
       canvas.removeEventListener('webglcontextlost', onLost);
@@ -213,7 +207,10 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
     };
   }, [generation, targetRef]);
 
-  return <ViewportGlowLayer ref={wrapperRef} aria-hidden="true" data-fallback={fallback}>
-    <ViewportGlowLayerCanvas ref={canvasRef} />
-  </ViewportGlowLayer>;
+  return createPortal(
+    <ViewportGlowLayer ref={wrapperRef} aria-hidden="true" data-fallback={fallback}>
+      <ViewportGlowLayerCanvas ref={canvasRef} />
+    </ViewportGlowLayer>,
+    document.body,
+  );
 }
