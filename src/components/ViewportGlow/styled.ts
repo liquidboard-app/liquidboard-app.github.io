@@ -7,7 +7,10 @@ export const ViewportGlowLayer = styled.div`
   --glow-shadow-spread: 2.5px;
   position: fixed;
   z-index: 2;
-  inset: 72px 0 0;
+  top: calc(var(--glow-viewport-top, 0px) + 72px);
+  right: 0;
+  left: 0;
+  height: calc(var(--glow-viewport-height, 100dvh) - 72px);
   overflow: hidden;
   pointer-events: none;
 

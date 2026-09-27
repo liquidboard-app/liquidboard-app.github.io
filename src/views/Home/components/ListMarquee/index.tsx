@@ -263,8 +263,10 @@ const ListMarquee: React.FC = () => {
             return <RowSet className="row-set" key={`${rowIndex}-${setIndex}`}>
               {Array.from({ length: copies }, (_, copyIndex) => row.map((item, slotIndex) => {
                 const slotKey = `${rowIndex}:${setIndex}:${copyIndex}:${slotIndex}`;
-                if (item.type === 'text') return <TextCard item={item} slotKey={slotKey} entering={enteringSlots.has(slotKey)} key={slotKey} />;
-                return <RowSetArticle className={`card card-${item.type}${enteringSlots.has(slotKey) ? ' is-entering' : ''}`} data-motion-key={slotKey} data-slot-key={slotKey} data-item-key={`${item.type}:${item.title}`} data-card-type={item.type} key={slotKey}>
+                const itemKey = `${item.type}:${item.title}`;
+                const renderKey = `${slotKey}:${itemKey}`;
+                if (item.type === 'text') return <TextCard item={item} slotKey={slotKey} entering={enteringSlots.has(slotKey)} key={renderKey} />;
+                return <RowSetArticle className={`card card-${item.type}${enteringSlots.has(slotKey) ? ' is-entering' : ''}`} data-motion-key={slotKey} data-slot-key={slotKey} data-item-key={itemKey} data-card-type={item.type} key={renderKey}>
                   {item.src && <ArticleImg src={item.src} alt={item.title} loading="lazy" />}
                 </RowSetArticle>;
               }))}

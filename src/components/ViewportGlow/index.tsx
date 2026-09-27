@@ -117,6 +117,7 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
     const revealUniform = gl.getUniformLocation(program, 'reveal');
     const thicknessUniform = gl.getUniformLocation(program, 'thickness');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const visualViewport = window.visualViewport;
     let frame = 0;
     let scrollFrame = 0;
     let lost = false;
@@ -138,13 +139,15 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
       const target = targetRef.current;
       if (!target) return;
       const rect = target.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
+      const viewportTop = visualViewport?.offsetTop ?? 0;
+      const viewportHeight = visualViewport?.height ?? window.innerHeight;
+      const viewportBottom = viewportTop + viewportHeight;
       const fadeDistance = Math.min(160, viewportHeight * 0.2);
-      const entering = Math.min(1, Math.max(0, (viewportHeight - rect.top) / fadeDistance));
-      const leaving = Math.min(1, Math.max(0, rect.bottom / fadeDistance));
+      const entering = Math.min(1, Math.max(0, (viewportBottom - rect.top) / fadeDistance));
+      const leaving = Math.min(1, Math.max(0, (rect.bottom - viewportTop) / fadeDistance));
       const progress = Math.min(entering, leaving);
       scrollReveal = reducedMotion.matches
-        ? Number(rect.top < viewportHeight && rect.bottom > 0)
+        ? Number(rect.top < viewportBottom && rect.bottom > viewportTop)
         : progress;
       wrapperRef.current?.style.setProperty('--glow-reveal', String(scrollReveal));
       if (reducedMotion.matches) restart();
@@ -156,7 +159,15 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
         updateReveal();
       });
     };
+    const syncVisualViewport = () => {
+      const layer = wrapperRef.current;
+      if (!layer) return;
+      layer.style.setProperty('--glow-viewport-top', `${visualViewport?.offsetTop ?? 0}px`);
+      layer.style.setProperty('--glow-viewport-height', `${visualViewport?.height ?? window.innerHeight}px`);
+      updateReveal();
+    };
     const resize = () => {
+      syncVisualViewport();
       // Soft light needs only CSS-pixel resolution, even on Retina screens.
       canvas.width = Math.max(1, Math.round(canvas.clientWidth));
       canvas.height = Math.max(1, Math.round(canvas.clientHeight));
@@ -179,6 +190,8 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
     observer.observe(canvas);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', resize);
+    visualViewport?.addEventListener('resize', syncVisualViewport);
+    visualViewport?.addEventListener('scroll', syncVisualViewport);
     reducedMotion.addEventListener('change', updateReveal);
     document.addEventListener('visibilitychange', restart);
     canvas.addEventListener('webglcontextlost', onLost);
@@ -191,6 +204,8 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
       observer.disconnect();
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', resize);
+      visualViewport?.removeEventListener('resize', syncVisualViewport);
+      visualViewport?.removeEventListener('scroll', syncVisualViewport);
       reducedMotion.removeEventListener('change', updateReveal);
       document.removeEventListener('visibilitychange', restart);
       canvas.removeEventListener('webglcontextlost', onLost);
