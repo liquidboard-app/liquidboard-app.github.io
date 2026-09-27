@@ -34,12 +34,17 @@ export const ViewportGlowLayer = styled.div`
     --glow-corner-size: 110px;
     --glow-shadow-blur: 16px;
     --glow-shadow-spread: 2px;
-    -webkit-mask-image:
-      linear-gradient(to right, #000, transparent 56px, transparent calc(100% - 56px), #000),
-      linear-gradient(to bottom, #000, transparent 56px, transparent calc(100% - 56px), #000);
-    mask-image:
-      linear-gradient(to right, #000, transparent 56px, transparent calc(100% - 56px), #000),
-      linear-gradient(to bottom, #000, transparent 56px, transparent calc(100% - 56px), #000);
+  }
+  /* The shader masks its border separately so reflected light can reach inward. */
+  @media (max-width: 1024px), (max-width: 1366px) and (pointer: coarse) {
+    &[data-fallback='true'] {
+      -webkit-mask-image:
+        linear-gradient(to right, #000, transparent 56px, transparent calc(100% - 56px), #000),
+        linear-gradient(to bottom, #000, transparent 56px, transparent calc(100% - 56px), #000);
+      mask-image:
+        linear-gradient(to right, #000, transparent 56px, transparent calc(100% - 56px), #000),
+        linear-gradient(to bottom, #000, transparent 56px, transparent calc(100% - 56px), #000);
+    }
   }
   @media (max-width: 760px) {
     --glow-thickness: 1.08;

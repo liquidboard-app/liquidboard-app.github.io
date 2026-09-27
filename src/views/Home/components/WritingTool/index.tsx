@@ -6,6 +6,8 @@ import { getWritingToolCopy } from '@/components/Translations/Home/writingToolCo
 import { WritingToolSection } from './styled';
 import ViewportGlow from '@/components/ViewportGlow';
 
+const GLOW_UNMOUNT_DELAY = 1700;
+
 const WritingIntro = styled.header``;
 const IosRequirement = styled.div``;
 const IosRequirementPrefix = styled.span``;
@@ -44,11 +46,25 @@ const WritingTool: React.FC = () => {
       return undefined;
     }
 
+    let hideTimer: number | null = null;
     const observer = new IntersectionObserver(([entry]) => {
-      setShowGlow(entry.isIntersecting);
+      if (entry.isIntersecting) {
+        if (hideTimer !== null) window.clearTimeout(hideTimer);
+        hideTimer = null;
+        setShowGlow(true);
+        return;
+      }
+      if (hideTimer !== null) window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(() => {
+        setShowGlow(false);
+        hideTimer = null;
+      }, GLOW_UNMOUNT_DELAY);
     }, { rootMargin: '50% 0px 50% 0px' });
     observer.observe(card);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (hideTimer !== null) window.clearTimeout(hideTimer);
+    };
   }, []);
 
   return <WritingToolSection aria-labelledby="writing-tool-heading">
