@@ -58,7 +58,7 @@ export const ListFeaturesSection = styled.section`
   .story-play-toggle, .story-mode-indicator { padding: 0; cursor: pointer; transition: background .2s ease, transform .2s ease; }
   .story-play-toggle:hover, .story-mode-indicator:hover { background: rgba(255,255,255,.22); transform: scale(1.06); }
   .story-play-toggle:focus-visible, .story-mode-indicator:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-  .story-progress { position: absolute; z-index: 4; top: 18px; right: 20px; left: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .story-progress { position: absolute; z-index: 4; top: 18px; right: 36px; left: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
   .story-progress > span { height: 4px; overflow: hidden; border-radius: 999px; background: rgba(255, 255, 255, .38); }
   .story-progress i { display: block; height: 100%; border-radius: inherit; background: #fff; transition: width .05s linear; }
   .feature-art .feature-app-image { position: absolute; top: 50%; left: 50%; z-index: 1; display: block; width: auto; max-width: 94%; height: 90%; max-height: 530px; object-fit: contain; object-position: center; opacity: 0; filter: blur(16px); transform: translate(-50%, -50%) translateY(8px) scale(1.025); transition: opacity 1.1s cubic-bezier(.22, 1, .36, 1), filter 1.25s cubic-bezier(.22, 1, .36, 1), transform 1.25s cubic-bezier(.22, 1, .36, 1); pointer-events: none; }
@@ -72,13 +72,17 @@ export const ListFeaturesSection = styled.section`
 
   @media (max-width: 1024px), (max-width: 1366px) and (pointer: coarse) {
     .feature-card { grid-template-columns: 1fr; width: min(767px, 100%); }
+    .feature-art { height: 500px; min-height: 500px; }
+    .feature-art .feature-app-image { height: calc(100% - 76px); max-height: 444px; }
+    .story-play-toggle, .story-mode-indicator { background: rgba(255,255,255,.22); transition: none; }
+    .story-play-toggle:hover, .story-mode-indicator:hover { background: rgba(255,255,255,.22); transform: none; }
   }
 
   @media (max-width: 760px) {
     padding: 110px var(--page-gutter) 104px;
     .features-intro { margin-bottom: 32px; padding-inline: 15px; }
-    .features-intro h2 { font-size: clamp(29px, 6.6vw, 39px); line-height: 1.12; }
-    .features-intro p { max-width: 340px; margin-top: 16px; font-size: 15px; line-height: 1.42; }
+    .features-intro h2 { font-size: clamp(28px, 6vw, 36px); line-height: 1.12; }
+    .features-intro p { max-width: 340px; margin-top: 16px; font-size: 14px; line-height: 1.45; }
     .feature-card { grid-template-columns: 1fr; border-radius: 28px; }
     .feature-copy { padding: 32px 22px; }
     .feature-title { gap: 16px; }
@@ -87,10 +91,10 @@ export const ListFeaturesSection = styled.section`
     .feature-symbol-green img { width: 25px; height: 16px; }
     h2 { margin-bottom: 22px; }
     .feature-group { padding: 18px 0; }
-    .feature-art { height: 650px; min-height: 650px; }
-    .feature-art .feature-app-image { max-width: 100%; height: 100%; max-height: 560px; }
+    .feature-art { height: 440px; min-height: 440px; }
+    .feature-art .feature-app-image { max-width: 100%; height: calc(100% - 68px); max-height: 372px; }
     .story-controls { right: 12px; bottom: 12px; left: 12px; }
-    .story-progress { top: 14px; right: 14px; left: 14px; gap: 5px; }
+    .story-progress { top: 14px; right: 24px; left: 24px; gap: 5px; }
     .story-mode-indicator, .story-play-toggle { width: 40px; height: 40px; flex-basis: 40px; }
   }
   @media (prefers-reduced-motion: reduce) {

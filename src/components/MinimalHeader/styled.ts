@@ -87,9 +87,10 @@ export const MenuButton = styled(HeaderButton)`
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: var(--menu-button-bg);
-    &:hover { background: var(--menu-button-hover-bg); }
-    .menu-icon { width: 23px; height: 23px; overflow: visible; }
+    background: transparent;
+    &::before { position: absolute; inset: 3px; border-radius: 50%; background: var(--menu-button-bg); content: ''; transition: background .2s ease; }
+    &:hover::before { background: var(--menu-button-hover-bg); }
+    .menu-icon { position: relative; z-index: 1; width: 21px; height: 21px; overflow: visible; }
     .menu-line { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; transform-box: fill-box; transform-origin: center; transition: transform .36s cubic-bezier(.68,-.2,.32,1.2), opacity .2s ease; }
     .menu-line-top { transform: translateY(0) rotate(0); }
     .menu-line-middle { transform: scaleX(1); opacity: 1; }
@@ -99,9 +100,7 @@ export const MenuButton = styled(HeaderButton)`
     &.is-open .menu-line-bottom { transform: translateY(-10px) rotate(-45deg); }
   }
   @media (max-width: 600px) {
-    min-width: 42px;
-    height: 42px;
-    .menu-icon { width: 20px; height: 20px; }
+    .menu-icon { width: 18px; height: 18px; }
   }
 `;
 export const LanguagePopover = styled.div<{ $open: boolean }>`

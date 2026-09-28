@@ -63,17 +63,19 @@ export const WritingToolSection = styled.section`
 
   @media (max-width: 1024px), (max-width: 1366px) and (pointer: coarse) {
     .writing-card { grid-template-columns: 1fr; width: min(767px, 100%); }
+    .writing-art { min-height: 500px; }
+    .writing-app-image { max-height: 460px; }
   }
 
   @media (max-width: 760px) {
     padding: 110px var(--page-gutter) 104px;
     .writing-intro { margin-bottom: 32px; padding-inline: 15px; }
-    .writing-intro h2 { font-size: clamp(29px, 6.6vw, 39px); line-height: 1.2; }
-    .writing-intro p { max-width: 340px; margin-top: 16px; font-size: 15px; line-height: 1.42; }
+    .writing-intro h2 { font-size: clamp(28px, 6vw, 36px); line-height: 1.2; }
+    .writing-intro p { max-width: 340px; margin-top: 16px; font-size: 14px; line-height: 1.45; }
     .writing-card { grid-template-columns: 1fr; }
     .writing-card { border-radius: 28px; }
-    .writing-art { min-height: 650px; }
-    .writing-app-image { max-width: 100%; height: 100%; max-height: 560px; }
+    .writing-art { min-height: 440px; }
+    .writing-app-image { max-width: 100%; height: calc(100% - 28px); max-height: 412px; }
     .writing-copy { padding: 30px 22px; }
     .writing-feature { padding: 18px 0; }
   }

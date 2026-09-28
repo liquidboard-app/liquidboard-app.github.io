@@ -6,7 +6,6 @@ import { useTranslation } from './contexts/LanguageContext';
 import { getPageMetadata } from '@/components/Translations/Global/pageMetadata';
 
 const HomeContent = lazy(() => import('@/views/Home'));
-const Pricing = lazy(() => import('@/views/Pricing'));
 const Faq = lazy(() => import('@/views/Faq'));
 const Policy = lazy(() => import('@/views/Policy'));
 const About = lazy(() => import('@/views/About'));
@@ -251,13 +250,35 @@ const RoutedPages: React.FC = () => {
     };
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (transitionPhase !== 'idle' || displayLocation.pathname !== '/' || displayLocation.hash !== '#pricing') return undefined;
+    let frame = 0;
+    let observer: MutationObserver | undefined;
+    const scrollToPricing = () => {
+      const target = document.getElementById('pricing');
+      if (!target) return false;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      observer?.disconnect();
+      return true;
+    };
+    frame = window.requestAnimationFrame(() => {
+      if (scrollToPricing()) return;
+      observer = new MutationObserver(() => scrollToPricing());
+      observer.observe(document.getElementById('app-scroll-frame') ?? document.body, { childList: true, subtree: true });
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer?.disconnect();
+    };
+  }, [displayLocation, transitionPhase]);
+
   return (
     <RoutedScrollFrame id="app-scroll-frame">
       <RouteTransitionStage $phase={transitionPhase}>
         <Routes location={displayLocation}>
         <Route path="/" element={<RoutePage><HomeRoute replayKey={homeReplayKey} /></RoutePage>} />
         <Route path="/about" element={<RoutePage><RouteContent><About /></RouteContent></RoutePage>} />
-        <Route path="/pricing" element={<RoutePage><RouteContent><Pricing /></RouteContent></RoutePage>} />
+        <Route path="/pricing" element={<Navigate to="/#pricing" replace />} />
         <Route path="/updates" element={<RoutePage><RouteContent><Updates /></RouteContent></RoutePage>} />
         <Route path="/faq" element={<RoutePage><Navigate to="/help/faq" replace /></RoutePage>} />
         <Route path="/help" element={<RoutePage><Navigate to="/help/contact" replace /></RoutePage>} />

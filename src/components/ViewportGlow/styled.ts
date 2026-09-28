@@ -5,11 +5,12 @@ export const ViewportGlowLayer = styled.div`
   --glow-corner-size: 100px;
   --glow-shadow-blur: 16px;
   --glow-shadow-spread: 2.5px;
+  --glow-viewport-top: 0px;
   --glow-viewport-height: 100vh;
-  @supports (height: 100lvh) { --glow-viewport-height: 100lvh; }
+  @supports (height: 100dvh) { --glow-viewport-height: 100dvh; }
   position: fixed;
   z-index: 201;
-  top: 0;
+  top: var(--glow-viewport-top);
   right: 0;
   left: 0;
   height: var(--glow-viewport-height);

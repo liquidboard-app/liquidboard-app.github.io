@@ -21,7 +21,7 @@ export const HeroHeading = styled.h1`
   line-height: 1.08;
 
   @media (max-width: 1199px) { font-size: clamp(33px, 2.8vw, 37px); }
-  @media (max-width: 700px) { font-size: clamp(29px, 6.6vw, 39px); line-height: 1.12; }
+  @media (max-width: 760px) { font-size: clamp(28px, 6vw, 36px); line-height: 1.12; }
 `;
 
 export const HeroLineBreak = styled.br``;
@@ -36,7 +36,7 @@ export const HeroDescription = styled.p`
   letter-spacing: -.02em;
   line-height: 1.5;
   @media (max-width: 1199px) { font-size: 16px; }
-  @media (max-width: 700px) { max-width: 340px; margin-top: 19px; font-size: 15px; line-height: 1.42; }
+  @media (max-width: 760px) { max-width: 340px; margin-top: 19px; font-size: 14px; line-height: 1.45; }
 `;
 
 export const DownloadGroup = styled.div`

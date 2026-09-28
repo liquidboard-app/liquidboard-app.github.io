@@ -5,9 +5,6 @@ import { ListMarqueeSection } from './styled';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getHomeCopy, getHomeMarqueeFilterLabel } from '@/components/Translations/Home/homeCopy';
 
-const Card = styled.article``;
-const CardStrong = styled.strong``;
-const CardSpan = styled.span``;
 const Filters = styled.div``;
 const Active = styled.button``;
 const SwitchTrack = styled.span``;
@@ -28,7 +25,7 @@ const ENTER_DURATION = 300;
 const ITEM_BLUR = '7px';
 const FILTER_TRANSITION_DURATION = EXIT_DELAY + EXIT_DURATION + ENTER_DURATION;
 
-const getItemsPerRow = (width: number) => (width <= 600 ? 6 : width <= 1024 ? 9 : 12);
+const getItemsPerRow = (width: number) => (width <= 600 ? 4 : width <= 1024 ? 6 : 12);
 
 const isInViewport = (element: HTMLElement) => {
   const rect = element.getBoundingClientRect();
@@ -77,13 +74,6 @@ const copyComputedStyles = (source: HTMLElement, clone: HTMLElement) => {
 };
 
 const filters: Filter[] = ['text', 'image', 'sticker'];
-
-const TextCard: React.FC<{ item: Item; slotKey: string; entering: boolean }> = ({ item, slotKey, entering }) => {
-  return <Card className={`card card-text${entering ? ' is-entering' : ''}`} data-motion-key={slotKey} data-slot-key={slotKey} data-item-key={`${item.type}:${item.title}`} data-card-type={item.type}>
-    <CardStrong>{item.title}</CardStrong>
-    <CardSpan>{item.body}</CardSpan>
-  </Card>;
-};
 
 const ListMarquee: React.FC = () => {
   const { lang } = useTranslation();
@@ -139,8 +129,9 @@ const ListMarquee: React.FC = () => {
     });
   }, [appliedFilter]);
 
-  const changeFilter = (id: Filter) => {
+  const changeFilter = async (id: Filter) => {
     if (filterChanging) return;
+    setFilterChanging(true);
     const nextFilter = filter === id ? null : id;
     const nextRows = makeDisplayRows(rowsForViewport, itemPools, nextFilter);
     const targetBySlot = new Map<string, Item>();
@@ -154,6 +145,23 @@ const ListMarquee: React.FC = () => {
         }
       }
     });
+
+    // Decode incoming images for visible slots before replacing their content.
+    // This prevents a blank frame followed by a sudden image flash on mobile.
+    const visibleIncomingSources = new Set<string>();
+    rowsRef.current?.querySelectorAll<HTMLElement>('[data-motion-key]').forEach((card) => {
+      const slotKey = card.dataset.slotKey;
+      const nextItem = slotKey ? targetBySlot.get(slotKey) : undefined;
+      if (!nextItem?.src || !isInViewport(card)
+        || card.dataset.itemKey === `${nextItem.type}:${nextItem.title}`) return;
+      visibleIncomingSources.add(nextItem.src);
+    });
+    await Promise.all([...visibleIncomingSources].map((src) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+      return image.decode().catch(() => undefined);
+    }));
 
     const changed = new Set<string>();
     const outgoing: { track: HTMLElement; ghost: HTMLElement }[] = [];
@@ -200,7 +208,6 @@ const ListMarquee: React.FC = () => {
     setEnteringSlots(changed);
     setFilter(nextFilter);
     setAppliedFilter(nextFilter);
-    setFilterChanging(true);
     filterTimer.current = window.setTimeout(() => {
       setFilterChanging(false);
       setEnteringSlots(new Set());
@@ -264,10 +271,10 @@ const ListMarquee: React.FC = () => {
               {Array.from({ length: copies }, (_, copyIndex) => row.map((item, slotIndex) => {
                 const slotKey = `${rowIndex}:${setIndex}:${copyIndex}:${slotIndex}`;
                 const itemKey = `${item.type}:${item.title}`;
-                const renderKey = `${slotKey}:${itemKey}`;
-                if (item.type === 'text') return <TextCard item={item} slotKey={slotKey} entering={enteringSlots.has(slotKey)} key={renderKey} />;
-                return <RowSetArticle className={`card card-${item.type}${enteringSlots.has(slotKey) ? ' is-entering' : ''}`} data-motion-key={slotKey} data-slot-key={slotKey} data-item-key={itemKey} data-card-type={item.type} key={renderKey}>
-                  {item.src && <ArticleImg src={item.src} alt={item.title} loading="lazy" />}
+                return <RowSetArticle className={`card card-${item.type}${enteringSlots.has(slotKey) ? ' is-entering' : ''}`} data-motion-key={slotKey} data-slot-key={slotKey} data-item-key={itemKey} data-card-type={item.type} key={slotKey}>
+                  {item.type === 'text'
+                    ? <><strong>{item.title}</strong><span>{item.body}</span></>
+                    : item.src && <ArticleImg src={item.src} alt={item.title} loading="lazy" />}
                 </RowSetArticle>;
               }))}
             </RowSet>;

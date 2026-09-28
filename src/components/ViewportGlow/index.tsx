@@ -179,6 +179,14 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
     const thicknessUniform = gl.getUniformLocation(program, 'thickness');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const visualViewport = window.visualViewport;
+    const syncViewportBounds = () => {
+      const wrapper = wrapperRef.current;
+      if (!wrapper) return;
+      const viewportTop = visualViewport?.offsetTop ?? 0;
+      const viewportHeight = visualViewport?.height ?? window.innerHeight;
+      wrapper.style.setProperty('--glow-viewport-top', `${viewportTop}px`);
+      wrapper.style.setProperty('--glow-viewport-height', `${viewportHeight}px`);
+    };
     let frame = 0;
     let scrollFrame = 0;
     let lost = false;
@@ -241,6 +249,7 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
       });
     };
     const resize = () => {
+      syncViewportBounds();
       // Soft light needs only CSS-pixel resolution, even on Retina screens.
       canvas.width = Math.max(1, Math.round(canvas.clientWidth));
       canvas.height = Math.max(1, Math.round(canvas.clientHeight));
@@ -266,8 +275,12 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
     observer.observe(canvas);
     window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     window.addEventListener('resize', resize);
-    visualViewport?.addEventListener('resize', updateReveal);
-    visualViewport?.addEventListener('scroll', updateReveal);
+    const onVisualViewportChange = () => {
+      syncViewportBounds();
+      updateReveal();
+    };
+    visualViewport?.addEventListener('resize', onVisualViewportChange);
+    visualViewport?.addEventListener('scroll', onVisualViewportChange);
     reducedMotion.addEventListener('change', updateReveal);
     document.addEventListener('visibilitychange', restart);
     canvas.addEventListener('webglcontextlost', onLost);
@@ -280,8 +293,8 @@ export default function ViewportGlow({ targetRef }: { targetRef: RefObject<HTMLD
       observer.disconnect();
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', resize);
-      visualViewport?.removeEventListener('resize', updateReveal);
-      visualViewport?.removeEventListener('scroll', updateReveal);
+      visualViewport?.removeEventListener('resize', onVisualViewportChange);
+      visualViewport?.removeEventListener('scroll', onVisualViewportChange);
       reducedMotion.removeEventListener('change', updateReveal);
       document.removeEventListener('visibilitychange', restart);
       canvas.removeEventListener('webglcontextlost', onLost);

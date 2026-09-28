@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Languages, Moon, Sun, X } from 'lucide-react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { getAccessibilityLabels, getHeaderActionLabels, getLanguageConfig, getMenuToggleLabels, supportedLanguages } from '@/components/Translations/Global/config';
 import { sentenceCase, titleCaseLatin } from '@/components/Translations/Global/casing';
@@ -33,6 +33,8 @@ const LanguageProgressRing = styled.span``;
 
 
 const MinimalHeader: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { lang, changeLang, dict, isLanguageChanging } = useTranslation();
   const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('liquidboard-theme') as 'light' | 'dark') || 'dark');
   const [languageOpen, setLanguageOpen] = useState(false);
@@ -108,10 +110,10 @@ const MinimalHeader: React.FC = () => {
     setLanguageOpen(false);
     changeStartedRef.current = true;
   }, [languagePhase, selectedLanguage]);
-  const menuItems = [
+  const menuItems: Array<{ to: string; label: string; end?: boolean; pricing?: boolean }> = [
     { to: '/', label: titleCaseLatin(sentenceCase(dict.nav.home, lang), lang), end: true },
     { to: '/about', label: titleCaseLatin(sentenceCase(dict.nav.about, lang), lang) },
-    { to: '/pricing', label: titleCaseLatin(sentenceCase(dict.nav.pricing, lang), lang) },
+    { to: '/#pricing', label: titleCaseLatin(sentenceCase(dict.nav.pricing, lang), lang), pricing: true },
     { to: '/policy', label: titleCaseLatin(sentenceCase(dict.nav.policy, lang), lang) },
     { to: '/help/faq', label: titleCaseLatin(sentenceCase(dict.nav.help, lang), lang) },
   ];
@@ -123,9 +125,19 @@ const MinimalHeader: React.FC = () => {
         <HeaderBrandSpan>LiquidBoard</HeaderBrandSpan>
       </HeaderBrand>
       <HeaderNav className={menuOpen ? 'open' : ''}>
-        {menuItems.map((item) => <HeaderLink key={item.to} as={NavLink} to={item.to} end={item.end} onClick={() => setMenuOpen(false)}>{item.label}</HeaderLink>)}
+        {menuItems.map((item) => <HeaderLink key={item.to} as={NavLink} to={item.to} end={item.end} onClick={(event) => {
+          setMenuOpen(false);
+          if (!item.pricing) return;
+          event.preventDefault();
+          if (location.pathname === '/') {
+            const target = document.getElementById('pricing');
+            target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            navigate('/#pricing');
+          }
+        }}>{item.label}</HeaderLink>)}
         <MobileMenuControls className="mobile-menu-controls">
-          <HeaderButton className="menu-action-button" type="button" aria-label={actionLabels.language} aria-expanded={languageOpen} aria-controls="language-modal" onClick={() => { setMenuOpen(false); openLanguageModal(); }}><Languages size={22} strokeWidth={2} /></HeaderButton>
+          <HeaderButton className="menu-action-button" type="button" aria-label={actionLabels.language} aria-expanded={languageOpen} aria-controls="language-modal" onClick={() => { openLanguageModal(); window.setTimeout(() => setMenuOpen(false), 420); }}><Languages size={22} strokeWidth={2} /></HeaderButton>
           <HeaderButton className="menu-action-button" type="button" aria-label={theme === 'light' ? actionLabels.light : actionLabels.dark} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><ThemeIcon className="theme-icon">{theme === 'dark' ? <Moon size={22} /> : <Sun size={22} />}</ThemeIcon></HeaderButton>
         </MobileMenuControls>
       </HeaderNav>
